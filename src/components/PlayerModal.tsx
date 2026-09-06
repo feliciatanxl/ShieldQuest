@@ -102,7 +102,7 @@ export function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`animate-pop relative flex w-full flex-col shadow-2xl outline-none ${
+        className={`animate-pop relative flex w-full flex-col overflow-hidden shadow-2xl outline-none ${
           isRight
             ? // 480px: wide enough for the scenario detail panel, narrow enough
               // that the portal behind it stays readable rather than replaced.

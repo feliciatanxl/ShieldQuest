@@ -98,6 +98,8 @@ export function App() {
           <CityBoard onMission={setMission} onNavigate={setPage} />
         ) : page === 'guardians' ? (
           <Guardians onPractice={() => showPage('city')} />
+        ) : page === 'portal' ? (
+          <ScenarioPortal onReturnToGame={() => setPage('city')} />
         ) : (
           <>
             <section className="page-heading">
@@ -106,17 +108,13 @@ export function App() {
                 <h1>
                   {page === 'squad'
                     ? 'Good company. Great choices.'
-                    : page === 'reflection'
-                      ? 'Pause. Think. Grow.'
-                      : 'Behind every great adventure.'}
+                    : 'Pause. Think. Grow.'}
                 </h1>
                 <p>A space to connect, explore and build confidence together.</p>
               </div>
             </section>
             {page === 'squad' && <SquadPanel />}
-
             {page === 'reflection' && <Assessment />}
-            {page === 'portal' && <ScenarioPortal />}
           </>
         )}
         <footer className="footer">
