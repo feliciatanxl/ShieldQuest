@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { DistrictId, GuardianId } from '../../types';
 import type { GuardianAward, GuardianState } from '../../types/guardians';
+import type { CityDistrictId } from '../../types/city-board';
+import { TOKEN_AWARD, tokenKey } from '../../types/assessment';
 import { advanceGuardian, initialGuardianState } from '../features/guardians/progress';
 import type { ScenarioChoice, ScenarioMode } from '../../types/scenarios';
 
@@ -10,6 +12,9 @@ interface SessionState extends GuardianState {
   completed: string[];
   shieldTokens: number;
   tokenGrants: string[];
+  earnedAchievements: string[];
+  districtBadges: CityDistrictId[];
+  pendingDistrictCelebrations: CityDistrictId[];
   selectDistrict: (district: DistrictId) => void;
   setPreviewCode: (code: string) => void;
   completePreview: (scenarioId: string, guardian?: GuardianId) => GuardianAward | null;
@@ -35,6 +40,9 @@ interface SessionState extends GuardianState {
     guardianAward: GuardianAward | null;
     tokensAwarded: number;
   };
+  recordDistrictBadge: (districtId: CityDistrictId) => { tokensAwarded: number; isNew: boolean };
+  recordAchievement: (achievementId: string) => { tokensAwarded: number; isNew: boolean };
+  acknowledgeDistrictCelebration: () => void;
   acknowledgeGuardianMet: () => void;
   dismissGuardianNotice: () => void;
   reset: () => void;
@@ -46,6 +54,9 @@ export const useSessionStore = create<SessionState>((set) => ({
   completed: [],
   shieldTokens: 0,
   tokenGrants: [],
+  earnedAchievements: [],
+  districtBadges: [],
+  pendingDistrictCelebrations: [],
   ...initialGuardianState(),
   selectDistrict: (district) => set({ district }),
   setPreviewCode: (previewCode) => set({ previewCode }),
@@ -128,6 +139,50 @@ export const useSessionStore = create<SessionState>((set) => ({
     });
     return { guardianAward, tokensAwarded };
   },
+  recordDistrictBadge: (districtId) => {
+    let tokensAwarded = 0;
+    let isNew = false;
+    set((state) => {
+      if (!districtId) return state;
+      const key = tokenKey.district(districtId);
+      const isFresh = !state.tokenGrants.includes(key);
+      const hasBadge = state.districtBadges.includes(districtId);
+      tokensAwarded = isFresh ? TOKEN_AWARD.district : 0;
+      isNew = !hasBadge;
+      return {
+        districtBadges: hasBadge ? state.districtBadges : [...state.districtBadges, districtId],
+        shieldTokens: state.shieldTokens + tokensAwarded,
+        tokenGrants: isFresh ? [...state.tokenGrants, key] : state.tokenGrants,
+        pendingDistrictCelebrations:
+          isNew && !state.pendingDistrictCelebrations.includes(districtId)
+            ? [...state.pendingDistrictCelebrations, districtId]
+            : state.pendingDistrictCelebrations,
+      };
+    });
+    return { tokensAwarded, isNew };
+  },
+  recordAchievement: (achievementId) => {
+    let tokensAwarded = 0;
+    let isNew = false;
+    set((state) => {
+      if (!achievementId) return state;
+      const key = tokenKey.achievement(achievementId);
+      const isFresh = !state.tokenGrants.includes(key);
+      const hasAch = state.earnedAchievements.includes(achievementId);
+      tokensAwarded = isFresh ? TOKEN_AWARD.achievement : 0;
+      isNew = !hasAch;
+      return {
+        earnedAchievements: hasAch ? state.earnedAchievements : [...state.earnedAchievements, achievementId],
+        shieldTokens: state.shieldTokens + tokensAwarded,
+        tokenGrants: isFresh ? [...state.tokenGrants, key] : state.tokenGrants,
+      };
+    });
+    return { tokensAwarded, isNew };
+  },
+  acknowledgeDistrictCelebration: () =>
+    set((state) => ({
+      pendingDistrictCelebrations: state.pendingDistrictCelebrations.slice(1),
+    })),
   acknowledgeGuardianMet: () =>
     set((state) => ({
       pendingGuardianMeetings: state.pendingGuardianMeetings.slice(1),
@@ -144,6 +199,9 @@ export const useSessionStore = create<SessionState>((set) => ({
       completed: [],
       shieldTokens: 0,
       tokenGrants: [],
+      earnedAchievements: [],
+      districtBadges: [],
+      pendingDistrictCelebrations: [],
       ...initialGuardianState(),
     }),
 }));

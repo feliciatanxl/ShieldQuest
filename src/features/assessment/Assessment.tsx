@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { ClipboardCheck } from 'lucide-react';
+import { ProgressView } from './ProgressView';
 
 export function Assessment() {
   const [phase, setPhase] = useState<'pre' | 'post'>('pre');
   const [answer, setAnswer] = useState('');
   const [saved, setSaved] = useState(false);
   return (
-    <section className="surface padded assessment">
-      <div className="section-icon">
-        <ClipboardCheck />
-      </div>
-      <span className="eyebrow">A MOMENT TO REFLECT</span>
-      <h2>How confident do you feel?</h2>
+    <div className="space-y-6">
+      <ProgressView />
+
+      <section className="surface padded assessment mx-auto w-full md:max-w-[820px] lg:max-w-[1024px] xl:max-w-[1480px]">
+        <div className="section-icon">
+          <ClipboardCheck />
+        </div>
+        <span className="eyebrow">A MOMENT TO REFLECT</span>
+        <h2>How confident do you feel?</h2>
       <p>
         A short check-in before and after the adventure helps educators understand what’s working.
       </p>
@@ -69,5 +73,6 @@ export function Assessment() {
         details are collected.
       </p>
     </section>
-  );
+  </div>
+);
 }
