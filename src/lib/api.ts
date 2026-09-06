@@ -11,9 +11,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
   return response.json() as Promise<T>;
 }
-// Feature UIs currently use bundled demo data. These are integration points for the next phase.
+// City board reads the scenarios API. Session and voting writes remain scaffold endpoints.
 export const api = {
-  scenarios: () => request<{ mode: string; data: Scenario[] }>('/scenarios'),
+  scenario: (id: string, signal?: AbortSignal) =>
+    request<{ mode: string; data: Scenario }>(`/scenarios/${encodeURIComponent(id)}`, {
+      signal: signal
+        ? AbortSignal.any([signal, AbortSignal.timeout(10_000)])
+        : AbortSignal.timeout(10_000),
+    }),
+  scenarios: () =>
+    request<{ mode: string; data: Scenario[] }>('/scenarios', {
+      signal: AbortSignal.timeout(10_000),
+    }),
   join: (code: string) =>
     request<never>(`/sessions/${encodeURIComponent(code)}/join`, { method: 'POST', body: '{}' }),
   vote: (vote: VoteSubmission) =>

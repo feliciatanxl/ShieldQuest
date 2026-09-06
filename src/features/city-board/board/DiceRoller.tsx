@@ -1,0 +1,106 @@
+import type { TurnPhase } from '../hooks/useDiceTurn';
+
+/**
+ * The roll control and the die.
+ *
+ * An original six-sided die drawn from pips — no casino felt, no chips, no
+ * jackpot flourish and no "you rolled high, have a prize". The copy states
+ * plainly what the die is for, because a young person should never come away
+ * thinking a good outcome here was luck.
+ */
+
+/** Pip layout per face, on a 3×3 grid read left to right, top to bottom. */
+const FACES: Record<number, boolean[]> = {
+  1: [false, false, false, false, true, false, false, false, false],
+  2: [true, false, false, false, false, false, false, false, true],
+  3: [true, false, false, false, true, false, false, false, true],
+  4: [true, false, true, false, false, false, true, false, true],
+  5: [true, false, true, false, true, false, true, false, true],
+  6: [true, false, true, true, false, true, true, false, true],
+};
+
+export function Die({
+  value,
+  className = 'h-9 w-9',
+  tumbling = false,
+}: {
+  value: number;
+  className?: string;
+  tumbling?: boolean;
+}) {
+  const pips = FACES[value] ?? FACES[1];
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid shrink-0 grid-cols-3 gap-[2px] rounded-lg border-2 border-navy-900/15 bg-white p-1 shadow-[inset_0_-2px_0_rgba(11,37,69,0.12)] ${className} ${
+        tumbling ? 'animate-tumble' : ''
+      }`}
+    >
+      {pips.map((on, i) => (
+        <span key={i} className={`rounded-full ${on ? 'bg-navy-900' : 'bg-transparent'}`} />
+      ))}
+    </span>
+  );
+}
+
+export function DiceRoller({
+  phase,
+  value,
+  onRoll,
+  /** Shown instead of the roll control while an activity sheet is open. */
+  disabled,
+}: {
+  phase: TurnPhase;
+  value: number | null;
+  onRoll: () => void;
+  disabled?: boolean;
+}) {
+  const rolling = phase === 'rolling';
+  const showing = phase === 'result' || phase === 'moving';
+
+  return (
+    <div className="dice-action-panel flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/8 p-1.5 shadow-[0_10px_26px_-20px_rgba(0,0,0,0.9)] tall:rounded-[26px] tall:p-2">
+      <div className="min-w-0 flex-1">
+        {showing && value !== null ? (
+          <p
+            className="flex min-h-[58px] items-center justify-center gap-3 rounded-xl border-2 border-amber-400 bg-navy-900 px-3 tall:min-h-[80px] tall:gap-5 tall:rounded-2xl"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-amber-400 tall:text-[14px]">
+              You rolled
+            </span>
+            <Die value={value} className="h-10 w-10 tall:h-14 tall:w-14" />
+            <span className="text-[26px] font-extrabold leading-none tabular-nums text-white tall:text-[36px]">
+              {value}
+            </span>
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={onRoll}
+            disabled={disabled || rolling}
+            className="group flex min-h-[58px] w-full items-center justify-between gap-3 rounded-xl border-b-4 border-amber-700 bg-gradient-to-r from-amber-500 to-amber-400 px-4 text-[15px] font-extrabold uppercase tracking-[0.1em] text-navy-900 transition hover:brightness-105 active:translate-y-[3px] active:border-b-0 disabled:cursor-not-allowed disabled:opacity-60 tall:min-h-[80px] tall:rounded-2xl tall:px-7 tall:text-[18px]"
+          >
+            <span className="flex min-w-0 flex-col items-start leading-tight">
+              <span className="text-[9px] font-bold tracking-[0.2em] text-navy-900/70 tall:text-[11px]">
+                Your turn
+              </span>
+              <span>{rolling ? 'Rolling…' : 'Roll dice'}</span>
+              <span className="mt-0.5 text-[9px] font-semibold normal-case tracking-normal text-navy-900/70 tall:text-[12px]">
+                Move through ShieldQuest City
+              </span>
+            </span>
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-navy-900/10 transition group-hover:scale-105 tall:h-16 tall:w-16 tall:rounded-2xl">
+              <Die
+                value={rolling ? 6 : 4}
+                className="h-9 w-9 tall:h-12 tall:w-12"
+                tumbling={rolling}
+              />
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

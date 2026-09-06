@@ -1,6 +1,7 @@
 import type { Scenario } from './index.js';
 
 /** Fictional examples for UI review; educator review is required before a youth pilot. */
+// TODO(Choice): persist explicit qualifiedGuardian metadata with authored choices.
 export const demoScenarios: Scenario[] = [
   {
     id: 'school-group-chat',
@@ -17,6 +18,7 @@ export const demoScenarios: Scenario[] = [
     choices: [
       {
         id: 'pause',
+        qualifiedGuardian: 'echo',
         label: 'Pause sharing and check in with the student',
         reflection:
           'Pausing can prevent the photo spreading further. Checking in privately gives the student space to say what support they want.',
@@ -51,6 +53,7 @@ export const demoScenarios: Scenario[] = [
     choices: [
       {
         id: 'check',
+        qualifiedGuardian: 'cluepaw',
         label: 'Pause and verify the seller and listing',
         reflection:
           'You notice the repeated photos before sending money. Taking time to verify can reveal warning signs.',
@@ -79,6 +82,7 @@ export const demoScenarios: Scenario[] = [
     choices: [
       {
         id: 'verify',
+        qualifiedGuardian: 'verifox',
         label: 'Check the offer through the official game app',
         reflection:
           'You find no matching giveaway in the official app. Checking a separate trusted source helps you assess an unexpected message.',

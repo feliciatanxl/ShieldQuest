@@ -59,3 +59,6 @@ export function SquadVoteDashboard() {
     </div>
   );
 }
+
+export { GroupDecisionRunner } from './GroupDecisionRunner';
+export { GROUP_CHAT_JOB } from './data';

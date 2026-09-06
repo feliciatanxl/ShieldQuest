@@ -24,6 +24,8 @@ export interface Choice {
   label: string;
   nextNodeId?: string;
   reflection: string;
+  /** Explicit authored qualification; absent choices award participation only. */
+  qualifiedGuardian?: GuardianId;
 }
 export interface ScenarioNode {
   id: string;

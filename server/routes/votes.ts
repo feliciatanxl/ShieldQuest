@@ -26,4 +26,6 @@ votesRouter.post(
   },
   notImplemented('Vote persistence'),
 );
-// TODO: authenticated membership, scenario/choice validation, one vote per round, reveal only after everyone votes.
+// TODO(Participant, Scenario, Choice): add Vote/round schema and authorized endpoints.
+// Real multiplayer requires round lifecycle, membership/expiry validation, private votes,
+// one vote per participant per round, reveal rules and synchronization.

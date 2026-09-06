@@ -1,0 +1,542 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from './navigation';
+import { Coins, Info, MapPin, Shield, ShieldHalf, Sparkles } from 'lucide-react';
+import { BoardMiniMap } from './board/BoardMiniMap';
+import { CityTrack } from './board/CityTrack';
+import { DiceRoller } from './board/DiceRoller';
+import { SPACE_ICON } from './board/SpaceMark';
+import { SpaceSheet } from './board/SpaceSheet';
+import { CityInfoSheet } from './CityInfoSheet';
+import { DistrictScene } from './DistrictArt';
+import { DistrictDiscovery } from './DistrictDiscovery';
+import { DistrictSheet } from './DistrictSheet';
+import { GuardianPlate } from './presentation/GuardianPlate';
+import { useBoard, type ResolvedSpace } from './hooks/useBoard';
+import { useDiceTurn } from './hooks/useDiceTurn';
+import { useReducedMotion } from './hooks/useReducedMotion';
+import { useWorld, type ResolvedDistrict } from './hooks/useWorld';
+import { usePlayer } from './hooks/useCityPlayer';
+import { CITY_TAGLINE, DISTRICT_CHAPTER } from './data/world-data';
+import {
+  COMPETENCY_LABEL,
+  COMPETENCY_LETTER,
+  type CityDistrictId,
+} from '../../../types/city-board';
+
+/** City-first presentation wrapped around the existing ShieldQuest turn. */
+export function CityHomeExperience() {
+  const { profile, guardians, equippedIn, discoverDistrict } = usePlayer();
+  const { districts, progress } = useWorld();
+  const { spaces, current, position, boardCompleted, boardPlayable } = useBoard();
+  const reducedMotion = useReducedMotion(profile.settings.reducedMotion);
+
+  const [landedSpace, setLandedSpace] = useState<ResolvedSpace | null>(null);
+  const [landingSpace, setLandingSpace] = useState<ResolvedSpace | null>(null);
+  const [openDistrict, setOpenDistrict] = useState<ResolvedDistrict | null>(null);
+  const [discoveryDistrict, setDiscoveryDistrict] = useState<ResolvedDistrict | null>(null);
+  const [discoveryLanding, setDiscoveryLanding] = useState<ResolvedSpace | null>(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const landingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // TODO(Scenario): load published flash alerts when the API exposes alert metadata.
+
+  useEffect(
+    () => () => {
+      if (landingTimer.current) clearTimeout(landingTimer.current);
+    },
+    [],
+  );
+
+  const onLand = useCallback(
+    (index: number) => {
+      const destination = spaces[index] ?? null;
+      if (!destination) return;
+
+      if (landingTimer.current) clearTimeout(landingTimer.current);
+      setLandingSpace(destination);
+      const reveal = () => {
+        setLandingSpace(null);
+        const newlyDiscovered =
+          destination.districtId && !profile.discoveredDistricts.includes(destination.districtId);
+        if (newlyDiscovered) {
+          setDiscoveryLanding(destination);
+          setDiscoveryDistrict(
+            districts.find((district) => district.id === destination.districtId) ?? null,
+          );
+        } else {
+          setLandedSpace(destination);
+        }
+      };
+
+      if (reducedMotion) reveal();
+      else landingTimer.current = setTimeout(reveal, 540);
+    },
+    [districts, profile.discoveredDistricts, reducedMotion, spaces],
+  );
+
+  const turn = useDiceTurn({
+    position,
+    reducedMotion,
+    sound: profile.settings.sound,
+    onLand,
+  });
+
+  const districtNames = districts.reduce(
+    (acc, district) => ({ ...acc, [district.id]: district.name }),
+    {} as Record<CityDistrictId, string>,
+  );
+
+  const closeSheet = () => {
+    setLandedSpace(null);
+    turn.endTurn();
+  };
+
+  const openSpaceDirectly = (space: ResolvedSpace) => {
+    if (turn.busy) return;
+    if (landingTimer.current) clearTimeout(landingTimer.current);
+    setLandingSpace(null);
+    if (space.districtId && !profile.discoveredDistricts.includes(space.districtId)) {
+      const district = districts.find((item) => item.id === space.districtId);
+      if (district) {
+        discoverDistrict(district.id);
+        setDiscoveryLanding(space);
+        setDiscoveryDistrict(district);
+        return;
+      }
+    }
+    setLandedSpace(space);
+  };
+
+  const openDistrictDirectly = (district: ResolvedDistrict) => {
+    if (turn.busy) return;
+    if (!district.discovered) {
+      discoverDistrict(district.id);
+      setDiscoveryLanding(null);
+      setDiscoveryDistrict(district);
+      return;
+    }
+    setOpenDistrict(district);
+  };
+
+  const closeDiscovery = () => {
+    const landed = discoveryLanding;
+    setDiscoveryDistrict(null);
+    setDiscoveryLanding(null);
+    if (landed) setLandedSpace(landed);
+  };
+
+  const exploreDiscoveredDistrict = () => {
+    const district = discoveryDistrict;
+    setDiscoveryDistrict(null);
+    setDiscoveryLanding(null);
+    setLandedSpace(null);
+    turn.endTurn();
+    if (district) setOpenDistrict({ ...district, discovered: true });
+  };
+
+  const currentPlace = current?.districtId ? districtNames[current.districtId] : 'Shield Central';
+
+  const suggestedQuest = useMemo(() => {
+    const isDiscovered = (space: ResolvedSpace) =>
+      !space.districtId || profile.discoveredDistricts.includes(space.districtId);
+    if (current?.node?.playable && isDiscovered(current)) return current;
+    const looped = [...spaces.slice(position + 1), ...spaces.slice(0, position + 1)];
+    return (
+      looped.find((space) => isDiscovered(space) && space.node?.playable && !space.completed) ??
+      looped.find((space) => isDiscovered(space) && space.node?.playable) ??
+      current
+    );
+  }, [current, position, profile.discoveredDistricts, spaces]);
+
+  const suggestedDistrict = suggestedQuest?.districtId
+    ? districtNames[suggestedQuest.districtId]
+    : 'Shield Central';
+
+  return (
+    <div
+      /*
+        A definite height at desktop, not just a minimum. The board is the item
+        that gives way when the screen is short, and flexbox will only shrink an
+        item inside a container whose height it actually knows — with a bare
+        `min-height` the column simply grew to fit the board and pushed the roll
+        control off the bottom. `overflow-y-auto` is the safety net: if a player
+        has turned text size up far enough that even the shrunk layout does not
+        fit, the controls stay reachable instead of being clipped away.
+      */
+      className="city-home flex min-h-full flex-col overflow-hidden bg-navy-900 text-white xl:h-full xl:overflow-y-auto"
+    >
+      {/*
+        One column for the whole city screen, so the header, the board, the roll
+        control and the chapter strip share a measure and stay aligned with each
+        other. It grows to fill the viewport — the board is the flexible part —
+        which is what keeps the tab bar planted at the bottom instead of leaving
+        a field of empty navy above it on a laptop.
+
+        `min-h-0` matters more than it looks. The board zooms itself to fill the
+        height it is given, which makes the zoomed stage the board section's
+        content-based minimum — and a flex item that will not shrink below its
+        own content turns that into a ratchet the board can only grow through.
+        Letting this column and the board shrink is what lets the layout settle
+        instead of pushing the roll control off a short laptop screen.
+      */}
+      <div className="mx-auto flex w-full flex-1 flex-col xl:min-h-0 2xl:max-w-[1840px]">
+        <header className="shrink-0 px-3.5 pb-2 pt-[max(0.55rem,env(safe-area-inset-top))] md:px-5 md:pt-3 xl:px-6 xl:pb-2.5 xl:pt-3 tall:pb-3 tall:pt-4">
+          <div className="flex items-center gap-2 xl:gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-amber-400 xl:text-[10px]">
+                Project SHIELD
+              </p>
+              <h1 className="text-[20px] font-extrabold leading-none tracking-tight xl:text-[22px]">
+                Shield<span className="text-civic-400">Quest</span>
+                <span className="sr-only"> — {CITY_TAGLINE}</span>
+              </h1>
+            </div>
+
+            <div className="hidden md:block">
+              <CompactHud
+                coins={profile.coins}
+                resilience={profile.resiliencePoints}
+                tokens={profile.shieldTokens}
+              />
+            </div>
+
+            <Link
+              href="/shield-central"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/18 bg-white/8 text-white/85 transition hover:bg-white/14 hover:text-white"
+            >
+              <Shield className="h-[18px] w-[18px]" aria-hidden="true" />
+              <span className="sr-only">Shield Central</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setAboutOpen(true)}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/18 bg-white/8 text-white/85 transition hover:bg-white/14 hover:text-white"
+            >
+              <Info className="h-[18px] w-[18px]" aria-hidden="true" />
+              <span className="sr-only">About this game</span>
+            </button>
+          </div>
+
+          <div className="mt-1.5 md:hidden">
+            <CompactHud
+              coins={profile.coins}
+              resilience={profile.resiliencePoints}
+              tokens={profile.shieldTokens}
+            />
+          </div>
+        </header>
+
+        {/*
+        The board is the flexible row. On a phone it is exactly as tall as the
+        track, as before; on a laptop it shares whatever the header, the roll
+        control and the chapter strip do not need with the action row below —
+        which is what makes the illustrated city the strongest object on the
+        screen rather than a shallow strip with a field of navy under it.
+
+        The flex basis is a fixed 440px — the board at rest: 44px of board bar,
+        340px of track, 56px of city map. It has to be a constant rather than
+        `auto`, because the board zooms itself to whatever height it is given: a
+        content-derived basis would make this row claim a larger share of the
+        free space every time it grew, and the two would chase each other.
+
+        It takes two shares of the spare height to the action row one, so a
+        larger screen mostly buys more city rather than more padding.
+      */}
+        <section
+          aria-labelledby="city-board"
+          className="city-board-frame relative mx-3 flex shrink-0 flex-col overflow-hidden rounded-[28px] border border-white/15 shadow-[0_18px_46px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.12)] md:mx-4 xl:mx-6 xl:min-h-0 xl:flex-1 tall:xl:flex-[2_1_440px] 2xl:max-h-[60dvh]"
+        >
+          <div className="relative z-30 flex h-10 shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-navy-950/88 px-3.5 backdrop-blur-sm xl:h-11 xl:px-5">
+            <h2
+              id="city-board"
+              className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-400 xl:text-[11px]"
+            >
+              ShieldQuest City
+            </h2>
+            <p className="flex min-w-0 items-center gap-1.5 text-[10px] font-bold text-white/85 xl:text-[11px]">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-amber-400" aria-hidden="true" />
+              <span className="truncate">{currentPlace}</span>
+            </p>
+          </div>
+
+          <CurrentQuest space={suggestedQuest} districtName={suggestedDistrict} />
+
+          <CityTrack
+            spaces={spaces}
+            tokenIndex={turn.tokenIndex}
+            steppingIndices={turn.steppingIndices}
+            guardians={guardians}
+            districtNames={districtNames}
+            discoveredDistricts={profile.discoveredDistricts}
+            onOpenSpace={openSpaceDirectly}
+            playerTokenId={profile.playerTokenId}
+            trailClass={equippedIn('routeTrail') ? 'stroke-civic-500/65' : undefined}
+            tokenClass={equippedIn('playerToken') ? '!border-civic-400' : undefined}
+            markerCosmetic={Boolean(equippedIn('boardMarker'))}
+          />
+
+          <div className="relative z-30 shrink-0 bg-gradient-to-t from-navy-950 via-navy-950/90 to-transparent px-2.5 pb-2.5 pt-2 xl:px-4">
+            <BoardMiniMap spaces={spaces} completed={boardCompleted} total={boardPlayable} />
+          </div>
+
+          {landingSpace && (
+            <LandingMoment
+              space={landingSpace}
+              districtName={
+                landingSpace.districtId ? districtNames[landingSpace.districtId] : 'Shield Central'
+              }
+              guardian={
+                landingSpace.guardianId
+                  ? guardians.find((guardian) => guardian.id === landingSpace.guardianId)
+                  : landingSpace.node?.guardianId
+                    ? guardians.find((guardian) => guardian.id === landingSpace.node?.guardianId)
+                    : undefined
+              }
+            />
+          )}
+        </section>
+
+        {/*
+        The action row keeps a reading measure of its own. The board can be as
+        wide as the screen, but a roll control and four chapter cards stretched
+        across 2560px stop being a group and become four unrelated corners.
+      */}
+        <div className="flex shrink-0 flex-col justify-center space-y-2 px-3 pb-2.5 pt-2 xl:mx-auto xl:w-full xl:max-w-[1180px] xl:space-y-2.5 xl:px-6 xl:pb-3 xl:pt-3 tall:space-y-3 tall:pb-4 tall:pt-3.5 tall:xl:grow 2xl:max-w-[1320px]">
+          <DiceRoller
+            phase={turn.phase}
+            value={turn.value}
+            onRoll={turn.roll}
+            disabled={
+              landedSpace !== null ||
+              landingSpace !== null ||
+              discoveryDistrict !== null ||
+              openDistrict !== null ||
+              aboutOpen
+            }
+          />
+
+          <nav aria-label="City chapter progress">
+            <ul className="grid grid-cols-4 gap-1.5 xl:gap-2.5 tall:gap-3.5">
+              {districts.map((district) => {
+                const isCurrent = district.id === current?.districtId;
+                const state = !district.discovered
+                  ? 'Undiscovered'
+                  : district.cleared
+                    ? 'Completed'
+                    : 'Discovered';
+                const progressLabel = !district.discovered
+                  ? 'Discover'
+                  : district.cleared
+                    ? 'Complete'
+                    : district.total > 0
+                      ? `${district.completed}/${district.total}`
+                      : 'Chapter';
+
+                return (
+                  <li key={district.id} className="min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => openDistrictDirectly(district)}
+                      aria-current={isCurrent ? 'location' : undefined}
+                      className={`chapter-chip relative flex min-h-[58px] w-full flex-col justify-end overflow-hidden rounded-xl border px-1.5 pb-1.5 pt-2 text-left transition hover:-translate-y-0.5 hover:border-white/45 xl:min-h-[86px] xl:rounded-2xl xl:px-3.5 xl:pb-2.5 xl:pt-3 tall:min-h-[104px] tall:pb-3 tall:pt-3.5 ${
+                        isCurrent ? 'border-amber-400 bg-white/14' : 'border-white/14 bg-white/8'
+                      }`}
+                    >
+                      <DistrictScene
+                        districtId={district.id}
+                        className={
+                          district.discovered
+                            ? 'opacity-45'
+                            : 'opacity-30 saturate-50 grayscale-[0.2]'
+                        }
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={`absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/80 ${
+                          district.discovered ? 'to-navy-950/10' : 'to-white/18'
+                        }`}
+                      />
+                      <span className="relative flex w-full items-center justify-between gap-1">
+                        <span className="min-w-0 flex-1 truncate text-[9px] font-extrabold uppercase tracking-wide xl:text-[11px] tall:text-[13px]">
+                          {district.id === 'digital' ? 'Digi' : district.name.split(' ')[0]}
+                        </span>
+                        <span className="text-[9px] font-extrabold tabular-nums text-amber-300 xl:text-[10.5px] tall:text-[12px]">
+                          {progressLabel}
+                        </span>
+                      </span>
+                      <span className="relative mt-0.5 block w-full truncate text-[8px] font-bold uppercase tracking-[0.08em] text-white/65 xl:text-[9.5px] tall:mt-1 tall:text-[11px]">
+                        {state}
+                      </span>
+                      <span className="sr-only">
+                        Open {district.name}, {DISTRICT_CHAPTER[district.id].label}:{' '}
+                        {DISTRICT_CHAPTER[district.id].title}.{' '}
+                        {district.total > 0
+                          ? `${district.completed} of ${district.total} built activities completed.`
+                          : 'Chapter available; activities are planned for prototype expansion.'}{' '}
+                        {state}.
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <p className="text-center text-[9px] leading-tight text-white/55 xl:text-[11px]">
+            The dice moves you. Your decisions shape what you learn.{' '}
+            <span className="font-bold text-white/75">
+              {progress.completed}/{progress.total} activities
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <SpaceSheet
+        space={landedSpace}
+        guardians={guardians}
+        districtName={
+          landedSpace?.districtId ? districtNames[landedSpace.districtId] : 'Shield Central'
+        }
+        onClose={closeSheet}
+      />
+      <DistrictSheet district={openDistrict} onClose={() => setOpenDistrict(null)} />
+      <DistrictDiscovery
+        district={discoveryDistrict}
+        onClose={closeDiscovery}
+        onExplore={exploreDiscoveredDistrict}
+      />
+      <CityInfoSheet open={aboutOpen} onClose={() => setAboutOpen(false)} spaces={spaces} />
+    </div>
+  );
+}
+
+function CompactHud({
+  coins,
+  resilience,
+  tokens,
+}: {
+  coins: number;
+  resilience: number;
+  tokens: number;
+}) {
+  return (
+    <dl className="flex items-center gap-1 xl:gap-2">
+      <HudChip icon={<Coins className="h-3.5 w-3.5" />} label="Coins" value={coins} tone="amber" />
+      <HudChip
+        icon={<ShieldHalf className="h-3.5 w-3.5" />}
+        label="Resilience"
+        value={resilience}
+        tone="teal"
+      />
+      <HudChip
+        icon={<Sparkles className="h-3.5 w-3.5" />}
+        label="Shield Tokens"
+        value={tokens}
+        tone="civic"
+      />
+    </dl>
+  );
+}
+
+function HudChip({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  tone: 'amber' | 'teal' | 'civic';
+}) {
+  const toneClass =
+    tone === 'amber' ? 'text-amber-300' : tone === 'teal' ? 'text-teal-200' : 'text-civic-200';
+
+  return (
+    <div className="flex h-8 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full border border-white/12 bg-white/8 px-2.5 md:flex-none xl:h-9 xl:px-3">
+      <dt className={`shrink-0 ${toneClass}`}>
+        <span aria-hidden="true">{icon}</span>
+        <span className="sr-only">{label}</span>
+      </dt>
+      <dd className="text-[12px] font-extrabold tabular-nums text-white">
+        {value.toLocaleString()}
+      </dd>
+    </div>
+  );
+}
+
+function CurrentQuest({ space, districtName }: { space?: ResolvedSpace; districtName: string }) {
+  if (!space) return null;
+  const competency = space.node?.primaryCompetency ?? space.card?.competency;
+
+  return (
+    <div className="pointer-events-none absolute left-3 top-[50px] z-30 max-w-[240px] rounded-2xl border border-white/25 bg-navy-950/82 px-3 py-2 shadow-lg backdrop-blur-sm md:max-w-[290px] xl:left-5 xl:top-[58px] xl:max-w-[340px] xl:px-4 xl:py-2.5">
+      <p className="text-[8px] font-extrabold uppercase tracking-[0.2em] text-amber-400">
+        Current quest
+      </p>
+      <p className="mt-0.5 truncate text-[12px] font-extrabold uppercase tracking-wide text-white">
+        {space.node?.title ?? space.title}
+      </p>
+      <p className="mt-0.5 flex items-center gap-1.5 text-[9px] font-semibold text-white/70">
+        <span className="truncate">{districtName}</span>
+        {competency && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+              <span className="grid h-3.5 w-3.5 place-items-center rounded bg-amber-400 text-[8px] font-extrabold text-navy-950">
+                {COMPETENCY_LETTER[competency]}
+              </span>
+              {COMPETENCY_LABEL[competency]}
+            </span>
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
+
+function LandingMoment({
+  space,
+  districtName,
+  guardian,
+}: {
+  space: ResolvedSpace;
+  districtName: string;
+  guardian?: Parameters<typeof GuardianPlate>[0]['guardian'];
+}) {
+  const Icon = SPACE_ICON[space.kind];
+  const competency = space.node?.primaryCompetency ?? space.card?.competency;
+
+  return (
+    <div
+      className="animate-landing pointer-events-none absolute inset-0 z-40 grid place-items-center bg-navy-950/72 px-6 text-center backdrop-blur-[2px]"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="max-w-[280px]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.26em] text-amber-400">
+          Landing
+        </p>
+        <span className="mx-auto mt-2 grid h-14 w-14 place-items-center rounded-2xl border-2 border-white/70 bg-civic-600 text-white shadow-xl">
+          <Icon className="h-6 w-6" aria-hidden="true" />
+        </span>
+        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-civic-200">
+          {districtName}
+        </p>
+        <p className="mt-0.5 text-[20px] font-extrabold uppercase leading-tight tracking-tight text-white">
+          {space.node?.title ?? space.title}
+        </p>
+        {(guardian || competency) && (
+          <p className="mt-2 flex items-center justify-center gap-2 text-[11px] font-bold text-white/75">
+            {guardian && (
+              <GuardianPlate guardian={guardian} className="h-6 w-6 rounded-lg text-[10px]" />
+            )}
+            {guardian?.name}
+            {guardian && competency && <span aria-hidden="true">·</span>}
+            {competency && `${COMPETENCY_LETTER[competency]} · ${COMPETENCY_LABEL[competency]}`}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

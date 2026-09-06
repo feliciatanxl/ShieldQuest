@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Search, MessagesSquare, ShieldCheck } from 'lucide-react';
 import type { MissionPhase, Scenario } from '../../../types';
 import { Modal } from '../../components/Modal';
 import { ThinkVoteExplain } from '../voting/ThinkVoteExplain';
 import { ConsequenceCard } from '../consequences/ConsequenceCard';
 import { useSessionStore } from '../../stores/sessionStore';
+import { api } from '../../lib/api';
 
 const phases: MissionPhase[] = [
   'Explore',
@@ -15,6 +16,43 @@ const phases: MissionPhase[] = [
   'Protect',
 ];
 export function ScenarioPlayer({ scenario, onClose }: { scenario: Scenario; onClose: () => void }) {
+  const [loaded, setLoaded] = useState<Scenario | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoaded(null);
+    setError(null);
+    api
+      .scenario(scenario.id, controller.signal)
+      .then((response) => {
+        if (!controller.signal.aborted) setLoaded(response.data);
+      })
+      .catch((reason: unknown) => {
+        if (!controller.signal.aborted)
+          setError(reason instanceof Error ? reason.message : 'Could not load mission.');
+      });
+    return () => controller.abort();
+  }, [scenario.id, attempt]);
+  return loaded ? (
+    <SampleMission key={loaded.id} scenario={loaded} onClose={onClose} />
+  ) : (
+    <Modal title={scenario.title} onClose={onClose}>
+      {error ? (
+        <div role="alert">
+          <p>{error}</p>
+          <button className="primary-button" onClick={() => setAttempt((value) => value + 1)}>
+            Retry mission
+          </button>
+        </div>
+      ) : (
+        <p role="status">Loading mission…</p>
+      )}
+    </Modal>
+  );
+}
+
+function SampleMission({ scenario, onClose }: { scenario: Scenario; onClose: () => void }) {
   const [step, setStep] = useState(0);
   const [choice, setChoice] = useState('');
   const completePreview = useSessionStore((state) => state.completePreview);
@@ -85,8 +123,9 @@ export function ScenarioPlayer({ scenario, onClose }: { scenario: Scenario; onCl
               squad.
             </p>
             <div className="note">
-              Preview skill: <strong>{scenario.skill}</strong>. Completing this sample adds a demo
-              Guardian to your collection; real skill criteria are still to be built.
+              Preview skill: <strong>{scenario.skill}</strong>. Completing this sample previews one
+              Guardian practice when your decision demonstrates the skill. Replays do not add
+              progress.
             </div>
           </>
         )}
@@ -96,7 +135,10 @@ export function ScenarioPlayer({ scenario, onClose }: { scenario: Scenario; onCl
           className="primary-button full"
           onClick={() => {
             if (step === 5) {
-              completePreview(scenario.id, scenario.guardian);
+              completePreview(
+                scenario.id,
+                scenario.choices.find((item) => item.id === choice)?.qualifiedGuardian,
+              );
               onClose();
             } else setStep(step + 1);
           }}

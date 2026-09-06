@@ -1,9 +1,14 @@
 @import 'tailwindcss';
+@import './features/city-board/city-board.css';
+@import './features/guardians/guardians.css';
 
 @theme {
   --color-forest: #245b48;
   --font-sans: 'Trebuchet MS', 'Segoe UI', sans-serif;
 }
+/* Keep legacy styles below the ported board utilities in the cascade. */
+/* prettier-ignore */
+@layer base {
 :root {
   font-family: var(--font-sans);
   color: #283d33;
@@ -1816,4 +1821,6 @@ a {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
 }

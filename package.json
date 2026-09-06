@@ -14,7 +14,7 @@
     "build": "npm run typecheck && vite build && tsc -p server/tsconfig.build.json",
     "preview": "vite preview --host 0.0.0.0",
     "start:server": "node dist-server/server/index.js",
-    "test": "tsx --test server/tests/*.test.ts src/features/consequences/*.test.ts",
+    "test": "tsx --test server/tests/*.test.ts src/features/consequences/*.test.ts src/features/guardians/*.test.ts src/features/scenarios/*.test.ts src/features/voting/*.test.ts",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:migrate": "prisma migrate dev",

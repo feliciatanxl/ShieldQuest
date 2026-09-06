@@ -10,9 +10,16 @@ export default defineConfig({
     channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: 'npm run preview',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: 'npm run dev:server',
+      url: 'http://127.0.0.1:3001/api/health',
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'npm run preview',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

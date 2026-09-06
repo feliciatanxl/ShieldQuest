@@ -6,9 +6,9 @@ test('district selection and six-phase mission preview unlock a demo Guardian', 
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
-  await page.getByRole('button', { name: '2 Retail District', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Too good to be true?' })).toBeVisible();
-  await page.getByRole('button', { name: 'Explore mission', exact: true }).click();
+  await page.getByRole('button', { name: /Open Retail District, Chapter 2/ }).click();
+  await page.getByRole('button', { name: 'Explore district', exact: true }).click();
+  await page.getByRole('link', { name: /Too good to be true/ }).click();
   await page.getByRole('button', { name: 'Continue to Investigate' }).click();
   await page.getByRole('button', { name: 'Continue to Discuss' }).click();
   await page.getByRole('button', { name: 'Continue to Decide' }).click();
@@ -18,9 +18,15 @@ test('district selection and six-phase mission preview unlock a demo Guardian', 
   await expect(page.getByText('You notice the repeated photos', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Continue to Protect' }).click();
   await page.getByRole('button', { name: 'Finish preview' }).click();
+  await expect(page.getByText('Guardian met', { exact: true })).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await page.getByRole('button', { name: 'View your collection' }).click();
-  await expect(page.getByText('1 of 6 · demo progress')).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Main navigation', exact: true })
+    .getByRole('button', { name: 'Guardians', exact: true })
+    .click();
+  await expect(page.getByRole('heading', { name: 'Skills you are building' })).toBeVisible();
+  await expect(page.getByText('1/6', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -64,7 +70,7 @@ test('mobile navigation and reflection work without horizontal overflow', async 
   await expect(page.getByRole('status')).toContainText('has not been submitted');
 });
 
-test('production shell, QR entry and bundled missions remain usable offline', async ({
+test('production board and QR entry remain usable offline with an honest mission error', async ({
   page,
   context,
 }) => {
@@ -85,11 +91,9 @@ test('production shell, QR entry and bundled missions remain usable offline', as
     orientation: 'portrait',
   });
   await context.setOffline(true);
-  await expect(page.getByRole('status')).toContainText('You’re offline');
+  await expect(page.getByText('You’re offline', { exact: false })).toBeVisible();
   await page.reload();
-  await expect(
-    page.getByRole('heading', { name: 'A little courage. A safer city.' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ShieldQuest City', exact: true })).toBeVisible();
   // Verify network failure directly: Chrome's emulated navigator.onLine can reset on a SW reload.
   expect(
     await page.evaluate(() =>
@@ -98,9 +102,10 @@ test('production shell, QR entry and bundled missions remain usable offline', as
         .catch(() => false),
     ),
   ).toBe(false);
-  await page.getByRole('button', { name: 'Explore mission', exact: true }).click();
+  await expect(page.getByText('Missions could not be loaded.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: /Open Community Hub, Chapter 4/ }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  await page.getByRole('button', { name: 'Close dialog' }).click();
+  await page.keyboard.press('Escape');
   await page.goto('/?session=DEMO01');
   await expect(page.getByLabel('Session code')).toHaveValue('DEMO01');
 });
@@ -112,7 +117,7 @@ test('desktop board renders cleanly and dialog restores keyboard focus', async (
     true,
   );
   await page.screenshot({ path: '.local/desktop-preview.png', fullPage: true });
-  const help = page.getByRole('button', { name: 'How to play' });
+  const help = page.getByRole('button', { name: 'About this game', exact: true });
   await help.click();
   await page.keyboard.press('Escape');
   await expect(help).toBeFocused();
