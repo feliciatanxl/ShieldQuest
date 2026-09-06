@@ -18,7 +18,7 @@ test('all districts can be discovered directly without awarding progress', async
     await expect(page.locator('#district-about')).toBeVisible();
     await page.getByRole('link', { name: 'Back to ShieldQuest City', exact: true }).last().click();
   }
-  await expect(page.getByText('0/6 activities', { exact: false })).toBeVisible();
+  await expect(page.getByText('0/12 activities', { exact: false })).toBeVisible();
   await expect(page.getByRole('definition')).toHaveText(['0', '0', '0']);
 });
 
@@ -73,10 +73,11 @@ test('API failure is recoverable and an empty catalogue does not invent missions
   await expect(page.getByText('City missions', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Open School Street, Chapter 1/ }).click();
   await page.getByRole('button', { name: 'Explore district', exact: true }).click();
-  await expect(page.getByRole('dialog').getByText('0 / 0 completed')).toBeVisible();
+  await expect(page.getByRole('dialog').getByText('0 / 1 completed')).toBeVisible();
   await expect(
     page.getByRole('dialog').getByText('Coming soon — activity update pending'),
-  ).toHaveCount(3);
+  ).toHaveCount(2);
+  await expect(page.getByRole('dialog').getByRole('link', { name: /Risk or Safe\?/ })).toBeVisible();
 });
 
 test('API mission content reaches the district sheet and the existing player', async ({ page }) => {

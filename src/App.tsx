@@ -34,7 +34,10 @@ export function App() {
   const [mission, setMission] = useState<Scenario | null>(null);
   const cityView = useCityBoardStore((state) => state.view);
   const activeLessonOpen =
-    page === 'city' && (isMissionView(cityView) || cityView === '/think-vote-explain');
+    page === 'city' &&
+    (isMissionView(cityView) ||
+      cityView === '/think-vote-explain' ||
+      cityView.startsWith('/mini-game/'));
   const { setPreviewCode } = useSessionStore();
   const showPage = (next: Page) => {
     if (next === 'city') useCityBoardStore.getState().navigate('/game');

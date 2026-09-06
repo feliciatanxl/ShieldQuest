@@ -6,6 +6,7 @@ import DistrictPage from './DistrictPage';
 import CityLink from './navigation';
 import { isMissionView, MissionPage } from '../scenarios/MissionPage';
 import { GroupDecisionRunner, GROUP_CHAT_JOB } from '../voting/ThinkVoteExplain';
+import { MiniGamePage } from '../minigames/MiniGamePage';
 
 export function CityBoard({
   onMission,
@@ -41,6 +42,19 @@ export function CityBoard({
     }
   }, [view, scenarios, onMission, onNavigate, navigate]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const readHash = () => {
+      const raw = window.location.hash.replace(/^#\/?/, '/');
+      if (raw && raw !== '/' && raw !== view) {
+        navigate(raw);
+      }
+    };
+    readHash();
+    window.addEventListener('hashchange', readHash);
+    return () => window.removeEventListener('hashchange', readHash);
+  }, [navigate, view]);
+
   return (
     <div className="city-feature">
       <div className="city-api-status" role="status">
@@ -66,6 +80,8 @@ export function CityBoard({
             backHref="/district/digital"
             backLabel="Back to Digi-District"
           />
+        ) : view.startsWith('/mini-game/') ? (
+          <MiniGamePage gameId={view.slice('/mini-game/'.length)} />
         ) : view === '/game' ? (
           <CityHomeExperience />
         ) : view.startsWith('/district/') ? (

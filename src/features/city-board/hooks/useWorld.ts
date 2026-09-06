@@ -3,9 +3,15 @@ export type { ResolvedNode, ResolvedDistrict } from '../../../../types/city-boar
 import { useMemo } from 'react';
 import {
   DISTRICTS,
+  NODE_COMMUNITY_WHAT_NEXT,
+  NODE_COMMUNITY_WHO_CAN_HELP,
+  NODE_DECODE,
   NODE_DIGI_FINALE,
   NODE_EASY_MONEY,
   NODE_PEER_JAYDEN,
+  NODE_RETAIL_CLUE_MATCH,
+  NODE_SCHOOL_RISK_OR_SAFE,
+  NODE_WORD_SEARCH,
 } from '../data/world-data';
 import { usePlayer } from './useCityPlayer';
 import { useCityBoardStore } from '../../../stores/cityBoardStore';
@@ -26,6 +32,18 @@ import type { CityDistrictId, CityMissionNode, WorldProgress } from '../../../..
  * of scope for this prototype, and are labelled as such rather than pretending
  * to be earnable.
  */
+const ENABLED_NODES = [
+  NODE_EASY_MONEY,
+  NODE_PEER_JAYDEN,
+  NODE_DIGI_FINALE,
+  NODE_SCHOOL_RISK_OR_SAFE,
+  NODE_RETAIL_CLUE_MATCH,
+  NODE_WORD_SEARCH,
+  NODE_DECODE,
+  NODE_COMMUNITY_WHO_CAN_HELP,
+  NODE_COMMUNITY_WHAT_NEXT,
+];
+
 export function useWorld() {
   const { profile, newlyUnlockedNodeIds } = usePlayer();
   const completed = profile.completedActivities;
@@ -54,10 +72,10 @@ export function useWorld() {
           })),
         ...district.nodes.map((node): CityMissionNode => ({
           ...node,
-          availability: [NODE_EASY_MONEY, NODE_PEER_JAYDEN, NODE_DIGI_FINALE].includes(node.id)
+          availability: ENABLED_NODES.includes(node.id)
             ? node.availability
             : 'PLANNED',
-          href: [NODE_EASY_MONEY, NODE_PEER_JAYDEN, NODE_DIGI_FINALE].includes(node.id)
+          href: ENABLED_NODES.includes(node.id)
             ? node.href
             : undefined,
         })),

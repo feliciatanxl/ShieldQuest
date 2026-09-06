@@ -87,7 +87,7 @@ test('risky reward precedes the consequence; replay and learning review preserve
     page.getByRole('dialog').getByRole('heading', { name: 'VeriFox', exact: true }),
   ).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true }).click();
-  await expect(page.getByText('1/6 activities', { exact: false })).toBeVisible();
+  await expect(page.getByText('1/12 activities', { exact: false })).toBeVisible();
   expect(errors).toEqual([]);
 });
 

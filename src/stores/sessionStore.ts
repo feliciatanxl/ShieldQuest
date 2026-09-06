@@ -28,6 +28,13 @@ interface SessionState extends GuardianState {
     guardianAward: GuardianAward | null;
     tokensAwarded: number;
   };
+  completeMiniGame: (
+    activityId: string,
+    guardianId: GuardianId,
+  ) => {
+    guardianAward: GuardianAward | null;
+    tokensAwarded: number;
+  };
   acknowledgeGuardianMet: () => void;
   dismissGuardianNotice: () => void;
   reset: () => void;
@@ -93,6 +100,25 @@ export const useSessionStore = create<SessionState>((set) => ({
       const key = `mission:${activityId}`;
       const isFresh = !state.tokenGrants.includes(key);
       tokensAwarded = isFresh ? 40 : 0;
+      return {
+        ...grant.state,
+        completed: [...new Set([...state.completed, activityId])],
+        shieldTokens: state.shieldTokens + tokensAwarded,
+        tokenGrants: isFresh ? [...state.tokenGrants, key] : state.tokenGrants,
+      };
+    });
+    return { guardianAward, tokensAwarded };
+  },
+  completeMiniGame: (activityId, guardianId) => {
+    let guardianAward: GuardianAward | null = null;
+    let tokensAwarded = 0;
+    set((state) => {
+      if (!activityId.trim()) return state;
+      const grant = advanceGuardian(state, activityId, guardianId);
+      guardianAward = grant.award;
+      const key = `mission:${activityId}`;
+      const isFresh = !state.tokenGrants.includes(key);
+      tokensAwarded = isFresh ? 25 : 0;
       return {
         ...grant.state,
         completed: [...new Set([...state.completed, activityId])],
