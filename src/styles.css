@@ -5,6 +5,15 @@
 @theme {
   --color-forest: #245b48;
   --font-sans: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --color-navy-950: #0a1128;
+  --color-navy-900: #0f1c3f;
+  --color-navy-800: #1a2a56;
+  --color-civic-50: #eff6ff;
+  --color-civic-100: #dbeafe;
+  --color-civic-200: #bfdbfe;
+  --color-civic-500: #3b82f6;
+  --color-civic-600: #2563eb;
+  --color-civic-700: #1d4ed8;
 }
 /* Keep legacy styles below the ported board utilities in the cascade. */
 /* prettier-ignore */

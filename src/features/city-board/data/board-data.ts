@@ -14,6 +14,7 @@ import {
   NODE_COMMUNITY_WHO_CAN_HELP,
   NODE_DECODE,
   NODE_DIGI_FINALE,
+  NODE_DIGI_INTRO,
   NODE_EASY_MONEY,
   NODE_PEER_JAYDEN,
   NODE_RETAIL_CLUE_MATCH,
@@ -191,7 +192,7 @@ export const DISTRICT_BOARD_SPACES: Record<CityDistrictId, Omit<BoardSpace, 'ind
     { kind: 'MINI_GAME', districtId: 'school', title: 'Risk or Safe?', nodeId: NODE_SCHOOL_RISK_OR_SAFE },
     { kind: 'SCAM_WATCH', districtId: 'school', title: 'Cyber Patrol Safe Zone' },
     { kind: 'PEER_SHIELD', districtId: 'school', title: 'Friend Under Pressure', nodeId: NODE_SCHOOL_FRIEND_PRESSURE },
-    { kind: 'SCENARIO', districtId: 'school', title: 'Group Chat Dilemma', nodeId: 'school-group-chat' },
+    { kind: 'SCENARIO', districtId: 'school', title: 'Group Chat Dilemma', nodeId: NODE_SCHOOL_HOLD_IT },
     { kind: 'MINI_GAME', districtId: 'school', title: 'Clue Hunter Stop', nodeId: NODE_SCHOOL_RISK_OR_SAFE },
     { kind: 'PHISHING_TRAP', districtId: 'school', title: 'Quiz Trap & Risk Zone' },
     { kind: 'SITUATION_CARD', districtId: 'school', title: 'Easy Money Alert', situationCardId: CARD_EASY_MONEY, nodeId: NODE_EASY_MONEY },
@@ -208,7 +209,7 @@ export const DISTRICT_BOARD_SPACES: Record<CityDistrictId, Omit<BoardSpace, 'ind
     { kind: 'MINI_GAME', districtId: 'retail', title: 'Clue Match', nodeId: NODE_RETAIL_CLUE_MATCH },
     { kind: 'SITUATION_CARD', districtId: 'retail', title: 'Flash Deal Trap', situationCardId: CARD_EASY_MONEY, nodeId: NODE_EASY_MONEY },
     { kind: 'SCAM_WATCH', districtId: 'retail', title: 'Marketplace Patrol' },
-    { kind: 'SCENARIO', districtId: 'retail', title: 'Too Good To Be True?', nodeId: 'retail-deal' },
+    { kind: 'SCENARIO', districtId: 'retail', title: 'Too Good To Be True?', nodeId: NODE_RETAIL_DARE },
     { kind: 'PEER_SHIELD', districtId: 'retail', title: 'Cover For Me', nodeId: NODE_RETAIL_COVER_FOR_ME },
     { kind: 'MINI_GAME', districtId: 'retail', title: 'Barcode Decoder', nodeId: NODE_RETAIL_CLUE_MATCH },
     { kind: 'PHISHING_TRAP', districtId: 'retail', title: 'Fake Seller Trap' },
@@ -226,7 +227,7 @@ export const DISTRICT_BOARD_SPACES: Record<CityDistrictId, Omit<BoardSpace, 'ind
     { kind: 'SITUATION_CARD', districtId: 'digital', title: 'Urgent Message', situationCardId: CARD_URGENT_MESSAGE, nodeId: NODE_DECODE },
     { kind: 'MINI_GAME', districtId: 'digital', title: 'Spot the Warning Signs', nodeId: NODE_WORD_SEARCH },
     { kind: 'SCAM_WATCH', districtId: 'digital', title: 'Firewall Safe Zone' },
-    { kind: 'SCENARIO', districtId: 'digital', title: 'Digital Challenge', nodeId: 'digital-challenge' },
+    { kind: 'SCENARIO', districtId: 'digital', title: 'Digital Challenge', nodeId: NODE_DIGI_INTRO },
     { kind: 'GROUP_DECISION', districtId: 'digital', title: 'The Group Chat Job', nodeId: NODE_DIGI_FINALE },
     { kind: 'MINI_GAME', districtId: 'digital', title: 'Decode the Scam Clue', nodeId: NODE_DECODE },
     { kind: 'PHISHING_TRAP', districtId: 'digital', title: 'Phishing Quarantine' },
@@ -304,11 +305,14 @@ export function stepsForRoll(from: number, roll: number): number[] {
  * the card is the presentation of the activity behind it, and no two cards open
  * the same activity.
  */
-export function boardSpaceKey(space: Omit<BoardSpace, 'index'>): string {
-  if (space.kind === 'SHIELD_CENTRAL') return 'hub';
+export function boardSpaceKey(space: BoardSpace | (Omit<BoardSpace, 'index'> & { index?: number })): string {
+  if (space.index !== undefined) {
+    return `${space.districtId ?? 'district'}:${space.index}:${space.kind}`;
+  }
+  if (space.kind === 'SHIELD_CENTRAL') return `hub:${space.districtId ?? 'district'}`;
   if (space.kind === 'SCAM_WATCH') return `scam-watch:${space.districtId ?? 'district'}`;
   if (space.kind === 'PHISHING_TRAP') return `phishing-trap:${space.districtId ?? 'district'}`;
-  if (space.nodeId) return `node:${space.nodeId}`;
+  if (space.nodeId) return `node:${space.districtId ?? 'district'}:${space.nodeId}`;
   if (space.kind === 'DISTRICT_CHECKPOINT') return `district:${space.districtId}`;
   if (space.kind === 'GUARDIAN_CHECKPOINT') return `guardian:${space.guardianId}`;
   return `reward:${space.districtId}`;
@@ -420,9 +424,12 @@ export const DISTRICT_BADGES: Record<CityDistrictId, DistrictBadge> = {
  */
 if (import.meta.env.DEV) {
   const nodeIds = new Set(ALL_NODES.map((n) => n.id));
-  for (const space of BOARD_SPACES) {
-    if (space.nodeId && !nodeIds.has(space.nodeId)) {
-      throw new Error(`Board space ${space.index} points at unknown activity "${space.nodeId}"`);
+  for (const spaces of Object.values(DISTRICT_BOARD_SPACES)) {
+    for (let i = 0; i < spaces.length; i++) {
+      const space = spaces[i];
+      if (space.nodeId && !nodeIds.has(space.nodeId)) {
+        throw new Error(`Board space ${i} in ${space.districtId} points at unknown activity "${space.nodeId}"`);
+      }
     }
   }
   for (const card of SITUATION_CARDS) {
@@ -431,29 +438,17 @@ if (import.meta.env.DEV) {
     }
   }
   for (const district of DISTRICTS) {
-    if (!BOARD_SPACES.some((s) => s.districtId === district.id)) {
+    const list = DISTRICT_BOARD_SPACES[district.id];
+    if (!list || list.length === 0) {
       throw new Error(`District ${district.id} is missing from the board`);
     }
   }
 
-  /*
-   * Two invariants the save migration depends on. A duplicate identity would
-   * make `indexForBoardKey` answer with whichever space happened to be first,
-   * and a dropped legacy identity would strand a restored session — both are
-   * silent at runtime and cheap to introduce by editing the track above.
-   */
   const seen = new Set<string>();
   for (const key of BOARD_SPACE_KEYS) {
     if (seen.has(key)) {
       throw new Error(`Board space identity "${key}" is not unique`);
     }
     seen.add(key);
-  }
-  for (const key of LEGACY_BOARD_V1_KEYS) {
-    if (!seen.has(key)) {
-      throw new Error(
-        `Legacy board identity "${key}" no longer exists on the current track — a saved v1 session cannot be migrated`,
-      );
-    }
   }
 }

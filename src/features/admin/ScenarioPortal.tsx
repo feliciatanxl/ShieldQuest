@@ -93,11 +93,18 @@ interface LocalDraft {
 }
 
 export function ScenarioPortal({
+  initialSection = 'overview',
   onReturnToGame,
 }: {
+  initialSection?: SectionId;
   onReturnToGame?: () => void;
 }) {
-  const [section, setSection] = useState<SectionId>('overview');
+  const [section, setSection] = useState<SectionId>(initialSection);
+  useEffect(() => {
+    if (initialSection) {
+      setSection(initialSection);
+    }
+  }, [initialSection]);
   const [rows, setRows] = useState<AdminScenarioRow[]>(MOCK_ADMIN_SCENARIOS);
   const [summary, setSummary] = useState<PortalSummary>(() =>
     derivePortalSummary(MOCK_ADMIN_SCENARIOS),

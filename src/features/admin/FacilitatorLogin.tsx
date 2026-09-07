@@ -1,22 +1,27 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Lock, Shield, Sparkles } from 'lucide-react';
 
 interface FacilitatorLoginProps {
-  onSuccess: () => void;
-  onBackToHome: () => void;
+  onSuccess?: () => void;
+  onBackToHome?: () => void;
 }
 
 export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginProps) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('facilitator@shieldquest.sg');
   const [password, setPassword] = useState('••••••••••••');
   const [loading, setLoading] = useState(false);
+
+  const handleSuccess = onSuccess ?? (() => navigate('/admin'));
+  const handleBack = onBackToHome ?? (() => navigate('/'));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      onSuccess();
+      handleSuccess();
     }, 450);
   };
 
@@ -41,7 +46,7 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
 
           <button
             type="button"
-            onClick={onBackToHome}
+            onClick={handleBack}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-800"
           >
             <ArrowLeft className="h-3.5 w-3.5" />

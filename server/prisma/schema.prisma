@@ -11,12 +11,23 @@ enum District {
   SCHOOL
   RETAIL
   DIGITAL
+  COMMUNITY
 }
 
 enum ScenarioStatus {
   DRAFT
+  UNDER_REVIEW
+  NEEDS_CHANGES
+  APPROVED
   PUBLISHED
   ARCHIVED
+}
+
+enum LearnerBand {
+  PRIMARY
+  SECONDARY
+  TERTIARY
+  GENERAL
 }
 
 enum Guardian {
