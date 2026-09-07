@@ -9,7 +9,9 @@ import {
   Clock,
   Lock,
   MapPin,
+  Radio,
   Shield,
+  ShieldAlert,
   Sparkles,
 } from 'lucide-react';
 import { DistrictScene } from '../DistrictArt';
@@ -130,6 +132,10 @@ function SheetBody({
         />
       ) : space.kind === 'DISTRICT_CHECKPOINT' ? (
         <DistrictCheckpoint space={space} districtName={districtName} onClose={onClose} />
+      ) : space.kind === 'SCAM_WATCH' ? (
+        <ScamWatchSpace districtName={districtName} onClose={onClose} />
+      ) : space.kind === 'PHISHING_TRAP' ? (
+        <PhishingTrapSpace districtName={districtName} onClose={onClose} />
       ) : space.kind === 'SHIELD_CENTRAL' ? (
         <ShieldCentralSpace onClose={onClose} />
       ) : (
@@ -611,7 +617,7 @@ function ShieldCentralSpace({ onClose }: { onClose: () => void }) {
   return (
     <CheckpointFrame
       eyebrow="ShieldQuest City"
-      title="Shield Central"
+      title="Shield Central (GO)"
       footer={
         <>
           <Link
@@ -632,10 +638,90 @@ function ShieldCentralSpace({ onClose }: { onClose: () => void }) {
         </>
       }
     >
-      <p className="text-[14px] leading-relaxed text-ink">
-        The hub of the city. Your journey, rewards, achievements, the Shield Casebook, trusted help
-        and settings all live here.
-      </p>
+      <div className="space-y-3">
+        <p className="text-[14px] leading-relaxed text-ink">
+          <strong>The Central GO Station.</strong> Pass or land here on your district loop to collect Shield Points and maintain city defense!
+        </p>
+        <div className="rounded-xl border border-amber-400/30 bg-amber-50 p-3 text-[13px] text-amber-900">
+          <p className="font-bold flex items-center gap-1.5 text-amber-700">
+            <Sparkles className="h-4 w-4" /> Loop Bonus: +20 Shield Tokens
+          </p>
+          <p className="mt-1 text-[12px] text-amber-800">
+            Your journey, achievements, Casebook entries, and settings all connect right here.
+          </p>
+        </div>
+      </div>
+    </CheckpointFrame>
+  );
+}
+
+function ScamWatchSpace({ districtName, onClose }: { districtName: string; onClose: () => void }) {
+  return (
+    <CheckpointFrame
+      eyebrow={`${districtName} · Safe Zone`}
+      title="Scam Watch & Cyber Patrol"
+      footer={
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-teal-700"
+        >
+          <Radio className="h-4 w-4" aria-hidden="true" />
+          Continue Patrol (+10 Tokens)
+        </button>
+      }
+    >
+      <div className="space-y-3 text-ink">
+        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3.5">
+          <p className="text-[12px] font-extrabold uppercase tracking-wide text-teal-800">
+            Active Sanctuary
+          </p>
+          <p className="mt-1 text-[14px] leading-relaxed text-teal-950">
+            You have checked into the Scam Watch Outpost. This safe zone monitors unusual peer pressure, suspicious recruitment schemes, and digital urgency traps.
+          </p>
+        </div>
+        <p className="text-[13px] leading-relaxed text-ink-muted">
+          Taking a moment to pause and reflect breaks the emotional rush that scammers rely on. You earn peace of mind and an alert mind.
+        </p>
+      </div>
+    </CheckpointFrame>
+  );
+}
+
+function PhishingTrapSpace({ districtName, onClose }: { districtName: string; onClose: () => void }) {
+  return (
+    <CheckpointFrame
+      eyebrow={`${districtName} · Warning Zone`}
+      title="Phishing Trap & Quarantine"
+      footer={
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-coral-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-coral-700"
+        >
+          <ShieldAlert className="h-4 w-4" aria-hidden="true" />
+          Quarantine Red Flags & Proceed
+        </button>
+      }
+    >
+      <div className="space-y-3 text-ink">
+        <div className="rounded-xl border border-coral-200 bg-coral-50 p-3.5">
+          <p className="text-[12px] font-extrabold uppercase tracking-wide text-coral-800">
+            High-Risk Perimeter
+          </p>
+          <p className="mt-1 text-[14px] leading-relaxed text-coral-950">
+            You bypassed a dangerous link trap! Always verify the sender domain before submitting credentials or verification codes.
+          </p>
+        </div>
+        <ul className="space-y-2 text-[13px] text-ink-muted">
+          <li className="flex items-start gap-2">
+            <span className="font-bold text-coral-700">1.</span> Never click unfamiliar verification links in group chats.
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="font-bold text-coral-700">2.</span> Official organisations will never rush you to make instant money transfers.
+          </li>
+        </ul>
+      </div>
     </CheckpointFrame>
   );
 }

@@ -11,12 +11,14 @@
  * animation down has not asked for sound effects instead.
  */
 
-type Cue = 'roll' | 'land' | 'reward';
+type Cue = 'roll' | 'land' | 'reward' | 'hop' | 'victory';
 
 const TONES: Record<Cue, { freq: number; ms: number; type: OscillatorType }> = {
   roll: { freq: 420, ms: 90, type: 'triangle' },
+  hop: { freq: 520, ms: 70, type: 'sine' },
   land: { freq: 660, ms: 130, type: 'sine' },
   reward: { freq: 880, ms: 220, type: 'sine' },
+  victory: { freq: 960, ms: 380, type: 'triangle' },
 };
 
 let context: AudioContext | null = null;

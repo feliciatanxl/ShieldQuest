@@ -2,7 +2,6 @@
 // TODO(Scenario.district): Community Hub requires a Prisma District enum extension.
 import {
   GUARDIAN_BEACON,
-  GUARDIAN_BYTEBUDDY,
   GUARDIAN_CLUEPAW,
   GUARDIAN_ECHO,
   GUARDIAN_SHIELDFIN,
@@ -175,177 +174,103 @@ export function findSituationCard(id: string): SituationCard | undefined {
  * Districts appear in the order the city route has always used, so the board
  * and the district pages agree about where things are.
  */
-export const BOARD_SPACES: BoardSpace[] = (
-  [
-    {
-      kind: 'SHIELD_CENTRAL',
-      title: 'Shield Central',
-    },
+/**
+ * 16-tile closed perimeter loop for each District in Monopoly Go style:
+ * - 4 Corners:
+ *    0: GO / Shield Central (Pass or land to earn Shield Points)
+ *    4: Scam Watch / Cyber Patrol (Safe Rest zone)
+ *    8: Phishing Trap / Quarantine (Warning & risk zone)
+ *   12: Guardian Checkpoint (Sanctuary / Lore & Advice boost)
+ * - 12 Edge tiles (3 per side): Scenarios, Minigames, Clue Inspections, and Situation Cards.
+ */
+export const DISTRICT_BOARD_SPACES: Record<CityDistrictId, Omit<BoardSpace, 'index'>[]> = {
+  school: [
+    { kind: 'SHIELD_CENTRAL', title: 'Shield Central (GO)', districtId: 'school' },
+    { kind: 'SCENARIO', districtId: 'school', title: 'Just Hold It For Me', nodeId: NODE_SCHOOL_HOLD_IT },
+    { kind: 'SITUATION_CARD', districtId: 'school', title: 'Urgent Message', situationCardId: CARD_URGENT_MESSAGE, nodeId: NODE_DECODE },
+    { kind: 'MINI_GAME', districtId: 'school', title: 'Risk or Safe?', nodeId: NODE_SCHOOL_RISK_OR_SAFE },
+    { kind: 'SCAM_WATCH', districtId: 'school', title: 'Cyber Patrol Safe Zone' },
+    { kind: 'PEER_SHIELD', districtId: 'school', title: 'Friend Under Pressure', nodeId: NODE_SCHOOL_FRIEND_PRESSURE },
+    { kind: 'SCENARIO', districtId: 'school', title: 'Group Chat Dilemma', nodeId: 'school-group-chat' },
+    { kind: 'MINI_GAME', districtId: 'school', title: 'Clue Hunter Stop', nodeId: NODE_SCHOOL_RISK_OR_SAFE },
+    { kind: 'PHISHING_TRAP', districtId: 'school', title: 'Quiz Trap & Risk Zone' },
+    { kind: 'SITUATION_CARD', districtId: 'school', title: 'Easy Money Alert', situationCardId: CARD_EASY_MONEY, nodeId: NODE_EASY_MONEY },
+    { kind: 'PEER_SHIELD', districtId: 'school', title: 'Peer Defense Stop', nodeId: NODE_SCHOOL_FRIEND_PRESSURE },
+    { kind: 'REWARD_CHECKPOINT', districtId: 'school', title: 'School Rewards' },
+    { kind: 'GUARDIAN_CHECKPOINT', districtId: 'school', title: 'Echo & Shieldfin Sanctuary', guardianId: GUARDIAN_ECHO },
+    { kind: 'MINI_GAME', districtId: 'school', title: 'Quick Decision Check', nodeId: NODE_SCHOOL_RISK_OR_SAFE },
+    { kind: 'SITUATION_CARD', districtId: 'school', title: 'Your Friend Needs Help', situationCardId: CARD_FRIEND_NEEDS_HELP, nodeId: NODE_PEER_JAYDEN },
+    { kind: 'DISTRICT_CHECKPOINT', districtId: 'school', title: 'School Street Milestone' },
+  ],
+  retail: [
+    { kind: 'SHIELD_CENTRAL', title: 'Shield Central (GO)', districtId: 'retail' },
+    { kind: 'SCENARIO', districtId: 'retail', title: 'The Dare at Checkout', nodeId: NODE_RETAIL_DARE },
+    { kind: 'MINI_GAME', districtId: 'retail', title: 'Clue Match', nodeId: NODE_RETAIL_CLUE_MATCH },
+    { kind: 'SITUATION_CARD', districtId: 'retail', title: 'Flash Deal Trap', situationCardId: CARD_EASY_MONEY, nodeId: NODE_EASY_MONEY },
+    { kind: 'SCAM_WATCH', districtId: 'retail', title: 'Marketplace Patrol' },
+    { kind: 'SCENARIO', districtId: 'retail', title: 'Too Good To Be True?', nodeId: 'retail-deal' },
+    { kind: 'PEER_SHIELD', districtId: 'retail', title: 'Cover For Me', nodeId: NODE_RETAIL_COVER_FOR_ME },
+    { kind: 'MINI_GAME', districtId: 'retail', title: 'Barcode Decoder', nodeId: NODE_RETAIL_CLUE_MATCH },
+    { kind: 'PHISHING_TRAP', districtId: 'retail', title: 'Fake Seller Trap' },
+    { kind: 'SITUATION_CARD', districtId: 'retail', title: 'Urgent Payment Order', situationCardId: CARD_URGENT_MESSAGE, nodeId: NODE_DECODE },
+    { kind: 'PEER_SHIELD', districtId: 'retail', title: 'Checkout Intervention', nodeId: NODE_RETAIL_COVER_FOR_ME },
+    { kind: 'REWARD_CHECKPOINT', districtId: 'retail', title: 'Retail Rewards Vault' },
+    { kind: 'GUARDIAN_CHECKPOINT', districtId: 'retail', title: 'Cluepaw Sanctuary', guardianId: GUARDIAN_CLUEPAW },
+    { kind: 'MINI_GAME', districtId: 'retail', title: 'Spot the Fake Listing', nodeId: NODE_RETAIL_CLUE_MATCH },
+    { kind: 'SITUATION_CARD', districtId: 'retail', title: 'Who Can Help?', situationCardId: CARD_WHO_CAN_HELP, nodeId: NODE_COMMUNITY_WHO_CAN_HELP },
+    { kind: 'DISTRICT_CHECKPOINT', districtId: 'retail', title: 'Retail Plaza Milestone' },
+  ],
+  digital: [
+    { kind: 'SHIELD_CENTRAL', title: 'Shield Central (GO)', districtId: 'digital' },
+    { kind: 'SCENARIO', districtId: 'digital', title: 'Easy Money?', nodeId: NODE_EASY_MONEY },
+    { kind: 'SITUATION_CARD', districtId: 'digital', title: 'Urgent Message', situationCardId: CARD_URGENT_MESSAGE, nodeId: NODE_DECODE },
+    { kind: 'MINI_GAME', districtId: 'digital', title: 'Spot the Warning Signs', nodeId: NODE_WORD_SEARCH },
+    { kind: 'SCAM_WATCH', districtId: 'digital', title: 'Firewall Safe Zone' },
+    { kind: 'SCENARIO', districtId: 'digital', title: 'Digital Challenge', nodeId: 'digital-challenge' },
+    { kind: 'GROUP_DECISION', districtId: 'digital', title: 'The Group Chat Job', nodeId: NODE_DIGI_FINALE },
+    { kind: 'MINI_GAME', districtId: 'digital', title: 'Decode the Scam Clue', nodeId: NODE_DECODE },
+    { kind: 'PHISHING_TRAP', districtId: 'digital', title: 'Phishing Quarantine' },
+    { kind: 'SITUATION_CARD', districtId: 'digital', title: 'Who Can Help?', situationCardId: CARD_WHO_CAN_HELP, nodeId: NODE_COMMUNITY_WHO_CAN_HELP },
+    { kind: 'GROUP_DECISION', districtId: 'digital', title: 'Think · Vote · Explain', nodeId: NODE_DIGI_FINALE },
+    { kind: 'REWARD_CHECKPOINT', districtId: 'digital', title: 'Digi-Vault Rewards' },
+    { kind: 'GUARDIAN_CHECKPOINT', districtId: 'digital', title: 'VeriFox Sanctuary', guardianId: GUARDIAN_VERIFOX },
+    { kind: 'MINI_GAME', districtId: 'digital', title: 'Cyber Term Search', nodeId: NODE_WORD_SEARCH },
+    { kind: 'SITUATION_CARD', districtId: 'digital', title: 'Your Friend Needs Help', situationCardId: CARD_FRIEND_NEEDS_HELP, nodeId: NODE_PEER_JAYDEN },
+    { kind: 'DISTRICT_CHECKPOINT', districtId: 'digital', title: 'Digi-District Milestone' },
+  ],
+  community: [
+    { kind: 'SHIELD_CENTRAL', title: 'Shield Central (GO)', districtId: 'community' },
+    { kind: 'SCENARIO', districtId: 'community', title: 'Your Friend Needs Help', nodeId: NODE_PEER_JAYDEN },
+    { kind: 'SITUATION_CARD', districtId: 'community', title: 'Who Can Help?', situationCardId: CARD_WHO_CAN_HELP, nodeId: NODE_COMMUNITY_WHO_CAN_HELP },
+    { kind: 'MINI_GAME', districtId: 'community', title: 'What Happens Next?', nodeId: NODE_COMMUNITY_WHAT_NEXT },
+    { kind: 'SCAM_WATCH', districtId: 'community', title: 'Community Haven' },
+    { kind: 'SITUATION_CARD', districtId: 'community', title: 'Urgent Message Check', situationCardId: CARD_URGENT_MESSAGE, nodeId: NODE_DECODE },
+    { kind: 'PEER_SHIELD', districtId: 'community', title: 'Friend Support Stop', nodeId: NODE_PEER_JAYDEN },
+    { kind: 'MINI_GAME', districtId: 'community', title: 'Support Pathway Match', nodeId: NODE_COMMUNITY_WHAT_NEXT },
+    { kind: 'PHISHING_TRAP', districtId: 'community', title: 'Isolation Red Flag' },
+    { kind: 'SCENARIO', districtId: 'community', title: 'Who Can Help Mission', nodeId: NODE_COMMUNITY_WHO_CAN_HELP },
+    { kind: 'GROUP_DECISION', districtId: 'community', title: 'Community Consensus', nodeId: NODE_DIGI_FINALE },
+    { kind: 'REWARD_CHECKPOINT', districtId: 'community', title: 'Civic Rewards Center' },
+    { kind: 'GUARDIAN_CHECKPOINT', districtId: 'community', title: 'Beacon & ByteBuddy Sanctuary', guardianId: GUARDIAN_BEACON },
+    { kind: 'MINI_GAME', districtId: 'community', title: 'Next Steps Evaluation', nodeId: NODE_COMMUNITY_WHAT_NEXT },
+    { kind: 'SITUATION_CARD', districtId: 'community', title: 'Easy Money Warning', situationCardId: CARD_EASY_MONEY, nodeId: NODE_EASY_MONEY },
+    { kind: 'DISTRICT_CHECKPOINT', districtId: 'community', title: 'Community Hub Milestone' },
+  ],
+};
 
-    /* --- School Street ------------------------------------------------ */
-    {
-      kind: 'DISTRICT_CHECKPOINT',
-      districtId: 'school',
-      title: 'School Street',
-    },
-    {
-      kind: 'SCENARIO',
-      districtId: 'school',
-      title: 'Just Hold It For Me',
-      nodeId: NODE_SCHOOL_HOLD_IT,
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'school',
-      title: 'Shieldfin Checkpoint',
-      guardianId: GUARDIAN_SHIELDFIN,
-    },
-    {
-      kind: 'MINI_GAME',
-      districtId: 'school',
-      title: 'Risk or Safe?',
-      nodeId: NODE_SCHOOL_RISK_OR_SAFE,
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'school',
-      title: 'Echo Checkpoint',
-      guardianId: GUARDIAN_ECHO,
-    },
-    {
-      kind: 'PEER_SHIELD',
-      districtId: 'school',
-      title: 'Friend Under Pressure',
-      nodeId: NODE_SCHOOL_FRIEND_PRESSURE,
-    },
+export function getDistrictBoardSpaces(districtId: CityDistrictId = 'school'): BoardSpace[] {
+  const list = DISTRICT_BOARD_SPACES[districtId] ?? DISTRICT_BOARD_SPACES.school;
+  return list.map((space, index) => ({ ...space, index }));
+}
 
-    /* --- Retail District ---------------------------------------------- */
-    {
-      kind: 'DISTRICT_CHECKPOINT',
-      districtId: 'retail',
-      title: 'Retail District',
-    },
-    {
-      kind: 'SCENARIO',
-      districtId: 'retail',
-      title: 'The Dare at Checkout',
-      nodeId: NODE_RETAIL_DARE,
-    },
-    {
-      kind: 'REWARD_CHECKPOINT',
-      districtId: 'retail',
-      title: 'Rewards Checkpoint',
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'retail',
-      title: 'Cluepaw Checkpoint',
-      guardianId: GUARDIAN_CLUEPAW,
-    },
-    {
-      kind: 'MINI_GAME',
-      districtId: 'retail',
-      title: 'Clue Match',
-      nodeId: NODE_RETAIL_CLUE_MATCH,
-    },
-    {
-      kind: 'PEER_SHIELD',
-      districtId: 'retail',
-      title: 'Cover For Me',
-      nodeId: NODE_RETAIL_COVER_FOR_ME,
-    },
-
-    /* --- Digi-District ------------------------------------------------ */
-    {
-      kind: 'DISTRICT_CHECKPOINT',
-      districtId: 'digital',
-      title: 'Digi-District',
-    },
-    {
-      kind: 'SITUATION_CARD',
-      districtId: 'digital',
-      title: 'Easy Money',
-      situationCardId: CARD_EASY_MONEY,
-      nodeId: NODE_EASY_MONEY,
-    },
-    {
-      kind: 'MINI_GAME',
-      districtId: 'digital',
-      title: 'Spot the Warning Signs',
-      nodeId: NODE_WORD_SEARCH,
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'digital',
-      title: 'VeriFox Checkpoint',
-      guardianId: GUARDIAN_VERIFOX,
-    },
-    {
-      kind: 'SITUATION_CARD',
-      districtId: 'digital',
-      title: 'Urgent Message',
-      situationCardId: CARD_URGENT_MESSAGE,
-      nodeId: NODE_DECODE,
-    },
-    {
-      kind: 'GROUP_DECISION',
-      districtId: 'digital',
-      title: 'The Group Chat Job',
-      nodeId: NODE_DIGI_FINALE,
-    },
-
-    /* --- Community Hub ------------------------------------------------ */
-    {
-      kind: 'DISTRICT_CHECKPOINT',
-      districtId: 'community',
-      title: 'Community Hub',
-    },
-    {
-      kind: 'SITUATION_CARD',
-      districtId: 'community',
-      title: 'Your Friend Needs Help',
-      situationCardId: CARD_FRIEND_NEEDS_HELP,
-      nodeId: NODE_PEER_JAYDEN,
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'community',
-      title: 'Beacon Checkpoint',
-      guardianId: GUARDIAN_BEACON,
-    },
-    {
-      kind: 'SITUATION_CARD',
-      districtId: 'community',
-      title: 'Who Can Help?',
-      situationCardId: CARD_WHO_CAN_HELP,
-      nodeId: NODE_COMMUNITY_WHO_CAN_HELP,
-    },
-    {
-      kind: 'GUARDIAN_CHECKPOINT',
-      districtId: 'community',
-      title: 'ByteBuddy Checkpoint',
-      guardianId: GUARDIAN_BYTEBUDDY,
-    },
-    {
-      kind: 'MINI_GAME',
-      districtId: 'community',
-      title: 'What Happens Next?',
-      nodeId: NODE_COMMUNITY_WHAT_NEXT,
-    },
-    {
-      kind: 'REWARD_CHECKPOINT',
-      districtId: 'community',
-      title: 'Rewards Checkpoint',
-    },
-  ] satisfies Omit<BoardSpace, 'index'>[]
-).map((space, index) => ({ ...space, index }));
+export const BOARD_SPACES: BoardSpace[] = getDistrictBoardSpaces('school');
 
 export const BOARD_LENGTH = BOARD_SPACES.length;
 
 /** Wraps a position onto the loop, so the last space leads back to the first. */
-export function normaliseBoardPosition(position: number): number {
+export function normaliseBoardPosition(position: number, length: number = BOARD_LENGTH): number {
   const n = Number.isFinite(position) ? Math.trunc(position) : 0;
-  return ((n % BOARD_LENGTH) + BOARD_LENGTH) % BOARD_LENGTH;
+  return ((n % length) + length) % length;
 }
 
 /** The spaces a token passes through for a roll, destination last. */
@@ -381,6 +306,8 @@ export function stepsForRoll(from: number, roll: number): number[] {
  */
 export function boardSpaceKey(space: Omit<BoardSpace, 'index'>): string {
   if (space.kind === 'SHIELD_CENTRAL') return 'hub';
+  if (space.kind === 'SCAM_WATCH') return `scam-watch:${space.districtId ?? 'district'}`;
+  if (space.kind === 'PHISHING_TRAP') return `phishing-trap:${space.districtId ?? 'district'}`;
   if (space.nodeId) return `node:${space.nodeId}`;
   if (space.kind === 'DISTRICT_CHECKPOINT') return `district:${space.districtId}`;
   if (space.kind === 'GUARDIAN_CHECKPOINT') return `guardian:${space.guardianId}`;

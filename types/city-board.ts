@@ -80,10 +80,12 @@ export type BoardSpaceKind =
   | 'SITUATION_CARD'
   | 'GUARDIAN_CHECKPOINT'
   | 'REWARD_CHECKPOINT'
-  | 'GROUP_DECISION';
+  | 'GROUP_DECISION'
+  | 'SCAM_WATCH'
+  | 'PHISHING_TRAP';
 
 export const BOARD_SPACE_LABEL: Record<BoardSpaceKind, string> = {
-  SHIELD_CENTRAL: 'Shield Central',
+  SHIELD_CENTRAL: 'Shield Central (GO)',
   DISTRICT_CHECKPOINT: 'District Checkpoint',
   SCENARIO: 'Scenario Mission',
   PEER_SHIELD: 'Peer Shield',
@@ -92,6 +94,8 @@ export const BOARD_SPACE_LABEL: Record<BoardSpaceKind, string> = {
   GUARDIAN_CHECKPOINT: 'Guardian Checkpoint',
   REWARD_CHECKPOINT: 'Reward Checkpoint',
   GROUP_DECISION: 'Think · Vote · Explain',
+  SCAM_WATCH: 'Scam Watch / Safe Zone',
+  PHISHING_TRAP: 'Phishing Trap / Quarantine',
 };
 
 export interface SituationCard {

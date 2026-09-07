@@ -1,10 +1,13 @@
 import {
   BarChart3,
+  BookOpen,
   ClipboardCheck,
   FileWarning,
   LayoutDashboard,
   ListChecks,
   Lock,
+  PlusCircle,
+  Radio,
   RotateCcw,
   Shield,
   ShieldCheck,
@@ -24,11 +27,14 @@ export const ADMIN_NAV: {
   label: string;
   icon: typeof LayoutDashboard;
 }[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'sessions', label: 'Live Sessions', icon: Radio },
   { id: 'library', label: 'Scenario Library', icon: ListChecks },
+  { id: 'builder', label: 'Scenario Builder', icon: PlusCircle },
   { id: 'review', label: 'Content Review', icon: ClipboardCheck },
-  { id: 'youth', label: 'Youth-Created Missions', icon: Sprout },
-  { id: 'insights', label: 'Insights', icon: BarChart3 },
+  { id: 'youth', label: 'Youth Missions', icon: Sprout },
+  { id: 'insights', label: 'Analytics & KPIs', icon: BarChart3 },
+  { id: 'resources', label: 'Resources', icon: BookOpen },
 ];
 
 export function AdminSidebar({

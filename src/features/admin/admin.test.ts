@@ -196,3 +196,37 @@ test('safeguards and engagement metrics meet prototype integrity requirements', 
   assert.equal(MOCK_SKILL_COVERAGE.length, 6);
   assert.equal(MOCK_INSIGHTS.length, 3);
 });
+
+test('ADMIN_NAV includes all 8 required sections including sessions, builder, and resources', async () => {
+  const { ADMIN_NAV } = await import('./AdminChrome.js');
+  const ids = ADMIN_NAV.map((n) => n.id);
+  assert.ok(ids.includes('overview'));
+  assert.ok(ids.includes('sessions'));
+  assert.ok(ids.includes('library'));
+  assert.ok(ids.includes('builder'));
+  assert.ok(ids.includes('review'));
+  assert.ok(ids.includes('youth'));
+  assert.ok(ids.includes('insights'));
+  assert.ok(ids.includes('resources'));
+});
+
+test('DesignSystem STATUS_CONFIG defines all semantic status variants', async () => {
+  const { STATUS_CONFIG } = await import('../../design-system/DesignSystem.js');
+  type StatusKind = keyof typeof STATUS_CONFIG;
+  const requiredStatuses: StatusKind[] = [
+    'draft',
+    'under_review',
+    'approved',
+    'published',
+    'archived',
+    'needs_changes',
+    'high_risk',
+    'medium_risk',
+    'low_risk',
+  ];
+  for (const status of requiredStatuses) {
+    assert.ok(STATUS_CONFIG[status], `Missing status config for: ${status}`);
+    assert.ok(STATUS_CONFIG[status].label);
+  }
+});
+

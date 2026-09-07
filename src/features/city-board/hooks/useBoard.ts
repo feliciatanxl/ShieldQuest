@@ -1,7 +1,7 @@
 import type { ResolvedSpace } from '../../../../types/city-board';
 export type { ResolvedSpace } from '../../../../types/city-board';
 import { useMemo } from 'react';
-import { BOARD_SPACES, findSituationCard, normaliseBoardPosition } from '../data/board-data';
+import { findSituationCard, getDistrictBoardSpaces, normaliseBoardPosition } from '../data/board-data';
 import { findNode } from '../data/world-data';
 import { usePlayer } from './useCityPlayer';
 import { useWorld, type ResolvedNode } from './useWorld';
@@ -16,11 +16,14 @@ import type { CityDistrictId } from '../../../../types/city-board';
  * has completed and where their token stands — the roll only ever decides which
  * space they arrive at next.
  */
-export function useBoard() {
+export function useBoard(targetDistrictId?: CityDistrictId) {
   const { profile } = usePlayer();
   const { districts } = useWorld();
 
-  const position = normaliseBoardPosition(profile.boardPosition);
+  const activeDistrictId: CityDistrictId =
+    targetDistrictId ?? profile.currentDistrictId ?? 'school';
+  const rawSpaces = getDistrictBoardSpaces(activeDistrictId);
+  const position = normaliseBoardPosition(profile.boardPosition, rawSpaces.length);
   const completed = profile.completedActivities;
   const visited = profile.visitedSpaces;
 
@@ -30,7 +33,7 @@ export function useBoard() {
       for (const node of district.nodes) nodeById.set(node.id, node);
     }
 
-    const spaces: ResolvedSpace[] = BOARD_SPACES.map((space) => {
+    const spaces: ResolvedSpace[] = rawSpaces.map((space) => {
       const node = space.nodeId ? nodeById.get(space.nodeId) : undefined;
       const planned = node?.availability === 'PLANNED';
       const locked = Boolean(node) && !node!.playable && !planned;
@@ -63,8 +66,9 @@ export function useBoard() {
       position,
       boardCompleted,
       boardPlayable: playableNodes.length,
+      activeDistrictId,
     };
-  }, [districts, position, completed, visited]);
+  }, [rawSpaces, activeDistrictId, districts, position, completed, visited]);
 }
 
 /** Static lookup used outside the hook, e.g. by the landing sheet's copy. */

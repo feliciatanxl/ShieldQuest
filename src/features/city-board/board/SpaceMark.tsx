@@ -7,8 +7,10 @@ import {
   Landmark,
   Lock,
   MessageSquareWarning,
+  Radio,
   ScrollText,
   Shield,
+  ShieldAlert,
   ShieldHalf,
   Vote,
   type LucideIcon,
@@ -37,19 +39,23 @@ export const SPACE_ICON: Record<BoardSpaceKind, LucideIcon> = {
   GUARDIAN_CHECKPOINT: Shield,
   REWARD_CHECKPOINT: Award,
   GROUP_DECISION: Vote,
+  SCAM_WATCH: Radio,
+  PHISHING_TRAP: ShieldAlert,
 };
 
 /** Shape + surface per space type. The radius is doing as much work as the hue. */
 const SPACE_SKIN: Record<BoardSpaceKind, string> = {
-  SHIELD_CENTRAL: 'rounded-2xl bg-navy-800 text-amber-400 border-amber-400/70',
+  SHIELD_CENTRAL: 'rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-navy-950 border-amber-300 font-extrabold shadow-amber-500/30',
   DISTRICT_CHECKPOINT: 'rounded-2xl bg-navy-700 text-white border-white/45',
   SCENARIO: 'rounded-lg bg-civic-600 text-white border-civic-200/70',
   PEER_SHIELD: 'rounded-full bg-teal-600 text-white border-teal-200/80',
   MINI_GAME: 'rounded-[10px] bg-amber-500 text-navy-900 border-amber-200/80',
   SITUATION_CARD: 'rounded-md bg-coral-600 text-white border-coral-200/80',
-  GUARDIAN_CHECKPOINT: 'rounded-full bg-navy-900 text-white border-amber-400/70',
+  GUARDIAN_CHECKPOINT: 'rounded-2xl bg-navy-900 text-amber-300 border-amber-400/80',
   REWARD_CHECKPOINT: 'rounded-[14px] bg-leaf-600 text-white border-leaf-200/80',
   GROUP_DECISION: 'rounded-lg bg-coral-700 text-white border-coral-200/80',
+  SCAM_WATCH: 'rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white border-teal-300 shadow-teal-500/30',
+  PHISHING_TRAP: 'rounded-2xl bg-gradient-to-br from-coral-600 to-coral-800 text-white border-coral-300 shadow-coral-500/30',
 };
 
 export function SpaceMark({

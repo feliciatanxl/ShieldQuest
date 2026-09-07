@@ -1,4 +1,5 @@
 import type { ApiError, Scenario, VoteSubmission } from '../../types';
+import { demoScenarios } from '../../types/demo';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -11,18 +12,31 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
   return response.json() as Promise<T>;
 }
-// City board reads the scenarios API. Session and voting writes remain scaffold endpoints.
+
+// City board reads the scenarios API. Silently falls back to demo scenarios if the backend is offline.
 export const api = {
-  scenario: (id: string, signal?: AbortSignal) =>
-    request<{ mode: string; data: Scenario }>(`/scenarios/${encodeURIComponent(id)}`, {
-      signal: signal
-        ? AbortSignal.any([signal, AbortSignal.timeout(10_000)])
-        : AbortSignal.timeout(10_000),
-    }),
-  scenarios: () =>
-    request<{ mode: string; data: Scenario[] }>('/scenarios', {
-      signal: AbortSignal.timeout(10_000),
-    }),
+  scenario: async (id: string, signal?: AbortSignal) => {
+    try {
+      return await request<{ mode: string; data: Scenario }>(`/scenarios/${encodeURIComponent(id)}`, {
+        signal: signal
+          ? AbortSignal.any([signal, AbortSignal.timeout(3_000)])
+          : AbortSignal.timeout(3_000),
+      });
+    } catch {
+      const found = demoScenarios.find((s) => s.id === id);
+      if (found) return { mode: 'demo', data: found };
+      throw new Error('Scenario not found');
+    }
+  },
+  scenarios: async () => {
+    try {
+      return await request<{ mode: string; data: Scenario[] }>('/scenarios', {
+        signal: AbortSignal.timeout(3_000),
+      });
+    } catch {
+      return { mode: 'demo', data: demoScenarios };
+    }
+  },
   join: (code: string) =>
     request<never>(`/sessions/${encodeURIComponent(code)}/join`, { method: 'POST', body: '{}' }),
   vote: (vote: VoteSubmission) =>

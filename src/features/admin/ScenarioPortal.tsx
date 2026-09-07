@@ -35,6 +35,9 @@ import {
 import { SkillCoverageChart } from './SkillCoverage';
 import { YouthMissionPanel } from './YouthMissionPanel';
 import { YouthMissionQueue } from './YouthMissionQueue';
+import { SessionManager } from './SessionManager';
+import { ScenarioBuilderWizard } from './ScenarioBuilderWizard';
+import { FacilitatorResources } from './FacilitatorResources';
 import { Modal } from '../../components/PlayerModal';
 import { api } from '../../lib/api';
 import {
@@ -481,6 +484,54 @@ export function ScenarioPortal({
                   <SimulatedDataNote />
                 </Section>
               </>
+            )}
+
+            {section === 'sessions' && (
+              <Section
+                title="Live Session Operations"
+                description="Manage active cohorts, classroom room codes, squad progress, and live voting debriefs."
+              >
+                <SessionManager />
+              </Section>
+            )}
+
+            {section === 'builder' && (
+              <Section
+                title="Scenario Builder Wizard"
+                description="Author multi-step interactive missions with red flags, choices, and delayed consequences."
+              >
+                <ScenarioBuilderWizard
+                  onClose={() => setSection('library')}
+                  onSaveScenario={(newSc: any) => {
+                    const mappedRow: AdminScenarioRow = {
+                      id: newSc.id,
+                      title: newSc.title,
+                      category: newSc.theme,
+                      targetGroup: 'Secondary',
+                      status: newSc.status === 'published' ? 'LIVE' : 'DRAFT',
+                      safeDecisionRate: 0,
+                      previousSafeDecisionRate: 0,
+                      responses: 0,
+                      competencies: [newSc.competency],
+                      updatedBy: 'You (Facilitator)',
+                      updatedOn: 'Just now',
+                      isFlashMission: false,
+                    };
+                    setRows((prev) => [mappedRow, ...prev]);
+                    setSummary(derivePortalSummary([mappedRow, ...rows]));
+                    setSection('library');
+                  }}
+                />
+              </Section>
+            )}
+
+            {section === 'resources' && (
+              <Section
+                title="Facilitator Resources & Printables"
+                description="Download pedagogical guides, checklists, and printable emergency classroom backup forms."
+              >
+                <FacilitatorResources />
+              </Section>
             )}
 
             {section === 'library' && (

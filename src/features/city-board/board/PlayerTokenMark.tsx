@@ -17,27 +17,52 @@ export function PlayerTokenMark({
   tokenId = DEFAULT_PLAYER_TOKEN,
   className = '',
   showLabel = true,
+  hopping = false,
 }: {
   tokenId?: string;
   className?: string;
   showLabel?: boolean;
+  hopping?: boolean;
 }) {
   return (
-    <span className="flex flex-col items-center gap-0.5">
-      <span
-        className={`animate-arrive player-token-halo flex items-center gap-1 rounded-full border-2 border-amber-400 bg-navy-950 px-2 py-1 shadow-[0_8px_22px_-5px_rgba(6,21,39,0.95)] ${className}`}
+    <div
+      className="player-isometric-token relative flex flex-col items-center pointer-events-none select-none"
+      style={{
+        transform: 'rotateZ(45deg) rotateX(-60deg) translateY(-20px)',
+        transformStyle: 'preserve-3d',
+      }}
+    >
+      {/* 3D Pawn Body with Hop Animation */}
+      <div
+        className={`flex flex-col items-center transition-transform ${
+          hopping ? 'animate-token-hop' : 'animate-arrive'
+        }`}
       >
-        <PlayerAvatarMark tokenId={tokenId} className="h-6 w-6 shrink-0" />
-        {showLabel && (
-          <span className="whitespace-nowrap text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
-            You
-          </span>
-        )}
-      </span>
-      <span
-        aria-hidden="true"
-        className="h-2 w-2 rotate-45 border-b-2 border-r-2 border-amber-400 bg-navy-950"
+        <div
+          className={`player-token-halo flex items-center gap-1.5 rounded-full border-2 border-amber-300 bg-navy-950 px-2.5 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.9)] transition-all ${className}`}
+        >
+          <PlayerAvatarMark tokenId={tokenId} className="h-7 w-7 shrink-0 drop-shadow" />
+          {showLabel && (
+            <span className="whitespace-nowrap text-[11px] font-black uppercase tracking-wider text-amber-300">
+              You
+            </span>
+          )}
+        </div>
+        {/* Pointer Tip */}
+        <span
+          aria-hidden="true"
+          className="h-2.5 w-2.5 -mt-1 rotate-45 border-b-2 border-r-2 border-amber-300 bg-navy-950 shadow-md"
+        />
+      </div>
+
+      {/* Pawn Shadow on Floor Tile */}
+      <div
+        className="absolute -bottom-2 h-4 w-9 rounded-full bg-navy-950/80 blur-[2px] transition-all"
+        style={{
+          transform: hopping ? 'scale(0.65)' : 'scale(1)',
+          opacity: hopping ? 0.35 : 0.85,
+        }}
       />
-    </span>
+    </div>
   );
 }

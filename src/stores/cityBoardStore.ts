@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Scenario } from '../../types';
 import type { CityDistrictId } from '../../types/city-board';
 import { api } from '../lib/api';
+import { demoScenarios } from '../../types/demo';
 import { BOARD_SPACES, normaliseBoardPosition } from '../features/city-board/data/board-data';
 
 interface CityBoardState {
@@ -71,10 +72,13 @@ export const useCityBoardStore = create<CityBoardState>((set, get) => ({
         catalogueStatus: 'ready',
         catalogueMode: result.mode,
       });
-    } catch (error) {
+    } catch {
+      // Offline fallback guarantee
       set({
-        catalogueStatus: 'error',
-        catalogueError: error instanceof Error ? error.message : 'Could not load missions.',
+        scenarios: demoScenarios.filter((s) => s.status === 'published'),
+        catalogueStatus: 'ready',
+        catalogueMode: 'demo',
+        catalogueError: null,
       });
     }
   },

@@ -181,7 +181,10 @@ export interface SkillCoverage {
 
 export type AdminSection =
   | 'overview'
+  | 'sessions'
   | 'library'
+  | 'builder'
   | 'review'
   | 'youth'
-  | 'insights';
+  | 'insights'
+  | 'resources';
