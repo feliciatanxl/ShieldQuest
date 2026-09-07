@@ -21,6 +21,7 @@ import { SquadPanel } from '../squad/SquadPanel';
 import { Assessment } from '../assessment/Assessment';
 import { PwaStatus } from '../../components/PwaStatus';
 import { PlayerOnboardingModal } from '../onboarding/PlayerOnboardingModal';
+import { BrandMark } from '../../design-system/BrandMark';
 
 export type GamePage = 'city' | 'squad' | 'guardians' | 'reflection';
 
@@ -67,11 +68,6 @@ export function PlayerExperience({
     }
   }, [setPreviewCode]);
 
-  useEffect(() => {
-    if (!localStorage.getItem('sq_onboarded_seen')) {
-      setOnboardingOpen(true);
-    }
-  }, []);
 
   const handleCompleteOnboarding = () => {
     localStorage.setItem('sq_onboarded_seen', 'true');
@@ -110,7 +106,7 @@ export function PlayerExperience({
             Replay Onboarding
           </button>
           <Link
-            to="/"
+            to="/website"
             className="rounded-lg border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/80 hover:bg-white/10"
           >
             Public Site
@@ -126,14 +122,7 @@ export function PlayerExperience({
 
       <header className="header">
         <button className="brand" onClick={() => showPage('city')} aria-label="ShieldQuest home">
-          <span className="brand-mark">
-            <Shield size={25} fill="currentColor" />
-            <span>✦</span>
-          </span>
-          <span>
-            Shield<span className="brand-light">Quest</span>
-            <small>YOUR CITY. YOUR CHOICES.</small>
-          </span>
+          <BrandMark variant="light" size="sm" subtitle="YOUR CITY. YOUR CHOICES." />
         </button>
         <nav className="desktop-nav" aria-label="Main navigation">
           {nav.map(({ id, label, icon: Icon }) => (
@@ -143,20 +132,20 @@ export function PlayerExperience({
               onClick={() => showPage(id)}
               aria-current={page === id ? 'page' : undefined}
             >
-              <Icon size={17} />
-              {label}
+              <Icon size={16} />
+              <span>{label}</span>
             </button>
           ))}
           <Link
             to="/peer-shield"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-300 hover:text-white"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
           >
             Peer Shield
           </Link>
         </nav>
         <button className="join-button" onClick={() => setPage('squad')}>
-          <Users size={17} /> Join a squad
-          <ArrowUpRight size={15} />
+          <Users size={16} /> <span>Join a squad</span>
+          <ArrowUpRight size={14} />
         </button>
       </header>
 
@@ -195,10 +184,14 @@ export function PlayerExperience({
           <span>
             <Shield size={14} /> A safer community starts with us.
           </span>
-          <Link to="/admin" className="flex items-center gap-1">
-            For facilitators
+          <button
+            type="button"
+            onClick={() => navigate('/admin')}
+            className="inline-flex items-center gap-1 hover:text-civic-600 transition"
+          >
+            <span>For facilitators</span>
             <ChevronRight size={14} />
-          </Link>
+          </button>
           <span className="footer-version">ShieldQuest · Preview 0.1</span>
         </footer>
       </main>

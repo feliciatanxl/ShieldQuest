@@ -99,6 +99,7 @@ export function DiceRoller({
             type="button"
             onClick={handleRoll}
             disabled={disabled || rolling}
+            aria-label={rolling ? 'Rolling…' : 'Roll dice'}
             className="group relative flex min-h-[64px] w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border-b-4 border-amber-800 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 px-5 text-navy-950 shadow-xl shadow-amber-500/25 transition active:translate-y-1 active:border-b-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {/* Shimmer Highlight */}
@@ -112,7 +113,7 @@ export function DiceRoller({
                 {rolling ? 'Advancing…' : 'Your Turn'}
               </span>
               <span className="mt-1 text-[20px] font-black uppercase tracking-wider text-navy-950">
-                {rolling ? 'Rolling…' : 'Roll Dice'}
+                {rolling ? 'Rolling…' : 'Roll dice'}
               </span>
             </div>
 

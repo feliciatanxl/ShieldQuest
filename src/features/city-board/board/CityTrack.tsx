@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SpaceMark } from './SpaceMark';
+import { SpaceMark, spaceStateLabel } from './SpaceMark';
 import { PlayerTokenMark } from './PlayerTokenMark';
 import { DistrictLandmark } from './DistrictLandmark';
 import { getGridTilePos, type GridTilePos } from './trackGeometry';
 import type { ResolvedSpace } from '../hooks/useBoard';
-import type { CityDistrictId, BoardGuardian } from '../../../../types/city-board';
+import { BOARD_SPACE_LABEL, type CityDistrictId, type BoardGuardian } from '../../../../types/city-board';
 
 export function CityTrack({
   spaces,
@@ -134,7 +134,7 @@ export function CityTrack({
               <button
                 type="button"
                 onClick={() => onOpenSpace(space)}
-                aria-label={`${space.title}, ${space.kind}`}
+                aria-current={isCurrent ? 'location' : undefined}
                 className={`isometric-tile-surface group relative flex h-full w-full flex-col items-center justify-center rounded-xl border-2 p-1 text-center shadow-md transition-all focus:outline-none ${
                   pos.isCorner
                     ? 'border-amber-400/90 bg-gradient-to-br from-amber-500/25 via-navy-900 to-navy-950 text-white shadow-amber-500/20'
@@ -175,10 +175,35 @@ export function CityTrack({
                           ? 'Sanctuary'
                           : space.title.split(' ')[0]}
                 </span>
+
+                <span className="sr-only">
+                  Space {space.index + 1} of {spaces.length}. {BOARD_SPACE_LABEL[space.kind]}.{' '}
+                  {space.title}. {spaceStateLabel(space, true)}.
+                  {isCurrent ? ' You are here.' : ''}
+                </span>
               </button>
             </div>
           );
         })}
+
+        {/* Off-perimeter spaces for DOM completeness and accessibility */}
+        <div className="sr-only">
+          {spaces.slice(16).map((space) => {
+            const isCur = space.index === tokenIndex;
+            return (
+              <button
+                key={space.index}
+                type="button"
+                onClick={() => onOpenSpace(space)}
+                aria-current={isCur ? 'location' : undefined}
+              >
+                Space {space.index + 1} of {spaces.length}. {BOARD_SPACE_LABEL[space.kind]}.{' '}
+                {space.title}. {spaceStateLabel(space, true)}.
+                {isCur ? ' You are here.' : ''}
+              </button>
+            );
+          })}
+        </div>
 
         {/* 3D UPRIGHT PLAYER PAWN IN CURRENT CELL */}
         <div

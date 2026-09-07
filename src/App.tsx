@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { PublicWebsite } from './features/public-site/PublicWebsite';
 import { FacilitatorLogin } from './features/admin/FacilitatorLogin';
@@ -42,13 +42,13 @@ function HashNavigationHandler() {
         hash.startsWith('#safety') ||
         hash.startsWith('#faq')
       ) {
-        if (location.pathname !== '/') navigate('/');
+        if (location.pathname !== '/website') navigate('/website');
       } else if (hash === '#facilitator' || hash === '#admin') {
         if (!location.pathname.startsWith('/admin')) navigate('/admin');
       } else if (hash === '#login') {
         if (location.pathname !== '/admin/login') navigate('/admin/login');
       } else if (hash === '#play' || hash === '#game') {
-        if (location.pathname !== '/board') navigate('/board');
+        if (location.pathname !== '/' && location.pathname !== '/board') navigate('/');
       } else if (hash === '#onboarding') {
         if (location.pathname !== '/onboarding') navigate('/onboarding');
       } else if (hash === '#peer-shield') {
@@ -71,16 +71,8 @@ export function App() {
     <BrowserRouter>
       <HashNavigationHandler />
       <Routes>
-        {/* Public Institutional Pages */}
-        <Route path="/" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/about" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/how-it-works" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/for-schools" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/safety" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/accessibility" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-        <Route path="/faq" element={<PublicWebsite onPlay={() => {}} onFacilitatorLogin={() => {}} />} />
-
-        {/* Player PWA Routes */}
+        {/* Canonical Player Experience (default root & game routes) */}
+        <Route path="/" element={<PlayerExperience initialPage="city" />} />
         <Route path="/board" element={<PlayerExperience initialPage="city" />} />
         <Route path="/play" element={<PlayerExperience initialPage="city" />} />
         <Route path="/join" element={<PlayerExperience initialPage="squad" />} />
@@ -92,6 +84,15 @@ export function App() {
         <Route path="/scenario/:id" element={<ScenarioRoutePage />} />
         <Route path="/minigame/:id" element={<MinigameRoutePage />} />
         <Route path="/peer-shield" element={<PeerShield />} />
+
+        {/* Public Institutional Pages */}
+        <Route path="/website" element={<PublicWebsite />} />
+        <Route path="/about" element={<PublicWebsite />} />
+        <Route path="/how-it-works" element={<PublicWebsite />} />
+        <Route path="/for-schools" element={<PublicWebsite />} />
+        <Route path="/safety" element={<PublicWebsite />} />
+        <Route path="/accessibility" element={<PublicWebsite />} />
+        <Route path="/faq" element={<PublicWebsite />} />
 
         {/* Shield Central Hub & Subpages */}
         <Route path="/shield-central" element={<ShieldCentralHub />} />

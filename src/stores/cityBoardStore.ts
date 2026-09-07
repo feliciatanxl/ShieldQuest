@@ -72,13 +72,12 @@ export const useCityBoardStore = create<CityBoardState>((set, get) => ({
         catalogueStatus: 'ready',
         catalogueMode: result.mode,
       });
-    } catch {
-      // Offline fallback guarantee
+    } catch (error) {
       set({
         scenarios: demoScenarios.filter((s) => s.status === 'published'),
-        catalogueStatus: 'ready',
+        catalogueStatus: 'error',
         catalogueMode: 'demo',
-        catalogueError: null,
+        catalogueError: error instanceof Error ? error.message : 'Could not load missions.',
       });
     }
   },

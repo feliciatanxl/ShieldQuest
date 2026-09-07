@@ -11,6 +11,12 @@ import {
   XCircle,
 } from 'lucide-react';
 
+export * from './Button';
+export * from './Card';
+export * from './PageHeader';
+export * from './PageContainer';
+export * from './BrandMark';
+
 export type StatusKind =
   | 'draft'
   | 'under_review'
@@ -20,7 +26,8 @@ export type StatusKind =
   | 'needs_changes'
   | 'high_risk'
   | 'medium_risk'
-  | 'low_risk';
+  | 'low_risk'
+  | 'info';
 
 export const STATUS_CONFIG: Record<
   StatusKind,
@@ -89,16 +96,25 @@ export const STATUS_CONFIG: Record<
     border: 'border-emerald-300',
     icon: Shield,
   },
+  info: {
+    label: 'Information',
+    bg: 'bg-civic-50',
+    text: 'text-civic-700',
+    border: 'border-civic-200',
+    icon: Info,
+  },
 };
 
 export function StatusBadge({
   status,
   size = 'md',
   showIcon = true,
+  className = '',
 }: {
   status: StatusKind;
   size?: 'sm' | 'md' | 'lg';
   showIcon?: boolean;
+  className?: string;
 }) {
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
   const Icon = config.icon;
@@ -111,7 +127,7 @@ export function StatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center font-bold uppercase tracking-wider rounded-full border ${config.bg} ${config.text} ${config.border} ${sizeClasses}`}
+      className={`inline-flex items-center font-bold uppercase tracking-wider rounded-full border ${config.bg} ${config.text} ${config.border} ${sizeClasses} ${className}`}
     >
       {showIcon && <Icon className={size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5'} />}
       <span>{config.label}</span>

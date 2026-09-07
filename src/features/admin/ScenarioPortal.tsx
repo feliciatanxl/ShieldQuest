@@ -297,13 +297,13 @@ export function ScenarioPortal({
                 ShieldQuest
               </p>
               <p className="text-[10px] font-bold uppercase tracking-wider text-civic-700">
-                Scenario Management Portal
+                Admin Portal
               </p>
             </div>
           </div>
 
           <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold uppercase leading-tight tracking-[0.12em] text-amber-700">
-            Prototype admin view
+            <span>Prototype Admin View</span>
             <span className="hidden sm:inline">
               {' '}
               · Demonstration environment · Simulated data

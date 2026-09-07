@@ -20,7 +20,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { PrototypeNotice } from '../../design-system/DesignSystem';
+import { PrototypeNotice, BrandMark } from '../../design-system/DesignSystem';
 
 interface PublicWebsiteProps {
   onPlay?: () => void;
@@ -44,7 +44,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
 
   const handleFacilitatorLogin = () => {
     if (onFacilitatorLogin) onFacilitatorLogin();
-    navigate('/admin/login');
+    navigate('/admin');
   };
 
   const handleSchoolsCta = () => {
@@ -167,7 +167,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
   const subpageType = location.pathname.replace(/^\//, '');
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased selection:bg-civic-500 selection:text-white">
+    <div className="min-h-screen bg-canvas font-sans text-slate-800 antialiased selection:bg-civic-500 selection:text-white">
       {/* ------------------------------------------------------------- */}
       {/* 1. INSTITUTIONAL HEADER & NAVIGATION                          */}
       {/* ------------------------------------------------------------- */}
@@ -177,19 +177,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 text-left focus:outline-none"
+            className="flex items-center text-left focus:outline-none"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-navy-900 to-navy-950 text-amber-400 shadow-md">
-              <Shield className="h-6 w-6 fill-current" />
-            </div>
-            <div>
-              <span className="text-xl font-black uppercase tracking-tight text-navy-950">
-                Shield<span className="text-civic-600">Quest</span>
-              </span>
-              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-                Project SHIELD · Youth Learning
-              </span>
-            </div>
+            <BrandMark variant="light" subtitle="Project SHIELD · Youth Learning" />
           </button>
 
           {/* Desktop Nav Links */}
@@ -259,8 +249,15 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
           <div className="hidden items-center gap-3 sm:flex">
             <button
               type="button"
+              onClick={handleFacilitatorLogin}
+              className="text-xs font-bold text-slate-600 hover:text-navy-950 transition px-2 py-1"
+            >
+              For facilitators
+            </button>
+            <button
+              type="button"
               onClick={handlePlay}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-civic-600 to-civic-700 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md shadow-civic-600/25 transition hover:brightness-110 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-xl bg-civic-600 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm transition hover:bg-civic-700 active:scale-95"
             >
               <Sparkles className="h-4 w-4" />
               <span>Try ShieldQuest</span>
@@ -1206,7 +1203,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 </p>
               </div>
 
-              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
                     <Eye className="h-5 w-5" />
@@ -1252,6 +1249,30 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
                     Can they step in constructively and help a friend make a safer choice?
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-base font-extrabold text-navy-950 uppercase">
+                    Retention
+                  </h3>
+                  <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
+                    Do participants recall key statutory definitions and safe habits weeks after workshop completion?
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-base font-extrabold text-navy-950 uppercase">
+                    Engagement
+                  </h3>
+                  <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
+                    Sustained participation, uncoerced squad debates, and voluntary replay of alternative branches.
                   </p>
                 </div>
               </div>

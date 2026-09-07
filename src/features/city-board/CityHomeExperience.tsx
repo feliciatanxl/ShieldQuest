@@ -12,6 +12,10 @@ import { CityTrack } from './board/CityTrack';
 import { DiceRoller } from './board/DiceRoller';
 import { SpaceSheet } from './board/SpaceSheet';
 import { DistrictSecuredCelebration } from './board/DistrictSecuredCelebration';
+import { DistrictSheet } from './DistrictSheet';
+import { DistrictDiscovery } from './DistrictDiscovery';
+import { DistrictScene } from './DistrictArt';
+import { DISTRICT_CHAPTER } from './data/world-data';
 import { CasebookDrawer } from './hud/CasebookDrawer';
 import { GuardianVaultDrawer } from './hud/GuardianVaultDrawer';
 import { SquadViewModal } from './hud/SquadViewModal';
@@ -19,7 +23,7 @@ import { CityInfoSheet } from './CityInfoSheet';
 import { useBoard, type ResolvedSpace } from './hooks/useBoard';
 import { useDiceTurn } from './hooks/useDiceTurn';
 import { useReducedMotion } from './hooks/useReducedMotion';
-import { useWorld } from './hooks/useWorld';
+import { useWorld, type ResolvedDistrict } from './hooks/useWorld';
 import { usePlayer } from './hooks/useCityPlayer';
 import { playCue } from './sound';
 import { useSessionStore } from '../../stores/sessionStore';
@@ -28,8 +32,8 @@ import type { CityDistrictId } from '../../../types/city-board';
 const DISTRICT_PROGRESSION: CityDistrictId[] = ['school', 'retail', 'digital', 'community'];
 
 export function CityHomeExperience() {
-  const { profile, guardians, equippedIn } = usePlayer();
-  const { districts } = useWorld();
+  const { profile, guardians, equippedIn, discoverDistrict } = usePlayer();
+  const { districts, progress } = useWorld();
   const reducedMotion = useReducedMotion(profile.settings.reducedMotion);
 
   // Active district in Monopoly Go loop (defaults to school, advances sequentially)
@@ -54,6 +58,37 @@ export function CityHomeExperience() {
   const [celebrationOpen, setCelebrationOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [goBonusToast, setGoBonusToast] = useState(false);
+  const [openDistrict, setOpenDistrict] = useState<ResolvedDistrict | null>(null);
+  const [discoveryDistrict, setDiscoveryDistrict] = useState<ResolvedDistrict | null>(null);
+  const [discoveryLanding, setDiscoveryLanding] = useState<ResolvedSpace | null>(null);
+
+  const openDistrictDirectly = (district: ResolvedDistrict) => {
+    if (turn.busy) return;
+    if (!district.discovered) {
+      discoverDistrict(district.id);
+      setDiscoveryLanding(null);
+      setDiscoveryDistrict(district);
+      return;
+    }
+    setOpenDistrict(district);
+  };
+
+  const closeDiscovery = () => {
+    const landed = discoveryLanding;
+    setDiscoveryDistrict(null);
+    setDiscoveryLanding(null);
+    if (landed) setLandedSpace(landed);
+  };
+
+  const exploreDiscoveredDistrict = () => {
+    if (!discoveryDistrict) return;
+    const target = discoveryDistrict;
+    setDiscoveryDistrict(null);
+    setDiscoveryLanding(null);
+    setLandedSpace(null);
+    turn.endTurn();
+    setOpenDistrict(target);
+  };
 
   const [landedSpace, setLandedSpace] = useState<ResolvedSpace | null>(null);
   const [landingSpace, setLandingSpace] = useState<ResolvedSpace | null>(null);
@@ -101,13 +136,24 @@ export function CityHomeExperience() {
       setLandingSpace(destination);
       const reveal = () => {
         setLandingSpace(null);
-        setLandedSpace(destination);
+        const districtId = destination.districtId;
+        const newlyDiscovered =
+          districtId && !profile.discoveredDistricts.includes(districtId);
+        if (newlyDiscovered && districtId) {
+          discoverDistrict(districtId);
+          setDiscoveryLanding(destination);
+          setDiscoveryDistrict(
+            districts.find((district) => district.id === districtId) ?? null,
+          );
+        } else {
+          setLandedSpace(destination);
+        }
       };
 
       if (reducedMotion) reveal();
       else landingTimer.current = setTimeout(reveal, 450);
     },
-    [reducedMotion, soundEnabled, spaces],
+    [districts, profile.discoveredDistricts, reducedMotion, soundEnabled, spaces, discoverDistrict],
   );
 
   const turn = useDiceTurn({
@@ -166,9 +212,9 @@ export function CityHomeExperience() {
       <div className="pointer-events-none absolute top-4 left-4 z-40 max-w-[220px] sm:max-w-[280px] rounded-2xl border border-white/20 bg-navy-950/85 px-3.5 py-2.5 shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-400">
-            Current Quest
-          </p>
+          <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-400">
+            ShieldQuest City
+          </h2>
         </div>
         <p className="mt-0.5 truncate text-[13px] font-extrabold uppercase tracking-tight text-white">
           {spaces[turn.tokenIndex]?.title ?? currentActiveDistrict?.name ?? 'School Street'}
@@ -224,6 +270,16 @@ export function CityHomeExperience() {
           <Sparkles className="h-3.5 w-3.5 text-amber-400" />
           <span>{profile.shieldTokens}</span>
         </div>
+
+        {/* Playwright-compatible definition list */}
+        <dl className="sr-only">
+          <dt>Coins</dt>
+          <dd>{profile.coins}</dd>
+          <dt>Resilience</dt>
+          <dd>{profile.resiliencePoints}</dd>
+          <dt>Shield Tokens</dt>
+          <dd>{profile.shieldTokens}</dd>
+        </dl>
 
         {/* Sound Toggle */}
         <button
@@ -292,7 +348,7 @@ export function CityHomeExperience() {
       {/* ------------------------------------------------------------- */}
       {/* 5. PINNED BOTTOM ACTION BAR: Tactile Monopoly Go Dice Roller   */}
       {/* ------------------------------------------------------------- */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+      <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-2 w-full max-w-[640px] px-4">
         <DiceRoller
           phase={turn.phase}
           value={turn.value}
@@ -302,9 +358,86 @@ export function CityHomeExperience() {
             landingSpace !== null ||
             aboutOpen ||
             celebrationOpen ||
+            openDistrict !== null ||
+            discoveryDistrict !== null ||
             isAdvancing
           }
         />
+
+        {/* City Chapter Progress Navigation */}
+        <nav aria-label="City chapter progress" className="w-full">
+          <ul className="grid grid-cols-4 gap-1.5 sm:gap-2">
+            {districts.map((district) => {
+              const isCurrent = district.id === activeDistrictId;
+              const state = district.cleared
+                ? 'Secured'
+                : isCurrent
+                  ? 'Current chapter'
+                  : district.discovered
+                    ? 'Discovered'
+                    : 'Unexplored';
+              const progressLabel =
+                district.total > 0
+                  ? `${district.completed}/${district.total}`
+                  : 'Chapter';
+              const chapter = DISTRICT_CHAPTER[district.id];
+
+              return (
+                <li key={district.id} className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => openDistrictDirectly(district)}
+                    aria-current={isCurrent ? 'location' : undefined}
+                    className={`chapter-chip relative flex min-h-[44px] sm:min-h-[50px] w-full flex-col justify-end overflow-hidden rounded-xl border px-1.5 pb-1 pt-1 text-left transition hover:-translate-y-0.5 hover:border-white/45 backdrop-blur-md ${
+                      isCurrent ? 'border-amber-400 bg-white/15' : 'border-white/15 bg-navy-950/80'
+                    }`}
+                  >
+                    <DistrictScene
+                      districtId={district.id}
+                      className={
+                        district.discovered
+                          ? 'opacity-35'
+                          : 'opacity-20 saturate-50 grayscale-[0.2]'
+                      }
+                    />
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/80 ${
+                        district.discovered ? 'to-navy-950/20' : 'to-white/10'
+                      }`}
+                    />
+                    <span className="relative flex w-full items-center justify-between gap-1">
+                      <span className="min-w-0 flex-1 truncate text-[9px] font-extrabold uppercase tracking-wide text-white">
+                        {district.id === 'digital' ? 'Digi' : district.name.split(' ')[0]}
+                      </span>
+                      <span className="text-[9px] font-extrabold tabular-nums text-amber-300">
+                        {progressLabel}
+                      </span>
+                    </span>
+                    <span className="relative mt-0.5 block w-full truncate text-[8px] font-bold uppercase tracking-[0.08em] text-white/65">
+                      {state}
+                    </span>
+                    <span className="sr-only">
+                      Open {district.name}, {chapter.label}:{' '}
+                      {chapter.title}.{' '}
+                      {district.total > 0
+                        ? `${district.completed} of ${district.total} built activities completed.`
+                        : 'Chapter available; activities are planned for prototype expansion.'}{' '}
+                      {state}.
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <p className="text-center text-[9px] leading-tight text-white/60">
+          The dice moves you. Your decisions shape what you learn.{' '}
+          <span className="font-bold text-white/80">
+            {progress.completed}/{progress.total} activities
+          </span>
+        </p>
       </div>
 
       {/* ------------------------------------------------------------- */}
@@ -319,6 +452,16 @@ export function CityHomeExperience() {
           landedSpace?.districtId ? districtNames[landedSpace.districtId] : 'Shield Central'
         }
         onClose={closeSheet}
+      />
+
+      {/* District Sheet for Chapter Exploration */}
+      <DistrictSheet district={openDistrict} onClose={() => setOpenDistrict(null)} />
+
+      {/* District Discovery Dialog */}
+      <DistrictDiscovery
+        district={discoveryDistrict}
+        onClose={closeDiscovery}
+        onExplore={exploreDiscoveredDistrict}
       />
 
       {/* District Secured Victory Burst & Fly-out Trigger */}

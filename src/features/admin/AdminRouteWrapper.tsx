@@ -1,6 +1,8 @@
-﻿import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ScenarioPortal } from './ScenarioPortal';
 import type { AdminSection } from '../../../types/admin.js';
+
+import { useCityBoardStore } from '../../stores/cityBoardStore';
 
 export function AdminRouteWrapper() {
   const location = useLocation();
@@ -28,7 +30,10 @@ export function AdminRouteWrapper() {
   return (
     <ScenarioPortal
       initialSection={section}
-      onReturnToGame={() => navigate('/board')}
+      onReturnToGame={() => {
+        useCityBoardStore.getState().navigate('/game');
+        navigate('/');
+      }}
     />
   );
 }

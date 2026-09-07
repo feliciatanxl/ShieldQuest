@@ -32,8 +32,8 @@ export const ADMIN_NAV: {
   { id: 'library', label: 'Scenario Library', icon: ListChecks },
   { id: 'builder', label: 'Scenario Builder', icon: PlusCircle },
   { id: 'review', label: 'Content Review', icon: ClipboardCheck },
-  { id: 'youth', label: 'Youth Missions', icon: Sprout },
-  { id: 'insights', label: 'Analytics & KPIs', icon: BarChart3 },
+  { id: 'youth', label: 'Youth-Created Missions', icon: Sprout },
+  { id: 'insights', label: 'Insights', icon: BarChart3 },
   { id: 'resources', label: 'Resources', icon: BookOpen },
 ];
 
@@ -54,16 +54,16 @@ export function AdminSidebar({
       <div className="hidden items-center gap-2.5 px-5 py-5 lg:flex">
         <span
           aria-hidden="true"
-          className="grid h-9 w-9 place-items-center rounded-xl bg-navy-900"
+          className="grid h-9 w-9 place-items-center rounded-xl bg-navy-900 shadow-sm"
         >
           <Shield className="h-4.5 w-4.5 text-amber-400" />
         </span>
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-civic-700">
-            Project SHIELD
+          <p className="text-[13px] font-black uppercase tracking-tight text-navy-950">
+            Shield<span className="text-civic-600">Quest</span>
           </p>
-          <p className="text-[13px] font-extrabold text-navy-900">
-            Prototype Admin View
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Admin Portal
           </p>
         </div>
       </div>

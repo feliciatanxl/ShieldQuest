@@ -15,7 +15,7 @@ export function CityBoard({
   onMission: (scenario: Scenario) => void;
   onNavigate: (page: 'guardians' | 'squad' | 'reflection' | 'portal') => void;
 }) {
-  const { view, navigate, scenarios, catalogueStatus, loadScenarios } =
+  const { view, navigate, scenarios, catalogueStatus, catalogueMode, loadScenarios } =
     useCityBoardStore();
   useEffect(() => {
     if (catalogueStatus === 'idle') void loadScenarios();
@@ -57,12 +57,26 @@ export function CityBoard({
 
   return (
     <div className="city-feature">
-      {/* Clean status without error banner for offline / pilot resilience */}
-      {catalogueStatus === 'loading' && (
-        <div className="city-api-status sr-only" role="status">
-          Loading missions…
-        </div>
-      )}
+      <div className="city-api-status" role="status">
+        {catalogueStatus === 'loading' ? (
+          'Loading missions…'
+        ) : catalogueStatus === 'error' ? (
+          <>
+            Missions could not be loaded. You can still explore the city.{' '}
+            <button
+              type="button"
+              onClick={() => void loadScenarios()}
+              className="underline ml-2"
+            >
+              Retry
+            </button>
+          </>
+        ) : catalogueMode === 'demo' ? (
+          'Mission previews · Progress lasts for this visit'
+        ) : (
+          'City missions'
+        )}
+      </div>
       <div className="city-viewport">
         {isMissionView(view) ? (
           <MissionPage view={view} />
