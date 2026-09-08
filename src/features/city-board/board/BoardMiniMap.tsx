@@ -20,8 +20,8 @@ export function BoardMiniMap({
   total: number;
 }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-white/12 bg-white/8 px-2.5 py-1.5">
-      <p className="shrink-0 text-[9px] font-bold uppercase leading-tight tracking-[0.14em] text-navy-100/70">
+    <div className="flex items-center gap-2.5 rounded-[10px] border border-white/12 bg-white/8 px-2.5 py-1.5">
+      <p className="shrink-0 text-[9px] font-bold uppercase leading-tight tracking-[0.14em] text-[var(--sq-ink-muted)]/70">
         City
         <br />
         map

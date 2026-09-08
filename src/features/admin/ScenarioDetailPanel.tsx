@@ -95,12 +95,12 @@ export function ScenarioDetailPanel({
       <header className="border-b border-line bg-surface-sunk px-6 py-5 pr-14">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
+            className={`inline-block rounded-[6px] border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
           >
             {row.status}
           </span>
           {row.isFlashMission && (
-            <span className="inline-flex items-center gap-1 rounded-md border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
+            <span className="inline-flex items-center gap-1 rounded-[6px] border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
               <Zap className="h-2.5 w-2.5" aria-hidden="true" />
               Flash Mission
             </span>
@@ -119,7 +119,7 @@ export function ScenarioDetailPanel({
 
       <div className="thin-scroll flex-1 space-y-6 overflow-y-auto px-6 py-5">
         {row.status === 'LIVE' && row.responses > 0 && (
-          <section className="rounded-xl border border-line bg-surface-sunk p-4">
+          <section className="rounded-[16px] border border-line bg-surface-sunk p-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">
               Safe decision rate
             </p>
@@ -144,7 +144,7 @@ export function ScenarioDetailPanel({
               simulated responses across cohorts.
             </p>
             {needsReview && (
-              <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[12px] leading-relaxed text-amber-700">
+              <p className="mt-2 rounded-[6px] border border-amber-200 bg-amber-50 p-2.5 text-[12px] leading-relaxed text-amber-700">
                 Below the {REVIEW_THRESHOLD}% review threshold. Review the
                 situation wording and debrief guidance.
               </p>
@@ -169,7 +169,7 @@ export function ScenarioDetailPanel({
             {row.competencies.map((comp) => (
               <li
                 key={comp}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-sunk px-2.5 py-1 text-[12px] font-bold text-navy-900"
+                className="inline-flex items-center gap-1.5 rounded-[6px] border border-line bg-surface-sunk px-2.5 py-1 text-[12px] font-bold text-navy-900"
               >
                 <span
                   aria-hidden="true"
@@ -206,7 +206,7 @@ export function ScenarioDetailPanel({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-line px-4 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[6px] border border-line px-4 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
             >
               <PencilLine className="h-4 w-4" aria-hidden="true" />
               Edit scenario draft
@@ -214,7 +214,7 @@ export function ScenarioDetailPanel({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-line px-4 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[6px] border border-line px-4 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
             >
               <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
               Flag for peer review

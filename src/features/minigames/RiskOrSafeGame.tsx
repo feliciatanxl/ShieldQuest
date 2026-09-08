@@ -41,11 +41,11 @@ export function RiskOrSafeBoard({
         Request {cardNumber} of {cardTotal}
       </p>
 
-      <div className="rounded-2xl border border-civic-200 bg-civic-50 p-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-civic-700">
+      <div className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-4">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-action-text)]">
           The request
         </p>
-        <p className="mt-1.5 text-[16px] font-semibold leading-snug text-navy-900">
+        <p className="mt-1.5 text-[16px] font-semibold leading-snug text-[var(--sq-ink)]">
           {card.situation}
         </p>
       </div>
@@ -73,16 +73,16 @@ export function RiskOrSafeBoard({
 
       {answered && (
         <section
-          className={`animate-rise rounded-2xl border p-4 ${
+          className={`animate-rise rounded-[16px] border p-4 ${
             correct
-              ? 'border-leaf-200 bg-leaf-50'
-              : 'border-amber-200 bg-amber-50'
+              ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15'
+              : 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15'
           }`}
           aria-live="polite"
         >
           <p
             className={`flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide ${
-              correct ? 'text-leaf-700' : 'text-amber-700'
+              correct ? 'text-[var(--sq-safe)]' : 'text-[var(--sq-earned-text)]'
             }`}
           >
             {correct ? (
@@ -101,7 +101,7 @@ export function RiskOrSafeBoard({
             <button
               type="button"
               onClick={onNext}
-              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
+              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-[10px] bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
             >
               {isLast ? 'See what you built' : 'Next request'}
             </button>
@@ -137,13 +137,13 @@ function CallButton({
    */
   const resting =
     tone === 'risk'
-      ? 'border-coral-200 bg-coral-50 text-coral-700 hover:border-coral-600'
-      : 'border-leaf-200 bg-leaf-50 text-leaf-700 hover:border-leaf-600';
+      ? 'border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15 text-[var(--sq-risk)] hover:border-coral-600'
+      : 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)] hover:border-leaf-600';
 
   const settled = isAnswer
-    ? 'border-leaf-600 bg-leaf-50 text-leaf-700'
+    ? 'border-leaf-600 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]'
     : isChoice
-      ? 'border-coral-600 bg-coral-50 text-coral-700'
+      ? 'border-coral-600 bg-[var(--sq-risk)]/15 text-[var(--sq-risk)]'
       : 'border-line bg-surface text-ink-soft opacity-70';
 
   return (
@@ -152,7 +152,7 @@ function CallButton({
       onClick={onClick}
       disabled={answered}
       aria-pressed={isChoice}
-      className={`flex min-h-[76px] flex-col items-center justify-center gap-1 rounded-2xl border-2 px-3 py-3 text-[15px] font-extrabold uppercase tracking-wide transition disabled:cursor-default ${
+      className={`flex min-h-[76px] flex-col items-center justify-center gap-1 rounded-[16px] border-2 px-3 py-3 text-[15px] font-extrabold uppercase tracking-wide transition disabled:cursor-default ${
         answered ? settled : resting
       }`}
     >

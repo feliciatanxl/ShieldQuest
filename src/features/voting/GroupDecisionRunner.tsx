@@ -125,13 +125,13 @@ export function GroupDecisionRunner({
           <Link
             href={backHref}
             aria-label={backLabel}
-            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white"
+            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-[10px] text-white/80 transition hover:bg-white/10 hover:text-white"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/12 text-white"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white/12 text-white"
           >
             <Vote className="h-5 w-5" />
           </span>
@@ -143,7 +143,7 @@ export function GroupDecisionRunner({
               {scenario.title}
             </h1>
           </div>
-          <span className="shrink-0 rounded-lg bg-white/12 px-2 py-1 text-[11px] font-bold tabular-nums text-white">
+          <span className="shrink-0 rounded-[6px] bg-white/12 px-2 py-1 text-[11px] font-bold tabular-nums text-white">
             {stageIndex + 1}/{STAGES.length}
           </span>
         </div>
@@ -161,9 +161,9 @@ export function GroupDecisionRunner({
                 <li key={s.id} className="shrink-0">
                   <span
                     aria-current={active ? 'step' : undefined}
-                    className={`flex min-h-[28px] items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                    className={`flex min-h-[28px] items-center gap-1.5 rounded-[6px] px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
                       active
-                        ? 'bg-white text-coral-700'
+                        ? 'bg-white text-[var(--sq-risk)]'
                         : done
                           ? 'bg-white/18 text-white'
                           : 'bg-white/8 text-white/60'
@@ -184,10 +184,10 @@ export function GroupDecisionRunner({
       </header>
 
       {/* Framing */}
-      <div className="border-b border-coral-100 bg-coral-50">
+      <div className="border-b border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15">
         <div className={`${band} px-4 py-2.5 xl:px-6 xl:py-3.5`}>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-coral-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[6px] bg-coral-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
               <Users className="h-3 w-3" aria-hidden="true" />
               Think · Vote · Explain
             </span>
@@ -195,7 +195,7 @@ export function GroupDecisionRunner({
               {scenario.category}
             </p>
           </div>
-          <p className="mt-1 text-[14px] font-bold leading-snug text-coral-700">
+          <p className="mt-1 text-[14px] font-bold leading-snug text-[var(--sq-risk)]">
             {STAGES[stageIndex].label}
           </p>
           <p className="mt-0.5 text-[13px] font-semibold leading-snug text-ink-muted">
@@ -220,7 +220,7 @@ export function GroupDecisionRunner({
 
         <div
           ref={panelRef}
-          className="scroll-mt-28 space-y-3 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-1.5 xl:sticky xl:top-5 xl:self-start xl:rounded-2xl xl:border xl:border-line xl:bg-surface xl:px-5 xl:py-5 xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]"
+          className="scroll-mt-28 space-y-3 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-1.5 xl:sticky xl:top-5 xl:self-start xl:rounded-[16px] xl:border xl:border-line xl:bg-surface xl:px-5 xl:py-5 xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]"
         >
           {stage === 'THINK' && (
             <ThinkStage
@@ -286,7 +286,7 @@ export function GroupDecisionRunner({
                 guardian ? (
                   <GuardianPlate
                     guardian={guardian}
-                    className="h-10 w-10 rounded-2xl text-[15px]"
+                    className="h-10 w-10 rounded-[16px] text-[15px]"
                     tone="amber"
                   />
                 ) : null
@@ -309,7 +309,7 @@ export function GroupDecisionRunner({
 /** Never optional, and never smaller than the numbers it qualifies. */
 function PrototypeNote({ children }: { children?: React.ReactNode }) {
   return (
-    <p className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11.5px] font-semibold leading-snug text-amber-700">
+    <p className="mt-2 flex items-start gap-1.5 rounded-[6px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-2.5 py-1.5 text-[11.5px] font-semibold leading-snug text-[var(--sq-earned-text)]">
       <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
       {children ?? (
         <>
@@ -328,9 +328,9 @@ function PrototypeNote({ children }: { children?: React.ReactNode }) {
  */
 function RoleCard({ role, round }: { role: PeerRole; round: number }) {
   return (
-    <div className="mt-2 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5">
+    <div className="mt-2 rounded-[10px] border border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 px-3 py-2.5">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-teal-700">
+        <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--sq-peer)]">
           <UserRoundCheck className="h-3.5 w-3.5" aria-hidden="true" />
           Your role this round
         </p>
@@ -338,7 +338,7 @@ function RoleCard({ role, round }: { role: PeerRole; round: number }) {
           Round {round + 1} · Facilitated role demonstration
         </p>
       </div>
-      <p className="mt-1 text-[15px] font-extrabold uppercase tracking-wide text-navy-900">
+      <p className="mt-1 text-[15px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
         {role.name}
       </p>
       <p className="mt-0.5 text-[12.5px] font-semibold leading-snug text-ink">
@@ -355,8 +355,8 @@ function RoleCard({ role, round }: { role: PeerRole; round: number }) {
 /** The role's question, brought back at the point in the flow it is for. */
 function RoleFocus({ role }: { role: PeerRole }) {
   return (
-    <div className="rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5">
-      <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-teal-700">
+    <div className="rounded-[10px] border border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 px-3 py-2.5">
+      <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--sq-peer)]">
         <UserRoundCheck className="h-3.5 w-3.5" aria-hidden="true" />
         Role focus · {role.name}
       </p>
@@ -379,7 +379,7 @@ function StageHeading({
   return (
     <div>
       <SectionLabel>{eyebrow}</SectionLabel>
-      <h2 className="mt-1 text-[17px] font-extrabold leading-snug tracking-tight text-navy-900">
+      <h2 className="mt-1 text-[17px] font-extrabold leading-snug tracking-tight text-[var(--sq-ink)]">
         {title}
       </h2>
       {caption && (
@@ -392,7 +392,7 @@ function StageHeading({
 }
 
 const primaryButton =
-  'flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-b-4 border-coral-700 bg-coral-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-coral-700 active:translate-y-[3px] active:border-b-0';
+  'flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-b-4 border-coral-700 bg-coral-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-coral-700 active:translate-y-[3px] active:border-b-0';
 
 /* ------------------------------------------------------------------ */
 /* Stage 1 — Think                                                     */
@@ -408,7 +408,7 @@ function ThinkStage({
   onDone: () => void;
 }) {
   return (
-    <section className="space-y-3 rounded-2xl border border-line bg-surface-sunk p-4 xl:border-0 xl:bg-transparent xl:p-0">
+    <section className="space-y-3 rounded-[16px] border border-line bg-surface-sunk p-4 xl:border-0 xl:bg-transparent xl:p-0">
       <StageHeading
         eyebrow="Step 1 · Think"
         title={question}
@@ -460,7 +460,7 @@ function VoteStage({
         title={heading}
         caption={caption}
       />
-      <p className="text-[13px] font-bold text-navy-900">{question}</p>
+      <p className="text-[13px] font-bold text-[var(--sq-ink)]">{question}</p>
       <ul className="space-y-2">
         {options.map((option, i) => {
           const wasFirst = firstChoiceId === option.id;
@@ -469,27 +469,27 @@ function VoteStage({
               <button
                 type="button"
                 onClick={() => onChoose(option.id)}
-                className={`flex min-h-[64px] w-full items-start gap-2.5 rounded-2xl border-2 px-3.5 py-3 text-left transition ${
+                className={`flex min-h-[64px] w-full items-start gap-2.5 rounded-[16px] border-2 px-3.5 py-3 text-left transition ${
                   wasFirst
-                    ? 'border-civic-500 bg-civic-50'
-                    : 'border-line-strong bg-surface hover:border-coral-600 hover:bg-coral-50'
+                    ? 'border-civic-500 bg-[var(--sq-action)]/15'
+                    : 'border-line-strong bg-surface hover:border-coral-600 hover:bg-[var(--sq-risk)]/15'
                 }`}
               >
                 <span
                   aria-hidden="true"
-                  className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
+                  className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[6px] border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
                 >
                   {i + 1}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[14.5px] font-bold leading-snug text-navy-900">
+                  <span className="block text-[14.5px] font-bold leading-snug text-[var(--sq-ink)]">
                     {option.label}
                   </span>
                   <span className="mt-0.5 block text-[12.5px] leading-snug text-ink-muted">
                     {option.hint}
                   </span>
                   {wasFirst && (
-                    <span className="mt-1.5 inline-block rounded-md bg-civic-600 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
+                    <span className="mt-1.5 inline-block rounded-[6px] bg-civic-600 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
                       Your first vote
                     </span>
                   )}
@@ -526,11 +526,11 @@ function GroupStage({
         caption="Nobody is named and nothing is attributed. What a group is looking at here is its own spread — including how many people picked what they picked quietly."
       />
 
-      <div className="rounded-2xl border border-line bg-surface p-3.5">
+      <div className="rounded-[16px] border border-line bg-surface p-3.5">
         <p className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
           <Users className="h-3.5 w-3.5" aria-hidden="true" />
           Simulated Group Responses
-          <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+          <span className="rounded-[6px] bg-[var(--sq-earned)]/15 px-1.5 py-0.5 text-[10px] text-[var(--sq-earned-text)]">
             Demonstration only
           </span>
         </p>
@@ -547,9 +547,9 @@ function GroupStage({
       </div>
 
       {mine && (
-        <div className="rounded-2xl border border-civic-200 bg-civic-50 p-3.5">
+        <div className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-3.5">
           <SectionLabel>What your vote means here</SectionLabel>
-          <p className="mt-1 text-[14px] font-bold leading-snug text-navy-900">
+          <p className="mt-1 text-[14px] font-bold leading-snug text-[var(--sq-ink)]">
             {mine.label}
           </p>
           <p className="mt-1 text-[13px] leading-relaxed text-ink">
@@ -585,15 +585,15 @@ function VoteBar({
   return (
     <li>
       <p className="flex items-baseline justify-between gap-2">
-        <span className="min-w-0 text-[13px] font-semibold leading-snug text-navy-900">
+        <span className="min-w-0 text-[13px] font-semibold leading-snug text-[var(--sq-ink)]">
           {label}
           {mine && (
-            <span className="ml-1.5 rounded-md bg-civic-600 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
+            <span className="ml-1.5 rounded-[6px] bg-civic-600 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
               You
             </span>
           )}
         </span>
-        <span className="shrink-0 text-[13px] font-extrabold tabular-nums text-navy-900">
+        <span className="shrink-0 text-[13px] font-extrabold tabular-nums text-[var(--sq-ink)]">
           {pct}%
         </span>
       </p>
@@ -652,10 +652,10 @@ function ExplainStage({
                 type="button"
                 onClick={() => onToggle(factor.id)}
                 aria-pressed={active}
-                className={`min-h-[44px] rounded-xl border-2 px-3 py-2 text-left text-[13px] font-semibold leading-snug transition ${
+                className={`min-h-[44px] rounded-[10px] border-2 px-3 py-2 text-left text-[13px] font-semibold leading-snug transition ${
                   active
-                    ? 'border-coral-600 bg-coral-50 text-coral-700'
-                    : 'border-line-strong bg-surface text-navy-900 hover:border-coral-600'
+                    ? 'border-coral-600 bg-[var(--sq-risk)]/15 text-[var(--sq-risk)]'
+                    : 'border-line-strong bg-surface text-[var(--sq-ink)] hover:border-coral-600'
                 }`}
               >
                 {factor.label}
@@ -677,11 +677,11 @@ function ExplainStage({
         </button>
       ) : (
         <>
-          <div className="rounded-2xl border border-line bg-surface p-3.5">
+          <div className="rounded-[16px] border border-line bg-surface p-3.5">
             <p className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
               <Users className="h-3.5 w-3.5" aria-hidden="true" />
               Simulated reasons given
-              <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+              <span className="rounded-[6px] bg-[var(--sq-earned)]/15 px-1.5 py-0.5 text-[10px] text-[var(--sq-earned-text)]">
                 Demonstration only
               </span>
             </p>
@@ -701,7 +701,7 @@ function ExplainStage({
             </p>
           </div>
 
-          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-3.5">
+          <div className="rounded-[16px] border border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 p-3.5">
             <SectionLabel>Talk about it</SectionLabel>
             <ul className="mt-1.5 space-y-1.5">
               {scenario.discussionPrompts.map((prompt) => (
@@ -777,23 +777,23 @@ function DebriefStage({
         {scenario.debrief.body}
       </p>
 
-      <div className="rounded-2xl border border-line bg-surface-sunk p-3.5">
+      <div className="rounded-[16px] border border-line bg-surface-sunk p-3.5">
         <SectionLabel>Your two votes</SectionLabel>
         <dl className="mt-1.5 space-y-1.5 text-[13px]">
           <div className="flex gap-2">
             <dt className="w-[92px] shrink-0 font-bold text-ink-soft">First</dt>
-            <dd className="font-semibold text-navy-900">{firstLabel ?? '—'}</dd>
+            <dd className="font-semibold text-[var(--sq-ink)]">{firstLabel ?? '—'}</dd>
           </div>
           <div className="flex gap-2">
             <dt className="w-[92px] shrink-0 font-bold text-ink-soft">After the room</dt>
-            <dd className="font-semibold text-navy-900">{finalLabel ?? '—'}</dd>
+            <dd className="font-semibold text-[var(--sq-ink)]">{finalLabel ?? '—'}</dd>
           </div>
         </dl>
         <p
-          className={`mt-2 inline-block rounded-lg px-2.5 py-1 text-[12.5px] font-bold ${
+          className={`mt-2 inline-block rounded-[6px] px-2.5 py-1 text-[12.5px] font-bold ${
             changed
-              ? 'bg-leaf-50 text-leaf-700'
-              : 'bg-civic-50 text-civic-700'
+              ? 'bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]'
+              : 'bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]'
           }`}
         >
           {changed
@@ -802,11 +802,11 @@ function DebriefStage({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-line bg-surface p-3.5">
+      <div className="rounded-[16px] border border-line bg-surface p-3.5">
         <p className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
           <Users className="h-3.5 w-3.5" aria-hidden="true" />
           Simulated second vote
-          <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+          <span className="rounded-[6px] bg-[var(--sq-earned)]/15 px-1.5 py-0.5 text-[10px] text-[var(--sq-earned-text)]">
             Demonstration only
           </span>
         </p>
@@ -823,7 +823,7 @@ function DebriefStage({
       </div>
 
       {factorLabels.length > 0 && (
-        <div className="rounded-2xl border border-civic-200 bg-civic-50 p-3.5">
+        <div className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-3.5">
           <SectionLabel>The reasons you named</SectionLabel>
           <ul className="mt-1.5 space-y-1">
             {factorLabels.map((label) => (
@@ -832,7 +832,7 @@ function DebriefStage({
                 className="flex gap-2 text-[13px] leading-snug text-ink"
               >
                 <Check
-                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-civic-700"
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--sq-action-text)]"
                   strokeWidth={3}
                   aria-hidden="true"
                 />
@@ -843,7 +843,7 @@ function DebriefStage({
         </div>
       )}
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5">
+      <div className="rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 p-3.5">
         <SectionLabel>What was in the situation</SectionLabel>
         <ul className="mt-1.5 space-y-1">
           {scenario.debrief.warningSigns.map((sign) => (
@@ -861,14 +861,14 @@ function DebriefStage({
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-leaf-200 bg-leaf-50 p-3.5">
+      <div className="rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 p-3.5">
         <SectionLabel>A safer response</SectionLabel>
         <p className="mt-1 text-[13.5px] leading-relaxed text-ink">
           {scenario.debrief.saferResponse}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-teal-200 bg-teal-50 p-3.5">
+      <div className="rounded-[16px] border border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 p-3.5">
         <SectionLabel>Roles rotate</SectionLabel>
         <p className="mt-1 text-[13px] leading-relaxed text-ink">
           You held <strong>{role.name}</strong> for round {round + 1}. Running
@@ -886,7 +886,7 @@ function DebriefStage({
                 className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-600"
               />
               <span>
-                <span className="font-bold text-navy-900">{r.name}</span> —{' '}
+                <span className="font-bold text-[var(--sq-ink)]">{r.name}</span> —{' '}
                 {r.purpose}
               </span>
             </li>
@@ -897,7 +897,7 @@ function DebriefStage({
         </p>
       </div>
 
-      <div className="rounded-2xl border border-line bg-surface-sunk p-3.5">
+      <div className="rounded-[16px] border border-line bg-surface-sunk p-3.5">
         <SectionLabel>For the facilitator</SectionLabel>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
           {scenario.debrief.facilitatorNote}
@@ -905,7 +905,7 @@ function DebriefStage({
       </div>
 
       {guardianAward === null && (
-        <div className="rounded-2xl border border-civic-200 bg-civic-50 p-3.5">
+        <div className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-3.5">
           <SectionLabel>Practice run complete</SectionLabel>
           <p className="mt-1 text-[13px] leading-relaxed text-ink">
             You have already earned the progression reward for this activity, so
@@ -922,11 +922,11 @@ function DebriefStage({
         />
         {guardianName && (
           <span
-            className={`inline-flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-[13px] font-bold ${
+            className={`inline-flex items-center gap-2 rounded-[10px] border px-2.5 py-1.5 text-[13px] font-bold ${
               guardianAward === 'MET'
-                ? 'border-leaf-200 bg-leaf-50 text-leaf-700'
+                ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]'
                 : guardianAward === 'PROGRESSED'
-                  ? 'border-amber-200 bg-amber-50 text-amber-700'
+                  ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
                   : 'border-line bg-surface-sunk text-ink-muted'
             }`}
           >
@@ -939,9 +939,9 @@ function DebriefStage({
           </span>
         )}
         <span
-          className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[13px] font-bold tabular-nums ${
+          className={`inline-flex items-center gap-1.5 rounded-[10px] border px-2.5 py-1.5 text-[13px] font-bold tabular-nums ${
             tokensAwarded > 0
-              ? 'border-amber-200 bg-amber-50 text-amber-700'
+              ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
               : 'border-line bg-surface-sunk text-ink-muted'
           }`}
         >
@@ -955,21 +955,21 @@ function DebriefStage({
       <div className="space-y-2.5 pt-1">
         <Link
           href="/game"
-          className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
+          className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
         >
           Return to city
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
         <Link
           href={backHref}
-          className="flex min-h-[48px] w-full items-center justify-center rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+          className="flex min-h-[48px] w-full items-center justify-center rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
         >
           Back to the district
         </Link>
         <button
           type="button"
           onClick={onRestart}
-          className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+          className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           Run it again as {nextPeerRole(round).name}

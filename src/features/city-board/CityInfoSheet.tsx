@@ -39,12 +39,12 @@ export function CityInfoSheet({
         />
 
         <header className="shrink-0 border-b border-line px-4 pb-3 pt-3 pr-12">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-civic-700">
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--sq-action-text)]">
             Project SHIELD
           </p>
           <h2
             id="about-sheet-title"
-            className="mt-0.5 text-[18px] font-extrabold tracking-tight text-navy-900"
+            className="mt-0.5 text-[18px] font-extrabold tracking-tight text-[var(--sq-ink)]"
           >
             About ShieldQuest
           </h2>
@@ -56,12 +56,12 @@ export function CityInfoSheet({
             delivered as a talk.
           </p>
 
-          <section className="rounded-2xl border border-line bg-surface-sunk p-3.5">
+          <section className="rounded-[16px] border border-line bg-surface-sunk p-3.5">
             <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
               <Route className="h-3.5 w-3.5" aria-hidden="true" />
               How a turn works
             </h3>
-            <p className="mt-1.5 text-[13px] font-bold text-navy-900">
+            <p className="mt-1.5 text-[13px] font-bold text-[var(--sq-ink)]">
               Roll → Move → Land → Play → Decide → Learn → Back to the board
             </p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
@@ -70,8 +70,8 @@ export function CityInfoSheet({
             </p>
           </section>
 
-          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5">
-            <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-700">
+          <section className="rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 p-3.5">
+            <h3 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-earned-text)]">
               <Dices className="h-3.5 w-3.5" aria-hidden="true" />
               What the dice does
             </h3>
@@ -115,7 +115,7 @@ export function CityInfoSheet({
             </ul>
           </section>
 
-          <p className="flex items-start gap-2 rounded-xl border border-line bg-surface-sunk px-3.5 py-3 text-[12px] leading-relaxed text-ink-muted">
+          <p className="flex items-start gap-2 rounded-[10px] border border-line bg-surface-sunk px-3.5 py-3 text-[12px] leading-relaxed text-ink-muted">
             <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             ShieldQuest records what you have practised so it can suggest what to practise next. It
             does not profile you, predict behaviour, or rank you against other participants.
@@ -125,7 +125,7 @@ export function CityInfoSheet({
         <div className="shrink-0 space-y-2.5 border-t border-line px-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] pt-3">
           <Link
             href="/admin"
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-line px-3 text-[13px] font-semibold text-ink-muted transition hover:border-civic-200 hover:text-civic-700"
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[10px] border border-line px-3 text-[13px] font-semibold text-ink-muted transition hover:border-[var(--sq-action)]/40 hover:text-[var(--sq-action-text)]"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
             Scenario Management Portal

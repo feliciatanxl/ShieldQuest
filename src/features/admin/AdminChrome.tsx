@@ -54,7 +54,7 @@ export function AdminSidebar({
       <div className="hidden items-center gap-2.5 px-5 py-5 lg:flex">
         <span
           aria-hidden="true"
-          className="grid h-9 w-9 place-items-center rounded-xl bg-navy-900 shadow-sm"
+          className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900 shadow-sm"
         >
           <Shield className="h-4.5 w-4.5 text-amber-400" />
         </span>
@@ -62,7 +62,7 @@ export function AdminSidebar({
           <p className="text-[13px] font-black uppercase tracking-tight text-navy-950">
             Shield<span className="text-civic-600">Quest</span>
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--sq-ink-muted)]">
             Admin Portal
           </p>
         </div>
@@ -78,7 +78,7 @@ export function AdminSidebar({
                   type="button"
                   onClick={() => onSelect(id)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex min-h-[44px] w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-left text-[14px] font-semibold transition ${
+                  className={`flex min-h-[44px] w-full items-center gap-2.5 whitespace-nowrap rounded-[6px] px-3 py-2 text-left text-[14px] font-semibold transition ${
                     isActive
                       ? 'bg-civic-50 text-civic-700 ring-1 ring-civic-200'
                       : 'text-ink-muted hover:bg-canvas hover:text-ink'
@@ -87,12 +87,12 @@ export function AdminSidebar({
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span className="min-w-0 flex-1 text-left">{label}</span>
                   {id === 'review' && reviewCount > 0 && (
-                    <span className="ml-auto shrink-0 rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700 tabular-nums">
+                    <span className="ml-auto shrink-0 rounded-[6px] bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700 tabular-nums">
                       {reviewCount}
                     </span>
                   )}
                   {id === 'youth' && youthCount > 0 && (
-                    <span className="ml-auto shrink-0 rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700 tabular-nums">
+                    <span className="ml-auto shrink-0 rounded-[6px] bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700 tabular-nums">
                       {youthCount}
                     </span>
                   )}
@@ -126,7 +126,7 @@ export function MetricCard({
   const isAttention = tone === 'attention';
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border bg-surface p-4 transition ${
+      className={`relative overflow-hidden rounded-[16px] border bg-surface p-4 transition ${
         isAttention ? 'border-amber-200' : 'border-line'
       }`}
     >
@@ -143,7 +143,7 @@ export function MetricCard({
         {Icon && (
           <span
             aria-hidden="true"
-            className={`grid h-8 w-8 place-items-center rounded-lg ${
+            className={`grid h-8 w-8 place-items-center rounded-[6px] ${
               isAttention
                 ? 'bg-amber-50 text-amber-700'
                 : 'bg-surface-sunk text-ink-soft'
@@ -220,7 +220,7 @@ export function AdminSection({
             </h2>
             {badge && (
               <span
-                className={`rounded-md px-2 py-0.5 text-[11px] font-bold tabular-nums ${
+                className={`rounded-[6px] px-2 py-0.5 text-[11px] font-bold tabular-nums ${
                   badge.tone === 'attention'
                     ? 'bg-amber-100 text-amber-700'
                     : 'bg-surface-sunk text-ink-muted'
@@ -259,9 +259,9 @@ export function InsightCard({ insight }: { insight: Insight }) {
         : 'bg-civic-100 text-civic-700';
 
   return (
-    <div className={`rounded-xl border p-4 ${tone}`}>
+    <div className={`rounded-[16px] border p-4 ${tone}`}>
       <span
-        className={`inline-block rounded-md px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide ${badgeTone}`}
+        className={`inline-block rounded-[6px] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide ${badgeTone}`}
       >
         {insight.label}
       </span>
@@ -280,7 +280,7 @@ export function InsightCard({ insight }: { insight: Insight }) {
 
 export function SimulatedDataNote({ children }: { children?: ReactNode }) {
   return (
-    <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+    <div className="mt-3 flex items-start gap-2.5 rounded-[10px] border border-amber-200 bg-amber-50 px-4 py-3">
       <Lock className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" aria-hidden="true" />
       <p className="text-[12.5px] leading-relaxed text-amber-700">
         {children ?? (
@@ -315,7 +315,7 @@ export function DataSafeguardCard({
 
   if (compact) {
     return (
-      <div className="rounded-xl border border-line bg-surface-sunk p-3.5">
+      <div className="rounded-[16px] border border-line bg-surface-sunk p-3.5">
         <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-civic-700">
           <Shield className="h-3.5 w-3.5" aria-hidden="true" />
           Safeguards in place
@@ -328,7 +328,7 @@ export function DataSafeguardCard({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-surface p-5">
+    <div className="rounded-[16px] border border-line bg-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
         <div>
           <h3 className="text-[15px] font-extrabold text-navy-900">
@@ -343,7 +343,7 @@ export function DataSafeguardCard({
           <button
             type="button"
             onClick={onResetDemo}
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-line px-3 text-[12.5px] font-semibold text-ink-muted transition hover:border-coral-200 hover:text-coral-700"
+            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-[6px] border border-line px-3 text-[12.5px] font-semibold text-ink-muted transition hover:border-coral-200 hover:text-coral-700"
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             Reset demo storage

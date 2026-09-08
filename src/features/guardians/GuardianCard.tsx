@@ -55,18 +55,18 @@ export function GuardianCard({
 
   return (
     <article
-      className={`rounded-2xl border p-3.5 ${
+      className={`rounded-[16px] border p-3.5 ${
         !met
           ? 'border-dashed border-line-strong bg-surface-sunk'
           : featured
-            ? 'border-amber-200 bg-amber-50'
+            ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15'
             : 'border-line bg-surface'
       }`}
     >
       <div className="flex items-start gap-3">
         <GuardianPlate
           guardian={guardian}
-          className={`h-11 w-11 rounded-2xl text-[17px] ${aura ? 'guardian-aura' : ''} ${
+          className={`h-11 w-11 rounded-[16px] text-[17px] ${aura ? 'guardian-aura' : ''} ${
             met ? '' : 'opacity-55 saturate-50'
           }`}
           tone={met && featured ? 'amber' : 'navy'}
@@ -74,17 +74,17 @@ export function GuardianCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <h3 className="text-base font-extrabold uppercase tracking-wide text-navy-900">
+            <h3 className="text-base font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
               {guardian.name}
             </h3>
             {met && (
-              <span className="rounded-md bg-navy-900/8 px-1.5 py-0.5 text-[11px] font-bold text-navy-800">
+              <span className="rounded-[6px] bg-navy-900/8 px-1.5 py-0.5 text-[11px] font-bold text-[var(--sq-ink)]">
                 Level {level}
               </span>
             )}
             <MetBadge met={met} />
           </div>
-          <p className="mt-0.5 text-[13px] font-bold text-civic-700">{guardian.skill}</p>
+          <p className="mt-0.5 text-[13px] font-bold text-[var(--sq-action-text)]">{guardian.skill}</p>
           <p className="mt-1 text-[13px] italic text-ink-muted">“{guardian.motto}”</p>
         </div>
       </div>
@@ -95,7 +95,7 @@ export function GuardianCard({
             <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
               {guardian.skill} progress
             </span>
-            <span className="text-[13px] font-bold tabular-nums text-navy-900">
+            <span className="text-[13px] font-bold tabular-nums text-[var(--sq-ink)]">
               {progress} / {target}
             </span>
           </div>
@@ -109,13 +109,13 @@ export function GuardianCard({
           </p>
         </div>
       ) : (
-        <div className="mt-3 rounded-xl border border-line bg-surface px-3 py-2.5">
+        <div className="mt-3 rounded-[10px] border border-line bg-surface px-3 py-2.5">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
             How you meet {guardian.name}
           </p>
           <p className="mt-1 text-[13px] leading-snug text-ink-muted">
             Complete your first{' '}
-            <span className="font-bold text-navy-900">{COMPETENCY_LABEL[guardian.competency]}</span>{' '}
+            <span className="font-bold text-[var(--sq-ink)]">{COMPETENCY_LABEL[guardian.competency]}</span>{' '}
             activity in the city. {guardian.description}
           </p>
         </div>
@@ -133,12 +133,12 @@ export function GuardianCard({
  */
 export function MetBadge({ met }: { met: boolean }) {
   return met ? (
-    <span className="inline-flex items-center gap-1 rounded-md bg-leaf-100 px-1.5 py-0.5 text-[11px] font-bold text-leaf-700">
+    <span className="inline-flex items-center gap-1 rounded-[6px] bg-[var(--sq-safe)]/15 px-1.5 py-0.5 text-[11px] font-bold text-[var(--sq-safe)]">
       <Handshake className="h-3 w-3" aria-hidden="true" />
       Met
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-md bg-navy-900/6 px-1.5 py-0.5 text-[11px] font-bold text-ink-soft">
+    <span className="inline-flex items-center gap-1 rounded-[6px] bg-navy-900/6 px-1.5 py-0.5 text-[11px] font-bold text-ink-soft">
       <CircleDashed className="h-3 w-3" aria-hidden="true" />
       Not yet met
     </span>
@@ -163,7 +163,7 @@ export function GuardianProgressNote({
 }) {
   if (award === 'MET') {
     return (
-      <p className="inline-flex items-center gap-2 rounded-lg border border-leaf-200 bg-leaf-50 px-3 py-2 text-[13px] font-semibold text-leaf-700">
+      <p className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 px-3 py-2 text-[13px] font-semibold text-[var(--sq-safe)]">
         <Handshake className="h-4 w-4 shrink-0" aria-hidden="true" />
         {name} met — Guardian added to your roster
       </p>
@@ -172,7 +172,7 @@ export function GuardianProgressNote({
 
   if (award === 'PROGRESSED') {
     return (
-      <p className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[13px] font-semibold text-amber-700">
+      <p className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-3 py-2 text-[13px] font-semibold text-[var(--sq-earned-text)]">
         <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
         {name} progress +1
       </p>
@@ -180,7 +180,7 @@ export function GuardianProgressNote({
   }
 
   return (
-    <p className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface-sunk px-3 py-2 text-[13px] font-semibold text-ink-muted">
+    <p className="inline-flex items-center gap-2 rounded-[6px] border border-line bg-surface-sunk px-3 py-2 text-[13px] font-semibold text-ink-muted">
       <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
       {name} progress already earned — practice run
     </p>

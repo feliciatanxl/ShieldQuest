@@ -46,15 +46,15 @@ export function ProgressView() {
           <div className={sheetMeasure()}>
             <div className="flex items-end justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-400">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--sq-earned)]">
                   City progress
                 </p>
                 <h1 className="mt-0.5 text-xl font-extrabold leading-tight tracking-tight">
                   What you have practised
                 </h1>
               </div>
-              <p className="shrink-0 text-right text-[11px] font-semibold leading-tight text-navy-100">
-                <span className="block text-[18px] font-extrabold tabular-nums text-amber-400">
+              <p className="shrink-0 text-right text-[11px] font-semibold leading-tight text-[var(--sq-ink-muted)]">
+                <span className="block text-[18px] font-extrabold tabular-nums text-[var(--sq-earned)]">
                   {progress.completed}/{progress.total}
                 </span>
                 activities
@@ -91,15 +91,15 @@ export function ProgressView() {
                 <li key={d.id}>
                   <CityLink
                     href={`/district/${d.id}`}
-                    className="flex min-h-[52px] items-center gap-2.5 rounded-xl border border-line bg-surface px-2.5 py-2 transition hover:border-civic-500"
+                    className="flex min-h-[52px] items-center gap-2.5 rounded-[10px] border border-line bg-surface px-2.5 py-2 transition hover:border-civic-500"
                   >
                     <DistrictPlate
                       districtId={d.id}
-                      className="h-9 w-9 rounded-lg"
+                      className="h-9 w-9 rounded-[6px]"
                       iconClassName="h-4 w-4"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13.5px] font-extrabold uppercase tracking-wide text-navy-900">
+                      <span className="block truncate text-[13.5px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
                         {d.name}
                       </span>
                       <span className="block text-[11px] font-semibold text-ink-soft">
@@ -112,11 +112,11 @@ export function ProgressView() {
                         {planned > 0 && ` · ${planned} coming soon`}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-navy-900">
+                    <span className="shrink-0 text-[14px] font-extrabold tabular-nums text-[var(--sq-ink)]">
                       {d.completed}/{d.total}
                     </span>
                     <ArrowRight
-                      className="h-4 w-4 shrink-0 text-navy-900/40"
+                      className="h-4 w-4 shrink-0 text-[var(--sq-ink)]/40"
                       aria-hidden="true"
                     />
                   </CityLink>
@@ -162,9 +162,9 @@ export function ProgressView() {
               return (
                 <li
                   key={c}
-                  className={`flex items-center gap-2 rounded-xl border px-2 py-1.5 ${
+                  className={`flex items-center gap-2 rounded-[10px] border px-2 py-1.5 ${
                     count > 0
-                      ? 'border-civic-200 bg-civic-50'
+                      ? 'border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15'
                       : 'border-line bg-surface'
                   }`}
                 >
@@ -197,7 +197,7 @@ export function ProgressView() {
             {guardianStandings.map(({ guardian, met, level, progress: p, target }) => (
               <li
                 key={guardian.id}
-                className={`flex items-center gap-2.5 rounded-xl border px-2.5 py-2 ${
+                className={`flex items-center gap-2.5 rounded-[10px] border px-2.5 py-2 ${
                   met
                     ? 'border-line bg-surface'
                     : 'border-dashed border-line-strong bg-surface-sunk'
@@ -205,12 +205,12 @@ export function ProgressView() {
               >
                 <GuardianPlate
                   guardian={guardian}
-                  className={`h-8 w-8 rounded-lg text-[13px] ${
+                  className={`h-8 w-8 rounded-[6px] text-[13px] ${
                     met ? '' : 'opacity-55 saturate-50'
                   }`}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-extrabold uppercase tracking-wide text-navy-900">
+                  <span className="block truncate text-[13px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
                     {guardian.name}
                   </span>
                   <span className="block text-[11px] font-semibold text-ink-soft">
@@ -219,7 +219,7 @@ export function ProgressView() {
                       : `${guardian.skill} · Not yet met`}
                   </span>
                 </span>
-                <span className="shrink-0 text-[13px] font-extrabold tabular-nums text-navy-900">
+                <span className="shrink-0 text-[13px] font-extrabold tabular-nums text-[var(--sq-ink)]">
                   {met ? `${p}/${target}` : '—'}
                 </span>
               </li>
@@ -249,7 +249,7 @@ export function ProgressView() {
               {badges.map((b) => (
                 <li
                   key={b.districtId}
-                  className="flex items-center gap-3 rounded-xl border border-civic-200 bg-civic-50/50 p-3"
+                  className="flex items-center gap-3 rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-3"
                 >
                   <span
                     aria-hidden="true"
@@ -258,7 +258,7 @@ export function ProgressView() {
                     <Shield className="h-5 w-5" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold uppercase tracking-wide text-navy-900">
+                    <p className="text-[13px] font-bold uppercase tracking-wide text-[var(--sq-ink)]">
                       {b.name}
                     </p>
                     <p className="text-[11px] text-ink-muted leading-tight">{b.blurb}</p>
@@ -278,7 +278,7 @@ export function ProgressView() {
           </h2>
 
           {completedNodes.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-line-strong bg-surface-sunk px-4 py-5 text-center">
+            <div className="rounded-[16px] border border-dashed border-line-strong bg-surface-sunk px-4 py-5 text-center">
               <MapPin
                 className="mx-auto h-5 w-5 text-ink-soft"
                 aria-hidden="true"
@@ -291,7 +291,7 @@ export function ProgressView() {
               </p>
               <CityLink
                 href="/game"
-                className="mt-3 inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-civic-600 px-5 text-[14px] font-bold text-white transition hover:bg-civic-700"
+                className="mt-3 inline-flex min-h-[48px] items-center gap-2 rounded-[10px] bg-civic-600 px-5 text-[14px] font-bold text-white transition hover:bg-civic-700"
               >
                 Open ShieldQuest City
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -302,10 +302,10 @@ export function ProgressView() {
               {completedNodes.map(({ node, district }) => (
                 <li
                   key={node.id}
-                  className="rounded-xl border border-line bg-surface px-3 py-2"
+                  className="rounded-[10px] border border-line bg-surface px-3 py-2"
                 >
                   <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="text-[14px] font-bold text-navy-900">
+                    <span className="text-[14px] font-bold text-[var(--sq-ink)]">
                       {node.title}
                     </span>
                     <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-soft">
@@ -322,7 +322,7 @@ export function ProgressView() {
         </section>
 
         {/* Privacy Promise */}
-        <div className="rounded-xl border border-line bg-surface-sunk">
+        <div className="rounded-[16px] border border-line bg-surface-sunk">
           <button
             type="button"
             onClick={() => setPrivacyOpen((v) => !v)}
@@ -363,12 +363,12 @@ function Figure({
   label: string;
 }) {
   return (
-    <li className="rounded-xl border border-line bg-surface px-2 py-1.5">
+    <li className="rounded-[10px] border border-line bg-surface px-2 py-1.5">
       <p className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.08em] text-ink-soft">
         {icon && <span aria-hidden="true">{icon}</span>}
         <span className="truncate">{label}</span>
       </p>
-      <p className="text-[17px] font-extrabold leading-tight tabular-nums text-navy-900">
+      <p className="text-[17px] font-extrabold leading-tight tabular-nums text-[var(--sq-ink)]">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </li>

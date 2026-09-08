@@ -29,7 +29,7 @@ export function AdminReviewQueue({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-leaf-200 bg-leaf-50 px-5 py-10 text-center">
+      <div className="rounded-[10px] border border-leaf-200 bg-leaf-50 px-5 py-10 text-center">
         <CheckCircle2
           className="mx-auto h-6 w-6 text-leaf-700"
           aria-hidden="true"
@@ -54,13 +54,13 @@ export function AdminReviewQueue({
         return (
           <li
             key={row.id}
-            className="overflow-hidden rounded-xl border border-amber-200 bg-surface"
+            className="overflow-hidden rounded-[16px] border border-amber-200 bg-surface"
           >
             <div className="p-4 sm:p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
+                    <span className="rounded-[6px] bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
                       Needs review
                     </span>
                     <span className="text-[12px] text-ink-muted">
@@ -72,7 +72,7 @@ export function AdminReviewQueue({
                   </h3>
                 </div>
 
-                <div className="flex items-baseline gap-3 rounded-lg border border-line bg-surface-sunk px-3 py-1.5">
+                <div className="flex items-baseline gap-3 rounded-[6px] border border-line bg-surface-sunk px-3 py-1.5">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-ink-soft">
                       Safe rate
@@ -117,7 +117,7 @@ export function AdminReviewQueue({
                   <button
                     type="button"
                     onClick={() => onSelect(row)}
-                    className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
+                    className="inline-flex min-h-[38px] items-center gap-1.5 rounded-[6px] border border-line px-3 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
                   >
                     <FileBarChart className="h-4 w-4" />
                     Inspect responses
@@ -125,7 +125,7 @@ export function AdminReviewQueue({
                   <button
                     type="button"
                     onClick={() => onSelect(row)}
-                    className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg bg-navy-900 px-3.5 text-[13px] font-bold text-white transition hover:bg-navy-800"
+                    className="inline-flex min-h-[38px] items-center gap-1.5 rounded-[6px] bg-navy-900 px-3.5 text-[13px] font-bold text-white transition hover:bg-navy-800"
                   >
                     <ClipboardCheck className="h-4 w-4" />
                     Review content

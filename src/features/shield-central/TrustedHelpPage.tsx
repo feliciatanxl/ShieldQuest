@@ -19,7 +19,7 @@ const GUIDANCE_CATEGORIES: HelpCategory[] = [
     id: 'unsure',
     title: "I'm not sure if this is a scam or safe",
     badge: 'Immediate Pause',
-    color: 'border-amber-200 bg-amber-50 text-amber-900',
+    color: 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]',
     guidance: [
       'Not being sure is a good reason to pause, never to guess.',
       'Step away from the screen or chat before replying. Anything genuinely legitimate survives a delay.',
@@ -31,7 +31,7 @@ const GUIDANCE_CATEGORIES: HelpCategory[] = [
     id: 'happened',
     title: 'Something already happened to me',
     badge: 'Safe Disclosure',
-    color: 'border-rose-200 bg-rose-50 text-rose-900',
+    color: 'border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15 text-[var(--sq-risk)]',
     guidance: [
       'What happened to you is NOT your fault. Fraud syndicates invest millions designing psychological traps specifically to exploit normal human trust.',
       'Cut off contact immediately. Do not attempt to negotiate, retaliate, or "win back" lost money.',
@@ -44,7 +44,7 @@ const GUIDANCE_CATEGORIES: HelpCategory[] = [
     id: 'friend',
     title: "I'm worried about a friend's choices",
     badge: 'Peer Support',
-    color: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    color: 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]',
     guidance: [
       'Speak to them privately rather than in front of a group. This allows them to step back without losing face.',
       'Name the risk, not the person. "That offer sounds like a mule scam" lands far better than "You are being gullible".',
@@ -56,7 +56,7 @@ const GUIDANCE_CATEGORIES: HelpCategory[] = [
     id: 'adult',
     title: 'How to approach a trusted adult',
     badge: 'Escalation',
-    color: 'border-blue-200 bg-blue-50 text-blue-900',
+    color: 'border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]',
     guidance: [
       'A trusted adult can be a parent, guardian, favourite teacher, school counsellor, or youth worker.',
       'You do not need to have all the answers or forensic proof before asking for help.',
@@ -101,28 +101,29 @@ export function TrustedHelpPage() {
   const [openCat, setOpenCat] = useState<string>('unsure');
 
   return (
-    <div className="flex min-h-full flex-col bg-slate-50 text-slate-800">
+    <div data-skin="game"
+      className="flex min-h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]">
       {/* Top Bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--sq-line)] bg-[var(--sq-surface)]/95 px-4 py-3 backdrop-blur-md">
         <button
           type="button"
           onClick={() => navigate('/shield-central')}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+          className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[var(--sq-surface-raised)] text-[var(--sq-ink-muted)] transition hover:bg-[var(--sq-surface-raised)]"
           aria-label="Back to Shield Central"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="text-center">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-600">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--sq-risk)]">
             Emergency & Support
           </span>
-          <h1 className="text-base font-extrabold text-navy-900 sm:text-lg">
+          <h1 className="text-base font-extrabold text-[var(--sq-ink)] sm:text-lg">
             Trusted Help
           </h1>
         </div>
         <Link
           to="/board"
-          className="rounded-lg bg-navy-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-navy-800"
+          className="rounded-[6px] bg-[var(--sq-action)] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[var(--sq-action-hover)]"
         >
           Board
         </Link>
@@ -131,19 +132,19 @@ export function TrustedHelpPage() {
       {/* Main Content */}
       <main className="mx-auto w-full max-w-4xl flex-1 p-4 sm:p-6">
         {/* Beacon Encouragement Banner */}
-        <div className="rounded-3xl border border-rose-200 bg-gradient-to-r from-rose-900 via-navy-900 to-slate-900 p-6 text-white shadow-lg">
+        <div className="rounded-[24px] border border-[var(--sq-risk)]/40 bg-gradient-to-r from-[var(--color-coral-800)] via-[var(--color-navy-900)] to-[var(--color-navy-950)] p-6 text-white shadow-lg">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-300 ring-2 ring-rose-400/30">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[var(--sq-risk)]/20 text-[var(--sq-risk)] ring-2 ring-[var(--sq-risk)]/30">
               <LifeBuoy className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--sq-earned-text)]">
                 Beacon's Guidance
               </span>
               <h2 className="text-xl font-black sm:text-2xl">
                 “You never have to navigate a scam alone.”
               </h2>
-              <p className="mt-1 text-xs leading-relaxed text-slate-200 sm:text-sm">
+              <p className="mt-1 text-xs leading-relaxed text-[var(--sq-ink-muted)] sm:text-sm">
                 Real courage is knowing when to pause, step away from digital pressure, and invite a trusted adult into the room.
               </p>
             </div>
@@ -152,7 +153,7 @@ export function TrustedHelpPage() {
 
         {/* Behavioral Guidance Accordions */}
         <div className="mt-8 space-y-3">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--sq-ink-muted)]">
             Actionable Guidance By Situation
           </h3>
 
@@ -161,29 +162,29 @@ export function TrustedHelpPage() {
             return (
               <div
                 key={cat.id}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition"
+                className="overflow-hidden rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface)] shadow-sm transition"
               >
                 <button
                   type="button"
                   onClick={() => setOpenCat(isOpen ? '' : cat.id)}
-                  className="flex w-full items-center justify-between p-4 text-left font-extrabold text-navy-900 transition hover:bg-slate-50"
+                  className="flex w-full items-center justify-between p-4 text-left font-extrabold text-[var(--sq-ink)] transition hover:bg-[var(--sq-surface-sunk)]"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                    <span className="rounded-[6px] bg-[var(--sq-surface-raised)] px-2 py-0.5 text-[10px] font-bold text-[var(--sq-ink-muted)]">
                       {cat.badge}
                     </span>
                     <span className="text-sm sm:text-base">{cat.title}</span>
                   </div>
                   <ChevronDown
-                    className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-navy-900' : ''
+                    className={`h-5 w-5 text-[var(--sq-ink-muted)] transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-[var(--sq-ink)]' : ''
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-slate-100 p-4 pt-3 text-xs sm:text-sm">
-                    <ul className="list-disc space-y-2 pl-5 text-slate-700">
+                  <div className="border-t border-[var(--sq-line)] p-4 pt-3 text-xs sm:text-sm">
+                    <ul className="list-disc space-y-2 pl-5 text-[var(--sq-ink)]">
                       {cat.guidance.map((item, idx) => (
                         <li key={idx} className="leading-relaxed">
                           {item}
@@ -199,7 +200,7 @@ export function TrustedHelpPage() {
 
         {/* Official Singapore Hotlines */}
         <div className="mt-8">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--sq-ink-muted)]">
             Verified Singapore Emergency & Escalation Channels
           </h3>
 
@@ -207,26 +208,26 @@ export function TrustedHelpPage() {
             {EMERGENCY_HOTLINES.map((hotline) => (
               <div
                 key={hotline.service}
-                className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="flex flex-col justify-between rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-4 shadow-sm"
               >
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--sq-ink-muted)]">
                     {hotline.agency}
                   </span>
-                  <h4 className="mt-0.5 text-sm font-extrabold text-navy-900">
+                  <h4 className="mt-0.5 text-sm font-extrabold text-[var(--sq-ink)]">
                     {hotline.service}
                   </h4>
-                  <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                  <p className="mt-1.5 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
                     {hotline.desc}
                   </p>
                 </div>
 
-                <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-2.5">
+                <div className="mt-4 rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface-sunk)] p-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-rose-600">
+                    <span className="text-xs font-black text-[var(--sq-risk)]">
                       {hotline.contact}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400">
+                    <span className="text-[10px] font-bold text-[var(--sq-ink-muted)]">
                       {hotline.hours}
                     </span>
                   </div>

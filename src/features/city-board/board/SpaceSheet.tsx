@@ -184,13 +184,13 @@ function SituationCardFace({
 
       <div className="thin-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4 text-center">
         {guardian && (
-          <GuardianPlate guardian={guardian} className="mx-auto h-16 w-16 rounded-2xl text-xl" />
+          <GuardianPlate guardian={guardian} className="mx-auto h-16 w-16 rounded-[16px] text-xl" />
         )}
 
         <p className="text-[15px] font-semibold leading-relaxed text-ink">“{card.blurb}”</p>
 
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-sunk px-2.5 py-1.5 text-[12px] font-bold text-navy-900">
+          <span className="inline-flex items-center gap-1.5 rounded-[6px] border border-line bg-surface-sunk px-2.5 py-1.5 text-[12px] font-bold text-[var(--sq-ink)]">
             <span
               aria-hidden="true"
               className="grid h-4 w-4 place-items-center rounded bg-navy-900 text-[10px] font-extrabold text-white"
@@ -200,14 +200,14 @@ function SituationCardFace({
             {COMPETENCY_LABEL[card.competency]}
           </span>
           {guardian && (
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[12px] font-bold text-amber-700">
+            <span className="inline-flex items-center gap-1.5 rounded-[6px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-2.5 py-1.5 text-[12px] font-bold text-[var(--sq-earned-text)]">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               {guardian.name}
             </span>
           )}
         </div>
 
-        <p className="rounded-xl border border-line bg-surface-sunk px-3 py-2 text-[12px] leading-relaxed text-ink-muted">
+        <p className="rounded-[10px] border border-line bg-surface-sunk px-3 py-2 text-[12px] leading-relaxed text-ink-muted">
           Situation Cards never decide anything for you. This one opens the activity — what you take
           from it is your decision inside it.
         </p>
@@ -217,7 +217,7 @@ function SituationCardFace({
         <button
           type="button"
           onClick={onContinue}
-          className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
+          className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
         >
           {card.actionLabel}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -270,12 +270,12 @@ function MissionBriefing({
       <header
         className={`shrink-0 border-b px-5 pb-3.5 pt-3 ${skin?.header ?? 'border-line bg-surface-sunk'}`}
       >
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-navy-900/70">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[var(--sq-ink)]/70">
           {districtName} · {BOARD_SPACE_LABEL[space.kind]}
         </p>
         <h2
           id="space-sheet-title"
-          className="mt-0.5 pr-10 text-[21px] font-extrabold uppercase leading-tight tracking-tight text-navy-900"
+          className="mt-0.5 pr-10 text-[21px] font-extrabold uppercase leading-tight tracking-tight text-[var(--sq-ink)]"
         >
           {node?.title ?? space.title}
         </h2>
@@ -297,25 +297,25 @@ function MissionBriefing({
         </div>
 
         {guardian && (
-          <div className="guardian-briefing flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5">
+          <div className="guardian-briefing flex items-start gap-3 rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 p-2.5">
             <GuardianPlate
               guardian={guardian}
-              className="guardian-reaction h-12 w-12 rounded-2xl text-[15px]"
+              className="guardian-reaction h-12 w-12 rounded-[16px] text-[15px]"
               tone="amber"
             />
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--sq-earned-text)]">
                 {guardian.name} · {guardian.skill}
               </p>
-              <p className="mt-0.5 text-[13px] font-semibold leading-snug text-navy-900">
+              <p className="mt-0.5 text-[13px] font-semibold leading-snug text-[var(--sq-ink)]">
                 “{GUARDIAN_DIALOGUE[guardian.id]?.briefing ?? guardian.motto}”
               </p>
             </div>
           </div>
         )}
 
-        <section className="rounded-xl border border-civic-100 bg-civic-50 p-3.5">
-          <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-civic-700">
+        <section className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-3.5">
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-action-text)]">
             What you&rsquo;ll practise
           </h3>
           <p className="mt-1 text-[14px] leading-relaxed text-ink">
@@ -324,7 +324,7 @@ function MissionBriefing({
         </section>
 
         {space.completed && (
-          <p className="flex items-center gap-2 rounded-xl border border-leaf-200 bg-leaf-50 px-3 py-2 text-[13px] font-bold text-leaf-700">
+          <p className="flex items-center gap-2 rounded-[10px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 px-3 py-2 text-[13px] font-bold text-[var(--sq-safe)]">
             <Check className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden="true" />
             Already completed — replay any time. Shield Tokens are only paid once.
           </p>
@@ -339,16 +339,16 @@ function MissionBriefing({
               onClose();
               router.push(node.href!);
             }}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
           >
             {space.completed ? 'Play again' : 'Start mission'}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
         ) : (
-          <p className="flex items-start gap-2 rounded-xl border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
+          <p className="flex items-start gap-2 rounded-[10px] border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
             {space.planned ? (
               <CalendarClock
-                className="mt-0.5 h-4 w-4 shrink-0 text-coral-700"
+                className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sq-risk)]"
                 aria-hidden="true"
               />
             ) : (
@@ -357,7 +357,7 @@ function MissionBriefing({
             <span>
               {space.planned ? (
                 <>
-                  <span className="font-bold uppercase tracking-wide text-coral-700">
+                  <span className="font-bold uppercase tracking-wide text-[var(--sq-risk)]">
                     Coming soon
                   </span>{' '}
                   — this activity is awaiting a later feature update.
@@ -368,7 +368,7 @@ function MissionBriefing({
                   complete {node?.remainingToUnlock ?? 1} more{' '}
                   {(node?.remainingToUnlock ?? 1) === 1 ? 'activity' : 'activities'} in{' '}
                   {districtName}.
-                  <span className="mt-1 block font-bold tabular-nums text-navy-900">
+                  <span className="mt-1 block font-bold tabular-nums text-[var(--sq-ink)]">
                     {node?.unlockCompleted ?? 0} / {node?.unlockRequired ?? 0} completed
                   </span>
                 </>
@@ -381,7 +381,7 @@ function MissionBriefing({
           <Link
             href={`/district/${space.districtId}`}
             onClick={onClose}
-            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
           >
             <MapPin className="h-4 w-4" aria-hidden="true" />
             Open the full {districtName} route
@@ -410,12 +410,12 @@ function CheckpointFrame({
   return (
     <>
       <header className="shrink-0 border-b border-line bg-surface-sunk px-5 pb-3.5 pt-3">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-civic-700">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[var(--sq-action-text)]">
           {eyebrow}
         </p>
         <h2
           id="space-sheet-title"
-          className="mt-0.5 pr-10 text-[20px] font-extrabold uppercase leading-tight tracking-tight text-navy-900"
+          className="mt-0.5 pr-10 text-[20px] font-extrabold uppercase leading-tight tracking-tight text-[var(--sq-ink)]"
         >
           {title}
         </h2>
@@ -453,7 +453,7 @@ function GuardianCheckpoint({
           <Link
             href="/guardians"
             onClick={onClose}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
           >
             Open Guardians
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -461,7 +461,7 @@ function GuardianCheckpoint({
           <button
             type="button"
             onClick={onClose}
-            className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
+            className="flex min-h-[48px] w-full items-center justify-center rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
           >
             Back to the board
           </button>
@@ -469,14 +469,14 @@ function GuardianCheckpoint({
       }
     >
       <div className="flex items-center gap-3">
-        <GuardianPlate guardian={guardian} className="h-14 w-14 rounded-2xl text-xl" />
+        <GuardianPlate guardian={guardian} className="h-14 w-14 rounded-[16px] text-xl" />
         <div className="min-w-0">
-          <p className="text-[14px] font-extrabold uppercase tracking-wide text-navy-900">
+          <p className="text-[14px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
             {guardian.skill}
           </p>
           <p className="text-[13px] italic text-ink-muted">“{guardian.motto}”</p>
         </div>
-        <span className="ml-auto shrink-0 rounded-lg bg-navy-900/8 px-2 py-1 text-[12px] font-bold text-navy-800">
+        <span className="ml-auto shrink-0 rounded-[6px] bg-navy-900/8 px-2 py-1 text-[12px] font-bold text-[var(--sq-ink)]">
           {cumulative > 0 ? `Level ${level}` : 'Not yet met'}
         </span>
       </div>
@@ -486,7 +486,7 @@ function GuardianCheckpoint({
           <span className="uppercase tracking-[0.12em] text-ink-soft">
             {guardian.skill} progress
           </span>
-          <span className="tabular-nums text-navy-900">
+          <span className="tabular-nums text-[var(--sq-ink)]">
             {progress} / {target}
           </span>
         </p>
@@ -500,8 +500,8 @@ function GuardianCheckpoint({
         </div>
       </div>
 
-      <p className="rounded-xl border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
-        <span className="mb-1 block font-bold text-navy-900">
+      <p className="rounded-[10px] border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
+        <span className="mb-1 block font-bold text-[var(--sq-ink)]">
           “{GUARDIAN_DIALOGUE[guardian.id]?.checkpoint ?? guardian.motto}”
         </span>
         Complete {remaining} more {guardian.skill.toLowerCase()}{' '}
@@ -531,7 +531,7 @@ function RewardCheckpoint({
           <Link
             href="/shield-central/rewards"
             onClick={onClose}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border-b-4 border-amber-700 bg-amber-500 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-navy-900 transition hover:bg-amber-400 active:translate-y-[3px] active:border-b-0"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] border-b-4 border-amber-700 bg-amber-500 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-[var(--sq-ink)] transition hover:bg-amber-400 active:translate-y-[3px] active:border-b-0"
           >
             <Award className="h-4 w-4" aria-hidden="true" />
             View rewards
@@ -539,23 +539,23 @@ function RewardCheckpoint({
           <button
             type="button"
             onClick={onClose}
-            className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
+            className="flex min-h-[48px] w-full items-center justify-center rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
           >
             Back to the board
           </button>
         </>
       }
     >
-      <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-center">
-        <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700">
+      <p className="rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-4 py-4 text-center">
+        <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--sq-earned-text)]">
           Shield Tokens available
         </span>
-        <span className="mt-0.5 block text-4xl font-extrabold tabular-nums text-amber-700">
+        <span className="mt-0.5 block text-4xl font-extrabold tabular-nums text-[var(--sq-earned-text)]">
           {tokens.toLocaleString()}
         </span>
       </p>
 
-      <p className="rounded-xl border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
+      <p className="rounded-[10px] border border-line bg-surface-sunk px-3.5 py-3 text-[13px] leading-relaxed text-ink-muted">
         Landing here does not award anything. It is a shortcut to the Rewards Hub. Shield Tokens are
         earned by completing activities and practising skills — never by a dice roll.
       </p>
@@ -588,7 +588,7 @@ function DistrictCheckpoint({
               <Link
                 href={`/district/${space.districtId}`}
                 onClick={onClose}
-                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
+                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
               >
                 Open the district route
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -597,7 +597,7 @@ function DistrictCheckpoint({
             <button
               type="button"
               onClick={onClose}
-              className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
+              className="flex min-h-[48px] w-full items-center justify-center rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
             >
               Back to the board
             </button>
@@ -623,7 +623,7 @@ function ShieldCentralSpace({ onClose }: { onClose: () => void }) {
           <Link
             href="/shield-central"
             onClick={onClose}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] bg-navy-900 px-4 text-[15px] font-extrabold text-white transition hover:bg-navy-800"
           >
             <Shield className="h-4 w-4" aria-hidden="true" />
             Open Shield Central
@@ -631,7 +631,7 @@ function ShieldCentralSpace({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
+            className="flex min-h-[48px] w-full items-center justify-center rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500"
           >
             Back to the board
           </button>
@@ -642,11 +642,11 @@ function ShieldCentralSpace({ onClose }: { onClose: () => void }) {
         <p className="text-[14px] leading-relaxed text-ink">
           <strong>The Central GO Station.</strong> Pass or land here on your district loop to collect Shield Points and maintain city defense!
         </p>
-        <div className="rounded-xl border border-amber-400/30 bg-amber-50 p-3 text-[13px] text-amber-900">
-          <p className="font-bold flex items-center gap-1.5 text-amber-700">
+        <div className="rounded-[16px] border border-amber-400/30 bg-[var(--sq-earned)]/15 p-3 text-[13px] text-[var(--sq-earned-text)]">
+          <p className="font-bold flex items-center gap-1.5 text-[var(--sq-earned-text)]">
             <Sparkles className="h-4 w-4" /> Loop Bonus: +20 Shield Tokens
           </p>
-          <p className="mt-1 text-[12px] text-amber-800">
+          <p className="mt-1 text-[12px] text-[var(--sq-earned-text)]">
             Your journey, achievements, Casebook entries, and settings all connect right here.
           </p>
         </div>
@@ -664,7 +664,7 @@ function ScamWatchSpace({ districtName, onClose }: { districtName: string; onClo
         <button
           type="button"
           onClick={onClose}
-          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-teal-700"
+          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-teal-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-teal-700"
         >
           <Radio className="h-4 w-4" aria-hidden="true" />
           Continue Patrol (+10 Tokens)
@@ -672,8 +672,8 @@ function ScamWatchSpace({ districtName, onClose }: { districtName: string; onClo
       }
     >
       <div className="space-y-3 text-ink">
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3.5">
-          <p className="text-[12px] font-extrabold uppercase tracking-wide text-teal-800">
+        <div className="rounded-[16px] border border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 p-3.5">
+          <p className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--sq-peer)]">
             Active Sanctuary
           </p>
           <p className="mt-1 text-[14px] leading-relaxed text-teal-950">
@@ -697,7 +697,7 @@ function PhishingTrapSpace({ districtName, onClose }: { districtName: string; on
         <button
           type="button"
           onClick={onClose}
-          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-coral-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-coral-700"
+          className="flex min-h-[50px] w-full items-center justify-center gap-2 rounded-[10px] bg-coral-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-coral-700"
         >
           <ShieldAlert className="h-4 w-4" aria-hidden="true" />
           Quarantine Red Flags & Proceed
@@ -705,8 +705,8 @@ function PhishingTrapSpace({ districtName, onClose }: { districtName: string; on
       }
     >
       <div className="space-y-3 text-ink">
-        <div className="rounded-xl border border-coral-200 bg-coral-50 p-3.5">
-          <p className="text-[12px] font-extrabold uppercase tracking-wide text-coral-800">
+        <div className="rounded-[16px] border border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15 p-3.5">
+          <p className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--sq-risk)]">
             High-Risk Perimeter
           </p>
           <p className="mt-1 text-[14px] leading-relaxed text-coral-950">
@@ -715,10 +715,10 @@ function PhishingTrapSpace({ districtName, onClose }: { districtName: string; on
         </div>
         <ul className="space-y-2 text-[13px] text-ink-muted">
           <li className="flex items-start gap-2">
-            <span className="font-bold text-coral-700">1.</span> Never click unfamiliar verification links in group chats.
+            <span className="font-bold text-[var(--sq-risk)]">1.</span> Never click unfamiliar verification links in group chats.
           </li>
           <li className="flex items-start gap-2">
-            <span className="font-bold text-coral-700">2.</span> Official organisations will never rush you to make instant money transfers.
+            <span className="font-bold text-[var(--sq-risk)]">2.</span> Official organisations will never rush you to make instant money transfers.
           </li>
         </ul>
       </div>

@@ -6,14 +6,14 @@ import type { SkillCoverage } from '../../../types/admin.js';
 
 export function SkillCoverageChart({ rows }: { rows: SkillCoverage[] }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4">
+    <div className="rounded-[16px] border border-line bg-surface p-4">
       <ul className="space-y-3">
         {rows.map((row) => (
           <li key={row.competency}>
             <div className="flex items-center gap-2.5">
               <span
                 aria-hidden="true"
-                className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-navy-900 text-[11px] font-extrabold text-white"
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-[6px] bg-navy-900 text-[11px] font-extrabold text-white"
               >
                 {COMPETENCY_LETTER[row.competency]}
               </span>

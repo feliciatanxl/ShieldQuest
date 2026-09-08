@@ -1,24 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock } from 'lucide-react';
-import { BrandMark } from '../../design-system/BrandMark';
+import { BrandMark, Button } from '../../design-system/DesignSystem';
 
 interface FacilitatorLoginProps {
   onSuccess?: () => void;
   onBackToHome?: () => void;
 }
 
+/**
+ * Sign-in for the facilitator portal.
+ *
+ * On the light civic skin, like the portal it leads into. It was previously a
+ * full-page navy screen that handed off to a light dashboard — a jarring
+ * transition, and one that put the portal's front door in a different register
+ * from the portal itself. Facilitators are teachers, counsellors and youth
+ * workers; the front door should look like the institutional tool it is.
+ */
 export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginProps) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('facilitator@shieldquest.sg');
-  const [password, setPassword] = useState('••••••••••••');
+  const [password, setPassword] = useState('demo-access');
   const [loading, setLoading] = useState(false);
 
   const handleSuccess = onSuccess ?? (() => navigate('/admin'));
   const handleBack = onBackToHome ?? (() => navigate('/'));
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -26,102 +35,113 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
     }, 450);
   };
 
-  return (
-    <div className="flex min-h-screen flex-col justify-between bg-navy-950 font-sans text-slate-100 antialiased selection:bg-civic-500 selection:text-white">
-      {/* Top Header */}
-      <header className="border-b border-navy-900 bg-navy-950/90 px-4 py-3.5 backdrop-blur-md sm:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <BrandMark variant="dark" subtitle="Admin Portal" />
+  const fieldClass =
+    'mt-1.5 w-full rounded-[10px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-3 text-sm text-[var(--sq-ink)] placeholder:text-[var(--sq-ink-muted)]/60 focus:border-[var(--sq-action)] focus:outline-none focus:ring-1 focus:ring-[var(--sq-action)]';
+  const labelClass =
+    'block text-xs font-bold uppercase tracking-wider text-[var(--sq-ink-muted)]';
 
-          <button
-            type="button"
+  return (
+    <div className="flex min-h-screen flex-col justify-between bg-[var(--sq-canvas)] font-sans antialiased">
+      <header className="border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-5 py-3.5 sm:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+          <BrandMark subtitle="Facilitator Portal" />
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleBack}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-white/10 transition"
+            leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Public Site</span>
-          </button>
+            Public site
+          </Button>
         </div>
       </header>
 
-      {/* Main Login Card */}
-      <main className="flex flex-1 items-center justify-center px-4 py-12 sm:px-6">
+      <main className="flex flex-1 items-center justify-center px-5 py-12">
         <div className="w-full max-w-md">
-          <div className="rounded-3xl border border-navy-800 bg-navy-900/90 p-8 shadow-2xl backdrop-blur-md">
-            {/* Header */}
+          <div className="rounded-[24px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-8 shadow-[var(--sq-shadow-raised)]">
             <div className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-civic-600/20 text-civic-400 border border-civic-500/30">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] border border-[var(--sq-action)]/25 bg-[var(--color-civic-50)] text-[var(--sq-action-text)]">
                 <Lock className="h-6 w-6" />
-              </div>
-              <h1 className="mt-4 text-2xl font-black uppercase tracking-tight text-white">
-                ShieldQuest Admin Portal
+              </span>
+              <h1 className="mt-4 text-2xl font-black tracking-tight text-[var(--sq-ink)]">
+                Facilitator sign-in
               </h1>
-              <p className="mt-1.5 text-xs text-slate-400">
-                Authorised administrators and programme facilitators.
+              <p className="mt-1.5 text-sm text-[var(--sq-ink-muted)]">
+                For educators and programme facilitators running a session.
               </p>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
-                  Official Email
+                {/* Labels are bound with htmlFor/id. They were previously bare
+                  * `<label>` elements wrapping nothing, so clicking one did not
+                  * focus its field and screen readers announced no name. */}
+                <label htmlFor="facilitator-email" className={labelClass}>
+                  Work email
                 </label>
                 <input
+                  id="facilitator-email"
                   required
                   type="email"
+                  autoComplete="username"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="name@school.edu.sg"
-                  className="mt-1.5 w-full rounded-xl border border-navy-700 bg-navy-950/80 p-3 text-xs text-white placeholder-slate-500 focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+                  className={fieldClass}
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="facilitator-password" className={labelClass}>
                     Password
                   </label>
                   <button
                     type="button"
-                    onClick={() => alert('For demonstration, click "Sign In" with the demo credentials.')}
-                    className="text-[11px] font-bold text-civic-400 hover:underline"
+                    onClick={() =>
+                      alert('This is a demonstration build — sign in with the pre-filled details.')
+                    }
+                    className="text-[11px] font-bold text-[var(--sq-action-text)] hover:underline"
                   >
-                    Demo Password?
+                    Trouble signing in?
                   </button>
                 </div>
                 <input
+                  id="facilitator-password"
                   required
                   type="password"
+                  autoComplete="current-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-navy-700 bg-navy-950/80 p-3 text-xs text-white placeholder-slate-500 focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+                  onChange={(event) => setPassword(event.target.value)}
+                  className={fieldClass}
                 />
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full min-h-[44px] rounded-xl bg-civic-600 px-4 py-3 text-xs font-black uppercase tracking-wider text-white shadow-md shadow-civic-600/30 transition hover:bg-civic-500 active:scale-[0.98] disabled:opacity-50"
-                >
-                  {loading ? 'Authenticating…' : 'Sign In to Portal'}
-                </button>
-              </div>
+              <Button type="submit" size="lg" fullWidth disabled={loading} className="mt-2">
+                {loading ? 'Signing in…' : 'Sign in'}
+              </Button>
 
-              <div className="mt-6 rounded-xl border border-navy-800 bg-navy-950/50 p-3.5 text-center">
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  <strong className="text-slate-300">Demo Note:</strong> Pre-filled with demonstration evaluator credentials for testing.
-                </p>
-              </div>
+              <p className="rounded-[10px] border border-[var(--sq-line)] bg-[var(--sq-surface-sunk)] p-3.5 text-center text-[11px] leading-relaxed text-[var(--sq-ink-muted)]">
+                <strong className="font-bold text-[var(--sq-ink)]">Demonstration build.</strong>{' '}
+                Pre-filled with sample credentials. No real account is required, and no participant
+                data is stored.
+              </p>
             </form>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-navy-900 px-4 py-4 text-center text-xs text-slate-500">
-        ShieldQuest Admin Portal · Project SHIELD · Ministry of Home Affairs / SPF Delta Challenge
+      {/*
+        Attribution must name only what is actually true. This previously read
+        "Ministry of Home Affairs / SPF Delta Challenge", which reads as an
+        endorsement by both bodies. Neither has endorsed the product: Project
+        SHIELD is a Delta Challenge submission, and the Singapore Police Force
+        appears in our material solely as the source of the published crime and
+        scam statistics we cite. Implying official backing to the very bodies
+        assessing the work is a liability, not a credential.
+      */}
+      <footer className="border-t border-[var(--sq-line)] px-5 py-4 text-center text-xs text-[var(--sq-ink-muted)]">
+        ShieldQuest Facilitator Portal · Project SHIELD · Built by Team SecurePi, Nanyang Polytechnic
       </footer>
     </div>
   );

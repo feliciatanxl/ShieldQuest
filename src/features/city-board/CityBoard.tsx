@@ -94,19 +94,19 @@ export function CityBoard({
           <DistrictPage />
         ) : (
           <div className="mx-auto max-w-2xl space-y-5 p-6 text-ink">
-            <h1 className="text-2xl font-extrabold text-navy-900">
+            <h1 className="text-2xl font-extrabold text-[var(--sq-ink)]">
               {view === '/shield-central' ? 'Shield Central' : 'Coming soon'}
             </h1>
             {view === '/shield-central' ? (
               <>
                 <p>Your city, your route. Choose a district or visit your squad.</p>
-                <CityLink href="/guardians" className="block rounded-xl bg-navy-900 p-4 text-white">
+                <CityLink href="/guardians" className="block rounded-[16px] bg-navy-900 p-4 text-white">
                   Open Guardians
                 </CityLink>
-                <CityLink href="/join" className="block rounded-xl bg-navy-900 p-4 text-white">
+                <CityLink href="/join" className="block rounded-[16px] bg-navy-900 p-4 text-white">
                   My squad
                 </CityLink>
-                <CityLink href="/progress" className="block rounded-xl bg-navy-900 p-4 text-white">
+                <CityLink href="/progress" className="block rounded-[16px] bg-navy-900 p-4 text-white">
                   Reflection
                 </CityLink>
               </>
@@ -115,7 +115,7 @@ export function CityBoard({
             )}
             <CityLink
               href="/game"
-              className="inline-flex rounded-xl bg-civic-600 px-5 py-3 font-bold text-white"
+              className="inline-flex rounded-[10px] bg-civic-600 px-5 py-3 font-bold text-white"
             >
               Back to ShieldQuest City
             </CityLink>

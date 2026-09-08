@@ -43,19 +43,48 @@ export const SPACE_ICON: Record<BoardSpaceKind, LucideIcon> = {
   PHISHING_TRAP: ShieldAlert,
 };
 
-/** Shape + surface per space type. The radius is doing as much work as the hue. */
+/**
+ * Shape + surface per space type.
+ *
+ * Shape carries the CATEGORY of a space, and it is doing real work: the board
+ * has to survive a projector, greyscale and a screen reader, so the difference
+ * between spaces can never rest on hue alone. But it was carrying that meaning
+ * through six ad-hoc radii (`rounded-2xl`, `lg`, `md`, `full`, `[10px]`,
+ * `[14px]`) with no rule, which read as boxes of assorted sizes jumbled into
+ * one track rather than as a system.
+ *
+ * There are now four shapes, each on the canonical radius scale, and each
+ * meaning one thing:
+ *
+ *   PLACE     16px  — a destination on the map (hub, checkpoint, reward)
+ *   CARD       6px  — something to read and decide on (scenario, situation)
+ *   ACTIVITY  10px  — something to do (mini-game, watch, trap)
+ *   PERSON    full  — someone to meet or protect (guardian, peer)
+ *
+ * Fills resolve through the semantic roles, so a "risk" space is the same red
+ * as a risk verdict everywhere else in the product.
+ */
+const PLACE = 'rounded-[16px]';
+const CARD = 'rounded-[6px]';
+const ACTIVITY = 'rounded-[10px]';
+const PERSON = 'rounded-full';
+
 const SPACE_SKIN: Record<BoardSpaceKind, string> = {
-  SHIELD_CENTRAL: 'rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-navy-950 border-amber-300 font-extrabold shadow-amber-500/30',
-  DISTRICT_CHECKPOINT: 'rounded-2xl bg-navy-700 text-white border-white/45',
-  SCENARIO: 'rounded-lg bg-civic-600 text-white border-civic-200/70',
-  PEER_SHIELD: 'rounded-full bg-teal-600 text-white border-teal-200/80',
-  MINI_GAME: 'rounded-[10px] bg-amber-500 text-navy-900 border-amber-200/80',
-  SITUATION_CARD: 'rounded-md bg-coral-600 text-white border-coral-200/80',
-  GUARDIAN_CHECKPOINT: 'rounded-2xl bg-navy-900 text-amber-300 border-amber-400/80',
-  REWARD_CHECKPOINT: 'rounded-[14px] bg-leaf-600 text-white border-leaf-200/80',
-  GROUP_DECISION: 'rounded-lg bg-coral-700 text-white border-coral-200/80',
-  SCAM_WATCH: 'rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white border-teal-300 shadow-teal-500/30',
-  PHISHING_TRAP: 'rounded-2xl bg-gradient-to-br from-coral-600 to-coral-800 text-white border-coral-300 shadow-coral-500/30',
+  // Places
+  SHIELD_CENTRAL: `${PLACE} bg-[var(--sq-earned)] text-[var(--color-navy-950)] border-[var(--color-amber-200)]/60 font-extrabold`,
+  DISTRICT_CHECKPOINT: `${PLACE} bg-[var(--color-navy-700)] text-white border-white/45`,
+  REWARD_CHECKPOINT: `${PLACE} bg-[var(--sq-safe-fill)] text-white border-[var(--sq-safe)]/50`,
+  // Cards — something to read
+  SCENARIO: `${CARD} bg-[var(--sq-action)] text-white border-[var(--color-civic-300)]/50`,
+  SITUATION_CARD: `${CARD} bg-[var(--sq-risk-fill)] text-white border-[var(--sq-risk)]/50`,
+  GROUP_DECISION: `${CARD} bg-[var(--color-civic-800)] text-white border-[var(--color-civic-300)]/50`,
+  // Activities — something to do
+  MINI_GAME: `${ACTIVITY} bg-[var(--color-amber-600)] text-white border-[var(--sq-earned)]/50`,
+  SCAM_WATCH: `${ACTIVITY} bg-[var(--color-teal-600)] text-white border-[var(--sq-peer)]/50`,
+  PHISHING_TRAP: `${ACTIVITY} bg-[var(--sq-risk)] text-white border-[var(--color-coral-200)]/50`,
+  // People
+  PEER_SHIELD: `${PERSON} bg-[var(--color-teal-700)] text-white border-[var(--sq-peer)]/50`,
+  GUARDIAN_CHECKPOINT: `${PERSON} bg-[var(--color-navy-900)] text-[var(--sq-earned)] border-[var(--sq-earned)]/80`,
 };
 
 export function SpaceMark({
@@ -87,19 +116,20 @@ export function SpaceMark({
         className={`grid h-[42px] w-[42px] place-items-center border-2 shadow-[0_5px_12px_-6px_rgba(6,21,39,0.95)] transition ${
           SPACE_SKIN[space.kind]
         } ${dim ? 'opacity-45 saturate-50' : ''} ${!discovered ? 'opacity-55 saturate-50' : ''} ${
-          stepping ? 'scale-110 ring-4 ring-amber-300/60' : ''
+          /* The tile underneath already lifts and scales for these two states
+           * (see CityTrack). Scaling the mark as well stacked two emphases and
+           * made the current space visibly outgrow its neighbours. */
+          stepping ? 'ring-2 ring-[var(--color-amber-300)]/60' : ''
+        } ${space.isCurrent ? 'animate-node-pulse' : ''} ${
+          relation === 'ahead' && !space.isCurrent && !dim ? 'opacity-75' : ''
         } ${
-          space.isCurrent
-            ? 'animate-node-pulse scale-110 ring-2 ring-white ring-offset-2 ring-offset-navy-950'
-            : ''
-        } ${relation === 'ahead' && !space.isCurrent && !dim ? 'opacity-75' : ''} ${
           relation === 'behind' && !space.completed ? 'brightness-90' : ''
         }`}
       >
         {space.kind === 'GUARDIAN_CHECKPOINT' && guardian ? (
           <GuardianPlate
             guardian={guardian}
-            className="h-[34px] w-[34px] rounded-full text-[13px]"
+            className="h-[32px] w-[32px] rounded-full text-[13px]"
             tone="amber"
           />
         ) : (
@@ -111,7 +141,7 @@ export function SpaceMark({
       {space.completed && (
         <span
           aria-hidden="true"
-          className="absolute -right-1.5 -top-1.5 grid h-[19px] w-[19px] place-items-center rounded-full border-2 border-navy-950 bg-leaf-600 text-white"
+          className="absolute -right-1.5 -top-1.5 grid h-[19px] w-[19px] place-items-center rounded-full border-2 border-[var(--color-navy-950)] bg-[var(--sq-safe-fill)] text-white"
         >
           {markerCosmetic ? (
             <ShieldMark className="h-2.5 w-2.5" strokeWidth={3} />
@@ -123,8 +153,8 @@ export function SpaceMark({
       {discovered && (space.planned || space.locked) && !space.completed && (
         <span
           aria-hidden="true"
-          className={`absolute -right-1.5 -top-1.5 grid h-[19px] w-[19px] place-items-center rounded-full border-2 border-navy-950 text-white ${
-            space.planned ? 'bg-coral-600' : 'bg-navy-800'
+          className={`absolute -right-1.5 -top-1.5 grid h-[19px] w-[19px] place-items-center rounded-full border-2 border-[var(--color-navy-950)] text-white ${
+            space.planned ? 'bg-[var(--sq-risk-fill)]' : 'bg-[var(--color-navy-800)]'
           }`}
         >
           {space.planned ? (
@@ -138,9 +168,9 @@ export function SpaceMark({
         aria-hidden="true"
         className={`absolute -bottom-3 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full ${
           relation === 'behind'
-            ? 'bg-leaf-200/80'
+            ? 'bg-[var(--sq-safe)]/80'
             : relation === 'current'
-              ? 'bg-amber-400'
+              ? 'bg-[var(--sq-earned)]'
               : 'bg-white/30'
         }`}
       />

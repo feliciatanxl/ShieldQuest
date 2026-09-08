@@ -48,7 +48,7 @@ export function YouthMissionPanel({
       <header className="border-b border-line bg-surface-sunk px-6 py-5 pr-14">
         <div className="flex flex-wrap items-center gap-2">
           <YouthMissionStatusChip status={submission.status} />
-          <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
+          <span className="inline-flex items-center gap-1 rounded-[6px] border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
             <Lock className="h-2.5 w-2.5" aria-hidden="true" />
             Simulated submission
           </span>
@@ -100,7 +100,7 @@ export function YouthMissionPanel({
         </Field>
 
         <Field label="Safeguarding points to weigh">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div className="rounded-[16px] border border-amber-200 bg-amber-50 p-4">
             <div className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wide text-amber-700">
               <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden="true" />
               Reviewer checklist
@@ -128,11 +128,11 @@ export function YouthMissionPanel({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Document safeguarding considerations or requested revisions..."
-            className="w-full min-h-[44px] rounded-lg border border-line-strong bg-surface p-3 text-[13.5px] outline-none transition placeholder:text-ink-soft focus:border-civic-500"
+            className="w-full min-h-[44px] rounded-[6px] border border-line-strong bg-surface p-3 text-[13.5px] outline-none transition placeholder:text-ink-soft focus:border-civic-500"
           />
         </Field>
 
-        <div className="rounded-xl border border-line bg-surface-sunk p-3.5 text-[12px] text-ink-muted">
+        <div className="rounded-[16px] border border-line bg-surface-sunk p-3.5 text-[12px] text-ink-muted">
           <p className="flex items-center gap-1 font-semibold text-navy-900">
             <UserRoundSearch className="h-3.5 w-3.5 text-civic-700" />
             Submitter identity safeguards
@@ -150,7 +150,7 @@ export function YouthMissionPanel({
         <button
           type="button"
           onClick={() => decide('CONVERTED')}
-          className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-leaf-600 px-4 text-[13.5px] font-bold text-white shadow-sm transition hover:bg-leaf-700"
+          className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[6px] bg-leaf-600 px-4 text-[13.5px] font-bold text-white shadow-sm transition hover:bg-leaf-700"
         >
           <FileEdit className="h-4 w-4" />
           Convert to scenario draft
@@ -159,7 +159,7 @@ export function YouthMissionPanel({
           <button
             type="button"
             onClick={() => decide('CHANGES_REQUESTED')}
-            className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-semibold text-ink transition hover:border-civic-300"
+            className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-[6px] border border-line bg-surface px-3 text-[12.5px] font-semibold text-ink transition hover:border-civic-300"
           >
             <PencilLine className="h-3.5 w-3.5 text-civic-700" />
             Request changes
@@ -167,7 +167,7 @@ export function YouthMissionPanel({
           <button
             type="button"
             onClick={() => decide('REJECTED')}
-            className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[12.5px] font-semibold text-coral-700 transition hover:border-coral-200 hover:bg-coral-50"
+            className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-[6px] border border-line bg-surface px-3 text-[12.5px] font-semibold text-coral-700 transition hover:border-coral-200 hover:bg-coral-50"
           >
             <CircleSlash className="h-3.5 w-3.5" />
             Do not take forward

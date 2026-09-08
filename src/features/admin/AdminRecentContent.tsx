@@ -13,7 +13,7 @@ export function AdminRecentContent({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-line bg-surface px-4 py-8 text-center">
+      <div className="rounded-[10px] border border-line bg-surface px-4 py-8 text-center">
         <p className="text-[14px] font-semibold text-ink-muted">
           No content yet.
         </p>
@@ -22,7 +22,7 @@ export function AdminRecentContent({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-surface">
+    <div className="overflow-hidden rounded-[16px] border border-line bg-surface">
       <ul className="divide-y divide-line">
         {rows.map((row) => (
           <li key={row.id}>
@@ -38,7 +38,7 @@ export function AdminRecentContent({
                   {row.title}
                 </span>
                 {row.isFlashMission && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-[6px] border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
                     <Zap className="h-2.5 w-2.5" aria-hidden="true" />
                     Flash
                   </span>
@@ -46,7 +46,7 @@ export function AdminRecentContent({
               </span>
               <span className="text-[12px] text-ink-muted">{row.category}</span>
               <span
-                className={`inline-block rounded-md border px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
+                className={`inline-block rounded-[6px] border px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
               >
                 {row.status}
               </span>

@@ -20,7 +20,7 @@ function SignalMeter({ left, total }: { left: number; total: number }) {
           <SignalHigh className="h-3.5 w-3.5" aria-hidden="true" />
           Signal strength
         </span>
-        <span className="text-[13px] font-bold tabular-nums text-navy-900">
+        <span className="text-[13px] font-bold tabular-nums text-[var(--sq-ink)]">
           {left} of {total} attempts left
         </span>
       </p>
@@ -75,12 +75,12 @@ export function DecodeBoard({
       </p>
 
       {/* The hint */}
-      <div className="rounded-2xl border border-civic-200 bg-civic-50 p-4">
-        <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-civic-700">
+      <div className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-4">
+        <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-action-text)]">
           <Lightbulb className="h-3.5 w-3.5" aria-hidden="true" />
           Hint
         </p>
-        <p className="mt-1.5 text-[15px] font-semibold leading-snug text-navy-900">
+        <p className="mt-1.5 text-[15px] font-semibold leading-snug text-[var(--sq-ink)]">
           {round.hint}
         </p>
       </div>
@@ -95,11 +95,11 @@ export function DecodeBoard({
             <li key={`${letter}-${i}`}>
               <span
                 aria-hidden="true"
-                className={`grid h-12 w-9 place-items-center rounded-lg border-2 text-xl font-extrabold uppercase ${
+                className={`grid h-12 w-9 place-items-center rounded-[6px] border-2 text-xl font-extrabold uppercase ${
                   revealed[i]
                     ? solved
-                      ? 'border-leaf-600 bg-leaf-50 text-leaf-700'
-                      : 'border-navy-900 bg-surface text-navy-900'
+                      ? 'border-leaf-600 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]'
+                      : 'border-navy-900 bg-surface text-[var(--sq-ink)]'
                     : 'border-line-strong border-b-navy-900 bg-surface-sunk text-transparent'
                 }`}
               >
@@ -133,12 +133,12 @@ export function DecodeBoard({
                         ? `${letter}, already tried, ${hit ? 'in the word' : 'not in the word'}`
                         : `Guess ${letter}`
                     }
-                    className={`grid h-11 w-full place-items-center rounded-lg border text-[14px] font-extrabold uppercase transition ${
+                    className={`grid h-11 w-full place-items-center rounded-[6px] border text-[14px] font-extrabold uppercase transition ${
                       hit
                         ? 'border-leaf-600 bg-leaf-600 text-white'
                         : used
                           ? 'border-line bg-surface-sunk text-ink-soft line-through'
-                          : 'border-line-strong bg-surface text-navy-900 hover:border-civic-500 hover:bg-civic-50'
+                          : 'border-line-strong bg-surface text-[var(--sq-ink)] hover:border-civic-500 hover:bg-[var(--sq-action)]/15'
                     }`}
                   >
                     {letter}
@@ -153,10 +153,10 @@ export function DecodeBoard({
       {/* Round outcome */}
       {solved && (
         <section
-          className="animate-rise rounded-2xl border border-leaf-200 bg-leaf-50 p-4"
+          className="animate-rise rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 p-4"
           aria-live="polite"
         >
-          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-leaf-700">
+          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-[var(--sq-safe)]">
             <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
             {round.answer} decoded
           </p>
@@ -167,7 +167,7 @@ export function DecodeBoard({
             <button
               type="button"
               onClick={onNext}
-              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
+              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-[10px] bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
             >
               Next clue
             </button>
@@ -177,10 +177,10 @@ export function DecodeBoard({
 
       {failed && (
         <section
-          className="animate-rise rounded-2xl border border-amber-200 bg-amber-50 p-4"
+          className="animate-rise rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 p-4"
           aria-live="polite"
         >
-          <p className="text-[13px] font-extrabold uppercase tracking-wide text-amber-700">
+          <p className="text-[13px] font-extrabold uppercase tracking-wide text-[var(--sq-earned-text)]">
             Signal lost — the word was {round.answer}
           </p>
           <p className="mt-1.5 text-[14px] leading-relaxed text-ink">
@@ -189,7 +189,7 @@ export function DecodeBoard({
           <button
             type="button"
             onClick={onRetryRound}
-            className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-amber-600 px-4 text-[14px] font-extrabold text-amber-700 transition hover:bg-amber-100"
+            className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-[10px] border-2 border-amber-600 px-4 text-[14px] font-extrabold text-[var(--sq-earned-text)] transition hover:bg-[var(--sq-earned)]/15"
           >
             Try this clue again
           </button>

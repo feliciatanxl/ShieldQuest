@@ -28,7 +28,7 @@ const STATUSES: AdminScenarioStatus[] = ['LIVE', 'DRAFT', 'SCHEDULED', 'ARCHIVED
 const SKILLS = Object.keys(COMPETENCY_LABEL) as Competency[];
 
 const selectCls =
-  'min-h-[44px] rounded-lg border border-line-strong bg-surface px-3 py-2 text-[13px] text-ink outline-none transition focus:border-civic-500';
+  'min-h-[44px] rounded-[6px] border border-line-strong bg-surface px-3 py-2 text-[13px] text-ink outline-none transition focus:border-civic-500';
 const labelCls =
   'block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft';
 
@@ -60,7 +60,7 @@ export function ScenarioFilters({
     filters.skill !== '';
 
   return (
-    <div className="rounded-xl border border-line bg-surface p-4">
+    <div className="rounded-[16px] border border-line bg-surface p-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="min-w-[220px] flex-1">
           <label htmlFor="lib-search" className={labelCls}>
@@ -77,7 +77,7 @@ export function ScenarioFilters({
               value={filters.query}
               onChange={(e) => set('query', e.target.value)}
               placeholder="Title, category or audience"
-              className="min-h-[44px] w-full rounded-lg border border-line-strong bg-surface py-2 pl-9 pr-3 text-[14px] outline-none transition placeholder:text-ink-soft focus:border-civic-500"
+              className="min-h-[44px] w-full rounded-[6px] border border-line-strong bg-surface py-2 pl-9 pr-3 text-[14px] outline-none transition placeholder:text-ink-soft focus:border-civic-500"
             />
           </div>
         </div>

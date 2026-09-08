@@ -58,7 +58,7 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
             <div className={sheetMeasure()}>
               <div className="flex items-end justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-400">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--sq-earned)]">
                     Your Guardians
                   </p>
                   <h1 className="mt-0.5 text-xl font-extrabold leading-tight tracking-tight">
@@ -66,21 +66,21 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
                   </h1>
                 </div>
                 <div className="flex shrink-0 gap-1.5">
-                  <p className="rounded-lg bg-white/10 px-2.5 py-1 text-right text-[11px] font-semibold leading-tight">
-                    <span className="block text-[15px] font-extrabold tabular-nums text-amber-400">
+                  <p className="rounded-[6px] bg-white/10 px-2.5 py-1 text-right text-[11px] font-semibold leading-tight">
+                    <span className="block text-[15px] font-extrabold tabular-nums text-[var(--sq-earned)]">
                       {metCount}/{guardians.length}
                     </span>
-                    <span className="text-navy-100">met</span>
+                    <span className="text-[var(--sq-ink-muted)]">met</span>
                   </p>
-                  <p className="rounded-lg bg-white/10 px-2.5 py-1 text-right text-[11px] font-semibold leading-tight">
-                    <span className="block text-[15px] font-extrabold tabular-nums text-amber-400">
+                  <p className="rounded-[6px] bg-white/10 px-2.5 py-1 text-right text-[11px] font-semibold leading-tight">
+                    <span className="block text-[15px] font-extrabold tabular-nums text-[var(--sq-earned)]">
                       {totalPractised}
                     </span>
-                    <span className="text-navy-100">practised</span>
+                    <span className="text-[var(--sq-ink-muted)]">practised</span>
                   </p>
                 </div>
               </div>
-              <p className="mt-1.5 text-[12px] leading-snug text-navy-100 xl:text-[13.5px]">
+              <p className="mt-1.5 text-[12px] leading-snug text-[var(--sq-ink-muted)] xl:text-[13.5px]">
                 You meet a Guardian by completing an activity that practises its skill, and it grows
                 as you keep practising — never by spending anything, and never by chance.
               </p>
@@ -109,22 +109,22 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
                       onClick={() => setSelectedId(g.id)}
                       aria-current={active ? 'true' : undefined}
                       aria-controls="guardian-detail"
-                      className={`flex min-h-[62px] w-full flex-col items-center justify-center gap-1 rounded-xl border px-1 py-1.5 transition ${
+                      className={`flex min-h-[62px] w-full flex-col items-center justify-center gap-1 rounded-[10px] border px-1 py-1.5 transition ${
                         active
-                          ? 'border-amber-500 bg-amber-50'
-                          : 'border-line bg-surface hover:border-civic-200'
+                          ? 'border-amber-500 bg-[var(--sq-earned)]/15'
+                          : 'border-line bg-surface hover:border-[var(--sq-action)]/40'
                       }`}
                     >
                       <GuardianPlate
                         guardian={g}
-                        className={`h-7 w-7 rounded-lg text-[12px] ${
+                        className={`h-7 w-7 rounded-[6px] text-[12px] ${
                           met ? '' : 'opacity-55 saturate-50'
                         }`}
                         tone={active ? 'amber' : 'navy'}
                       />
                       <span
                         className={`w-full truncate text-[11px] font-extrabold uppercase tracking-wide ${
-                          active ? 'text-amber-700' : 'text-navy-900'
+                          active ? 'text-[var(--sq-earned-text)]' : 'text-[var(--sq-ink)]'
                         }`}
                       >
                         {g.name}
@@ -136,7 +136,7 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
                           <>
                             Lv {level}
                             {g.id === currentId && (
-                              <span className="text-amber-700"> · current</span>
+                              <span className="text-[var(--sq-earned-text)]"> · current</span>
                             )}
                           </>
                         ) : (
@@ -176,7 +176,7 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
           <button
             type="button"
             onClick={onPractice}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-civic-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-civic-700"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] bg-civic-600 px-4 text-[15px] font-extrabold text-white transition hover:bg-civic-700"
           >
             Practise in ShieldQuest City
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

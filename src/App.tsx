@@ -95,10 +95,10 @@ const NotFoundPage = lazy(() =>
 
 function RouteFallback() {
   return (
-    <div className="grid min-h-screen place-items-center bg-canvas px-6 text-center" role="status">
+    <div className="grid min-h-dvh place-items-center bg-[var(--sq-canvas)] px-6 text-center" role="status">
       <div>
-        <div className="mx-auto h-10 w-10 animate-pulse rounded-xl bg-navy-950" />
-        <p className="mt-4 text-sm font-bold text-slate-600">Opening ShieldQuest…</p>
+        <div className="mx-auto h-10 w-10 animate-pulse rounded-[10px] bg-[var(--sq-action)]" />
+        <p className="mt-4 text-sm font-bold text-[var(--sq-ink-muted)]">Opening ShieldQuest…</p>
       </div>
     </div>
   );

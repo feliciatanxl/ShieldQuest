@@ -29,7 +29,7 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
         {/* Drawer Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-navy-950 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-amber-500/20 text-[var(--sq-earned)]">
               <BookOpen className="h-5 w-5" />
             </div>
             <div>
@@ -43,7 +43,7 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
             type="button"
             onClick={onClose}
             aria-label="Close Casebook"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-white/70 hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -51,16 +51,16 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
 
         {/* Intelligence Stats */}
         <div className="grid grid-cols-2 gap-2 border-b border-white/10 bg-navy-950/60 p-4">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+          <div className="rounded-[16px] border border-white/10 bg-white/5 p-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--sq-earned)]">
               Discovered Threats
             </span>
             <p className="mt-1 text-2xl font-black tabular-nums">
               {Math.max(casebookEntries.length, 2)}
             </p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-400">
+          <div className="rounded-[16px] border border-white/10 bg-white/5 p-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--sq-peer)]">
               Missions Resolved
             </span>
             <p className="mt-1 text-2xl font-black tabular-nums">{completed.length}</p>
@@ -75,21 +75,21 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
             return (
               <div
                 key={card.id}
-                className="rounded-2xl border border-white/15 bg-white/5 p-4 transition hover:border-white/30"
+                className="rounded-[16px] border border-white/15 bg-white/5 p-4 transition hover:border-white/30"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="inline-block rounded-full bg-amber-400/15 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-amber-300">
+                    <span className="inline-block rounded-full bg-amber-400/15 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--sq-earned)]">
                       {card.competency} Skill
                     </span>
                     <h3 className="mt-1.5 text-sm font-black text-white">{card.title}</h3>
                   </div>
                   {isDiscovered ? (
-                    <span className="flex items-center gap-1 rounded-md bg-leaf-500/20 px-2 py-0.5 text-[10px] font-bold text-leaf-300">
+                    <span className="flex items-center gap-1 rounded-[6px] bg-leaf-500/20 px-2 py-0.5 text-[10px] font-bold text-[var(--sq-safe)]">
                       <CheckCircle className="h-3 w-3" /> Logged
                     </span>
                   ) : (
-                    <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white/50">
+                    <span className="rounded-[6px] bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white/50">
                       Undiscovered
                     </span>
                   )}
@@ -98,8 +98,8 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
                 <p className="mt-2 text-[12px] leading-relaxed text-white/75">{card.blurb}</p>
 
                 {/* Key Warning Signs */}
-                <div className="mt-3 rounded-xl border border-coral-400/20 bg-coral-950/30 p-2.5 text-[11px]">
-                  <p className="flex items-center gap-1 font-bold text-coral-300">
+                <div className="mt-3 rounded-[16px] border border-coral-400/20 bg-coral-950/30 p-2.5 text-[11px]">
+                  <p className="flex items-center gap-1 font-bold text-[var(--sq-risk)]">
                     <AlertTriangle className="h-3.5 w-3.5" /> Warning Signs:
                   </p>
                   <ul className="mt-1 list-inside list-disc space-y-0.5 text-white/80">
@@ -110,8 +110,8 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
                 </div>
 
                 {/* Safer Response Strategy */}
-                <div className="mt-2 rounded-xl border border-teal-400/20 bg-teal-950/30 p-2.5 text-[11px]">
-                  <p className="flex items-center gap-1 font-bold text-teal-300">
+                <div className="mt-2 rounded-[16px] border border-teal-400/20 bg-teal-950/30 p-2.5 text-[11px]">
+                  <p className="flex items-center gap-1 font-bold text-[var(--sq-peer)]">
                     <Shield className="h-3.5 w-3.5" /> Safer Action:
                   </p>
                   <p className="mt-0.5 text-white/85">{card.saferResponse}</p>

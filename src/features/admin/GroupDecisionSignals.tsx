@@ -14,7 +14,7 @@ function SummaryTile({
   note: string;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-surface p-4">
+    <div className="rounded-[16px] border border-line bg-surface p-4">
       <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">
         {label}
       </p>
@@ -39,7 +39,7 @@ export function GroupDecisionSignalPanel({
 
   return (
     <div className="space-y-3">
-      <p className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-700">
+      <p className="inline-flex items-center gap-1.5 rounded-[6px] border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-700">
         <Lock className="h-3 w-3" aria-hidden="true" />
         Simulated facilitated sessions · no live multiplayer exists
       </p>
@@ -62,7 +62,7 @@ export function GroupDecisionSignalPanel({
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-line bg-surface">
+      <div className="overflow-hidden rounded-[16px] border border-line bg-surface">
         <div className="thin-scroll overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left">
             <thead>

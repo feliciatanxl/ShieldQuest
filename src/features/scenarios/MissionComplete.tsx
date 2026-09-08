@@ -58,7 +58,7 @@ export function MissionComplete({
         <header className="shrink-0 px-5 pb-3 pt-6 text-center">
           <span
             aria-hidden="true"
-            className="animate-stamp mx-auto grid h-16 w-16 place-items-center rounded-full border-4 border-leaf-200 bg-leaf-100 text-leaf-700 shadow-[0_8px_22px_-16px_rgba(31,107,74,0.8)]"
+            className="animate-stamp mx-auto grid h-16 w-16 place-items-center rounded-full border-4 border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)] shadow-[0_8px_22px_-16px_rgba(31,107,74,0.8)]"
           >
             <Check className="h-8 w-8" strokeWidth={3} />
           </span>
@@ -67,7 +67,7 @@ export function MissionComplete({
           </p>
           <h2
             id="mission-complete-title"
-            className="mt-0.5 text-[26px] font-extrabold uppercase leading-tight tracking-tight text-navy-900"
+            className="mt-0.5 text-[26px] font-extrabold uppercase leading-tight tracking-tight text-[var(--sq-ink)]"
           >
             Mission complete
           </h2>
@@ -75,17 +75,17 @@ export function MissionComplete({
 
         <div className="thin-scroll min-h-0 flex-1 space-y-2 overflow-y-auto px-5 pb-3">
           {guardian && (
-            <div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3">
+            <div className="flex items-center gap-3 rounded-[16px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-3.5 py-3">
               <GuardianPlate
                 guardian={guardian}
-                className="guardian-reaction h-14 w-14 rounded-2xl text-lg"
+                className="guardian-reaction h-14 w-14 rounded-[16px] text-lg"
                 tone="amber"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-amber-700">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--sq-earned-text)]">
                   {guardian.name} reacts
                 </p>
-                <p className="mt-0.5 text-[13px] font-semibold leading-snug text-navy-900">
+                <p className="mt-0.5 text-[13px] font-semibold leading-snug text-[var(--sq-ink)]">
                   “{GUARDIAN_DIALOGUE[guardian.id]?.success ?? guardian.motto}”
                 </p>
               </div>
@@ -102,7 +102,7 @@ export function MissionComplete({
                 {COMPETENCY_LETTER[competency]}
               </span>
             }
-            value={<Check className="h-4 w-4 text-leaf-700" strokeWidth={3} />}
+            value={<Check className="h-4 w-4 text-[var(--sq-safe)]" strokeWidth={3} />}
           />
 
           {signals && (
@@ -120,8 +120,8 @@ export function MissionComplete({
             <Row
               tone="civic"
               label="Case file recorded"
-              badge={<BookMarked className="h-4 w-4 text-civic-700" aria-hidden="true" />}
-              value={<Check className="h-4 w-4 text-leaf-700" strokeWidth={3} />}
+              badge={<BookMarked className="h-4 w-4 text-[var(--sq-action-text)]" aria-hidden="true" />}
+              value={<Check className="h-4 w-4 text-[var(--sq-safe)]" strokeWidth={3} />}
             />
           )}
 
@@ -145,7 +145,7 @@ export function MissionComplete({
           <Row
             tone="amber"
             label="Shield Tokens"
-            badge={<Sparkles className="h-4 w-4 text-amber-700" aria-hidden="true" />}
+            badge={<Sparkles className="h-4 w-4 text-[var(--sq-earned-text)]" aria-hidden="true" />}
             value={
               <span className="tabular-nums">
                 {tokensAwarded > 0 ? `+${tokensAwarded}` : 'Already earned'}
@@ -163,7 +163,7 @@ export function MissionComplete({
           <Link
             href="/game"
             onClick={onClose}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[10px] border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
           >
             Return to city
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -171,7 +171,7 @@ export function MissionComplete({
           <button
             type="button"
             onClick={onViewLearning}
-            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
           >
             <BookOpen className="h-4 w-4" aria-hidden="true" />
             View what I learned
@@ -195,14 +195,14 @@ function Row({
 }) {
   const skin =
     tone === 'amber'
-      ? 'border-amber-200 bg-amber-50 text-amber-800'
+      ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
       : tone === 'civic'
-        ? 'border-civic-200 bg-civic-50 text-civic-800'
+        ? 'border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]'
         : 'border-line bg-surface-sunk text-ink';
 
   return (
     <p
-      className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-3 text-[14px] font-bold ${skin}`}
+      className={`flex items-center gap-2.5 rounded-[10px] border px-3.5 py-3 text-[14px] font-bold ${skin}`}
     >
       {badge}
       <span className="min-w-0 flex-1">{label}</span>

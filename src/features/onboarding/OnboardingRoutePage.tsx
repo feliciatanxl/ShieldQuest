@@ -10,7 +10,10 @@ export function OnboardingRoutePage() {
   };
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-navy-950">
+    <div
+      data-skin="game"
+      className="flex min-h-dvh items-center justify-center bg-[var(--sq-canvas)]"
+    >
       <PlayerOnboardingModal open={true} onComplete={handleComplete} />
     </div>
   );

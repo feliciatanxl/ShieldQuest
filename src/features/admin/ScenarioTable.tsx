@@ -65,7 +65,7 @@ export function ScenarioTable({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-line bg-surface px-5 py-12 text-center">
+      <div className="rounded-[10px] border border-line bg-surface px-5 py-12 text-center">
         <p className="text-[14px] font-semibold text-ink-muted">
           No scenarios match this view.
         </p>
@@ -74,7 +74,7 @@ export function ScenarioTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-surface">
+    <div className="overflow-hidden rounded-[16px] border border-line bg-surface">
       <div className="thin-scroll max-h-[70dvh] overflow-auto">
         <table className="w-full min-w-[920px] border-collapse text-left">
           <caption className="sr-only">{caption}</caption>
@@ -131,7 +131,7 @@ export function ScenarioTable({
                         </span>
                       )}
                       {row.isFlashMission && (
-                        <span className="inline-flex items-center gap-1 rounded-md border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
+                        <span className="inline-flex items-center gap-1 rounded-[6px] border border-civic-200 bg-civic-50 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
                           <Zap className="h-2.5 w-2.5" aria-hidden="true" />
                           Flash
                         </span>
@@ -146,7 +146,7 @@ export function ScenarioTable({
                   </td>
                   <td className="px-4 py-3.5">
                     <span
-                      className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
+                      className={`inline-block rounded-[6px] border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_STYLES[row.status]}`}
                     >
                       {row.status}
                     </span>

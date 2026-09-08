@@ -8,6 +8,14 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
+/**
+ * The one card in ShieldQuest — skin-aware like `Button`, so the same
+ * component is correct on the public site and inside the player PWA.
+ *
+ * Elevation carries meaning rather than decoration: `default` sits on the
+ * canvas, `interactive` lifts on hover to signal it is actionable, `featured`
+ * adds a ring to mark the recommended path. Three steps, no more.
+ */
 export function Card({
   variant = 'default',
   padding = 'md',
@@ -15,7 +23,7 @@ export function Card({
   className = '',
   ...props
 }: CardProps) {
-  const baseStyles = 'rounded-2xl transition border';
+  const baseStyles = 'rounded-[16px] transition border';
 
   const paddingStyles = {
     none: 'p-0',
@@ -25,12 +33,16 @@ export function Card({
   };
 
   const variantStyles: Record<CardVariant, string> = {
-    default: 'bg-white border-slate-200/80 shadow-sm text-slate-800',
-    subtle: 'bg-slate-50 border-slate-200 text-slate-800',
+    default:
+      'bg-[var(--sq-surface)] border-[var(--sq-line)] shadow-[var(--sq-shadow-flat)] text-[var(--sq-ink)]',
+    subtle: 'bg-[var(--sq-surface-sunk)] border-[var(--sq-line)] text-[var(--sq-ink)]',
     interactive:
-      'bg-white border-slate-200/80 shadow-sm hover:border-civic-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-slate-800',
-    featured: 'bg-white border-civic-200 shadow-md ring-1 ring-civic-500/10 text-slate-800',
-    inverse: 'bg-navy-900 border-navy-800 text-white shadow-lg',
+      'bg-[var(--sq-surface)] border-[var(--sq-line)] shadow-[var(--sq-shadow-flat)] hover:border-[var(--sq-action)] hover:shadow-[var(--sq-shadow-raised)] hover:-translate-y-0.5 cursor-pointer text-[var(--sq-ink)]',
+    featured:
+      'bg-[var(--sq-surface)] border-[var(--sq-action)]/30 shadow-[var(--sq-shadow-raised)] ring-1 ring-[var(--sq-action)]/10 text-[var(--sq-ink)]',
+    // Always dark, in both skins — for consequence takeovers and hero panels
+    // that must read as a deliberate break from the surrounding page.
+    inverse: 'bg-[var(--color-navy-900)] border-[var(--color-navy-800)] text-white shadow-[var(--sq-shadow-float)]',
   };
 
   return (
@@ -61,7 +73,9 @@ export function CardTitle({
   className?: string;
 }) {
   return (
-    <h3 className={`text-base font-extrabold tracking-tight text-navy-950 sm:text-lg ${className}`}>
+    <h3
+      className={`text-base font-extrabold tracking-tight text-[var(--sq-ink)] sm:text-lg ${className}`}
+    >
       {children}
     </h3>
   );
@@ -74,7 +88,9 @@ export function CardDescription({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <p className={`text-xs text-slate-500 leading-relaxed ${className}`}>{children}</p>;
+  return (
+    <p className={`text-xs leading-relaxed text-[var(--sq-ink-muted)] ${className}`}>{children}</p>
+  );
 }
 
 export function CardContent({
@@ -95,7 +111,9 @@ export function CardFooter({
   className?: string;
 }) {
   return (
-    <div className={`mt-5 flex items-center border-t border-slate-100 pt-4 text-xs ${className}`}>
+    <div
+      className={`mt-5 flex items-center border-t border-[var(--sq-line)] pt-4 text-xs ${className}`}
+    >
       {children}
     </div>
   );

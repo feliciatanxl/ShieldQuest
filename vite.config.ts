@@ -15,13 +15,16 @@ export default defineConfig({
         id: '/',
         name: 'ShieldQuest',
         short_name: 'ShieldQuest',
-        description: 'Explore the city. Make thoughtful choices. Protect your community.',
+        description:
+          'Practise the decision before it costs anything. An interactive crime-prevention and scam-awareness experience for youths.',
         start_url: '/',
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
-        theme_color: '#0a1128',
-        background_color: '#f6f8fb',
+        // navy-950, matching tokens.css and index.html.
+        theme_color: '#061527',
+        // The player app opens on the dark game skin, so the splash should too.
+        background_color: '#061527',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },

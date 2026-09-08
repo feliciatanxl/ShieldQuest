@@ -29,11 +29,11 @@ export const KIND_ICON: Record<NodeKind, LucideIcon> = {
  * a youth should be able to pick it out of the route at a glance.
  */
 export const KIND_CHIP: Record<NodeKind, string> = {
-  SCENARIO: 'border-civic-200 bg-civic-50 text-civic-700',
-  MINI_GAME: 'border-amber-200 bg-amber-50 text-amber-700',
-  PEER_SHIELD: 'border-teal-200 bg-teal-50 text-teal-700',
-  GUARDIAN_CHALLENGE: 'border-leaf-200 bg-leaf-50 text-leaf-700',
-  GROUP_DECISION: 'border-coral-200 bg-coral-50 text-coral-700',
+  SCENARIO: 'border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]',
+  MINI_GAME: 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]',
+  PEER_SHIELD: 'border-[var(--sq-peer)]/40 bg-[var(--sq-peer)]/15 text-[var(--sq-peer)]',
+  GUARDIAN_CHALLENGE: 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]',
+  GROUP_DECISION: 'border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15 text-[var(--sq-risk)]',
 };
 
 /** Mission-type mark: registered artwork if there is any, the icon until then. */

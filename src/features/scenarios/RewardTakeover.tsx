@@ -54,7 +54,7 @@ export function RewardTakeover({
           aria-hidden="true"
           className="animate-pop grid h-24 w-24 place-items-center rounded-full bg-white/20"
         >
-          <Sparkles className="h-12 w-12 text-amber-400" strokeWidth={2.2} />
+          <Sparkles className="h-12 w-12 text-[var(--sq-earned)]" strokeWidth={2.2} />
         </span>
 
         <p
@@ -72,7 +72,7 @@ export function RewardTakeover({
         <button
           type="button"
           onClick={onContinue}
-          className="mt-auto flex min-h-[54px] w-full items-center justify-center rounded-xl border-b-4 border-black/10 bg-white px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-leaf-700 transition hover:bg-leaf-50 active:translate-y-[3px] active:border-b-0"
+          className="mt-auto flex min-h-[54px] w-full items-center justify-center rounded-[10px] border-b-4 border-black/10 bg-white px-4 text-[15px] font-extrabold uppercase tracking-[0.08em] text-[var(--sq-safe)] transition hover:bg-[var(--sq-safe)]/15 active:translate-y-[3px] active:border-b-0"
         >
           Continue
         </button>

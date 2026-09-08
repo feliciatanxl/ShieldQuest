@@ -244,7 +244,7 @@ export function WordSearchBoard({
           onClick={() => setHowToOpen((v) => !v)}
           aria-expanded={howToOpen}
           aria-controls="ws-how-to"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-2 text-[12px] font-bold text-civic-700 transition hover:text-civic-800"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[6px] px-2 text-[12px] font-bold text-[var(--sq-action-text)] transition hover:text-[var(--sq-action-text)]"
         >
           <Info className="h-3.5 w-3.5" aria-hidden="true" />
           How to play
@@ -256,7 +256,7 @@ export function WordSearchBoard({
         {howToOpen && (
           <p
             id="ws-how-to"
-            className="mt-1 rounded-xl border border-line bg-surface-sunk px-3 py-2.5 text-[12px] leading-relaxed text-ink-muted"
+            className="mt-1 rounded-[10px] border border-line bg-surface-sunk px-3 py-2.5 text-[12px] leading-relaxed text-ink-muted"
           >
             Tap the first letter, then the last letter. You can also drag across
             the word, or move with the arrow keys and press Enter on the first
@@ -267,7 +267,7 @@ export function WordSearchBoard({
 
       <div
         ref={gridRef}
-        className="ws-grid select-none rounded-2xl border border-line bg-surface p-1"
+        className="ws-grid select-none rounded-[16px] border border-line bg-surface p-1"
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
@@ -293,14 +293,14 @@ export function WordSearchBoard({
                     ? `${letter}, row ${r + 1} column ${c + 1}, part of ${foundWord}`
                     : `${letter}, row ${r + 1} column ${c + 1}`
                 }
-                className={`ws-cell grid place-items-center rounded-md border text-[15px] font-extrabold uppercase transition ${
+                className={`ws-cell grid place-items-center rounded-[6px] border text-[15px] font-extrabold uppercase transition ${
                   foundWord
                     ? 'animate-found border-leaf-700 bg-leaf-700 text-white'
                     : isAnchor
-                      ? 'border-amber-600 bg-amber-500 text-navy-900'
+                      ? 'border-amber-600 bg-amber-500 text-[var(--sq-ink)]'
                       : selecting
-                        ? 'border-civic-600 bg-civic-100 text-civic-800'
-                        : 'border-line bg-surface-sunk text-navy-900 hover:border-civic-500 hover:bg-civic-50'
+                        ? 'border-civic-600 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]'
+                        : 'border-line bg-surface-sunk text-[var(--sq-ink)] hover:border-civic-500 hover:bg-[var(--sq-action)]/15'
                 }`}
               >
                 {letter}
@@ -313,9 +313,9 @@ export function WordSearchBoard({
       {/* Live region — the only way a screen-reader user learns a word landed. */}
       <p
         aria-live="polite"
-        className={`mt-2.5 min-h-[40px] rounded-xl border px-3 py-2 text-[13px] leading-snug ${
+        className={`mt-2.5 min-h-[40px] rounded-[10px] border px-3 py-2 text-[13px] leading-snug ${
           nearMiss
-            ? 'border-amber-200 bg-amber-50 text-amber-700'
+            ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
             : 'border-line bg-surface-sunk text-ink'
         }`}
       >
@@ -329,22 +329,22 @@ export function WordSearchBoard({
         onClick={() => setWordsOpen((v) => !v)}
         aria-expanded={wordsOpen}
         aria-controls="ws-words"
-        className={`mt-2.5 flex min-h-[48px] w-full items-center gap-2.5 rounded-xl border px-3 py-2 text-left transition ${
+        className={`mt-2.5 flex min-h-[48px] w-full items-center gap-2.5 rounded-[10px] border px-3 py-2 text-left transition ${
           allFound
-            ? 'border-leaf-200 bg-leaf-50'
+            ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15'
             : 'border-line bg-surface hover:border-civic-500'
         }`}
       >
         <span
           className={`text-[11px] font-bold uppercase tracking-[0.12em] ${
-            allFound ? 'text-leaf-700' : 'text-ink-soft'
+            allFound ? 'text-[var(--sq-safe)]' : 'text-ink-soft'
           }`}
         >
           Found
         </span>
         <span
           className={`text-[15px] font-extrabold tabular-nums ${
-            allFound ? 'text-leaf-700' : 'text-navy-900'
+            allFound ? 'text-[var(--sq-safe)]' : 'text-[var(--sq-ink)]'
           }`}
         >
           {found.length} / {game.words.length}
@@ -380,9 +380,9 @@ export function WordSearchBoard({
           return (
             <li
               key={w.word}
-              className={`rounded-xl border px-3 py-2 ${
+              className={`rounded-[10px] border px-3 py-2 ${
                 isFound
-                  ? 'border-leaf-200 bg-leaf-50'
+                  ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15'
                   : 'border-line bg-surface'
               }`}
             >
@@ -397,7 +397,7 @@ export function WordSearchBoard({
                 </span>
                 <span
                   className={`text-[14px] font-extrabold uppercase tracking-wide ${
-                    isFound ? 'text-leaf-700' : 'text-ink-soft'
+                    isFound ? 'text-[var(--sq-safe)]' : 'text-ink-soft'
                   }`}
                 >
                   {isFound ? w.word : '• • • • • •'}

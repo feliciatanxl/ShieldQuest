@@ -27,7 +27,7 @@ export function KpiStatusBadge({ status }: { status: KpiStatus }) {
   const { skin, Icon } = STATUS_STYLE[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${skin}`}
+      className={`inline-flex items-center gap-1.5 rounded-[6px] border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${skin}`}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       {KPI_STATUS_LABEL[status]}
@@ -41,7 +41,7 @@ export function PilotEvaluationFramework({ kpis }: { kpis: PilotKpi[] }) {
       {kpis.map((kpi) => (
         <li
           key={kpi.id}
-          className="flex h-full flex-col rounded-xl border border-line bg-surface p-4"
+          className="flex h-full flex-col rounded-[16px] border border-line bg-surface p-4"
         >
           <div className="flex items-start justify-between gap-2">
             <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-civic-700">

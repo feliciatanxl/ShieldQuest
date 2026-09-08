@@ -32,9 +32,9 @@ export function TransferQuestionCard({
   };
 
   return (
-    <section className="rounded-2xl border border-civic-200 bg-civic-50 p-4">
+    <section className="rounded-[16px] border border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 p-4">
       <SectionLabel>Connect it back</SectionLabel>
-      <h2 className="mt-1.5 text-[15px] font-extrabold leading-snug text-navy-900">
+      <h2 className="mt-1.5 text-[15px] font-extrabold leading-snug text-[var(--sq-ink)]">
         {question.prompt}
       </h2>
 
@@ -48,9 +48,9 @@ export function TransferQuestionCard({
           const style = !answered
             ? 'border-line bg-surface hover:border-civic-500 hover:bg-white'
             : isAnswer
-              ? 'border-leaf-600 bg-leaf-50'
+              ? 'border-leaf-600 bg-[var(--sq-safe)]/15'
               : isChosen
-                ? 'border-coral-600 bg-coral-50'
+                ? 'border-coral-600 bg-[var(--sq-risk)]/15'
                 : 'border-line bg-surface opacity-70';
 
           return (
@@ -60,16 +60,16 @@ export function TransferQuestionCard({
                 onClick={() => choose(i)}
                 disabled={answered}
                 aria-pressed={isChosen}
-                className={`flex min-h-[52px] w-full items-center gap-2.5 rounded-xl border-2 px-3.5 py-2.5 text-left text-[14px] font-semibold text-navy-900 transition disabled:cursor-default ${style}`}
+                className={`flex min-h-[52px] w-full items-center gap-2.5 rounded-[10px] border-2 px-3.5 py-2.5 text-left text-[14px] font-semibold text-[var(--sq-ink)] transition disabled:cursor-default ${style}`}
               >
                 <span
                   aria-hidden="true"
-                  className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded-[6px] border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
                 >
                   {answered && isAnswer ? (
-                    <Check className="h-3.5 w-3.5 text-leaf-700" strokeWidth={3} />
+                    <Check className="h-3.5 w-3.5 text-[var(--sq-safe)]" strokeWidth={3} />
                   ) : answered && isChosen ? (
-                    <X className="h-3.5 w-3.5 text-coral-700" strokeWidth={3} />
+                    <X className="h-3.5 w-3.5 text-[var(--sq-risk)]" strokeWidth={3} />
                   ) : (
                     i + 1
                   )}
@@ -86,11 +86,11 @@ export function TransferQuestionCard({
 
       {answered && (
         <div
-          className="animate-rise mt-3 rounded-xl border border-line bg-surface p-3.5"
+          className="animate-rise mt-3 rounded-[16px] border border-line bg-surface p-3.5"
           aria-live="polite"
         >
-          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-navy-900">
-            <Lightbulb className="h-4 w-4 text-amber-600" aria-hidden="true" />
+          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
+            <Lightbulb className="h-4 w-4 text-[var(--sq-earned-text)]" aria-hidden="true" />
             {correct ? 'That is the one' : 'Close — here is the signal'}
           </p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-ink">

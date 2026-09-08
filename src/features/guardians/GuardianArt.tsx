@@ -26,7 +26,7 @@ export function GuardianPlate({
       <span
         aria-hidden="true"
         className={`grid shrink-0 place-items-center font-extrabold ${className} ${
-          tone === 'amber' ? 'bg-amber-500 text-navy-900' : 'bg-navy-900 text-white'
+          tone === 'amber' ? 'bg-amber-500 text-[var(--sq-ink)]' : 'bg-navy-900 text-white'
         }`}
       >
         {COMPETENCY_LETTER[guardian.competency]}

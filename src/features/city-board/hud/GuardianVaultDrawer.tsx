@@ -30,7 +30,7 @@ export function GuardianVaultDrawer({ open, onClose }: GuardianVaultDrawerProps)
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-navy-950 px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-amber-500/20 text-[var(--sq-earned)]">
               <Shield className="h-5 w-5" />
             </div>
             <div>
@@ -44,7 +44,7 @@ export function GuardianVaultDrawer({ open, onClose }: GuardianVaultDrawerProps)
             type="button"
             onClick={onClose}
             aria-label="Close Guardian Vault"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-white/70 hover:bg-white/10 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -60,7 +60,7 @@ export function GuardianVaultDrawer({ open, onClose }: GuardianVaultDrawerProps)
             return (
               <div
                 key={guardian.id}
-                className={`relative overflow-hidden rounded-2xl border p-4 transition ${
+                className={`relative overflow-hidden rounded-[16px] border p-4 transition ${
                   isMet
                     ? 'border-amber-400/40 bg-gradient-to-br from-white/10 via-white/5 to-navy-950'
                     : 'border-white/10 bg-white/5 opacity-75'
@@ -69,23 +69,23 @@ export function GuardianVaultDrawer({ open, onClose }: GuardianVaultDrawerProps)
                 <div className="flex items-center gap-3.5">
                   <GuardianPlate
                     guardian={guardian}
-                    className="h-14 w-14 shrink-0 rounded-2xl text-2xl shadow-md border-2 border-white/20"
+                    className="h-14 w-14 shrink-0 rounded-[16px] text-2xl shadow-md border-2 border-white/20"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
                       <h3 className="truncate text-base font-black text-white">{guardian.name}</h3>
-                      <span className="shrink-0 rounded-full bg-amber-400/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-amber-300">
+                      <span className="shrink-0 rounded-full bg-amber-400/15 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[var(--sq-earned)]">
                         {guardian.competency}
                       </span>
                     </div>
-                    <p className="text-[12px] font-bold text-civic-300">{guardian.skill}</p>
+                    <p className="text-[12px] font-bold text-[var(--sq-action)]">{guardian.skill}</p>
                     <p className="mt-0.5 text-[11px] italic text-white/70">"{guardian.motto}"</p>
                   </div>
                 </div>
 
                 {/* Advice Perk & Standing */}
-                <div className="mt-3 rounded-xl border border-white/10 bg-navy-950/80 p-2.5 text-[11px]">
-                  <p className="flex items-center gap-1 font-bold text-amber-300">
+                <div className="mt-3 rounded-[16px] border border-white/10 bg-navy-950/80 p-2.5 text-[11px]">
+                  <p className="flex items-center gap-1 font-bold text-[var(--sq-earned)]">
                     <Sparkles className="h-3.5 w-3.5" /> Mentor Advice:
                   </p>
                   <p className="mt-1 text-white/85">{guardian.greeting}</p>
@@ -94,7 +94,7 @@ export function GuardianVaultDrawer({ open, onClose }: GuardianVaultDrawerProps)
                 {/* Progress Bar */}
                 <div className="mt-3 flex items-center justify-between text-[10px] font-bold text-white/60">
                   <span>Level {standing.level}</span>
-                  <span className="tabular-nums text-amber-300">
+                  <span className="tabular-nums text-[var(--sq-earned)]">
                     {count} / {guardian.target} Pips
                   </span>
                 </div>

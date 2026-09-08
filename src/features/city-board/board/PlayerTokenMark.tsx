@@ -39,11 +39,11 @@ export function PlayerTokenMark({
         }`}
       >
         <div
-          className={`player-token-halo flex items-center gap-1.5 rounded-full border-2 border-amber-300 bg-navy-950 px-2.5 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.9)] transition-all ${className}`}
+          className={`player-token-halo flex items-center gap-1.5 rounded-full border-2 border-[var(--sq-earned)]/40 bg-navy-950 px-2.5 py-1.5 shadow-[0_12px_28px_rgba(0,0,0,0.9)] transition-all ${className}`}
         >
           <PlayerAvatarMark tokenId={tokenId} className="h-7 w-7 shrink-0 drop-shadow" />
           {showLabel && (
-            <span className="whitespace-nowrap text-[11px] font-black uppercase tracking-wider text-amber-300">
+            <span className="whitespace-nowrap text-[11px] font-black uppercase tracking-wider text-[var(--sq-earned)]">
               You
             </span>
           )}
@@ -51,7 +51,7 @@ export function PlayerTokenMark({
         {/* Pointer Tip */}
         <span
           aria-hidden="true"
-          className="h-2.5 w-2.5 -mt-1 rotate-45 border-b-2 border-r-2 border-amber-300 bg-navy-950 shadow-md"
+          className="h-2.5 w-2.5 -mt-1 rotate-45 border-b-2 border-r-2 border-[var(--sq-earned)]/40 bg-navy-950 shadow-md"
         />
       </div>
 

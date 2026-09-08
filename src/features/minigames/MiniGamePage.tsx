@@ -31,7 +31,7 @@ export function MiniGamePage({ gameId }: { gameId: string }) {
   if (!game) {
     return (
       <div className="px-5 py-16 text-center">
-        <h1 className="text-xl font-extrabold text-navy-900">
+        <h1 className="text-xl font-extrabold text-[var(--sq-ink)]">
           Activity not found
         </h1>
         <p className="mt-2 text-[14px] text-ink-muted">
@@ -39,7 +39,7 @@ export function MiniGamePage({ gameId }: { gameId: string }) {
         </p>
         <CityLink
           href="/game"
-          className="mt-5 inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-navy-900 px-5 text-[15px] font-bold text-white"
+          className="mt-5 inline-flex min-h-[48px] items-center gap-2 rounded-[10px] bg-navy-900 px-5 text-[15px] font-bold text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to the city
@@ -97,13 +97,13 @@ function WordSearchRunner({ game }: { game: WordSearchGame }) {
       followUp={
         <>
           <p
-            className="rounded-2xl border border-leaf-200 bg-leaf-50 px-4 py-3 text-center"
+            className="rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 px-4 py-3 text-center"
             aria-live="polite"
           >
-            <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-leaf-700">
+            <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--sq-safe)]">
               Warning signs found
             </span>
-            <span className="mt-0.5 block text-2xl font-extrabold tabular-nums text-leaf-700">
+            <span className="mt-0.5 block text-2xl font-extrabold tabular-nums text-[var(--sq-safe)]">
               {found.length} / {game.words.length}
             </span>
           </p>
@@ -240,13 +240,13 @@ function SortRunner({ game }: { game: SortGame }) {
       followUp={
         <>
           <p
-            className="rounded-2xl border border-leaf-200 bg-leaf-50 px-4 py-3 text-center"
+            className="rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 px-4 py-3 text-center"
             aria-live="polite"
           >
-            <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-leaf-700">
+            <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--sq-safe)]">
               Called as intended
             </span>
-            <span className="mt-0.5 block text-2xl font-extrabold tabular-nums text-leaf-700">
+            <span className="mt-0.5 block text-2xl font-extrabold tabular-nums text-[var(--sq-safe)]">
               {readCorrectly} / {game.cards.length}
             </span>
           </p>

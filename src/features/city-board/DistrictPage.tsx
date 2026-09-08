@@ -47,13 +47,13 @@ export default function DistrictPage() {
   if (!district) {
     return (
       <div className="px-5 py-16 text-center">
-        <h1 className="text-xl font-extrabold text-navy-900">District not found</h1>
+        <h1 className="text-xl font-extrabold text-[var(--sq-ink)]">District not found</h1>
         <p className="mt-2 text-[14px] text-ink-muted">
           That part of ShieldQuest City does not exist yet.
         </p>
         <Link
           href="/game"
-          className="mt-5 inline-flex min-h-[48px] items-center gap-2 rounded-xl bg-navy-900 px-5 text-[15px] font-bold text-white"
+          className="mt-5 inline-flex min-h-[48px] items-center gap-2 rounded-[10px] bg-navy-900 px-5 text-[15px] font-bold text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to the city
@@ -84,19 +84,19 @@ export default function DistrictPage() {
                 <Link
                   href="/game"
                   aria-label="Back to ShieldQuest City"
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] text-white/80 transition hover:bg-white/10 hover:text-white"
                 >
                   <ArrowLeft className="h-5 w-5" aria-hidden="true" />
                 </Link>
 
                 <DistrictPlate
                   districtId={district.id}
-                  className="h-10 w-10 rounded-xl"
+                  className="h-10 w-10 rounded-[10px]"
                   iconClassName="h-5 w-5"
                 />
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--sq-earned)]">
                     {chapter.label}
                   </p>
                   <h1 className="truncate text-[18px] font-extrabold uppercase leading-tight tracking-tight">
@@ -105,12 +105,12 @@ export default function DistrictPage() {
                 </div>
 
                 {district.cleared && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-leaf-600 px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-[6px] bg-leaf-600 px-1.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                     <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
                     Cleared
                   </span>
                 )}
-                <span className="shrink-0 rounded-lg bg-white/12 px-2.5 py-1 text-[12px] font-bold tabular-nums text-white">
+                <span className="shrink-0 rounded-[6px] bg-white/12 px-2.5 py-1 text-[12px] font-bold tabular-nums text-white">
                   {district.total > 0 ? `${district.completed}/${district.total}` : 'Chapter'}
                 </span>
               </div>
@@ -124,7 +124,7 @@ export default function DistrictPage() {
               />
               <div className="absolute inset-x-4 bottom-4 xl:inset-x-6 xl:bottom-7">
                 <div className={sheetMeasure()}>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-300">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-[var(--sq-earned)]">
                     {chapter.label} · {district.completed} / {district.total} activities
                   </p>
                   <h2 className="mt-0.5 text-[25px] font-extrabold uppercase leading-none tracking-tight xl:text-[44px]">
@@ -140,7 +140,7 @@ export default function DistrictPage() {
         }
       >
         {district.id === 'digital' && (
-          <div className="flex items-start gap-2 border-b border-civic-200 bg-civic-50 px-4 py-2.5 text-civic-800">
+          <div className="flex items-start gap-2 border-b border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 px-4 py-2.5 text-[var(--sq-action-text)]">
             <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <p className="text-[12px] leading-snug">
               <span className="font-extrabold uppercase tracking-wide">Jayden story thread</span>
@@ -159,7 +159,7 @@ export default function DistrictPage() {
           and body copy gets a plain surface.
         */}
           <div className="relative isolate flex items-center justify-between gap-2 overflow-hidden px-4 py-1.5">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-navy-900">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-ink)]">
               Chapter activities
             </h2>
             <button
@@ -167,7 +167,7 @@ export default function DistrictPage() {
               onClick={() => setAboutOpen((v) => !v)}
               aria-expanded={aboutOpen}
               aria-controls="district-about"
-              className="-my-1 inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-[12px] font-bold text-navy-900/75 transition hover:text-navy-900"
+              className="-my-1 inline-flex min-h-[44px] items-center gap-1 rounded-[6px] px-2 text-[12px] font-bold text-[var(--sq-ink)]/75 transition hover:text-[var(--sq-ink)]"
             >
               About this district
               <ChevronDown
@@ -184,7 +184,7 @@ export default function DistrictPage() {
                 {district.topics.map((topic) => (
                   <li
                     key={topic}
-                    className="rounded-md border border-navy-900/15 bg-surface px-2 py-0.5 text-[11px] font-semibold text-navy-900"
+                    className="rounded-[6px] border border-navy-900/15 bg-surface px-2 py-0.5 text-[11px] font-semibold text-[var(--sq-ink)]"
                   >
                     {topic}
                   </li>
@@ -220,7 +220,7 @@ export default function DistrictPage() {
         <div className="px-4">
           <Link
             href="/game"
-            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to ShieldQuest City

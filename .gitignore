@@ -440,3 +440,4 @@ server/generated/
 playwright-report/
 test-results/
 .local/
+.claude/

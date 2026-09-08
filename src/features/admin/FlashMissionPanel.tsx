@@ -6,6 +6,7 @@ import {
   COMPETENCY_LABEL,
   type Competency,
 } from '../../../types/guardians.js';
+import { Button } from '../../design-system/DesignSystem';
 import {
   SIMULATED_COHORTS,
   TARGET_GROUPS,
@@ -44,7 +45,7 @@ const EXAMPLE: FlashMissionDraft = {
 const labelCls =
   'block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted';
 const fieldCls =
-  'mt-1.5 w-full min-h-[44px] rounded-lg border border-line-strong bg-surface px-3 py-2 text-[14px] text-ink outline-none transition placeholder:text-ink-soft focus:border-civic-500';
+  'mt-1.5 w-full min-h-[44px] rounded-[6px] border border-line-strong bg-surface px-3 py-2 text-[14px] text-ink outline-none transition placeholder:text-ink-soft focus:border-civic-500';
 
 export function FlashMissionPanel({
   deployed,
@@ -120,8 +121,8 @@ export function FlashMissionPanel({
         </div>
 
         <div className="thin-scroll min-h-0 flex-1 space-y-4 overflow-y-auto p-6">
-          <div className="rounded-xl border border-line bg-surface-sunk p-4">
-            <span className="inline-block rounded-md border border-civic-200 bg-civic-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
+          <div className="rounded-[16px] border border-line bg-surface-sunk p-4">
+            <span className="inline-block rounded-[6px] border border-civic-200 bg-civic-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
               Flash Mission
             </span>
             <h3 className="mt-2 text-[17px] font-extrabold text-navy-900">
@@ -135,7 +136,7 @@ export function FlashMissionPanel({
             </p>
           </div>
 
-          <div className="rounded-xl border border-line bg-surface p-4">
+          <div className="rounded-[16px] border border-line bg-surface p-4">
             <p className={labelCls}>Debrief note</p>
             <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
               {draft.debrief}
@@ -147,7 +148,7 @@ export function FlashMissionPanel({
           <button
             type="button"
             onClick={onViewLibrary}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line px-4 text-[13px] font-bold text-ink transition hover:border-civic-300 hover:text-civic-700"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[6px] border border-line px-4 text-[13px] font-bold text-ink transition hover:border-civic-300 hover:text-civic-700"
           >
             View in Scenario Library
             <ArrowRight className="h-4 w-4" />
@@ -155,7 +156,7 @@ export function FlashMissionPanel({
           <button
             type="button"
             onClick={onDone}
-            className="inline-flex min-h-[44px] items-center rounded-lg bg-navy-900 px-5 text-[13px] font-bold text-white transition hover:bg-navy-800"
+            className="inline-flex min-h-[44px] items-center rounded-[6px] bg-navy-900 px-5 text-[13px] font-bold text-white transition hover:bg-navy-800"
           >
             Done
           </button>
@@ -168,7 +169,7 @@ export function FlashMissionPanel({
     <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col bg-surface">
       <header className="shrink-0 border-b border-line bg-surface-sunk px-6 py-5 pr-14">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-md border border-civic-200 bg-civic-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
+          <span className="inline-flex items-center gap-1 rounded-[6px] border border-civic-200 bg-civic-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-civic-700">
             <Zap className="h-3 w-3" aria-hidden="true" />
             Fast-turnaround authoring
           </span>
@@ -278,12 +279,12 @@ export function FlashMissionPanel({
               return (
                 <div
                   key={i}
-                  className={`rounded-xl border p-3 transition ${
+                  className={`rounded-[16px] border p-3 transition ${
                     isSafe ? 'border-leaf-600 bg-leaf-50' : 'border-line bg-surface-sunk'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-line-strong bg-surface text-[13px] font-bold text-ink-muted">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[6px] border border-line-strong bg-surface text-[13px] font-bold text-ink-muted">
                       {String.fromCharCode(65 + i)}
                     </span>
                     <input
@@ -340,12 +341,12 @@ export function FlashMissionPanel({
                 Strengthens Guardian
               </label>
               <div className="mt-1.5 flex items-center gap-3">
-                <GuardianPlate guardian={selectedGuardian} className="h-10 w-10 rounded-xl" />
+                <GuardianPlate guardian={selectedGuardian} className="h-10 w-10 rounded-[10px]" />
                 <select
                   id="fm-guardian"
                   value={draft.guardianId}
                   onChange={(e) => set('guardianId', e.target.value)}
-                  className="min-h-[44px] flex-1 rounded-lg border border-line-strong bg-surface px-3 py-2 text-[14px] text-ink outline-none"
+                  className="min-h-[44px] flex-1 rounded-[6px] border border-line-strong bg-surface px-3 py-2 text-[14px] text-ink outline-none"
                 >
                   {guardians.map((g) => (
                     <option key={g.id} value={g.id}>
@@ -420,7 +421,7 @@ export function FlashMissionPanel({
               return (
                 <label
                   key={id}
-                  className={`flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-[13px] font-semibold transition ${
+                  className={`flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-[6px] border p-2.5 text-[13px] font-semibold transition ${
                     checked
                       ? 'border-civic-500 bg-civic-50 text-civic-900'
                       : 'border-line bg-surface text-ink-muted'
@@ -441,21 +442,16 @@ export function FlashMissionPanel({
       </div>
 
       <footer className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-line bg-surface-sunk p-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex min-h-[44px] items-center rounded-lg border border-line px-4 text-[13px] font-bold text-ink-muted transition hover:bg-canvas hover:text-ink"
-        >
+        <Button variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={submitting}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-civic-600 px-5 text-[14px] font-bold text-white shadow-sm transition hover:bg-civic-700 disabled:opacity-50"
+          leftIcon={<Rocket className="h-4 w-4" aria-hidden="true" />}
         >
-          <Rocket className="h-4 w-4" aria-hidden="true" />
-          {draft.status === 'LIVE' ? 'Deploy Flash Mission' : 'Save Flash Mission Draft'}
-        </button>
+          {draft.status === 'LIVE' ? 'Deploy flash mission' : 'Save draft'}
+        </Button>
       </footer>
     </form>
   );

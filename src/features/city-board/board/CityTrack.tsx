@@ -96,7 +96,7 @@ export function CityTrack({
 
       {/* 2.5D ISOMETRIC STAGE: 5x5 CSS Grid rotated in 3D */}
       <div
-        className={`isometric-stage relative z-10 grid grid-cols-5 grid-rows-5 gap-2 rounded-3xl border-4 border-amber-400/25 bg-navy-950/90 p-3 shadow-[0_45px_90px_rgba(0,0,0,0.95)] ${
+        className={`isometric-stage relative z-10 grid grid-cols-5 grid-rows-5 gap-2 rounded-[24px] border-4 border-[var(--sq-earned)]/25 bg-[var(--color-navy-950)]/90 p-3 shadow-[0_45px_90px_rgba(0,0,0,0.95)] ${
           isAdvancing ? 'advancing' : ''
         }`}
         style={{
@@ -149,14 +149,14 @@ export function CityTrack({
                 type="button"
                 onClick={() => onOpenSpace(space)}
                 aria-current={isCurrent ? 'location' : undefined}
-                className={`isometric-tile-surface group relative flex h-full w-full flex-col items-center justify-center rounded-xl border-2 p-1 text-center shadow-md transition-all focus:outline-none ${
+                className={`isometric-tile-surface group relative flex h-full w-full flex-col items-center justify-center rounded-[16px] border-2 p-1 text-center shadow-md transition-all focus:outline-none ${
                   pos.isCorner
-                    ? 'border-amber-400/90 bg-gradient-to-br from-amber-500/25 via-navy-900 to-navy-950 text-white shadow-amber-500/20'
+                    ? 'border-[var(--sq-earned)]/90 bg-gradient-to-br from-[var(--sq-earned)]/25 via-[var(--color-navy-900)] to-[var(--color-navy-950)] text-white'
                     : space.completed
-                      ? 'border-leaf-400/90 bg-gradient-to-br from-leaf-600/25 via-navy-900 to-navy-950 text-white shadow-leaf-500/15'
+                      ? 'border-[var(--sq-safe)]/90 bg-gradient-to-br from-[var(--sq-safe)]/25 via-[var(--color-navy-900)] to-[var(--color-navy-950)] text-white'
                       : isCurrent
-                        ? 'border-amber-300 bg-navy-900 ring-4 ring-amber-400/50 shadow-amber-400/30'
-                        : 'border-white/20 bg-navy-900/90 text-white/90 hover:border-white/50'
+                        ? 'border-[var(--sq-earned)] bg-[var(--color-navy-900)] ring-2 ring-[var(--sq-earned)]/50 text-white'
+                        : 'border-white/20 bg-[var(--color-navy-900)]/90 text-white/90 hover:border-white/50'
                 }`}
                 style={{
                   transform: isCurrent
@@ -167,27 +167,54 @@ export function CityTrack({
                   transformStyle: 'preserve-3d',
                 }}
               >
-                {/* Tile Icon / Mark */}
-                <div className="flex shrink-0 items-center justify-center">
+                {/*
+                  BILLBOARD LAYER — counter-rotates the stage's
+                  `rotateX(60deg) rotateZ(-45deg)` so the mark and its label
+                  face the camera and stay legible.
+
+                  Without this the tile's contents inherit the board rotation:
+                  the icons skew and the labels end up rotated ~45 degrees at
+                  9px, which is unreadable. `DistrictLandmark` and
+                  `PlayerTokenMark` already counter-rotate this way — the tiles
+                  were the one thing on the board that did not, which is why
+                  every space label came out crooked.
+
+                  The tile itself stays flat on the plane: it is the floor.
+                  Only what sits ON it stands up.
+                */}
+                <span
+                  className="flex flex-col items-center justify-center gap-0.5"
+                  style={{
+                    transform: 'rotateZ(45deg) rotateX(-60deg)',
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
                   <SpaceMark
                     space={space}
                     guardian={guardian}
                     stepping={isSteppingAcross}
                     markerCosmetic={markerCosmetic}
                   />
-                </div>
 
-                {/* Compact Tile Label */}
-                <span className="mt-0.5 line-clamp-1 w-full text-[9px] font-black uppercase tracking-tight text-white/90">
-                  {space.kind === 'SHIELD_CENTRAL'
-                    ? 'GO'
-                    : space.kind === 'SCAM_WATCH'
-                      ? 'Safe'
-                      : space.kind === 'PHISHING_TRAP'
-                        ? 'Trap'
-                        : space.kind === 'GUARDIAN_CHECKPOINT'
-                          ? 'Sanctuary'
-                          : space.title.split(' ')[0]}
+                  {/* One line, one size, centred under every mark. 9px was
+                    * effectively ~6px on screen once the board scale and the
+                    * isometric foreshortening were applied, so it went up to
+                    * 10px at full strength with a shadow that keeps it legible
+                    * over amber, teal and coral tiles alike. */}
+                  <span
+                    className="max-w-[58px] truncate text-[10px] font-black uppercase leading-none tracking-tight text-white"
+                    style={{ textShadow: '0 1px 2px rgba(6,21,39,0.95)' }}
+                  >
+                    {space.kind === 'SHIELD_CENTRAL'
+                      ? 'Go'
+                      : space.kind === 'SCAM_WATCH'
+                        ? 'Safe'
+                        : space.kind === 'PHISHING_TRAP'
+                          ? 'Trap'
+                          : space.kind === 'GUARDIAN_CHECKPOINT'
+                            ? 'Guardian'
+                            : space.title.split(' ')[0]}
+                  </span>
                 </span>
 
                 <span className="sr-only">

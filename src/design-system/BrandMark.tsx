@@ -1,22 +1,41 @@
 import { Shield } from 'lucide-react';
 
 interface BrandMarkProps {
-  variant?: 'light' | 'dark';
   size?: 'sm' | 'md' | 'lg';
   showWordmark?: boolean;
   subtitle?: string;
+  /**
+   * Force the wordmark to read on a dark background even on the light skin.
+   * Only needed where a light-skin surface is locally inverted — the
+   * facilitator login's navy panel, for instance. Everywhere else, leave this
+   * off and let the skin decide.
+   */
+  onDark?: boolean;
   className?: string;
 }
 
+/**
+ * The ShieldQuest logo.
+ *
+ * The shield itself is FIXED — navy with an amber shield, in both skins. A logo
+ * that changes colour with its surroundings stops being recognisable, and this
+ * mark also has to survive as a PWA icon and a favicon where no skin applies.
+ *
+ * The wordmark beside it does follow the skin, via tokens. This component
+ * previously took a `variant: 'light' | 'dark'` prop and hardcoded
+ * `text-navy-950` / `text-white` from it — so when the player shell adopted
+ * the dark game skin while still passing `variant="light"`, the word
+ * "SHIELD" turned navy-on-navy and vanished. Deciding a colour from a prop
+ * that the caller has to keep in sync with the surface is the bug; reading it
+ * from the surface is the fix.
+ */
 export function BrandMark({
-  variant = 'light',
   size = 'md',
   showWordmark = true,
   subtitle,
+  onDark = false,
   className = '',
 }: BrandMarkProps) {
-  const isDark = variant === 'dark';
-
   const iconSizes = {
     sm: 'h-7 w-7 rounded-lg',
     md: 'h-9 w-9 rounded-xl',
@@ -35,34 +54,30 @@ export function BrandMark({
     lg: 'text-xl',
   };
 
+  const inkClass = onDark ? 'text-white' : 'text-[var(--sq-ink)]';
+  const accentClass = onDark ? 'text-[var(--color-civic-400)]' : 'text-[var(--sq-action-text)]';
+  const subtitleClass = onDark
+    ? 'text-[var(--color-navy-200)]'
+    : 'text-[var(--sq-ink-muted)]';
+
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Canonical Shield Mark */}
       <div
-        className={`flex items-center justify-center shadow-sm transition ${iconSizes[size]} ${
-          isDark
-            ? 'bg-gradient-to-br from-navy-800 to-navy-950 text-amber-400 border border-amber-400/30'
-            : 'bg-gradient-to-br from-navy-900 to-navy-950 text-amber-400 border border-navy-800/40'
-        }`}
+        className={`flex shrink-0 items-center justify-center border border-[var(--color-navy-800)] bg-gradient-to-br from-[var(--color-navy-900)] to-[var(--color-navy-950)] text-[var(--color-amber-400)] shadow-[var(--sq-shadow-flat)] ${iconSizes[size]}`}
       >
         <Shield className={`${shieldSizes[size]} fill-current`} />
       </div>
 
-      {/* Canonical Wordmark */}
       {showWordmark && (
         <div className="text-left">
-          <div className={`font-black uppercase tracking-tight ${titleSizes[size]} ${isDark ? 'text-white' : 'text-navy-950'}`}>
-            Shield<span className={isDark ? 'text-civic-400' : 'text-civic-600'}>Quest</span>
+          <div className={`font-black uppercase tracking-tight ${titleSizes[size]} ${inkClass}`}>
+            Shield<span className={accentClass}>Quest</span>
           </div>
-          {subtitle ? (
-            <div className={`text-[9px] font-extrabold uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              {subtitle}
-            </div>
-          ) : (
-            <div className={`text-[8px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Project SHIELD
-            </div>
-          )}
+          <div
+            className={`text-[9px] font-extrabold uppercase tracking-widest ${subtitleClass}`}
+          >
+            {subtitle ?? 'Project SHIELD'}
+          </div>
         </div>
       )}
     </div>

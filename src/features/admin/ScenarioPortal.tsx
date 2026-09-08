@@ -52,6 +52,7 @@ import {
   RETENTION_LIMITATION,
   SAFEGUARDS,
 } from './data';
+import { Button } from '../../design-system/DesignSystem';
 import {
   TARGET_GROUPS,
   type AdminScenarioRow,
@@ -288,7 +289,7 @@ export function ScenarioPortal({
           <div className="flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-xl bg-navy-900"
+              className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900"
             >
               <Shield className="h-4 w-4 text-amber-400" />
             </span>
@@ -302,7 +303,7 @@ export function ScenarioPortal({
             </div>
           </div>
 
-          <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold uppercase leading-tight tracking-[0.12em] text-amber-700">
+          <span className="rounded-[6px] border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold uppercase leading-tight tracking-[0.12em] text-amber-700">
             <span>Admin Console View</span>
             <span className="hidden sm:inline">
               {' '}
@@ -316,7 +317,7 @@ export function ScenarioPortal({
                 type="button"
                 onClick={onReturnToGame}
                 aria-label="Open the youth app"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] font-semibold text-ink-muted transition hover:border-civic-200 hover:text-civic-700"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[6px] border border-line px-3 text-[13px] font-semibold text-ink-muted transition hover:border-civic-200 hover:text-civic-700"
               >
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="hidden sm:inline">Youth app</span>
@@ -333,20 +334,18 @@ export function ScenarioPortal({
                   status: 'draft',
                 });
               }}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[13px] font-bold text-ink transition hover:border-civic-300 hover:text-civic-700"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[6px] border border-line bg-surface px-3 text-[13px] font-bold text-ink transition hover:border-civic-300 hover:text-civic-700"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               New draft
             </button>
 
-            <button
-              type="button"
+            <Button
               onClick={() => setFlashOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-civic-600 px-4 text-[14px] font-bold text-white shadow-sm transition hover:bg-civic-700"
+              leftIcon={<Zap className="h-4 w-4" aria-hidden="true" />}
             >
-              <Zap className="h-4 w-4" aria-hidden="true" />
-              Deploy Flash Mission
-            </button>
+              Deploy flash mission
+            </Button>
             <span
               aria-hidden="true"
               className="hidden h-9 w-9 place-items-center rounded-full bg-navy-100 text-[12px] font-bold text-navy-800 lg:grid"
@@ -385,7 +384,7 @@ export function ScenarioPortal({
           {lastDeployed && (
             <div
               role="status"
-              className="mt-5 flex flex-wrap items-center gap-2.5 rounded-xl border border-leaf-200 bg-leaf-50 px-4 py-3"
+              className="mt-5 flex flex-wrap items-center gap-2.5 rounded-[10px] border border-leaf-200 bg-leaf-50 px-4 py-3"
             >
               <CheckCircle2
                 className="h-4 w-4 shrink-0 text-leaf-700"
@@ -414,7 +413,7 @@ export function ScenarioPortal({
 
           {/* Local Drafts Shelf for backward compatibility with preview test */}
           {localDrafts.length > 0 && (
-            <div className="mt-5 rounded-xl border border-civic-200 bg-civic-50/60 p-4">
+            <div className="mt-5 rounded-[16px] border border-civic-200 bg-civic-50/60 p-4">
               <h3 className="text-[13px] font-extrabold uppercase tracking-wide text-civic-800">
                 Active Local Drafts ({localDrafts.length})
               </h3>
@@ -594,7 +593,7 @@ export function ScenarioPortal({
                   badge={{ value: youthPending.length, tone: 'attention' }}
                   description="Mission ideas submitted by young people, waiting on a reviewer. Nothing here reaches a player without review, and the strongest decision available is a scenario draft."
                 >
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="rounded-[16px] border border-amber-200 bg-amber-50 p-4">
                     <p className="text-[13px] font-bold text-amber-700">
                       Youth moderation pipeline · simulated submissions
                     </p>
@@ -621,7 +620,7 @@ export function ScenarioPortal({
                     {YOUTH_PIPELINE.map(([title, body], i) => (
                       <li
                         key={title}
-                        className="rounded-xl border border-line bg-surface p-4"
+                        className="rounded-[16px] border border-line bg-surface p-4"
                       >
                         <p className="text-[11px] font-bold tabular-nums text-civic-700">
                           0{i + 1}
@@ -682,7 +681,7 @@ export function ScenarioPortal({
                   description="The six KPIs the funded pilot would measure, and what current evaluations show against each one."
                 >
                   <PilotEvaluationFramework kpis={PILOT_KPIS} />
-                  <div className="rounded-xl border border-line-strong bg-surface-sunk p-4">
+                  <div className="rounded-[16px] border border-line-strong bg-surface-sunk p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
                       KPI 5 · Retention — planned for pilot
                     </p>
@@ -820,7 +819,7 @@ export function ScenarioPortal({
                 }
                 required
                 maxLength={100}
-                className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
+                className="mt-1 w-full rounded-[6px] border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
               />
             </div>
             <div>
@@ -834,7 +833,7 @@ export function ScenarioPortal({
                 onChange={(e) =>
                   setEditingLocalDraft({ ...editingLocalDraft, district: e.target.value })
                 }
-                className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
+                className="mt-1 w-full rounded-[6px] border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
               >
                 <option value="school">School Street</option>
                 <option value="retail">Retail District</option>
@@ -853,7 +852,7 @@ export function ScenarioPortal({
                 onChange={(e) =>
                   setEditingLocalDraft({ ...editingLocalDraft, status: e.target.value })
                 }
-                className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
+                className="mt-1 w-full rounded-[6px] border border-line-strong bg-surface p-2.5 text-[14px] text-ink outline-none focus:border-civic-500"
               >
                 <option value="draft">Draft</option>
                 <option value="published">Published (preview only)</option>
@@ -863,7 +862,7 @@ export function ScenarioPortal({
             <div className="pt-2">
               <button
                 type="submit"
-                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-navy-900 px-4 text-[14px] font-bold text-white shadow-sm transition hover:bg-navy-800"
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-[6px] bg-navy-900 px-4 text-[14px] font-bold text-white shadow-sm transition hover:bg-navy-800"
               >
                 Save local preview
               </button>
@@ -877,7 +876,7 @@ export function ScenarioPortal({
                   );
                   setEditingLocalDraft(null);
                 }}
-                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg text-[13px] font-bold text-coral-700 transition hover:bg-coral-50"
+                className="inline-flex min-h-[44px] w-full items-center justify-center rounded-[6px] text-[13px] font-bold text-coral-700 transition hover:bg-coral-50"
               >
                 Delete local preview
               </button>

@@ -19,6 +19,18 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children: React.ReactNode;
 }
 
+/**
+ * The one button in ShieldQuest.
+ *
+ * Every variant is written against the semantic roles in `tokens.css`
+ * (`--sq-action`, `--sq-surface`, `--sq-ink`…) rather than raw ramp steps, so a
+ * single definition renders correctly on the light "civic" skin (public site,
+ * facilitator portal) AND the dark "game" skin (player PWA). Do not fork this
+ * component per surface — set `data-skin="game"` on the shell instead.
+ *
+ * Sizing keeps a 44px minimum touch target at `md` and above: sessions run on
+ * whatever phones participants bring, often one-handed.
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -34,9 +46,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    // Base styles ensuring 44px minimum touch target on standard sizes, 10px canonical radius, and accessible focus ring
     const baseStyles =
-      'inline-flex items-center justify-center font-bold transition select-none rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98]';
+      'inline-flex items-center justify-center font-bold transition select-none rounded-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sq-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--sq-canvas)] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98]';
 
     const sizeStyles: Record<ButtonSize, string> = {
       sm: 'min-h-[36px] px-3.5 py-1.5 text-xs gap-1.5',
@@ -45,18 +56,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const variantStyles: Record<ButtonVariant, string> = {
+      // The single most important action on a screen. One per view.
       primary:
-        'bg-civic-600 text-white shadow-sm hover:bg-civic-700 active:bg-civic-800',
+        'bg-[var(--sq-action)] text-[var(--sq-action-ink)] shadow-[var(--sq-shadow-flat)] hover:bg-[var(--sq-action-hover)]',
+      // Equal-weight alternative sitting on a surface.
       secondary:
-        'border border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100',
+        'border border-[var(--sq-line)] bg-[var(--sq-surface)] text-[var(--sq-ink)] shadow-[var(--sq-shadow-flat)] hover:border-[var(--sq-line-strong)] hover:bg-[var(--sq-surface-sunk)]',
+      // Quiet action inside dense UI (tables, toolbars).
       tertiary:
-        'border border-transparent bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300',
+        'border border-transparent bg-[var(--sq-surface-sunk)] text-[var(--sq-ink-muted)] hover:bg-[var(--sq-surface-raised)] hover:text-[var(--sq-ink)]',
+      // Lowest emphasis. No fill until hover.
       ghost:
-        'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200',
+        'bg-transparent text-[var(--sq-ink-muted)] hover:bg-[var(--sq-surface-sunk)] hover:text-[var(--sq-ink)]',
+      // Irreversible or removing. Rare by design.
       destructive:
-        'bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800',
-      gold:
-        'bg-amber-500 text-navy-950 font-black uppercase tracking-wider shadow-sm hover:bg-amber-400 active:bg-amber-600',
+        'bg-[var(--sq-risk-fill)] text-white shadow-[var(--sq-shadow-flat)] hover:brightness-110',
+      // Reserved for EARNED progress — claiming a Guardian, completing a
+      // district. Never for navigation, and never for a chance-based reward:
+      // Guardians are earned through demonstrated skill (proposal §3.2).
+      gold: 'bg-[var(--sq-earned)] text-[var(--color-navy-950)] font-black uppercase tracking-wider shadow-[var(--sq-shadow-flat)] hover:brightness-105',
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';

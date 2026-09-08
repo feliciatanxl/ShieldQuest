@@ -53,7 +53,7 @@ export function PageHeader({
           {description && (
             <p
               className={`mt-2 max-w-3xl text-xs sm:text-sm leading-relaxed ${
-                isDark ? 'text-slate-300' : 'text-slate-600'
+                isDark ? 'text-[var(--color-navy-200)]' : 'text-[var(--sq-ink-muted)]'
               }`}
             >
               {description}

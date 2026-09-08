@@ -35,22 +35,22 @@ export function PredictBoard({
         Situation {roundNumber} of {roundTotal}
       </p>
 
-      <div className="rounded-2xl border border-line bg-surface-sunk p-4">
+      <div className="rounded-[16px] border border-line bg-surface-sunk p-4">
         <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
           What already happened
         </p>
-        <p className="mt-1.5 text-[15px] font-semibold leading-snug text-navy-900">
+        <p className="mt-1.5 text-[15px] font-semibold leading-snug text-[var(--sq-ink)]">
           {round.setup}
         </p>
-        <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-leaf-200 bg-leaf-50 px-2.5 py-1.5 text-[13px] font-bold text-leaf-700">
+        <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-[6px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 px-2.5 py-1.5 text-[13px] font-bold text-[var(--sq-safe)]">
           <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
           {round.immediate}
         </p>
       </div>
 
       <div>
-        <h2 className="flex items-center gap-1.5 text-[15px] font-extrabold leading-snug text-navy-900">
-          <Clock3 className="h-4 w-4 shrink-0 text-civic-700" aria-hidden="true" />
+        <h2 className="flex items-center gap-1.5 text-[15px] font-extrabold leading-snug text-[var(--sq-ink)]">
+          <Clock3 className="h-4 w-4 shrink-0 text-[var(--sq-action-text)]" aria-hidden="true" />
           {round.prompt}
         </h2>
         <ul className="mt-2.5 space-y-2">
@@ -58,11 +58,11 @@ export function PredictBoard({
             const isChosen = chosen === i;
             const isAnswer = i === round.answerIndex;
             const style = !answered
-              ? 'border-line-strong bg-surface hover:border-civic-500 hover:bg-civic-50'
+              ? 'border-line-strong bg-surface hover:border-civic-500 hover:bg-[var(--sq-action)]/15'
               : isAnswer
-                ? 'border-leaf-600 bg-leaf-50'
+                ? 'border-leaf-600 bg-[var(--sq-safe)]/15'
                 : isChosen
-                  ? 'border-coral-600 bg-coral-50'
+                  ? 'border-coral-600 bg-[var(--sq-risk)]/15'
                   : 'border-line bg-surface opacity-70';
 
             return (
@@ -72,16 +72,16 @@ export function PredictBoard({
                   onClick={() => onChoose(i)}
                   disabled={answered}
                   aria-pressed={isChosen}
-                  className={`flex min-h-[56px] w-full items-center gap-2.5 rounded-xl border-2 px-3.5 py-2.5 text-left text-[14px] font-semibold leading-snug text-navy-900 transition disabled:cursor-default ${style}`}
+                  className={`flex min-h-[56px] w-full items-center gap-2.5 rounded-[10px] border-2 px-3.5 py-2.5 text-left text-[14px] font-semibold leading-snug text-[var(--sq-ink)] transition disabled:cursor-default ${style}`}
                 >
                   <span
                     aria-hidden="true"
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-[6px] border border-line-strong bg-surface-sunk text-[12px] font-extrabold text-ink-muted"
                   >
                     {answered && isAnswer ? (
-                      <Check className="h-3.5 w-3.5 text-leaf-700" strokeWidth={3} />
+                      <Check className="h-3.5 w-3.5 text-[var(--sq-safe)]" strokeWidth={3} />
                     ) : answered && isChosen ? (
-                      <X className="h-3.5 w-3.5 text-coral-700" strokeWidth={3} />
+                      <X className="h-3.5 w-3.5 text-[var(--sq-risk)]" strokeWidth={3} />
                     ) : (
                       i + 1
                     )}
@@ -96,11 +96,11 @@ export function PredictBoard({
 
       {answered && (
         <section
-          className="animate-rise rounded-2xl border border-line bg-surface p-4"
+          className="animate-rise rounded-[16px] border border-line bg-surface p-4"
           aria-live="polite"
         >
-          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-navy-900">
-            <Lightbulb className="h-4 w-4 text-amber-600" aria-hidden="true" />
+          <p className="flex items-center gap-1.5 text-[13px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
+            <Lightbulb className="h-4 w-4 text-[var(--sq-earned-text)]" aria-hidden="true" />
             {correct ? 'That is what follows' : 'Here is what follows'}
           </p>
           <p className="mt-1.5 text-[14px] leading-relaxed text-ink">
@@ -110,7 +110,7 @@ export function PredictBoard({
             <button
               type="button"
               onClick={onNext}
-              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
+              className="mt-3 flex min-h-[48px] w-full items-center justify-center rounded-[10px] bg-navy-900 px-4 text-[14px] font-extrabold text-white transition hover:bg-navy-800"
             >
               {isLast ? 'See what you built' : 'Next situation'}
             </button>

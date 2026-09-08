@@ -3,7 +3,7 @@ import { Coins, ShieldCheck, TrendingDown } from 'lucide-react';
 type Tone = 'reward' | 'positive' | 'caution';
 
 const TONES: Record<Tone, { wrap: string; Icon: typeof Coins }> = {
-  reward: { wrap: 'bg-amber-500 text-navy-900', Icon: Coins },
+  reward: { wrap: 'bg-amber-500 text-[var(--sq-ink)]', Icon: Coins },
   positive: { wrap: 'bg-leaf-700 text-white', Icon: ShieldCheck },
   caution: { wrap: 'bg-navy-800 text-white', Icon: TrendingDown },
 };
@@ -33,7 +33,7 @@ export function RewardBurst({
       className="pointer-events-none absolute inset-x-0 top-3 z-30 flex justify-center px-4"
     >
       <span
-        className={`animate-float-up flex items-center gap-2.5 rounded-2xl px-4 py-2.5 shadow-lg ${wrap}`}
+        className={`animate-float-up flex items-center gap-2.5 rounded-[16px] px-4 py-2.5 shadow-lg ${wrap}`}
       >
         <Icon className="h-5 w-5 shrink-0" strokeWidth={2.4} aria-hidden="true" />
         <span className="leading-tight">

@@ -10,18 +10,18 @@ import type {
 
 const OUTCOME_STYLE: Record<ChoiceOutcome, { wrap: string; head: string; Icon: typeof Check }> = {
   SAFE: {
-    wrap: 'border-leaf-200 bg-leaf-50',
-    head: 'text-leaf-700',
+    wrap: 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15',
+    head: 'text-[var(--sq-safe)]',
     Icon: Check,
   },
   CAUTIOUS: {
-    wrap: 'border-amber-200 bg-amber-50',
-    head: 'text-amber-700',
+    wrap: 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15',
+    head: 'text-[var(--sq-earned-text)]',
     Icon: Lightbulb,
   },
   RISKY: {
-    wrap: 'border-coral-200 bg-coral-50',
-    head: 'text-coral-700',
+    wrap: 'border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/15',
+    head: 'text-[var(--sq-risk)]',
     Icon: ShieldAlert,
   },
 };
@@ -62,7 +62,7 @@ export function DebriefCard({
   const stats = deltaLines(deltas);
 
   return (
-    <section className={`animate-rise space-y-4 rounded-2xl border p-4 ${wrap}`} aria-live="polite">
+    <section className={`animate-rise space-y-4 rounded-[16px] border p-4 ${wrap}`} aria-live="polite">
       <div className="flex items-start gap-2.5">
         <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${head}`} strokeWidth={2.6} aria-hidden="true" />
         <div>
@@ -80,7 +80,7 @@ export function DebriefCard({
             {debrief.spotted.map((item) => (
               <li key={item} className="flex items-start gap-2 text-[13px]">
                 <Check
-                  className="mt-0.5 h-4 w-4 shrink-0 text-leaf-700"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sq-safe)]"
                   strokeWidth={3}
                   aria-hidden="true"
                 />
@@ -96,7 +96,7 @@ export function DebriefCard({
           {stats.map((s) => (
             <span
               key={s}
-              className="rounded-lg border border-line bg-surface px-2.5 py-1 text-[13px] font-bold text-navy-900 tabular-nums"
+              className="rounded-[6px] border border-line bg-surface px-2.5 py-1 text-[13px] font-bold text-[var(--sq-ink)] tabular-nums"
             >
               {s}
             </span>
@@ -105,11 +105,11 @@ export function DebriefCard({
       )}
 
       {debrief.sampleScript && (
-        <div className="rounded-xl border border-line bg-surface p-3.5">
+        <div className="rounded-[16px] border border-line bg-surface p-3.5">
           <SectionLabel>You might say</SectionLabel>
           <p className="mt-2 flex gap-2 text-[14px] italic leading-relaxed text-ink">
             <MessageSquareQuote
-              className="mt-0.5 h-4 w-4 shrink-0 text-teal-600"
+              className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sq-peer)]"
               aria-hidden="true"
             />
             “{debrief.sampleScript}”
@@ -118,7 +118,7 @@ export function DebriefCard({
       )}
 
       {debrief.saferResponse && (
-        <div className="rounded-xl border border-line bg-surface p-3.5">
+        <div className="rounded-[16px] border border-line bg-surface p-3.5">
           <SectionLabel>Safer response</SectionLabel>
           <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
             {debrief.saferResponse}

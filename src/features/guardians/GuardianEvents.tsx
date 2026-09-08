@@ -99,7 +99,7 @@ export function GuardianEvents() {
           <button
             aria-label="Dismiss guardian progress"
             onClick={dismissGuardianNotice}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-navy-900"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-[6px] text-[var(--sq-ink)]"
           >
             <X size={18} />
           </button>

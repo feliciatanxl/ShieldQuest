@@ -194,10 +194,10 @@ export function CityHomeExperience() {
       {/* ------------------------------------------------------------- */}
       {/* 1. FLOATING CURRENT QUEST CARD (Top-Left, Z-Index 40)         */}
       {/* ------------------------------------------------------------- */}
-      <div className="pointer-events-none absolute top-4 left-4 z-40 max-w-[220px] sm:max-w-[280px] rounded-2xl border border-white/20 bg-navy-950/85 px-3.5 py-2.5 shadow-2xl backdrop-blur-md">
+      <div className="pointer-events-none absolute top-4 left-4 z-40 max-w-[220px] sm:max-w-[280px] rounded-[16px] border border-white/20 bg-navy-950/85 px-3.5 py-2.5 shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-          <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-400">
+          <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sq-earned)]">
             ShieldQuest City
           </h2>
         </div>
@@ -207,50 +207,73 @@ export function CityHomeExperience() {
         <div className="mt-1 flex items-center gap-1.5 text-[10px] font-bold text-white/70">
           <span className="truncate">{currentActiveDistrict?.name ?? 'School Street'}</span>
           <span>·</span>
-          <span className="text-amber-300 font-extrabold">Stage {districtIndex + 1}/4</span>
+          <span className="text-[var(--sq-earned)] font-extrabold">Stage {districtIndex + 1}/4</span>
         </div>
       </div>
 
       {/* ------------------------------------------------------------- */}
       {/* 2. FLOATING HUD CONTROLS (Top-Right, Z-Index 40)              */}
       {/* ------------------------------------------------------------- */}
-      <div className="absolute top-4 right-4 z-40 flex items-center gap-1.5 md:gap-2 pointer-events-auto">
-        {/* Guardian Vault Button */}
-        <button
-          type="button"
-          onClick={() => setGuardianVaultOpen(true)}
-          className="flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-navy-950/85 px-2.5 text-[11px] font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-white/20 active:scale-95"
-          title="Open Guardian Vault"
-        >
-          <Shield className="h-3.5 w-3.5 text-amber-400" />
-          <span className="hidden sm:inline">Guardians</span>
-        </button>
+      {/*
+        One shape, one border, one icon colour.
 
-        {/* Casebook Drawer Button */}
-        <button
-          type="button"
-          onClick={() => setCasebookOpen(true)}
-          className="flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-navy-950/85 px-2.5 text-[11px] font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-white/20 active:scale-95"
-          title="Open Shield Casebook"
-        >
-          <BookOpen className="h-3.5 w-3.5 text-teal-300" />
-          <span className="hidden sm:inline">Casebook</span>
-        </button>
+        This row previously mixed `rounded-full` labelled pills with
+        `rounded-[10px]` icon-only buttons, gave the token counter a lone amber
+        border, and tinted all six icons a different colour — amber, teal,
+        blue, amber, green, white. The semantic roles were being spent as
+        decoration, and misapplied at that: Casebook took the peer colour while
+        Squad, which actually is the peer surface, took the action colour, and
+        the mute button took "safe" green.
 
-        {/* Squad View Button */}
-        <button
-          type="button"
-          onClick={() => setSquadModalOpen(true)}
-          className="flex h-8 items-center gap-1.5 rounded-full border border-white/15 bg-navy-950/85 px-2.5 text-[11px] font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-white/20 active:scale-95"
-          title="My Squad"
-        >
-          <Users className="h-3.5 w-3.5 text-civic-300" />
-          <span className="hidden sm:inline">Squad</span>
-        </button>
+        Colour is now reserved for the one chip where it means something: the
+        token counter, which shows EARNED progress and so is amber-filled
+        rather than amber-outlined. Navigation chips are uniform, and their
+        icons inherit the chip's own text colour. Height is 36px across the
+        row, up from 32px, since these are the primary controls on a phone.
+      */}
+      <div className="pointer-events-auto absolute right-4 top-4 z-40 flex items-center gap-1.5 md:gap-2">
+        {[
+          {
+            key: 'guardians',
+            icon: Shield,
+            label: 'Guardians',
+            title: 'Open Guardian Vault',
+            onClick: () => setGuardianVaultOpen(true),
+          },
+          {
+            key: 'casebook',
+            icon: BookOpen,
+            label: 'Casebook',
+            title: 'Open Shield Casebook',
+            onClick: () => setCasebookOpen(true),
+          },
+          {
+            key: 'squad',
+            icon: Users,
+            label: 'Squad',
+            title: 'My Squad',
+            onClick: () => setSquadModalOpen(true),
+          },
+        ].map(({ key, icon: Icon, label, title, onClick }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={onClick}
+            title={title}
+            className="flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-[var(--color-navy-950)]/85 px-3 text-[11px] font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-white/15 active:scale-95"
+          >
+            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
 
-        {/* Token Counter */}
-        <div className="flex h-8 items-center gap-1.5 rounded-full border border-amber-400/40 bg-navy-950/85 px-3 text-[12px] font-black tabular-nums text-amber-300 shadow-lg backdrop-blur-md">
-          <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+        {/* Earned Shield Tokens. Filled rather than outlined, because it is a
+          * value and not a control — and amber because it is earned. */}
+        <div
+          className="flex h-9 items-center gap-1.5 rounded-full bg-[var(--sq-earned)] px-3 text-[12px] font-black tabular-nums text-[var(--color-navy-950)] shadow-lg"
+          title="Shield Tokens earned"
+        >
+          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{profile.shieldTokens}</span>
         </div>
 
@@ -273,12 +296,13 @@ export function CityHomeExperience() {
             if (next) playCue('roll', true);
           }}
           aria-label={soundEnabled ? 'Mute sound' : 'Enable sound'}
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-navy-950/85 text-white/80 shadow-lg backdrop-blur-md transition hover:bg-white/15 hover:text-white"
+          aria-pressed={soundEnabled}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-[var(--color-navy-950)]/85 text-white shadow-lg backdrop-blur-md transition hover:bg-white/15"
         >
           {soundEnabled ? (
-            <Volume2 className="h-4 w-4 text-leaf-400" />
+            <Volume2 className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <VolumeX className="h-4 w-4 text-white/50" />
+            <VolumeX className="h-4 w-4 text-white/50" aria-hidden="true" />
           )}
         </button>
 
@@ -287,17 +311,16 @@ export function CityHomeExperience() {
           type="button"
           onClick={() => setAboutOpen(true)}
           aria-label="About this game"
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-navy-950/85 text-white/80 shadow-lg backdrop-blur-md transition hover:bg-white/15 hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-[var(--color-navy-950)]/85 text-white shadow-lg backdrop-blur-md transition hover:bg-white/15"
         >
-          <Info className="h-4 w-4" />
+          <Info className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
-      {/* ------------------------------------------------------------- */}
       {/* 3. GO PASS TOAST BANNER                                        */}
       {/* ------------------------------------------------------------- */}
       {goBonusToast && (
-        <div className="animate-pop pointer-events-none absolute top-16 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border-2 border-amber-300 bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2 text-xs font-black uppercase tracking-wider text-navy-950 shadow-2xl">
+        <div className="animate-pop pointer-events-none absolute top-16 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border-2 border-[var(--sq-earned)]/40 bg-gradient-to-r from-[var(--color-amber-500)] to-[var(--color-amber-400)] px-5 py-2 text-xs font-black uppercase tracking-wider text-[var(--color-navy-950)] shadow-2xl">
           <Sparkles className="h-4 w-4" />
           <span>Shield Central Passed! +20 Shield Tokens</span>
         </div>
@@ -370,7 +393,7 @@ export function CityHomeExperience() {
                     type="button"
                     onClick={() => openDistrictDirectly(district)}
                     aria-current={isCurrent ? 'location' : undefined}
-                    className={`chapter-chip relative flex min-h-[44px] sm:min-h-[50px] w-full flex-col justify-end overflow-hidden rounded-xl border px-1.5 pb-1 pt-1 text-left transition hover:-translate-y-0.5 hover:border-white/45 backdrop-blur-md ${
+                    className={`chapter-chip relative flex min-h-[44px] sm:min-h-[50px] w-full flex-col justify-end overflow-hidden rounded-[10px] border px-1.5 pb-1 pt-1 text-left transition hover:-translate-y-0.5 hover:border-white/45 backdrop-blur-md ${
                       isCurrent ? 'border-amber-400 bg-white/15' : 'border-white/15 bg-navy-950/80'
                     }`}
                   >
@@ -392,7 +415,7 @@ export function CityHomeExperience() {
                       <span className="min-w-0 flex-1 truncate text-[9px] font-extrabold uppercase tracking-wide text-white">
                         {district.id === 'digital' ? 'Digi' : district.name.split(' ')[0]}
                       </span>
-                      <span className="text-[9px] font-extrabold tabular-nums text-amber-300">
+                      <span className="text-[9px] font-extrabold tabular-nums text-[var(--sq-earned)]">
                         {progressLabel}
                       </span>
                     </span>

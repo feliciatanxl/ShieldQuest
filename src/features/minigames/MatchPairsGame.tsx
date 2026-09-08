@@ -43,11 +43,11 @@ export function MatchBoard({
     <div className="space-y-3">
       <p
         aria-live="polite"
-        className={`flex min-h-[46px] items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold leading-snug ${
+        className={`flex min-h-[46px] items-center gap-2 rounded-[10px] border px-3 py-2 text-[13px] font-semibold leading-snug ${
           wrongPromptId
-            ? 'border-amber-200 bg-amber-50 text-amber-700'
+            ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
             : selected
-              ? 'border-civic-200 bg-civic-50 text-civic-700'
+              ? 'border-[var(--sq-action)]/40 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]'
               : 'border-line bg-surface-sunk text-ink-muted'
         }`}
       >
@@ -76,13 +76,13 @@ export function MatchBoard({
                     disabled={done}
                     onClick={() => onSelectPrompt(pair.id)}
                     aria-pressed={active}
-                    className={`flex min-h-[64px] w-full items-start gap-2 rounded-xl border-2 px-2.5 py-2 text-left text-[12.5px] font-semibold leading-snug transition disabled:cursor-default sm:text-[13.5px] ${cellStyle(
+                    className={`flex min-h-[64px] w-full items-start gap-2 rounded-[10px] border-2 px-2.5 py-2 text-left text-[12.5px] font-semibold leading-snug transition disabled:cursor-default sm:text-[13.5px] ${cellStyle(
                       { done, active, wrong },
                     )}`}
                   >
                     {done && (
                       <Check
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-leaf-700"
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--sq-safe)]"
                         strokeWidth={3}
                         aria-hidden="true"
                       />
@@ -108,7 +108,7 @@ export function MatchBoard({
                     type="button"
                     disabled={done || !selectedPromptId}
                     onClick={() => onSelectMatch(pair.id)}
-                    className={`flex min-h-[64px] w-full items-start gap-2 rounded-xl border-2 px-2.5 py-2 text-left text-[12.5px] font-semibold leading-snug transition disabled:cursor-default sm:text-[13.5px] ${cellStyle(
+                    className={`flex min-h-[64px] w-full items-start gap-2 rounded-[10px] border-2 px-2.5 py-2 text-left text-[12.5px] font-semibold leading-snug transition disabled:cursor-default sm:text-[13.5px] ${cellStyle(
                       {
                         done,
                         active: false,
@@ -119,7 +119,7 @@ export function MatchBoard({
                   >
                     {done && (
                       <Check
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-leaf-700"
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--sq-safe)]"
                         strokeWidth={3}
                         aria-hidden="true"
                       />
@@ -135,10 +135,10 @@ export function MatchBoard({
 
       {matched.length > 0 && (
         <section
-          className="animate-rise space-y-2 rounded-2xl border border-leaf-200 bg-leaf-50 p-3.5"
+          className="animate-rise space-y-2 rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 p-3.5"
           aria-live="polite"
         >
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-leaf-700">
+          <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-safe)]">
             What you connected
           </h2>
           <ul className="space-y-2">
@@ -147,7 +147,7 @@ export function MatchBoard({
               if (!pair) return null;
               return (
                 <li key={id} className="text-[13px] leading-snug text-ink">
-                  <span className="font-bold text-navy-900">{pair.match}</span>
+                  <span className="font-bold text-[var(--sq-ink)]">{pair.match}</span>
                   {' — '}
                   {pair.note}
                 </li>
@@ -171,11 +171,11 @@ function cellStyle({
   wrong: boolean;
   dimmed?: boolean;
 }) {
-  if (done) return 'border-leaf-600 bg-leaf-50 text-leaf-700';
-  if (wrong) return 'border-amber-500 bg-amber-50 text-navy-900';
-  if (active) return 'border-civic-600 bg-civic-50 text-navy-900';
+  if (done) return 'border-leaf-600 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]';
+  if (wrong) return 'border-amber-500 bg-[var(--sq-earned)]/15 text-[var(--sq-ink)]';
+  if (active) return 'border-civic-600 bg-[var(--sq-action)]/15 text-[var(--sq-ink)]';
   if (dimmed) return 'border-line bg-surface text-ink-muted';
-  return 'border-line-strong bg-surface text-navy-900 hover:border-civic-500 hover:bg-civic-50';
+  return 'border-line-strong bg-surface text-[var(--sq-ink)] hover:border-civic-500 hover:bg-[var(--sq-action)]/15';
 }
 
 /** Keeps the status line to one readable sentence on a phone. */

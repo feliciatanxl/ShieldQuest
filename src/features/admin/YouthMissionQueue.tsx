@@ -35,7 +35,7 @@ export function YouthMissionStatusChip({
 }) {
   return (
     <span
-      className={`inline-block rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_TONE[status]}`}
+      className={`inline-block rounded-[6px] border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${STATUS_TONE[status]}`}
     >
       {YOUTH_MISSION_STATUS_LABEL[status]}
     </span>
@@ -51,7 +51,7 @@ export function YouthMissionQueue({
 }) {
   if (submissions.length === 0) {
     return (
-      <p className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-[14px] text-ink-muted">
+      <p className="rounded-[10px] border border-line bg-surface px-4 py-8 text-center text-[14px] text-ink-muted">
         Nothing in the queue matches this filter.
       </p>
     );
@@ -64,7 +64,7 @@ export function YouthMissionQueue({
           <button
             type="button"
             onClick={() => onSelect(submission)}
-            className="flex h-full w-full flex-col rounded-xl border border-line bg-surface p-4 text-left transition hover:border-civic-300 hover:shadow-sm"
+            className="flex h-full w-full flex-col rounded-[16px] border border-line bg-surface p-4 text-left transition hover:border-civic-300 hover:shadow-sm"
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <h3 className="min-w-0 text-[15px] font-bold leading-snug text-navy-900">
@@ -101,7 +101,7 @@ export function YouthMissionQueue({
             </p>
 
             {submission.safeguardingFlags.length > 0 && (
-              <div className="mt-3 flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50/70 px-2.5 py-1 text-[11.5px] font-semibold text-amber-700">
+              <div className="mt-3 flex items-center gap-1.5 rounded-[6px] border border-amber-200 bg-amber-50/70 px-2.5 py-1 text-[11.5px] font-semibold text-amber-700">
                 <ShieldAlert className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 <span>
                   {submission.safeguardingFlags.length} safeguarding point

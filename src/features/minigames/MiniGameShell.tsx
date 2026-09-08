@@ -118,7 +118,10 @@ export function MiniGameShell({
   const band = 'mx-auto w-full xl:max-w-[600px]';
 
   return (
-    <div className="relative mx-auto flex min-h-full w-full max-w-[440px] flex-col md:max-w-[560px] xl:max-w-none">
+    <div
+      data-skin="game"
+      className="relative mx-auto flex min-h-dvh w-full max-w-[440px] flex-col bg-[var(--sq-canvas)] md:max-w-[560px] xl:max-w-none"
+    >
       {burstKey !== null && (
         <RewardBurst
           key={burstKey}
@@ -134,13 +137,13 @@ export function MiniGameShell({
           <CityLink
             href={backHref}
             aria-label={backLabel}
-            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white"
+            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-[10px] text-white/80 transition hover:bg-white/10 hover:text-white"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </CityLink>
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 text-amber-400"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-white/10 text-[var(--sq-earned)]"
           >
             <MiniGameBadge gameId={game.id} className="h-5 w-5" />
           </span>
@@ -152,19 +155,19 @@ export function MiniGameShell({
               {game.title}
             </p>
           </div>
-          <span className="shrink-0 rounded-lg bg-white/12 px-2.5 py-1 text-[12px] font-bold tabular-nums text-white">
+          <span className="shrink-0 rounded-[6px] bg-white/12 px-2.5 py-1 text-[12px] font-bold tabular-nums text-white">
             {progressNow} / {progressTotal}
           </span>
         </div>
       </header>
 
       {/* Instruction */}
-      <div className="border-b border-amber-200 bg-amber-50">
+      <div className="border-b border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15">
         <div className={`${band} px-4 py-3`}>
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-amber-700">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--sq-earned-text)]">
             {progressLabel}
           </p>
-          <h1 className="mt-0.5 text-[18px] font-extrabold leading-tight tracking-tight text-navy-900">
+          <h1 className="mt-0.5 text-[18px] font-extrabold leading-tight tracking-tight text-[var(--sq-ink)]">
             {game.title}
           </h1>
           <p className="mt-1 text-[13px] leading-snug text-ink">
@@ -176,7 +179,7 @@ export function MiniGameShell({
               caption="Skill practised"
             />
             {guardian && (
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-surface px-2.5 py-1.5 text-[12px] font-bold text-amber-700">
+              <span className="inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--sq-earned)]/40 bg-surface px-2.5 py-1.5 text-[12px] font-bold text-[var(--sq-earned-text)]">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 {guardian.name}
               </span>
@@ -201,7 +204,7 @@ export function MiniGameShell({
               <button
                 type="button"
                 onClick={claim}
-                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-leaf-700 px-4 text-[15px] font-extrabold text-white transition hover:bg-leaf-600"
+                className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-leaf-700 px-4 text-[15px] font-extrabold text-white transition hover:bg-leaf-600"
               >
                 <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
                 Claim your progress
@@ -210,12 +213,12 @@ export function MiniGameShell({
 
             {granted && (
               <section
-                className="animate-rise space-y-3 rounded-2xl border border-leaf-200 bg-leaf-50 p-4"
+                className="animate-rise space-y-3 rounded-[16px] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 p-4"
                 aria-live="polite"
               >
                 <div>
                   <SectionLabel>{game.skillName}</SectionLabel>
-                  <p className="mt-1 text-lg font-extrabold uppercase tracking-wide text-leaf-700">
+                  <p className="mt-1 text-lg font-extrabold uppercase tracking-wide text-[var(--sq-safe)]">
                     {game.skillTitle}
                   </p>
                   <p className="mt-1 text-[14px] leading-relaxed text-ink">
@@ -224,7 +227,7 @@ export function MiniGameShell({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-[13px] font-bold tabular-nums text-amber-700">
+                  <span className="rounded-[6px] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 px-2.5 py-1 text-[13px] font-bold tabular-nums text-[var(--sq-earned-text)]">
                     {tokensAwarded > 0
                       ? `Shield Tokens +${tokensAwarded}`
                       : 'Shield Tokens already earned'}
@@ -234,14 +237,14 @@ export function MiniGameShell({
                 {stats.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {coins > 0 && (
-                      <span className="rounded-lg border border-line bg-surface px-2.5 py-1 text-[13px] font-bold tabular-nums text-navy-900">
+                      <span className="rounded-[6px] border border-line bg-surface px-2.5 py-1 text-[13px] font-bold tabular-nums text-[var(--sq-ink)]">
                         Coins +{coins}
                       </span>
                     )}
                     {stats.map((s) => (
                       <span
                         key={s}
-                        className="rounded-lg border border-line bg-surface px-2.5 py-1 text-[13px] font-bold tabular-nums text-navy-900"
+                        className="rounded-[6px] border border-line bg-surface px-2.5 py-1 text-[13px] font-bold tabular-nums text-[var(--sq-ink)]"
                       >
                         {s}
                       </span>
@@ -256,7 +259,7 @@ export function MiniGameShell({
                   />
                 )}
 
-                <p className="border-t border-leaf-200 pt-3 text-[13px] leading-relaxed text-ink-muted">
+                <p className="border-t border-[var(--sq-safe)]/40 pt-3 text-[13px] leading-relaxed text-ink-muted">
                   Mini-games sharpen recognition. The decision itself is still
                   practised in the scenario missions.
                 </p>
@@ -264,21 +267,21 @@ export function MiniGameShell({
                 <div className="space-y-2.5 pt-1">
                   <CityLink
                     href="/game"
-                    className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
+                    className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-b-4 border-civic-800 bg-civic-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-civic-700 active:translate-y-[3px] active:border-b-0"
                   >
                     Return to city
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </CityLink>
                   <CityLink
                     href={backHref}
-                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
                   >
                     Back to the district
                   </CityLink>
                   <button
                     type="button"
                     onClick={replay}
-                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
                   >
                     <RotateCcw className="h-4 w-4" aria-hidden="true" />
                     Play again

@@ -1,4 +1,4 @@
-import { Award, CheckCircle2, Shield, Sparkles } from 'lucide-react';
+import { CheckCircle2, Shield, Sparkles } from 'lucide-react';
 import type { CityDistrictId } from '../../../../types/city-board';
 
 interface DistrictLandmarkProps {
@@ -10,6 +10,22 @@ interface DistrictLandmarkProps {
   onSecuredClick?: () => void;
 }
 
+/**
+ * One tint per district, each drawn from the semantic roles so the landmark
+ * agrees with the rest of the board: school reads as "earned" amber, retail as
+ * risk, digital as the civic action blue, community as peer teal.
+ */
+const DISTRICT_TINT: Record<CityDistrictId, string> = {
+  school:
+    'linear-gradient(135deg, color-mix(in srgb, var(--sq-earned) 30%, transparent) 0%, var(--color-navy-950) 100%)',
+  retail:
+    'linear-gradient(135deg, color-mix(in srgb, var(--sq-risk) 30%, transparent) 0%, var(--color-navy-950) 100%)',
+  digital:
+    'linear-gradient(135deg, color-mix(in srgb, var(--sq-action) 34%, transparent) 0%, var(--color-navy-950) 100%)',
+  community:
+    'linear-gradient(135deg, color-mix(in srgb, var(--sq-peer) 34%, transparent) 0%, var(--color-navy-950) 100%)',
+};
+
 export function DistrictLandmark({
   districtId,
   districtName,
@@ -18,45 +34,92 @@ export function DistrictLandmark({
   cleared,
   onSecuredClick,
 }: DistrictLandmarkProps) {
-  const progressPercent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 100;
 
   return (
     <div
-      className="district-landmark-centerpiece pointer-events-auto flex h-full w-full flex-col items-center justify-center select-none"
+      className="district-landmark-centerpiece pointer-events-auto flex h-full w-full flex-col items-center justify-end select-none"
       style={{
-        transform: 'rotateZ(45deg) rotateX(-60deg) translateY(-20px)',
+        /*
+          Counter-rotated so the landmark stands upright on the plaza.
+
+          No vertical lift here any more. `rotateX(-60deg)` undoes the board's
+          foreshortening, so a cell that occupies ~138px on screen renders a
+          276px-tall upright panel — and a -20px lift on top of that pushed the
+          landmark far enough up to cover the top row of tiles. Sizing the panel
+          to its visual footprint (below) keeps it clear of the track, so the
+          spaces behind it stay visible and clickable.
+        */
+        transform: 'rotateZ(45deg) rotateX(-60deg)',
         transformStyle: 'preserve-3d',
       }}
     >
       {/* 3D Elevated Base Platform */}
       <div
-        className="relative flex h-full w-full flex-col items-center justify-between rounded-3xl border-2 border-white/25 p-3.5 shadow-[0_20px_40px_rgba(0,0,0,0.85),inset_0_2px_4px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all duration-500"
+        className="relative flex h-[72%] w-[86%] flex-col items-center justify-start gap-1 rounded-[16px] border-2 border-white/25 p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.85),inset_0_2px_4px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all duration-500"
+        /*
+          District tint over the canonical navy.
+          
+          These were raw Tailwind defaults — amber-500, red-500, blue-500,
+          teal-500 over slate-900 — none of which exist in this palette. Mixed
+          at 28% over #0f172a, the school tint in particular resolved to a
+          muddy brown that looked like a foreign asset dropped onto the board.
+          Each district now tints with its own role colour over navy-950.
+        */
         style={{
-          background:
-            districtId === 'school'
-              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(15, 23, 42, 0.95) 100%)'
-              : districtId === 'retail'
-                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.28) 0%, rgba(15, 23, 42, 0.95) 100%)'
-                : districtId === 'digital'
-                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.32) 0%, rgba(15, 23, 42, 0.95) 100%)'
-                  : 'linear-gradient(135deg, rgba(20, 184, 166, 0.32) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          background: DISTRICT_TINT[districtId],
+          /*
+            Stands the panel on the plaza floor.
+
+            Centred in its cell, an upright panel hangs half its height BELOW
+            the board — which put the building behind the Roll Dice bar and the
+            district chips, so only its roofline was ever visible. Shifting it
+            up by half its own height puts its base on the plaza and lets it
+            rise, which is how a landmark should sit.
+          */
+          transform: 'translateY(-50%)',
         }}
       >
-        {/* District Title Pill */}
-        <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-navy-950/90 px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-amber-300 shadow-md">
-          <Shield className="h-3.5 w-3.5 text-amber-400" />
-          <span>{districtName}</span>
-        </div>
+        {/*
+          The district name, or the secured action once the district is cleared.
+
+          Both live at the TOP of the panel because the bottom of the landmark
+          sits behind the Roll Dice bar — the progress block that used to be
+          down there was measured at y 350-370 against a dice bar at y 339-407,
+          so it was permanently invisible, and the "District Secured" button
+          with it. Anything actionable has to be above the fold of the plaza.
+        */}
+        {cleared ? (
+          <button
+            type="button"
+            onClick={onSecuredClick}
+            className="group flex items-center gap-1.5 rounded-full border border-[var(--sq-earned)] bg-gradient-to-r from-[var(--color-amber-500)] to-[var(--color-amber-400)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--color-navy-950)] shadow-lg transition hover:brightness-110 active:scale-95"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{districtName} secured</span>
+            <Sparkles className="h-3.5 w-3.5 transition group-hover:rotate-12" aria-hidden="true" />
+          </button>
+        ) : (
+          <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-[var(--color-navy-950)]/90 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[var(--sq-earned)] shadow-md">
+            <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{districtName}</span>
+            <span className="tabular-nums text-white/70">
+              {completed}/{total}
+            </span>
+          </div>
+        )}
 
         {/* 2.5D Illustrated Centerpiece Icon / Building Representation */}
         <div
-          className="landmark-illustration relative my-auto flex items-center justify-center transition-transform duration-700 hover:scale-105"
+          /* Fills the space under the title and scales the artwork to fit,
+           * rather than sitting at a fixed 120x100 that overflowed the panel
+           * and clipped the building to its roofline. */
+          className="landmark-illustration relative flex min-h-0 flex-1 items-center justify-center [&_svg]:h-full [&_svg]:w-auto [&_svg]:max-h-full transition-transform duration-700 hover:scale-105"
           style={{ transform: 'translateZ(18px)' }}
         >
           {districtId === 'school' && (
             <div className="relative flex flex-col items-center">
               {/* School Tower SVG */}
-              <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
+              <svg width="104" height="86" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
                 {/* Building Roof */}
                 <polygon points="60,6 10,42 110,42" fill="#F59E0B" stroke="#FDE68A" strokeWidth="2" />
                 {/* Bell Tower Dome */}
@@ -80,7 +143,7 @@ export function DistrictLandmark({
           {districtId === 'retail' && (
             <div className="relative flex flex-col items-center">
               {/* Retail Plaza SVG */}
-              <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
+              <svg width="104" height="86" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
                 {/* Neon Canopy */}
                 <path d="M14 36 L60 14 L106 36 L60 48 Z" fill="#EF4444" stroke="#FECACA" strokeWidth="1.5" />
                 {/* Store Front Body */}
@@ -99,7 +162,7 @@ export function DistrictLandmark({
           {districtId === 'digital' && (
             <div className="relative flex flex-col items-center">
               {/* Digi Data Tower SVG */}
-              <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
+              <svg width="104" height="86" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
                 {/* Hologram Emitter Antenna */}
                 <line x1="60" y1="4" x2="60" y2="22" stroke="#38BDF8" strokeWidth="2.5" />
                 <circle cx="60" cy="6" r="3.5" fill="#38BDF8" />
@@ -119,7 +182,7 @@ export function DistrictLandmark({
           {districtId === 'community' && (
             <div className="relative flex flex-col items-center">
               {/* Community Beacon Dome SVG */}
-              <svg width="120" height="100" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
+              <svg width="104" height="86" viewBox="0 0 120 100" fill="none" className="drop-shadow-2xl">
                 {/* Beacon Light Dome */}
                 <path d="M26 48 C26 22 94 22 94 48 Z" fill="#14B8A6" stroke="#99F6E4" strokeWidth="2" />
                 {/* Core Light Pillar */}
@@ -136,38 +199,6 @@ export function DistrictLandmark({
           )}
         </div>
 
-        {/* Progress Tracker / Secured Badge */}
-        <div className="w-full">
-          {cleared ? (
-            <button
-              type="button"
-              onClick={onSecuredClick}
-              className="group flex w-full items-center justify-center gap-1.5 rounded-xl border border-amber-400 bg-gradient-to-r from-amber-500 to-amber-400 px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wider text-navy-950 shadow-lg shadow-amber-500/30 transition hover:brightness-110 active:scale-95"
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>District Secured!</span>
-              <Sparkles className="h-3.5 w-3.5 text-amber-900 transition group-hover:rotate-12" />
-            </button>
-          ) : (
-            <div className="rounded-xl border border-white/15 bg-navy-950/85 p-2 shadow-inner">
-              <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-white/80">
-                <span className="flex items-center gap-1">
-                  <Award className="h-3 w-3 text-amber-400" />
-                  Missions
-                </span>
-                <span className="tabular-nums text-amber-300">
-                  {completed} / {total}
-                </span>
-              </div>
-              <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-navy-900">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

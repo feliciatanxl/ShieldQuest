@@ -39,7 +39,7 @@ export function ConsequenceTakeover({
       >
         {/* Time passage */}
         <div>
-          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-amber-400">
+          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[var(--sq-earned)]">
             <Clock className="h-3.5 w-3.5" aria-hidden="true" />
             {consequence.timeLabel}
           </p>
@@ -53,9 +53,9 @@ export function ConsequenceTakeover({
         <div className="mt-5 flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-[16px] border border-white/15 bg-white/10"
           >
-            <Lock className="h-5 w-5 text-amber-400" />
+            <Lock className="h-5 w-5 text-[var(--sq-earned)]" />
           </span>
           <div>
             <h1
@@ -64,13 +64,13 @@ export function ConsequenceTakeover({
             >
               {consequence.headline}
             </h1>
-            <p className="mt-2 text-[14px] leading-relaxed text-navy-100">{consequence.body}</p>
+            <p className="mt-2 text-[14px] leading-relaxed text-[var(--sq-ink-muted)]">{consequence.body}</p>
           </div>
         </div>
 
         {/* What changed */}
-        <section className="mt-5 rounded-2xl border border-white/12 bg-white/6 p-3.5">
-          <SectionLabel tone="dark">What changed?</SectionLabel>
+        <section className="mt-5 rounded-[16px] border border-white/12 bg-white/6 p-3.5">
+          <SectionLabel overDark>What changed?</SectionLabel>
 
           <div className="mt-3 space-y-3">
             <div>
@@ -81,7 +81,7 @@ export function ConsequenceTakeover({
                 {consequence.changedImmediate.map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-2 text-[14px] font-bold text-amber-400"
+                    className="flex items-center gap-2 text-[14px] font-bold text-[var(--sq-earned)]"
                   >
                     <Coins className="h-4 w-4 shrink-0" aria-hidden="true" />
                     {item}
@@ -111,8 +111,8 @@ export function ConsequenceTakeover({
         </section>
 
         {/* Why this mattered */}
-        <section className="mt-3 rounded-2xl border border-white/12 bg-white/6 p-3.5">
-          <SectionLabel tone="dark">Why this mattered</SectionLabel>
+        <section className="mt-3 rounded-[16px] border border-white/12 bg-white/6 p-3.5">
+          <SectionLabel overDark>Why this mattered</SectionLabel>
           <p className="mt-2 text-[13px] font-semibold text-white/70">
             Warning signs in the message
           </p>
@@ -120,23 +120,23 @@ export function ConsequenceTakeover({
             {consequence.warningSigns.map((sign) => (
               <li key={sign} className="flex items-start gap-2.5">
                 <TriangleAlert
-                  className="mt-0.5 h-4 w-4 shrink-0 text-amber-400"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sq-earned)]"
                   aria-hidden="true"
                 />
-                <span className="text-[14px] leading-relaxed text-navy-100">{sign}</span>
+                <span className="text-[14px] leading-relaxed text-[var(--sq-ink-muted)]">{sign}</span>
               </li>
             ))}
           </ul>
         </section>
 
         {/* Safer response */}
-        <section className="mt-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-3.5">
-          <SectionLabel tone="dark">Safer response</SectionLabel>
+        <section className="mt-3 rounded-[16px] border border-amber-400/30 bg-amber-400/10 p-3.5">
+          <SectionLabel overDark>Safer response</SectionLabel>
           <p className="mt-2 text-[14px] leading-relaxed text-white">{consequence.saferResponse}</p>
         </section>
 
         <div className="mt-3">
-          <SkillBadge competency={consequence.competency} caption="Skill to practise" tone="dark" />
+          <SkillBadge competency={consequence.competency} caption="Skill to practise" overDark />
         </div>
 
         {/*
@@ -148,7 +148,7 @@ export function ConsequenceTakeover({
           <button
             type="button"
             onClick={onContinue}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-amber-500 px-4 text-[15px] font-extrabold text-navy-900 transition hover:bg-amber-400"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-amber-500 px-4 text-[15px] font-extrabold text-[var(--sq-ink)] transition hover:bg-amber-400"
           >
             Continue mission
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -156,7 +156,7 @@ export function ConsequenceTakeover({
           <button
             type="button"
             onClick={onReplay}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-white/20 px-4 text-[15px] font-semibold text-white transition hover:bg-white/10"
+            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/20 px-4 text-[15px] font-semibold text-white transition hover:bg-white/10"
           >
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
             Replay this decision

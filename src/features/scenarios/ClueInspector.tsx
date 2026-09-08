@@ -24,7 +24,7 @@ export function ClueInspector({
   const panelId = 'clue-inspector-panel';
 
   return (
-    <section className="rounded-2xl border border-line bg-surface">
+    <section className="rounded-[16px] border border-line bg-surface">
       <h2>
         <button
           type="button"
@@ -33,12 +33,12 @@ export function ClueInspector({
           aria-controls={panelId}
           className="flex min-h-[48px] w-full items-center gap-2.5 px-3.5 py-2 text-left"
         >
-          <Search className="h-4 w-4 shrink-0 text-civic-600" aria-hidden="true" />
-          <span className="flex-1 text-[13px] font-semibold leading-snug text-navy-900">
+          <Search className="h-4 w-4 shrink-0 text-[var(--sq-action-text)]" aria-hidden="true" />
+          <span className="flex-1 text-[13px] font-semibold leading-snug text-[var(--sq-ink)]">
             {question}
           </span>
           {tagged.length > 0 && (
-            <span className="rounded-md bg-civic-100 px-1.5 py-0.5 text-[11px] font-bold text-civic-700 tabular-nums">
+            <span className="rounded-[6px] bg-[var(--sq-action)]/15 px-1.5 py-0.5 text-[11px] font-bold text-[var(--sq-action-text)] tabular-nums">
               {tagged.length} tagged
             </span>
           )}
@@ -69,7 +69,7 @@ export function ClueInspector({
                     className={`min-h-[40px] rounded-full border px-3.5 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
                       on
                         ? 'border-civic-600 bg-civic-600 text-white'
-                        : 'border-line-strong bg-surface text-ink hover:border-civic-500 hover:bg-civic-50'
+                        : 'border-line-strong bg-surface text-ink hover:border-civic-500 hover:bg-[var(--sq-action)]/15'
                     }`}
                   >
                     {on ? '✓ ' : ''}
@@ -86,7 +86,7 @@ export function ClueInspector({
                 .filter((c) => tagged.includes(c.id))
                 .map((c) => (
                   <li key={c.id} className="text-[13px] leading-relaxed">
-                    <span className="font-semibold text-navy-900">{c.label}:</span>{' '}
+                    <span className="font-semibold text-[var(--sq-ink)]">{c.label}:</span>{' '}
                     <span className="text-ink-muted">{c.note}</span>
                   </li>
                 ))}

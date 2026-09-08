@@ -73,17 +73,17 @@ export function MissionNodeCard({
   const inner = (
     <>
       <div className="flex items-start gap-2.5">
-        <span className="w-8 shrink-0 pt-1 text-center text-[22px] font-black leading-none tabular-nums text-navy-900/85">
+        <span className="w-8 shrink-0 pt-1 text-center text-[22px] font-black leading-none tabular-nums text-[var(--sq-ink)]/85">
           {String(index + 1).padStart(2, '0')}
         </span>
         <span
           aria-hidden="true"
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border ${
             node.completed
-              ? 'border-leaf-200 bg-leaf-600 text-white'
+              ? 'border-[var(--sq-safe)]/40 bg-leaf-600 text-white'
               : locked
                 ? 'border-line bg-surface-sunk text-ink-soft'
-                : 'border-navy-800 bg-navy-900 text-amber-400'
+                : 'border-navy-800 bg-navy-900 text-[var(--sq-earned)]'
           }`}
         >
           {node.completed ? (
@@ -100,7 +100,7 @@ export function MissionNodeCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             <span
-              className={`inline-flex rounded-md border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${KIND_CHIP[node.kind]}`}
+              className={`inline-flex rounded-[6px] border px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${KIND_CHIP[node.kind]}`}
             >
               {NODE_KIND_LABEL[node.kind]}
             </span>
@@ -109,13 +109,13 @@ export function MissionNodeCard({
             </span>
           </div>
 
-          <h3 className="mt-0.5 text-[15px] font-extrabold leading-snug text-navy-900">
+          <h3 className="mt-0.5 text-[15px] font-extrabold leading-snug text-[var(--sq-ink)]">
             {node.title}
           </h3>
           <p className="mt-0.5 text-[13px] leading-snug text-ink-muted">{node.summary}</p>
 
           {node.story && (
-            <p className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-civic-50 px-2 py-1.5 text-[11px] leading-snug text-civic-800">
+            <p className="mt-1.5 flex items-start gap-1.5 rounded-[6px] bg-[var(--sq-action)]/15 px-2 py-1.5 text-[11px] leading-snug text-[var(--sq-action-text)]">
               <MessageCircle className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
               <span>
                 <span className="font-extrabold">{node.story.character}:</span> {node.story.beat}
@@ -130,7 +130,7 @@ export function MissionNodeCard({
               {node.estimatedMinutes} min
             </span>
             {guardianName && (
-              <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-amber-700">
+              <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--sq-earned-text)]">
                 <Sparkles className="h-3 w-3" aria-hidden="true" />
                 {guardianName}
               </span>
@@ -139,18 +139,18 @@ export function MissionNodeCard({
         </div>
 
         {!locked && !node.completed && (
-          <ArrowRight className="mt-1.5 h-4 w-4 shrink-0 text-civic-600" aria-hidden="true" />
+          <ArrowRight className="mt-1.5 h-4 w-4 shrink-0 text-[var(--sq-action-text)]" aria-hidden="true" />
         )}
       </div>
 
       {/* Status line. Always words, never colour on its own. */}
       {node.completed ? (
-        <p className="mt-2.5 flex items-center gap-1.5 border-t border-leaf-200 pt-2 text-[12px] font-bold uppercase tracking-wide text-leaf-700">
+        <p className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--sq-safe)]/40 pt-2 text-[12px] font-bold uppercase tracking-wide text-[var(--sq-safe)]">
           <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
           Completed — replay any time
         </p>
       ) : planned ? (
-        <p className="mt-2.5 flex items-center gap-1.5 border-t border-coral-200 pt-2 text-[12px] font-bold uppercase tracking-wide text-coral-700">
+        <p className="mt-2.5 flex items-center gap-1.5 border-t border-[var(--sq-risk)]/40 pt-2 text-[12px] font-bold uppercase tracking-wide text-[var(--sq-risk)]">
           <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
           Coming soon · In development
         </p>
@@ -164,7 +164,7 @@ export function MissionNodeCard({
               {node.remainingToUnlock === 1 ? 'activity' : 'activities'} in this district
             </span>
           </p>
-          <p className="mt-1 pl-5 font-bold tabular-nums text-navy-900">
+          <p className="mt-1 pl-5 font-bold tabular-nums text-[var(--sq-ink)]">
             {node.unlockCompleted} / {node.unlockRequired} completed
           </p>
         </div>
@@ -172,8 +172,8 @@ export function MissionNodeCard({
         <p
           className={`mt-2.5 flex items-center gap-1.5 border-t pt-2 text-[12px] font-bold uppercase tracking-wide ${
             node.newlyUnlocked
-              ? 'border-amber-200 text-amber-700'
-              : 'border-civic-100 text-civic-700'
+              ? 'border-[var(--sq-earned)]/40 text-[var(--sq-earned-text)]'
+              : 'border-[var(--sq-action)]/40 text-[var(--sq-action-text)]'
           }`}
           role={node.newlyUnlocked ? 'status' : undefined}
           aria-live={node.newlyUnlocked ? 'polite' : undefined}
@@ -191,7 +191,7 @@ export function MissionNodeCard({
 
   if (locked) {
     return (
-      <article aria-disabled="true" className="rounded-2xl border border-line bg-surface-sunk p-3">
+      <article aria-disabled="true" className="rounded-[16px] border border-line bg-surface-sunk p-3">
         {inner}
       </article>
     );
@@ -200,9 +200,9 @@ export function MissionNodeCard({
   return (
     <Link
       href={node.href ?? '#'}
-      className={`block rounded-2xl border p-3 transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-18px_rgba(11,37,69,0.7)] ${
+      className={`block rounded-[16px] border p-3 transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-18px_rgba(11,37,69,0.7)] ${
         node.completed
-          ? 'border-leaf-200 bg-leaf-50 hover:border-leaf-600'
+          ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 hover:border-leaf-600'
           : 'border-line bg-surface hover:border-civic-500'
       }`}
     >

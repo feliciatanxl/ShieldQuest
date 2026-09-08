@@ -1,31 +1,107 @@
 import { useState } from 'react';
-import {
-  Copy,
-  Pause,
-  Play,
-  QrCode,
-  Square,
-} from 'lucide-react';
-import { PrototypeNotice } from '../../design-system/DesignSystem';
+import { Copy, Pause, Play, QrCode, Square } from 'lucide-react';
+import { Button, PrototypeNotice } from '../../design-system/DesignSystem';
+
+/**
+ * The live facilitator room, shown while a session is actually running.
+ *
+ * This is the one dark surface in the otherwise light facilitator portal, and
+ * it sets `data-skin="game"` to get there. That is deliberate rather than an
+ * exception: this screen mirrors what participants are looking at on their own
+ * devices, it is often projected in a darkened lab, and putting it on the game
+ * skin means it shares a palette with the player PWA instead of inventing a
+ * third one. Previously it hand-rolled its darks from `slate-800` and
+ * `slate-900/70`, which existed nowhere else in the product.
+ *
+ * Facilitators see aggregated squad trends only. No individual vote is ever
+ * attributable to a participant here — that is a commitment in the proposal,
+ * not a UI preference, so the reassurance is stated on screen.
+ */
+
+type SessionState = 'idle' | 'active' | 'paused';
+
+/**
+ * The live poll. Each option carries the semantic role its outcome maps to, so
+ * the bars read consistently with the rest of the product: coral for risk,
+ * leaf for the safer choice, teal for protecting someone else. Previously
+ * these were three copy-pasted blocks, and "Safe Verification" was drawn in
+ * the civic action colour rather than the safe one.
+ */
+const POLL = {
+  scenario: 'Easy Money: job offer via Telegram message',
+  voted: 24,
+  of: 29,
+  options: [
+    {
+      key: 'A',
+      text: 'Accept the job and provide PayNow details to receive the $500 commission',
+      votes: 3,
+      share: 10,
+      verdict: 'High risk',
+      role: 'var(--sq-risk)',
+    },
+    {
+      key: 'B',
+      text: 'Ask for the ACRA registration and the official company UEN',
+      votes: 21,
+      share: 72,
+      verdict: 'Safer — verifies first',
+      role: 'var(--sq-safe)',
+    },
+    {
+      key: 'C',
+      text: 'Block the contact and report it',
+      votes: 5,
+      share: 18,
+      verdict: 'Safer — protects others',
+      role: 'var(--sq-peer)',
+    },
+  ],
+};
+
+const SQUADS = [
+  { name: 'Squad Alpha', count: 5, status: 'Voted', token: 'Beacon' },
+  { name: 'Squad Bravo', count: 5, status: 'Voted', token: 'Scout' },
+  { name: 'Squad Charlie', count: 4, status: 'Thinking', token: 'Sentinel' },
+  { name: 'Squad Delta', count: 5, status: 'Voted', token: 'Vanguard' },
+  { name: 'Squad Echo', count: 5, status: 'Voted', token: 'Beacon' },
+  { name: 'Squad Foxtrot', count: 5, status: 'Thinking', token: 'Scout' },
+];
+
+/** Panel shell, so every block on this screen shares one set of edges. */
+function Panel({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-5 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function PanelLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-xs font-bold uppercase tracking-wider text-[var(--sq-ink-muted)]">
+      {children}
+    </span>
+  );
+}
 
 export function SessionManager() {
-  const [sessionState, setSessionState] = useState<'idle' | 'active' | 'paused'>('active');
-  const sessionCode = 'SQ-7842';
+  const [sessionState, setSessionState] = useState<SessionState>('active');
   const [copied, setCopied] = useState(false);
 
+  const sessionCode = 'SQ-7842';
   const sessionName = 'Sec 3 Cohort A · Workshop 2';
-  const venue = 'Computer Lab 2 / Zoom Room';
-  const participantsJoined = 29;
-  const totalExpected = 32;
-
-  const squads = [
-    { name: 'Squad Alpha', count: 5, status: 'Voted', leader: 'Token Beacon' },
-    { name: 'Squad Bravo', count: 5, status: 'Voted', leader: 'Token Scout' },
-    { name: 'Squad Charlie', count: 4, status: 'Thinking', leader: 'Token Sentinel' },
-    { name: 'Squad Delta', count: 5, status: 'Voted', leader: 'Token Vanguard' },
-    { name: 'Squad Echo', count: 5, status: 'Voted', leader: 'Token Beacon' },
-    { name: 'Squad Foxtrot', count: 5, status: 'Thinking', leader: 'Token Scout' },
-  ];
+  const venue = 'Computer Lab 2';
+  const joined = 29;
+  const expected = 32;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(sessionCode);
@@ -33,215 +109,227 @@ export function SessionManager() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const stateLabel: Record<SessionState, string> = {
+    active: 'Live session',
+    paused: 'Session paused',
+    idle: 'Session ended',
+  };
+
+  // Status is carried by the label as well as the dot, never by colour alone.
+  const stateDot: Record<SessionState, string> = {
+    active: 'bg-[var(--sq-safe)] animate-pulse',
+    paused: 'bg-[var(--sq-earned)]',
+    idle: 'bg-[var(--sq-ink-muted)]',
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Session Top Status Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/90 p-5">
+    <div data-skin="game" className="space-y-5 rounded-[24px] bg-[var(--sq-canvas)] p-5">
+      {/* Session status and controls */}
+      <Panel className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                sessionState === 'active'
-                  ? 'bg-emerald-400 animate-pulse'
-                  : sessionState === 'paused'
-                    ? 'bg-amber-400'
-                    : 'bg-slate-500'
-              }`}
-            />
-            <span className="text-xs font-black uppercase tracking-wider text-slate-300">
-              {sessionState === 'active'
-                ? 'Live Facilitated Session'
-                : sessionState === 'paused'
-                  ? 'Session Paused'
-                  : 'Session Ended'}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${stateDot[sessionState]}`} />
+            <span className="text-xs font-black uppercase tracking-wider text-[var(--sq-ink-muted)]">
+              {stateLabel[sessionState]}
             </span>
-            <PrototypeNotice text="Live Facilitator Room" />
+            <PrototypeNotice text="Live facilitator room" />
           </div>
-          <h2 className="mt-1 text-xl font-black text-white">{sessionName}</h2>
-          <p className="text-xs text-slate-400">{venue} · Upper Secondary Band (15–16)</p>
+          <h2 className="mt-1.5 text-xl font-black text-[var(--sq-ink)]">{sessionName}</h2>
+          <p className="text-xs text-[var(--sq-ink-muted)]">
+            {venue} · Secondary band (14–16)
+          </p>
         </div>
 
-        {/* Controls */}
         <div className="flex items-center gap-2">
           {sessionState === 'active' ? (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setSessionState('paused')}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-500/20 px-4 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500/30"
+              leftIcon={<Pause className="h-4 w-4" />}
             >
-              <Pause className="h-4 w-4" />
-              <span>Pause Session</span>
-            </button>
+              Pause
+            </Button>
           ) : (
-            <button
-              type="button"
+            <Button
+              size="sm"
               onClick={() => setSessionState('active')}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500"
+              leftIcon={<Play className="h-4 w-4" />}
             >
-              <Play className="h-4 w-4" />
-              <span>Resume Session</span>
-            </button>
+              Resume
+            </Button>
           )}
-
-          <button
-            type="button"
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={() => {
-              if (confirm('Are you sure you want to conclude this workshop session?')) {
+              if (confirm('End this workshop session for all participants?')) {
                 setSessionState('idle');
               }
             }}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-2 text-xs font-bold text-rose-300 hover:bg-rose-500/20"
+            leftIcon={<Square className="h-4 w-4" />}
           >
-            <Square className="h-4 w-4" />
-            <span>End Workshop</span>
-          </button>
+            End workshop
+          </Button>
         </div>
-      </div>
+      </Panel>
 
-      {/* Session Join Credentials Block */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Room Code Card */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 flex flex-col justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Room Code</span>
-          <div className="my-3 flex items-center justify-between">
-            <span className="text-3xl font-black tracking-widest text-amber-300 font-mono">
+      {/* How participants get in */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Panel className="flex flex-col justify-between">
+          <PanelLabel>Room code</PanelLabel>
+          <div className="my-3 flex items-center justify-between gap-3">
+            <span className="font-mono text-3xl font-black tracking-widest text-[var(--sq-earned-text)]">
               {sessionCode}
             </span>
             <button
               type="button"
               onClick={handleCopyCode}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white"
-              title="Copy session code"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[var(--sq-line)] bg-[var(--sq-surface-raised)] text-[var(--sq-ink-muted)] transition hover:text-[var(--sq-ink)]"
+              aria-label="Copy room code"
             >
               <Copy className="h-4 w-4" />
             </button>
           </div>
-          {copied && <span className="text-[11px] font-bold text-emerald-400">Copied to clipboard!</span>}
-          <p className="text-[11px] text-slate-400">Students enter this code at shieldquest.sg to join.</p>
-        </div>
+          {/* aria-live so the confirmation reaches screen readers, which was
+            * previously a silent visual-only change. */}
+          <p aria-live="polite" className="text-[11px] text-[var(--sq-ink-muted)]">
+            {copied ? (
+              <span className="font-bold text-[var(--sq-safe)]">Copied to clipboard</span>
+            ) : (
+              'Participants enter this code to join.'
+            )}
+          </p>
+        </Panel>
 
-        {/* QR Code Card */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 flex items-center gap-4">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white p-2 text-navy-950 shadow">
+        <Panel className="flex items-center gap-4">
+          {/* Literal white, not a surface token: this is a QR code, and a
+            * camera needs the real light-on-dark contrast to read it. Under the
+            * game skin `--sq-surface` is dark navy, which would make the code
+            * unscannable — the one place on this screen that must NOT follow
+            * the skin. */}
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[16px] bg-white p-2 text-[var(--color-navy-950)]">
             <QrCode className="h-16 w-16" />
           </div>
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Classroom Scan</span>
-            <p className="mt-1 text-xs text-white font-semibold leading-snug">
-              Project on screen for fast tablet / phone onboarding.
+            <PanelLabel>Classroom scan</PanelLabel>
+            <p className="mt-1 text-xs font-semibold leading-snug text-[var(--sq-ink)]">
+              Project this so participants can join by camera.
             </p>
             <button
               type="button"
-              onClick={() => alert('Full screen classroom QR projector modal')}
-              className="mt-2 text-[11px] font-bold text-civic-400 hover:underline"
+              onClick={() => alert('Full-screen QR for projection')}
+              className="mt-2 text-[11px] font-bold text-[var(--sq-action-text)] hover:underline"
             >
-              Project Fullscreen QR →
+              Project full screen →
             </button>
           </div>
-        </div>
+        </Panel>
 
-        {/* Attendance Counter */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 flex flex-col justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Attendance</span>
+        <Panel className="flex flex-col justify-between">
+          <PanelLabel>Joined</PanelLabel>
           <div className="my-2 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-white">{participantsJoined}</span>
-            <span className="text-xs font-bold text-slate-400">/ {totalExpected} joined</span>
+            <span className="text-3xl font-black text-[var(--sq-ink)]">{joined}</span>
+            <span className="text-xs font-bold text-[var(--sq-ink-muted)]">of {expected}</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+          <div
+            className="h-2 w-full overflow-hidden rounded-full bg-[var(--sq-surface-raised)]"
+            role="progressbar"
+            aria-valuenow={joined}
+            aria-valuemin={0}
+            aria-valuemax={expected}
+            aria-label="Participants joined"
+          >
             <div
-              className="h-full bg-emerald-500 rounded-full"
-              style={{ width: `${(participantsJoined / totalExpected) * 100}%` }}
+              className="h-full rounded-full bg-[var(--sq-safe)]"
+              style={{ width: `${(joined / expected) * 100}%` }}
             />
           </div>
-          <span className="mt-2 text-[11px] text-slate-400">6 squads connected anonymously</span>
-        </div>
+          <span className="mt-2 text-[11px] text-[var(--sq-ink-muted)]">
+            6 squads connected anonymously
+          </span>
+        </Panel>
       </div>
 
-      {/* Live Scenario Voting Monitor */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+      {/* Live Think–Vote–Explain monitor */}
+      <Panel className="p-6">
+        <div className="flex flex-col justify-between gap-2 border-b border-[var(--sq-line)] pb-4 sm:flex-row sm:items-center">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
-                Active Scenario Poll
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--sq-earned-text)]">
+                Active poll
               </span>
-              <span className="rounded-md bg-civic-500/20 px-2 py-0.5 text-[10px] font-bold text-civic-300">
+              <span className="rounded-[6px] bg-[var(--sq-action)]/20 px-2 py-0.5 text-[10px] font-bold text-[var(--color-civic-300)]">
                 Think–Vote–Explain
               </span>
             </div>
-            <h3 className="mt-1 text-base font-black text-white">
-              EASY MONEY: Job Offer via Telegram Message
-            </h3>
+            <h3 className="mt-1.5 text-base font-black text-[var(--sq-ink)]">{POLL.scenario}</h3>
           </div>
-          <span className="text-xs font-extrabold text-emerald-400">
-            24 of 29 participants voted (82%)
+          <span className="shrink-0 text-xs font-extrabold text-[var(--sq-safe)]">
+            {POLL.voted} of {POLL.of} voted (
+            {Math.round((POLL.voted / POLL.of) * 100)}%)
           </span>
         </div>
 
-        {/* Aggregated Anonymous Choices */}
-        <div className="mt-6 space-y-4">
-          <div>
-            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
-              <span>A: Accept the job and provide PayNow to receive the $500 commission</span>
-              <span className="text-rose-400 font-extrabold">3 votes (10%) · High Risk</span>
-            </div>
-            <div className="h-3 w-full rounded-full bg-slate-800 overflow-hidden">
-              <div className="h-full bg-rose-500 rounded-full" style={{ width: '10%' }} />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
-              <span>B: Ask for ACRA registration and official company UEN</span>
-              <span className="text-civic-400 font-extrabold">21 votes (72%) · Safe Verification</span>
-            </div>
-            <div className="h-3 w-full rounded-full bg-slate-800 overflow-hidden">
-              <div className="h-full bg-civic-500 rounded-full" style={{ width: '72%' }} />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1">
-              <span>C: Immediately block and report the contact to ScamShield</span>
-              <span className="text-emerald-400 font-extrabold">5 votes (18%) · Proactive Defence</span>
-            </div>
-            <div className="h-3 w-full rounded-full bg-slate-800 overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full" style={{ width: '18%' }} />
-            </div>
-          </div>
-        </div>
-
-        <p className="mt-5 text-center text-[11px] text-slate-400 font-medium">
-          Individual votes remain strictly confidential. Facilitator view shows aggregated squad trends to guide discussion.
-        </p>
-      </div>
-
-      {/* Active Squads Grid */}
-      <div>
-        <h3 className="text-sm font-black uppercase tracking-wider text-slate-300 mb-3">
-          Connected Squads
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {squads.map((sq, i) => (
-            <div key={i} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-white">{sq.name}</span>
+        <ul className="mt-6 space-y-4">
+          {POLL.options.map((option) => (
+            <li key={option.key}>
+              <div className="mb-1.5 flex flex-col justify-between gap-1 text-xs font-bold sm:flex-row sm:gap-4">
+                <span className="text-[var(--sq-ink-muted)]">
+                  <span className="text-[var(--sq-ink)]">{option.key}:</span> {option.text}
+                </span>
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
-                    sq.status === 'Voted'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                  }`}
+                  className="shrink-0 font-extrabold tabular-nums"
+                  style={{ color: option.role }}
                 >
-                  {sq.status}
+                  {option.votes} · {option.share}% — {option.verdict}
                 </span>
               </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-                <span>{sq.count} members</span>
-                <span className="text-slate-500">{sq.leader}</span>
+              <div className="h-3 w-full overflow-hidden rounded-full bg-[var(--sq-surface-raised)]">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${option.share}%`, background: option.role }}
+                />
               </div>
-            </div>
+            </li>
           ))}
+        </ul>
+
+        <p className="mt-5 text-center text-[11px] font-medium text-[var(--sq-ink-muted)]">
+          Individual votes stay confidential. This view shows aggregated squad trends only, to guide
+          the discussion.
+        </p>
+      </Panel>
+
+      {/* Connected squads */}
+      <div>
+        <h3 className="mb-3 text-sm font-black uppercase tracking-wider text-[var(--sq-ink-muted)]">
+          Connected squads
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {SQUADS.map((squad) => {
+            const voted = squad.status === 'Voted';
+            return (
+              <Panel key={squad.name} className="p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-black text-[var(--sq-ink)]">{squad.name}</span>
+                  <span
+                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                      voted
+                        ? 'border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]'
+                        : 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15 text-[var(--sq-earned-text)]'
+                    }`}
+                  >
+                    {squad.status}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-xs text-[var(--sq-ink-muted)]">
+                  <span>{squad.count} members</span>
+                  <span>Token {squad.token}</span>
+                </div>
+              </Panel>
+            );
+          })}
         </div>
       </div>
     </div>

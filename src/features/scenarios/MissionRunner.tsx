@@ -205,7 +205,7 @@ export function MissionRunner({
     : 'mx-auto w-full xl:max-w-[700px]';
 
   return (
-    <div className={`relative flex min-h-full flex-col ${measure}`}>
+    <div data-skin="game" className={`relative flex min-h-dvh flex-col bg-[var(--sq-canvas)] ${measure}`}>
       {burst && !bigReward && (
         <RewardBurst key={burst.key} title={burst.title} amount={burst.amount} tone={burst.tone} />
       )}
@@ -218,7 +218,7 @@ export function MissionRunner({
           <Link
             href={backHref}
             aria-label={backLabel}
-            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white/80 transition hover:bg-white/10 hover:text-white"
+            className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-[10px] text-white/80 transition hover:bg-white/10 hover:text-white"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
@@ -235,7 +235,7 @@ export function MissionRunner({
               {scenario.title}
             </h1>
           </div>
-          <span className="shrink-0 rounded-lg bg-white/12 px-2 py-1 text-[11px] font-bold text-white tabular-nums">
+          <span className="shrink-0 rounded-[6px] bg-white/12 px-2 py-1 text-[11px] font-bold text-white tabular-nums">
             {isResolved ? 'Reflection' : 'Decision'}
           </span>
         </div>
@@ -272,14 +272,14 @@ export function MissionRunner({
         "About" so it cannot push the thread off the first screen.
       */}
       <div
-        className={`${isTeal ? 'bg-teal-50' : 'bg-civic-50'} border-b ${
-          isTeal ? 'border-teal-100' : 'border-civic-100'
+        className={`${isTeal ? 'bg-[var(--sq-peer)]/15' : 'bg-[var(--sq-action)]/15'} border-b ${
+          isTeal ? 'border-[var(--sq-peer)]/40' : 'border-[var(--sq-action)]/40'
         }`}
       >
         <div className={`${band} px-4 py-2.5 ${desktopSplit ? 'xl:px-6 xl:py-3.5' : ''}`}>
           <div className="flex items-center gap-2">
             {modeBadge && (
-              <span className="inline-flex shrink-0 items-center rounded-md bg-teal-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
+              <span className="inline-flex shrink-0 items-center rounded-[6px] bg-teal-600 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white">
                 {modeBadge}
               </span>
             )}
@@ -292,10 +292,10 @@ export function MissionRunner({
                 onClick={() => setAboutOpen((v) => !v)}
                 aria-expanded={aboutOpen}
                 aria-controls="mission-about"
-                className={`-my-1.5 inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-lg px-1.5 text-[12px] font-bold transition ${
+                className={`-my-1.5 inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-[6px] px-1.5 text-[12px] font-bold transition ${
                   isTeal
-                    ? 'text-teal-700 hover:text-teal-600'
-                    : 'text-civic-700 hover:text-civic-800'
+                    ? 'text-[var(--sq-peer)] hover:text-[var(--sq-peer)]'
+                    : 'text-[var(--sq-action-text)] hover:text-[var(--sq-action-text)]'
                 }`}
               >
                 About
@@ -310,7 +310,7 @@ export function MissionRunner({
 
           <p
             className={`mt-1 text-[14px] font-bold leading-snug ${
-              isTeal ? 'text-teal-700' : 'text-navy-900'
+              isTeal ? 'text-[var(--sq-peer)]' : 'text-[var(--sq-ink)]'
             }`}
           >
             {scenario.hook}
@@ -322,7 +322,7 @@ export function MissionRunner({
           {note && aboutOpen && (
             <p
               id="mission-about"
-              className="mt-2 rounded-xl border border-teal-200 bg-surface px-3 py-2 text-[12.5px] leading-snug text-ink"
+              className="mt-2 rounded-[10px] border border-[var(--sq-peer)]/40 bg-surface px-3 py-2 text-[12.5px] leading-snug text-ink"
             >
               {note}
             </p>
@@ -356,10 +356,10 @@ export function MissionRunner({
           {friend && (
             <div
               className={`border-b border-line px-4 py-2.5 ${
-                desktopSplit ? 'xl:rounded-2xl xl:border xl:px-4 xl:py-3' : ''
+                desktopSplit ? 'xl:rounded-[16px] xl:border xl:px-4 xl:py-3' : ''
               }`}
             >
-              <div className="flex items-start gap-2.5 rounded-2xl border border-line bg-surface-sunk p-2.5">
+              <div className="flex items-start gap-2.5 rounded-[16px] border border-line bg-surface-sunk p-2.5">
                 <span
                   aria-hidden="true"
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-teal-600 text-[15px] font-extrabold text-white"
@@ -367,8 +367,8 @@ export function MissionRunner({
                   {friend.name.charAt(0)}
                 </span>
                 <div className="min-w-0">
-                  <p className="flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-wide text-navy-900">
-                    <UserRound className="h-3 w-3 text-teal-700" aria-hidden="true" />
+                  <p className="flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-wide text-[var(--sq-ink)]">
+                    <UserRound className="h-3 w-3 text-[var(--sq-peer)]" aria-hidden="true" />
                     {friend.name}
                   </p>
                   <p className="mt-0.5 text-[13.5px] leading-snug text-ink">“{friend.quote}”</p>
@@ -439,8 +439,8 @@ export function MissionRunner({
           className={`sticky bottom-0 z-20 border-t border-line bg-surface/95 backdrop-blur ${
             desktopSplit
               ? isResolved
-                ? 'xl:static xl:w-full xl:rounded-2xl xl:border xl:border-line xl:bg-surface xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]'
-                : 'xl:sticky xl:bottom-auto xl:top-5 xl:self-start xl:rounded-2xl xl:border xl:border-line xl:bg-surface xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]'
+                ? 'xl:static xl:w-full xl:rounded-[16px] xl:border xl:border-line xl:bg-surface xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]'
+                : 'xl:sticky xl:bottom-auto xl:top-5 xl:self-start xl:rounded-[16px] xl:border xl:border-line xl:bg-surface xl:shadow-[0_18px_44px_-32px_rgba(11,37,69,0.55)]'
               : ''
           }`}
         >
@@ -453,7 +453,7 @@ export function MissionRunner({
               // Holds the beat without hinting at the outcome.
               <p
                 aria-live="polite"
-                className="flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-line bg-surface-sunk px-4 text-[14px] font-semibold text-ink-muted"
+                className="flex min-h-[52px] items-center justify-center gap-2.5 rounded-[16px] border border-line bg-surface-sunk px-4 text-[14px] font-semibold text-ink-muted"
               >
                 <span
                   aria-hidden="true"
@@ -466,14 +466,14 @@ export function MissionRunner({
                 <button
                   type="button"
                   onClick={finish}
-                  className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-b-4 border-leaf-700 bg-leaf-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-leaf-700 active:translate-y-[3px] active:border-b-0"
+                  className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border-b-4 border-leaf-700 bg-leaf-600 px-4 text-[15px] font-extrabold uppercase tracking-[0.06em] text-white transition hover:bg-leaf-700 active:translate-y-[3px] active:border-b-0"
                 >
                   Finish mission
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push(backHref)}
-                  className="flex min-h-[48px] w-full items-center justify-center rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+                  className="flex min-h-[48px] w-full items-center justify-center rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
                 >
                   {backLabel}
                 </button>
@@ -485,7 +485,7 @@ export function MissionRunner({
                     setRewardSeen(false);
                     replay();
                   }}
-                  className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-civic-700"
+                  className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[16px] border-2 border-line px-4 text-[14px] font-semibold text-ink transition hover:border-civic-500 hover:text-[var(--sq-action-text)]"
                 >
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />
                   Try a different decision
@@ -494,7 +494,7 @@ export function MissionRunner({
             ) : (
               <>
                 <h2
-                  className={`text-[13px] font-bold text-navy-900 ${
+                  className={`text-[13px] font-bold text-[var(--sq-ink)] ${
                     desktopSplit ? 'xl:text-[16px] xl:leading-snug' : ''
                   }`}
                 >
@@ -571,7 +571,7 @@ export function MissionRunner({
 /** One HUD figure. Compact enough that three fit on one strip at 375px. */
 function HudStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg bg-white/10 px-2 py-1">
+    <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-[6px] bg-white/10 px-2 py-1">
       <span className="shrink-0 text-white/80">{icon}</span>
       <dt className="truncate text-[10px] font-bold uppercase tracking-wide text-white/70">
         {label}

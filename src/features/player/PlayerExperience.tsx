@@ -70,6 +70,12 @@ export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GameP
 
   return (
     <div
+      // The player PWA is the one surface on the dark "game" skin. Setting it
+      // here means every component below — including the shared design-system
+      // primitives and the legacy shell CSS — resolves its colours from the
+      // game ramps instead of the light civic ones, with no per-component
+      // branching. The public site and facilitator portal never set this.
+      data-skin="game"
       className={`app-shell ${page === 'city' ? 'city-shell' : ''} ${activeLessonOpen ? 'mission-shell' : ''}`}
     >
       <a className="skip-link" href="#main">
@@ -81,7 +87,7 @@ export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GameP
 
       <header className="header">
         <button className="brand" onClick={() => showPage('city')} aria-label="ShieldQuest home">
-          <BrandMark variant="light" size="sm" subtitle="YOUR CITY. YOUR CHOICES." />
+          <BrandMark size="sm" subtitle="Your city. Your choices." />
         </button>
         <nav className="desktop-nav" aria-label="Main navigation">
           {nav.map(({ id, label, icon: Icon }) => (
@@ -95,10 +101,14 @@ export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GameP
               <span>{label}</span>
             </button>
           ))}
+          {/* Teal is the Peer Shield colour throughout the product (--sq-peer),
+            * so this link matches the mode it opens. It was `rose`, which is
+            * the risk colour — the opposite signal. */}
           <Link
             to="/peer-shield"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
+            className="flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 text-xs font-bold text-[var(--sq-peer)] transition hover:bg-[var(--sq-surface-sunk)]"
           >
+            <ShieldCheck size={16} />
             Peer Shield
           </Link>
         </nav>
@@ -109,10 +119,14 @@ export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GameP
       </header>
 
       <main id="main" tabIndex={-1}>
+        {/* Participants see this during a facilitated session, so it carries
+          * orientation rather than build status. The previous "EARLY PREVIEW"
+          * tag and "Preview 0.1" footer told a 15-year-old the thing they were
+          * being asked to take seriously was unfinished. */}
         <div className="breadcrumb">
           <span>THE SHIELDQUEST ADVENTURE</span>
           <span className="preview-tag">
-            <span /> EARLY PREVIEW
+            <span /> SESSION IN PROGRESS
           </span>
         </div>
         {page === 'city' ? (
@@ -139,7 +153,7 @@ export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GameP
           <span>
             <Shield size={14} /> A safer community starts with us.
           </span>
-          <span className="footer-version">ShieldQuest · Preview 0.1</span>
+          <span className="footer-version">ShieldQuest · Project SHIELD</span>
         </footer>
       </main>
 

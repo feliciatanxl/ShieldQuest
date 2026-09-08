@@ -115,10 +115,10 @@ export function Modal({
                 inside the tool. On a phone it stays a near-full-height bottom
                 sheet, because 900px of dialog on a 390px screen is a page.
               */
-                'max-h-[92dvh] rounded-t-2xl border border-line sm:max-h-[88dvh] sm:max-w-[900px] sm:rounded-2xl lg:max-w-[960px]'
+                'max-h-[92dvh] rounded-t-2xl border border-line sm:max-h-[88dvh] sm:max-w-[900px] sm:rounded-[16px] lg:max-w-[960px]'
               : size === 'wide'
-                ? 'max-h-dvh max-w-2xl rounded-t-2xl border border-line sm:rounded-2xl'
-                : 'max-h-dvh max-w-lg rounded-t-2xl border border-line sm:rounded-2xl'
+                ? 'max-h-dvh max-w-2xl rounded-t-2xl border border-line sm:rounded-[16px]'
+                : 'max-h-dvh max-w-lg rounded-t-2xl border border-line sm:rounded-[16px]'
         } ${className}`}
       >
         {dismissible && onClose && (
@@ -126,7 +126,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-2.5 top-2.5 z-10 grid h-11 w-11 place-items-center rounded-lg text-ink-muted transition hover:bg-canvas hover:text-ink"
+            className="absolute right-2.5 top-2.5 z-10 grid h-11 w-11 place-items-center rounded-[6px] text-ink-muted transition hover:bg-canvas hover:text-ink"
           >
             <X className="h-4 w-4" />
           </button>

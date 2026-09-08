@@ -57,14 +57,14 @@ export function DistrictSecuredCelebration({
 
       <div className="relative mx-auto flex w-full max-w-md flex-col items-center text-center">
         {/* Animated Badge Crest */}
-        <div className="animate-pop relative mb-4 flex h-24 w-24 items-center justify-center rounded-3xl border-2 border-amber-400/80 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 shadow-[0_0_50px_rgba(245,158,11,0.5)]">
-          <Trophy className="h-12 w-12 text-navy-950 drop-shadow-md" />
+        <div className="animate-pop relative mb-4 flex h-24 w-24 items-center justify-center rounded-[24px] border-2 border-amber-400/80 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 shadow-[0_0_50px_rgba(245,158,11,0.5)]">
+          <Trophy className="h-12 w-12 text-[var(--sq-ink)] drop-shadow-md" />
           <span className="animate-spin absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-300 shadow">
-            <Sparkles className="h-4 w-4 text-navy-950" />
+            <Sparkles className="h-4 w-4 text-[var(--sq-ink)]" />
           </span>
         </div>
 
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-amber-400">
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[var(--sq-earned)]">
           District Milestone Cleared
         </p>
 
@@ -80,20 +80,20 @@ export function DistrictSecuredCelebration({
         </p>
 
         {/* Rewards Box */}
-        <div className="mt-5 flex w-full items-center justify-around rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md shadow-inner">
+        <div className="mt-5 flex w-full items-center justify-around rounded-[16px] border border-white/15 bg-white/10 p-3.5 backdrop-blur-md shadow-inner">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--sq-earned)]">
               Shield Tokens
             </span>
             <span className="mt-0.5 text-2xl font-black text-white">+100</span>
           </div>
           <div className="h-8 w-px bg-white/15" />
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--sq-earned)]">
               District Badge
             </span>
             <span className="mt-0.5 flex items-center gap-1 text-sm font-extrabold text-white">
-              <CheckCircle2 className="h-4 w-4 text-leaf-400" />
+              <CheckCircle2 className="h-4 w-4 text-[var(--sq-safe)]" />
               Unlocked
             </span>
           </div>
@@ -103,7 +103,7 @@ export function DistrictSecuredCelebration({
         <button
           type="button"
           onClick={handleAdvance}
-          className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-2xl border-b-4 border-amber-700 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 p-4 text-[16px] font-black uppercase tracking-wider text-navy-950 shadow-xl shadow-amber-500/30 transition hover:brightness-105 active:translate-y-1 active:border-b-0"
+          className="mt-6 flex w-full items-center justify-center gap-2.5 rounded-[16px] border-b-4 border-amber-700 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 p-4 text-[16px] font-black uppercase tracking-wider text-[var(--sq-ink)] shadow-xl shadow-amber-500/30 transition hover:brightness-105 active:translate-y-1 active:border-b-0"
         >
           {nextDistrictName ? (
             <>

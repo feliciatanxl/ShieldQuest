@@ -13,7 +13,7 @@ export function AdminNeedsAttention({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-leaf-200 bg-leaf-50 p-4">
+      <div className="rounded-[16px] border border-leaf-200 bg-leaf-50 p-4">
         <p className="flex items-center gap-2 text-[14px] font-bold text-leaf-700">
           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
           No content is below the review threshold
@@ -26,7 +26,7 @@ export function AdminNeedsAttention({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-amber-200 bg-surface">
+    <div className="overflow-hidden rounded-[16px] border border-amber-200 bg-surface">
       <ul className="divide-y divide-line">
         {rows.map((row) => (
           <li key={row.id}>
@@ -47,7 +47,7 @@ export function AdminNeedsAttention({
                   {row.category} · {row.targetGroup}
                 </span>
               </div>
-              <span className="shrink-0 rounded-md bg-amber-100 px-2 py-0.5 text-[12px] font-bold tabular-nums text-amber-700">
+              <span className="shrink-0 rounded-[6px] bg-amber-100 px-2 py-0.5 text-[12px] font-bold tabular-nums text-amber-700">
                 {row.safeDecisionRate}% safe
               </span>
               <span className="hidden shrink-0 text-[12px] text-ink-soft sm:block">

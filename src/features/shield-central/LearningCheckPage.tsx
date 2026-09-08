@@ -79,28 +79,29 @@ export function LearningCheckPage() {
   };
 
   return (
-    <div className="flex min-h-full flex-col bg-slate-50 text-slate-800">
+    <div data-skin="game"
+      className="flex min-h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]">
       {/* Top Bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--sq-line)] bg-[var(--sq-surface)]/95 px-4 py-3 backdrop-blur-md">
         <button
           type="button"
           onClick={() => navigate('/shield-central')}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+          className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[var(--sq-surface-raised)] text-[var(--sq-ink-muted)] transition hover:bg-[var(--sq-surface-raised)]"
           aria-label="Back to Shield Central"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="text-center">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-cyan-600">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--sq-action-text)]">
             Facilitated Pilot Evaluation
           </span>
-          <h1 className="text-base font-extrabold text-navy-900 sm:text-lg">
+          <h1 className="text-base font-extrabold text-[var(--sq-ink)] sm:text-lg">
             Learning Check-In
           </h1>
         </div>
         <Link
           to="/board"
-          className="rounded-lg bg-navy-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-navy-800"
+          className="rounded-[6px] bg-[var(--sq-action)] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[var(--sq-action-hover)]"
         >
           Board
         </Link>
@@ -111,7 +112,7 @@ export function LearningCheckPage() {
         {!isCompleted ? (
           <div>
             {/* Stage Selector */}
-            <div className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+            <div className="grid grid-cols-2 gap-2 rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-1.5 shadow-sm">
               <button
                 type="button"
                 onClick={() => {
@@ -119,10 +120,10 @@ export function LearningCheckPage() {
                   setCurrentIdx(0);
                   setIsCompleted(false);
                 }}
-                className={`rounded-xl py-2 text-xs font-extrabold transition ${
+                className={`rounded-[10px] py-2 text-xs font-extrabold transition ${
                   activeCheck === 'pre'
-                    ? 'bg-navy-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[var(--sq-action)] text-white shadow-sm'
+                    : 'text-[var(--sq-ink-muted)] hover:bg-[var(--sq-surface-raised)]'
                 }`}
               >
                 Pre-Session Baseline
@@ -134,10 +135,10 @@ export function LearningCheckPage() {
                   setCurrentIdx(0);
                   setIsCompleted(false);
                 }}
-                className={`rounded-xl py-2 text-xs font-extrabold transition ${
+                className={`rounded-[10px] py-2 text-xs font-extrabold transition ${
                   activeCheck === 'post'
-                    ? 'bg-navy-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100'
+                    ? 'bg-[var(--sq-action)] text-white shadow-sm'
+                    : 'text-[var(--sq-ink-muted)] hover:bg-[var(--sq-surface-raised)]'
                 }`}
               >
                 Post-Session Check
@@ -145,17 +146,17 @@ export function LearningCheckPage() {
             </div>
 
             {/* Question Card */}
-            <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mt-6 rounded-[24px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-6 shadow-sm">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-extrabold uppercase tracking-wider text-cyan-700">
+                <span className="font-extrabold uppercase tracking-wider text-[var(--sq-action-text)]">
                   Question {currentIdx + 1} of {CHECK_QUESTIONS.length}
                 </span>
-                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">
+                <span className="rounded-[6px] bg-[var(--sq-surface-raised)] px-2 py-0.5 text-[10px] font-bold text-[var(--sq-ink-muted)]">
                   Ungraded Check
                 </span>
               </div>
 
-              <h2 className="mt-3 text-base font-extrabold text-navy-900 sm:text-lg">
+              <h2 className="mt-3 text-base font-extrabold text-[var(--sq-ink)] sm:text-lg">
                 {q.scenario}
               </h2>
 
@@ -168,10 +169,10 @@ export function LearningCheckPage() {
                       key={idx}
                       type="button"
                       onClick={() => handleSelectOption(idx)}
-                      className={`w-full rounded-2xl border-2 p-3.5 text-left text-xs font-bold transition active:scale-[0.98] sm:text-sm ${
+                      className={`w-full rounded-[16px] border-2 p-3.5 text-left text-xs font-bold transition active:scale-[0.98] sm:text-sm ${
                         isSelected
-                          ? 'border-cyan-600 bg-cyan-50/80 text-cyan-950'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                          ? 'border-cyan-600 bg-[var(--sq-action)]/15 text-[var(--sq-action-text)]'
+                          : 'border-[var(--sq-line)] bg-[var(--sq-surface)] text-[var(--sq-ink)] hover:border-[var(--sq-line-strong)]'
                       }`}
                     >
                       <div className="flex items-start gap-2.5">
@@ -189,7 +190,7 @@ export function LearningCheckPage() {
                 type="button"
                 disabled={answers[q.id] === undefined}
                 onClick={handleNext}
-                className="mt-6 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-navy-900 text-sm font-extrabold text-white transition hover:bg-navy-800 disabled:opacity-40"
+                className="mt-6 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[10px] bg-[var(--sq-action)] text-sm font-extrabold text-white transition hover:bg-[var(--sq-action-hover)] disabled:opacity-40"
               >
                 {currentIdx < CHECK_QUESTIONS.length - 1 ? 'Next Question' : 'Complete Survey'}
                 <ChevronRight className="h-4 w-4" />
@@ -198,21 +199,21 @@ export function LearningCheckPage() {
           </div>
         ) : (
           <div className="text-center animate-in fade-in duration-200">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[16px] bg-[var(--sq-safe)]/15 text-[var(--sq-safe)]">
               <CheckCircle2 className="h-8 w-8" />
             </div>
-            <h2 className="mt-4 text-2xl font-black text-navy-900">
+            <h2 className="mt-4 text-2xl font-black text-[var(--sq-ink)]">
               Check-In Completed!
             </h2>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[var(--sq-ink-muted)]">
               Your anonymous responses were recorded to track cohort-wide risk recognition.
             </p>
 
-            <div className="mt-6 space-y-3 rounded-2xl border border-slate-200 bg-white p-5 text-left">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="mt-6 space-y-3 rounded-[16px] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-5 text-left">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--sq-ink-muted)]">
                 Evaluation Privacy Note
               </span>
-              <p className="text-xs leading-relaxed text-slate-600">
+              <p className="text-xs leading-relaxed text-[var(--sq-ink-muted)]">
                 Individual responses are strictly anonymous and stored without tracking cookies or student PII.
                 Facilitators evaluate aggregate shift across the entire cohort.
               </p>
@@ -221,13 +222,13 @@ export function LearningCheckPage() {
             <div className="mt-6 flex flex-col gap-2">
               <Link
                 to="/shield-central"
-                className="flex min-h-[48px] w-full items-center justify-center rounded-xl bg-navy-900 text-sm font-extrabold text-white"
+                className="flex min-h-[48px] w-full items-center justify-center rounded-[10px] bg-[var(--sq-action)] text-sm font-extrabold text-white"
               >
                 Return to Shield Central
               </Link>
               <Link
                 to="/board"
-                className="flex min-h-[44px] w-full items-center justify-center rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100"
+                className="flex min-h-[44px] w-full items-center justify-center rounded-[10px] border border-[var(--sq-line)] bg-[var(--sq-surface)] text-xs font-bold text-[var(--sq-ink)] hover:bg-[var(--sq-surface-raised)]"
               >
                 Continue City Board
               </Link>
