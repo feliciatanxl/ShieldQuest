@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { useCityBoardStore } from './stores/cityBoardStore';
+import { ScrollToTop } from './design-system/ScrollToTop';
 
 const PublicWebsite = lazy(() =>
   import('./features/public-site/PublicWebsite').then((module) => ({
@@ -170,6 +171,9 @@ export function App() {
   return (
     <BrowserRouter>
       <HashNavigationHandler />
+      {/* One mount for the whole app: every long surface scrolls the window,
+        * so there is no per-route copy to forget. */}
+      <ScrollToTop />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Public site is the canonical entry point for partners and evaluators. */}

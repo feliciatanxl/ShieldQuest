@@ -63,8 +63,20 @@ export function AdminSidebar({
           <p className="text-[13px] font-black uppercase tracking-tight text-navy-950">
             Shield<span className="text-civic-600">Quest</span>
           </p>
+          {/*
+            The demonstration context lives here now, in place of the amber
+            banner that used to occupy the top bar. Always on screen, never
+            competing with the actions beside it.
+          */}
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--sq-ink-muted)]">
             Admin Portal
+            {/* Decorative punctuation, so it is hidden from assistive tech and
+              * takes the muted ink rather than the line colour — a separator
+              * at 1.58:1 is invisible, which rather defeats separating. */}
+            <span aria-hidden="true" className="mx-1.5 text-[var(--sq-ink-muted)]">
+              ·
+            </span>
+            <span className="text-[var(--sq-earned-text)]">Demo</span>
           </p>
         </div>
       </div>

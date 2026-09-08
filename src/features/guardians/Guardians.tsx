@@ -155,19 +155,25 @@ export function Guardians({ onPractice }: { onPractice: () => void }) {
           a tablet shows all six. Hiding with CSS rather than unmounting keeps
           a single copy in the accessibility tree at either width.
         */}
+          {/*
+            `items-start` is gone: the rows have to stretch for the cards to
+            share track heights. The per-card show/hide class is passed into
+            GuardianCard rather than applied to a wrapper div, so each card is
+            a direct grid child and the subgrid chain is unbroken.
+          */}
           <div
             id="guardian-detail"
-            className="space-y-2.5 md:grid md:grid-cols-2 md:items-start md:gap-3 md:space-y-0 xl:grid-cols-3 xl:gap-5"
+            className="space-y-2.5 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 xl:grid-cols-3 xl:gap-5"
           >
             {guardians.map((g) => (
-              <div key={g.id} className={g.id === selectedId ? '' : 'hidden md:block'}>
-                <GuardianCard
-                  guardian={g}
-                  cumulative={profile.guardianProgress[g.id] ?? 0}
-                  met={isMet(g.id)}
-                  featured={g.id === currentId}
-                />
-              </div>
+              <GuardianCard
+                key={g.id}
+                guardian={g}
+                cumulative={profile.guardianProgress[g.id] ?? 0}
+                met={isMet(g.id)}
+                featured={g.id === currentId}
+                className={g.id === selectedId ? '' : 'hidden md:grid'}
+              />
             ))}
           </div>
 

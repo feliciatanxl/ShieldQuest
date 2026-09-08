@@ -42,6 +42,7 @@ export function GuardianCard({
   met,
   featured = false,
   aura = false,
+  className = '',
 }: {
   guardian: Guardian;
   cumulative: number;
@@ -50,18 +51,30 @@ export function GuardianCard({
   featured?: boolean;
   /** An equipped Guardian cosmetic. Appearance only — it changes nothing. */
   aura?: boolean;
+  /**
+   * Passed by the caller so the card can be a DIRECT grid child. It used to be
+   * wrapped in a div carrying the responsive show/hide, and that wrapper broke
+   * the subgrid chain that aligns these cards to one another.
+   */
+  className?: string;
 }) {
   const { level, progress, target } = guardianStanding(guardian, cumulative);
 
   return (
     <article
-      className={`rounded-[16px] border p-3.5 ${
+      /*
+        `row-span-2 grid-rows-subgrid` gives the card the row's own two tracks:
+        one for the portrait block, one for the progress / "how you meet" box.
+        Those boxes hold anywhere from two to four lines of text, so without
+        this they were visibly different heights side by side.
+      */
+      className={`row-span-2 grid grid-rows-subgrid gap-3 rounded-[16px] border p-3.5 ${
         !met
           ? 'border-dashed border-line-strong bg-surface-sunk'
           : featured
             ? 'border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/15'
             : 'border-line bg-surface'
-      }`}
+      } ${className}`}
     >
       <div className="flex items-start gap-3">
         <GuardianPlate
@@ -90,7 +103,7 @@ export function GuardianCard({
       </div>
 
       {met ? (
-        <div className="mt-3">
+        <div>
           <div className="mb-1.5 flex items-baseline justify-between">
             <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
               {guardian.skill} progress
@@ -109,7 +122,7 @@ export function GuardianCard({
           </p>
         </div>
       ) : (
-        <div className="mt-3 rounded-[10px] border border-line bg-surface px-3 py-2.5">
+        <div className="rounded-[10px] border border-line bg-surface px-3 py-2.5">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
             How you meet {guardian.name}
           </p>

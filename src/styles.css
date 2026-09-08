@@ -811,4 +811,22 @@
   .mobile-nav button.active {
     color: var(--color-amber-400);
   }
+
+  /* Clear the bottom tab bar and the safe area beneath it, so the
+   * back-to-top control never sits on top of the player's navigation. */
+  .sq-scroll-top {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Default resting position, above the breakpoint where there is no tab bar. */
+.sq-scroll-top {
+  bottom: 1.5rem;
+}
+
+/* Hidden while a dialog is open, for the same reason the tab bar is: a
+ * floating control layered over a modal is both reachable and in the way. */
+body:has([role='dialog']) .sq-scroll-top,
+body:has(dialog[open]) .sq-scroll-top {
+  display: none !important;
 }

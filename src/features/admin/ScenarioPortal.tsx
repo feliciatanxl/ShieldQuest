@@ -324,15 +324,20 @@ export function ScenarioPortal({
             </div>
           </div>
 
-          <span className="rounded-[6px] border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold uppercase leading-tight tracking-[0.12em] text-amber-700">
-            <span>Admin Console View</span>
-            <span className="hidden sm:inline">
-              {' '}
-              · Demonstration environment · Simulated data
-            </span>
-          </span>
+          {/*
+            The amber "Admin console view · Demonstration environment ·
+            Simulated data" banner was here.
 
-          <div className="flex flex-wrap items-center gap-3">
+            It was the loudest element in the portal chrome and the FOURTH
+            place the same fact is stated: the sidebar safeguards card lists
+            "Simulated scenario data", every section carries a
+            SimulatedDataNote, and the page footer says it again. A banner that
+            shouts a caveat already made three times just crowds the bar the
+            actions need. The context now sits quietly under the portal name in
+            the sidebar, where it is always on screen without competing.
+          */}
+
+          <div className="flex flex-wrap items-center gap-2.5 lg:ml-auto">
             {onReturnToGame && (
               <button
                 type="button"
