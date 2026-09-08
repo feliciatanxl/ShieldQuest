@@ -24,11 +24,21 @@ export function Framework() {
         lede="Scam tactics change constantly, so we do not teach tactics. We teach a sequence young people can run on a situation nobody has warned them about yet."
       />
 
+      {/*
+        `subgrid` is what actually aligns these.
+
+        Each card has three bands — heading, meaning, Guardian — and they have
+        to line up across a row. Bottom-aligning the Guardian line with
+        `flex-1` got row one right but left row two 16px out, because "Lead the
+        Right Choice" has a one-line ability where its neighbours wrap to two.
+        Every card now inherits the row's own track sizing, so all three bands
+        align at any breakpoint with no fixed heights or line clamps.
+      */}
       <ol className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {SHIELD_FRAMEWORK.map((skill) => (
           <li
             key={skill.competency}
-            className="rounded-[16px] border border-[var(--color-navy-800)] bg-[var(--color-navy-900)] p-5"
+            className="row-span-3 grid grid-rows-subgrid rounded-[16px] border border-[var(--color-navy-800)] bg-[var(--color-navy-900)] p-5"
           >
             <div className="flex items-center gap-3">
               <span
