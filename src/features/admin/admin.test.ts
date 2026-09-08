@@ -110,7 +110,7 @@ test('youth submission review transitions: conversion yields a draft without dir
   const updatedSubmission: YouthMissionSubmission = {
     ...target,
     status: decision,
-    reviewedBy: 'You (Duty Officer)',
+    reviewedBy: 'You (Facilitator)',
     reviewNote: 'Approved for drafting.',
   };
   assert.equal(updatedSubmission.status, 'CONVERTED');
@@ -125,7 +125,7 @@ test('youth submission review transitions: conversion yields a draft without dir
     previousSafeDecisionRate: 0,
     responses: 0,
     competencies: [target.proposedCompetency],
-    updatedBy: 'You (Duty Officer)',
+    updatedBy: 'You (Facilitator)',
     updatedOn: 'Just now',
     isFlashMission: false,
   };
@@ -163,7 +163,7 @@ test('deploying a Flash Mission produces a valid row and updates portal summary'
     previousSafeDecisionRate: 0,
     responses: 0,
     competencies: [draft.competency],
-    updatedBy: 'You (Duty Officer)',
+    updatedBy: 'You (Facilitator)',
     updatedOn: 'Just now',
     isFlashMission: true,
   };

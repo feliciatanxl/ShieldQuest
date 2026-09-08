@@ -36,6 +36,13 @@ from the code alone will get the constraints wrong.
 | Accessibility | Readable language, colour-independent status, keyboard operation, low-bandwidth. |
 | No official endorsement | The SPF is a **statistics source**, not a backer. Never imply MHA/SPF endorsement. Every figure traces to a named SPF brief. |
 
+**Who actually uses the portal:** educators, school counsellors, student
+development officers and youth workers, plus Team SecurePi during the pilot.
+Not police officers. This has drifted twice already — an MHA/SPF endorsement
+line in the portal footer, and the user being labelled "Duty Officer" (a police
+watch role, hence the "DO" avatar). Both corrected. Watch for it: designing for
+an operations team builds the wrong portal.
+
 ---
 
 ## 2. The design system

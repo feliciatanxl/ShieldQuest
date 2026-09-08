@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   ExternalLink,
@@ -14,6 +15,7 @@ import {
   PortalSummaryRow,
   SimulatedDataNote,
 } from './AdminChrome';
+import { AccountMenu } from './AccountMenu';
 import { AdminNeedsAttention } from './AdminNeedsAttention';
 import { AdminRecentContent } from './AdminRecentContent';
 import { AdminReviewQueue } from './AdminReviewQueue';
@@ -100,6 +102,7 @@ export function ScenarioPortal({
   initialSection?: SectionId;
   onReturnToGame?: () => void;
 }) {
+  const navigate = useNavigate();
   const [section, setSection] = useState<SectionId>(initialSection);
   useEffect(() => {
     if (initialSection) {
@@ -195,7 +198,7 @@ export function ScenarioPortal({
       previousSafeDecisionRate: 0,
       responses: 0,
       competencies: [draft.competency],
-      updatedBy: 'You (Duty Officer)',
+      updatedBy: 'You (Facilitator)',
       updatedOn: 'Just now',
       isFlashMission: true,
     };
@@ -233,7 +236,7 @@ export function ScenarioPortal({
                 ...m,
                 status: decision,
                 reviewNote: note || m.reviewNote,
-                reviewedBy: 'You (Duty Officer)',
+                reviewedBy: 'You (Facilitator)',
               }
             : m,
         ),
@@ -250,7 +253,7 @@ export function ScenarioPortal({
           previousSafeDecisionRate: 0,
           responses: 0,
           competencies: [submission.proposedCompetency],
-          updatedBy: 'You (Duty Officer)',
+          updatedBy: 'You (Facilitator)',
           updatedOn: 'Just now',
           isFlashMission: false,
         };
@@ -379,12 +382,7 @@ export function ScenarioPortal({
             >
               Deploy flash mission
             </Button>
-            <span
-              aria-hidden="true"
-              className="hidden h-9 w-9 place-items-center rounded-full bg-navy-100 text-[12px] font-bold text-navy-800 lg:grid"
-            >
-              DO
-            </span>
+            <AccountMenu onSignOut={() => navigate('/admin/login')} />
           </div>
         </div>
       </header>

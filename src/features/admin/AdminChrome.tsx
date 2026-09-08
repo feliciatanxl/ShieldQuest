@@ -60,7 +60,9 @@ export function AdminSidebar({
         marker travelled with the brand.
       */}
       <nav aria-label="Portal sections" className="px-3 py-3 lg:pt-5">
-        <ul className="flex gap-1.5 overflow-x-auto lg:block lg:space-y-1 lg:overflow-visible">
+        {/* 4px between items read as a single dense block. 6px, with taller
+          * rows, lets a facilitator scan the sections rather than parse them. */}
+        <ul className="flex gap-1.5 overflow-x-auto lg:block lg:space-y-1.5 lg:overflow-visible">
           {ADMIN_NAV.map(({ id, label, icon: Icon }) => {
             const isActive = active === id;
             return (
@@ -69,7 +71,7 @@ export function AdminSidebar({
                   type="button"
                   onClick={() => onSelect(id)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex min-h-[44px] w-full items-center gap-2.5 whitespace-nowrap rounded-[6px] px-3 py-2 text-left text-[14px] font-semibold transition ${
+                  className={`flex min-h-[46px] w-full items-center gap-3 whitespace-nowrap rounded-[10px] px-3.5 py-2.5 text-left text-[14px] font-semibold transition ${
                     isActive
                       ? 'bg-civic-50 text-civic-700 ring-1 ring-civic-200'
                       : 'text-ink-muted hover:bg-canvas hover:text-ink'
