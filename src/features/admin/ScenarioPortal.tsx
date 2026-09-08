@@ -123,6 +123,21 @@ export function ScenarioPortal({
   const [filters, setFilters] = useState<ScenarioFilterState>(EMPTY_FILTERS);
   const [flashOpen, setFlashOpen] = useState(false);
   const [detail, setDetail] = useState<AdminScenarioRow | null>(null);
+  /*
+    Which view the scenario drawer opens into. "Inspect responses" and "Review
+    content" previously both called `onSelect(row)` and landed on the same
+    read-only page — two buttons, one destination, so neither answered its own
+    question. They now deep-link to the tab that does.
+  */
+  const [detailTab, setDetailTab] = useState<'about' | 'responses' | 'review'>('about');
+
+  const openDetail = useCallback(
+    (row: AdminScenarioRow, tab: 'about' | 'responses' | 'review' = 'about') => {
+      setDetail(row);
+      setDetailTab(tab);
+    },
+    [],
+  );
   const [deployed, setDeployed] = useState<AdminScenarioRow | null>(null);
   const [lastDeployed, setLastDeployed] = useState<AdminScenarioRow | null>(null);
 
@@ -287,13 +302,19 @@ export function ScenarioPortal({
       <header className="sticky top-0 z-30 border-b border-line bg-surface lg:h-16">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 lg:h-full lg:flex-nowrap lg:py-0">
           <div className="flex items-center gap-3">
+            {/*
+              Shown only below `lg`, where the sidebar (and the identity block
+              inside it) is collapsed. On desktop this was a second ShieldQuest
+              wordmark sitting directly above the one in the sidebar — the
+              sidebar already tells a facilitator where they are.
+            */}
             <span
               aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900"
+              className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900 lg:hidden"
             >
               <Shield className="h-4 w-4 text-amber-400" />
             </span>
-            <div>
+            <div className="lg:hidden">
               <p className="text-[13px] font-extrabold text-navy-900">
                 ShieldQuest
               </p>
@@ -465,7 +486,7 @@ export function ScenarioPortal({
                   <AdminNeedsAttention
                     rows={reviewRows}
                     onOpenReview={() => setSection('review')}
-                    onSelect={setDetail}
+                    onSelect={(row) => openDetail(row, 'about')}
                   />
                 </Section>
 
@@ -484,7 +505,7 @@ export function ScenarioPortal({
                 >
                   <AdminRecentContent
                     rows={recentRows}
-                    onSelect={setDetail}
+                    onSelect={(row) => openDetail(row, 'about')}
                     highlightId={lastDeployed?.id}
                   />
                   <SimulatedDataNote />
@@ -557,7 +578,7 @@ export function ScenarioPortal({
                 <ScenarioTable
                   rows={filtered}
                   highlightId={lastDeployed?.id}
-                  onSelect={setDetail}
+                  onSelect={(row) => openDetail(row, 'about')}
                   caption="All scenarios with category, audience, status and safe decision rate"
                 />
                 <p className="max-w-[92ch] text-[12px] leading-relaxed text-ink-soft">
@@ -577,7 +598,11 @@ export function ScenarioPortal({
                 badge={{ value: reviewRows.length, tone: 'attention' }}
                 description="Scenarios that may require clearer teaching, updated content or further review."
               >
-                <AdminReviewQueue rows={reviewRows} onSelect={setDetail} />
+                <AdminReviewQueue
+                  rows={reviewRows}
+                  onInspect={(row) => openDetail(row, 'responses')}
+                  onReview={(row) => openDetail(row, 'review')}
+                />
                 <SimulatedDataNote>
                   Simulated session data. Content analytics only — no
                   individual responses, participants or risk scores are shown
@@ -758,7 +783,12 @@ export function ScenarioPortal({
         labelledBy="scenario-detail-title"
       >
         {detail && (
-          <ScenarioDetailPanel row={detail} onClose={() => setDetail(null)} />
+          <ScenarioDetailPanel
+            row={detail}
+            tab={detailTab}
+            onTabChange={setDetailTab}
+            onClose={() => setDetail(null)}
+          />
         )}
       </Modal>
 

@@ -676,7 +676,7 @@ function ScamWatchSpace({ districtName, onClose }: { districtName: string; onClo
           <p className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--sq-peer)]">
             Active Sanctuary
           </p>
-          <p className="mt-1 text-[14px] leading-relaxed text-teal-950">
+          <p className="mt-1 text-[14px] leading-relaxed text-teal-800">
             You have checked into the Scam Watch Outpost. This safe zone monitors unusual peer pressure, suspicious recruitment schemes, and digital urgency traps.
           </p>
         </div>
@@ -709,7 +709,7 @@ function PhishingTrapSpace({ districtName, onClose }: { districtName: string; on
           <p className="text-[12px] font-extrabold uppercase tracking-wide text-[var(--sq-risk)]">
             High-Risk Perimeter
           </p>
-          <p className="mt-1 text-[14px] leading-relaxed text-coral-950">
+          <p className="mt-1 text-[14px] leading-relaxed text-coral-800">
             You bypassed a dangerous link trap! Always verify the sender domain before submitting credentials or verification codes.
           </p>
         </div>

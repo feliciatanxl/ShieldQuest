@@ -11,6 +11,8 @@ import {
   COMPETENCY_LABEL,
   COMPETENCY_LETTER,
 } from '../../../types/guardians.js';
+import { ScenarioResponsesPanel } from './ScenarioResponsesPanel';
+import { ScenarioReviewPanel } from './ScenarioReviewPanel';
 import type { AdminScenarioRow } from '../../../types/admin.js';
 
 const OBJECTIVES: Record<string, string> = {
@@ -76,11 +78,24 @@ function Trend({ current, previous }: { current: number; previous: number }) {
   );
 }
 
+export type DetailTab = 'about' | 'responses' | 'review';
+
+const TABS: { id: DetailTab; label: string; hint: string }[] = [
+  { id: 'about', label: 'Overview', hint: 'What this scenario teaches' },
+  { id: 'responses', label: 'Responses', hint: 'Where it is losing people' },
+  { id: 'review', label: 'Review', hint: 'What to change' },
+];
+
 export function ScenarioDetailPanel({
   row,
+  tab = 'about',
+  onTabChange,
   onClose,
 }: {
   row: AdminScenarioRow;
+  /** Which view to open into. Set by whichever button opened the drawer. */
+  tab?: DetailTab;
+  onTabChange?: (tab: DetailTab) => void;
   onClose: () => void;
 }) {
   const needsReview =
@@ -115,9 +130,49 @@ export function ScenarioDetailPanel({
         <p className="mt-0.5 text-[13px] text-ink-muted">
           {row.category} · {row.targetGroup}
         </p>
+
+        {/* Three questions, three tabs. The review queue's buttons deep-link
+          * straight to the one they name. */}
+        <div role="tablist" aria-label="Scenario views" className="-mb-5 mt-4 flex gap-1">
+          {TABS.map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                title={t.hint}
+                onClick={() => onTabChange?.(t.id)}
+                className={`min-h-[40px] rounded-t-[6px] border-b-2 px-3.5 text-[13px] font-bold transition ${
+                  active
+                    ? 'border-civic-600 text-civic-700'
+                    : 'border-transparent text-ink-muted hover:text-ink'
+                }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
       </header>
 
-      <div className="thin-scroll flex-1 space-y-6 overflow-y-auto px-6 py-5">
+      {tab === 'responses' && (
+        <div className="thin-scroll flex-1 overflow-y-auto px-6 py-5">
+          <ScenarioResponsesPanel row={row} />
+        </div>
+      )}
+
+      {tab === 'review' && (
+        <div className="thin-scroll flex-1 overflow-y-auto px-6 py-5">
+          <ScenarioReviewPanel row={row} />
+        </div>
+      )}
+
+      <div
+        hidden={tab !== 'about'}
+        className="thin-scroll flex-1 space-y-6 overflow-y-auto px-6 py-5"
+      >
         {row.status === 'LIVE' && row.responses > 0 && (
           <section className="rounded-[16px] border border-line bg-surface-sunk p-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">

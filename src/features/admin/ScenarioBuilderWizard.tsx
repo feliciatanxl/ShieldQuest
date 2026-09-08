@@ -277,7 +277,7 @@ export function ScenarioBuilderWizard({ onClose, onSaveScenario }: ScenarioBuild
                     }}
                     className={`rounded-[10px] border px-4 py-2 text-xs font-bold transition shadow-sm ${
                       difficulty === lvl
-                        ? 'border-amber-400 bg-amber-50 text-amber-900 ring-1 ring-amber-400'
+                        ? 'border-amber-400 bg-amber-50 text-amber-800 ring-1 ring-amber-400'
                         : 'border-[var(--sq-line)] bg-[var(--sq-surface)] text-[var(--sq-ink)] hover:border-[var(--sq-line-strong)] hover:bg-[var(--sq-surface-sunk)]'
                     }`}
                   >

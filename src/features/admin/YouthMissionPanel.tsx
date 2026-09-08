@@ -109,7 +109,7 @@ export function YouthMissionPanel({
               {submission.safeguardingFlags.map((flag) => (
                 <li
                   key={flag}
-                  className="flex items-start gap-2 text-[13px] leading-relaxed text-amber-900"
+                  className="flex items-start gap-2 text-[13px] leading-relaxed text-amber-800"
                 >
                   <span
                     aria-hidden="true"

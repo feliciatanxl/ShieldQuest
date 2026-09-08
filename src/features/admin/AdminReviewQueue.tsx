@@ -22,10 +22,14 @@ function reasonFor(row: AdminScenarioRow): string {
 
 export function AdminReviewQueue({
   rows,
-  onSelect,
+  onInspect,
+  onReview,
 }: {
   rows: AdminScenarioRow[];
-  onSelect: (row: AdminScenarioRow) => void;
+  /** Opens the aggregate response data — where is this losing people? */
+  onInspect: (row: AdminScenarioRow) => void;
+  /** Opens the editorial review — which sentence do I change? */
+  onReview: (row: AdminScenarioRow) => void;
 }) {
   if (rows.length === 0) {
     return (
@@ -116,18 +120,18 @@ export function AdminReviewQueue({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => onSelect(row)}
+                    onClick={() => onInspect(row)}
                     className="inline-flex min-h-[38px] items-center gap-1.5 rounded-[6px] border border-line px-3 text-[13px] font-bold text-ink-muted transition hover:border-civic-300 hover:text-civic-700"
                   >
-                    <FileBarChart className="h-4 w-4" />
+                    <FileBarChart className="h-4 w-4" aria-hidden="true" />
                     Inspect responses
                   </button>
                   <button
                     type="button"
-                    onClick={() => onSelect(row)}
+                    onClick={() => onReview(row)}
                     className="inline-flex min-h-[38px] items-center gap-1.5 rounded-[6px] bg-navy-900 px-3.5 text-[13px] font-bold text-white transition hover:bg-navy-800"
                   >
-                    <ClipboardCheck className="h-4 w-4" />
+                    <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
                     Review content
                   </button>
                 </div>

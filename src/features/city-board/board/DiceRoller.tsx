@@ -81,7 +81,7 @@ export function DiceRoller({
       <div className="rounded-[24px] border-2 border-white/20 bg-navy-950/90 p-2 shadow-[0_16px_36px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-md">
         {showing && value !== null ? (
           <div
-            className="animate-pop flex min-h-[64px] items-center justify-center gap-4 rounded-[16px] border-2 border-amber-400 bg-gradient-to-r from-navy-900 via-navy-850 to-navy-900 px-5 shadow-lg shadow-amber-500/20"
+            className="animate-pop flex min-h-[64px] items-center justify-center gap-4 rounded-[16px] border-2 border-amber-400 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 px-5 shadow-lg shadow-amber-500/20"
             role="status"
             aria-live="polite"
           >

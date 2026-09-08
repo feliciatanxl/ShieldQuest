@@ -98,7 +98,7 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
                 <p className="mt-2 text-[12px] leading-relaxed text-white/75">{card.blurb}</p>
 
                 {/* Key Warning Signs */}
-                <div className="mt-3 rounded-[16px] border border-coral-400/20 bg-coral-950/30 p-2.5 text-[11px]">
+                <div className="mt-3 rounded-[16px] border border-coral-500/20 bg-coral-800/30 p-2.5 text-[11px]">
                   <p className="flex items-center gap-1 font-bold text-[var(--sq-risk)]">
                     <AlertTriangle className="h-3.5 w-3.5" /> Warning Signs:
                   </p>
@@ -110,7 +110,7 @@ export function CasebookDrawer({ open, onClose }: CasebookDrawerProps) {
                 </div>
 
                 {/* Safer Response Strategy */}
-                <div className="mt-2 rounded-[16px] border border-teal-400/20 bg-teal-950/30 p-2.5 text-[11px]">
+                <div className="mt-2 rounded-[16px] border border-teal-400/20 bg-teal-800/30 p-2.5 text-[11px]">
                   <p className="flex items-center gap-1 font-bold text-[var(--sq-peer)]">
                     <Shield className="h-3.5 w-3.5" /> Safer Action:
                   </p>

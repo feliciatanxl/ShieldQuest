@@ -5,13 +5,15 @@ import { Button, PrototypeNotice } from '../../design-system/DesignSystem';
 /**
  * The live facilitator room, shown while a session is actually running.
  *
- * This is the one dark surface in the otherwise light facilitator portal, and
- * it sets `data-skin="game"` to get there. That is deliberate rather than an
- * exception: this screen mirrors what participants are looking at on their own
- * devices, it is often projected in a darkened lab, and putting it on the game
- * skin means it shares a palette with the player PWA instead of inventing a
- * third one. Previously it hand-rolled its darks from `slate-800` and
- * `slate-900/70`, which existed nowhere else in the product.
+ * On the light civic skin, like every other section of the portal. It was
+ * briefly put on the dark game skin on the theory that it mirrors what
+ * participants see — but a single dark screen inside a light portal reads as
+ * an inconsistency, not as a deliberate register shift, so it follows the
+ * portal instead.
+ *
+ * Nothing changed here to move it: the panel is written against the semantic
+ * roles, so dropping one `data-skin` attribute was the entire edit. That is
+ * the two-skin system doing what it is for.
  *
  * Facilitators see aggregated squad trends only. No individual vote is ever
  * attributable to a participant here — that is a commitment in the proposal,
@@ -123,7 +125,7 @@ export function SessionManager() {
   };
 
   return (
-    <div data-skin="game" className="space-y-5 rounded-[24px] bg-[var(--sq-canvas)] p-5">
+    <div className="space-y-5">
       {/* Session status and controls */}
       <Panel className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>

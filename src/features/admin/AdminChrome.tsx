@@ -51,7 +51,8 @@ export function AdminSidebar({
 }) {
   return (
     <aside className="shrink-0 border-b border-line bg-surface lg:sticky lg:top-16 lg:h-[calc(100dvh-4rem)] lg:w-[272px] lg:overflow-y-auto lg:border-b-0 lg:border-r">
-      <div className="hidden items-center gap-2.5 px-5 py-5 lg:flex">
+      {/* The portal identity lives here, once. The top bar used to repeat it. */}
+      <div className="hidden items-center gap-2.5 border-b border-line px-5 py-5 lg:flex">
         <span
           aria-hidden="true"
           className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900 shadow-sm"
@@ -211,7 +212,7 @@ export function AdminSection({
   children: ReactNode;
 }) {
   return (
-    <section className="space-y-3">
+    <section className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
         <div>
           <div className="flex items-center gap-2">
@@ -238,7 +239,15 @@ export function AdminSection({
         </div>
         {action && <div>{action}</div>}
       </div>
-      <div>{children}</div>
+      {/*
+        One vertical rhythm for every section body.
+
+        This was a bare `<div>`, so anything a section stacked — a filter card
+        above a table, a table above its footnote — sat flush with no gap. It
+        is the same 20px step as the header rule above, so the whole portal
+        breathes on one scale instead of per-section guesswork.
+      */}
+      <div className="space-y-5">{children}</div>
     </section>
   );
 }

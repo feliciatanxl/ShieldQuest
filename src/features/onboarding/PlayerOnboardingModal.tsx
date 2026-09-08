@@ -135,7 +135,7 @@ export function PlayerOnboardingModal({ open, onComplete }: PlayerOnboardingModa
                   <p className="mt-0.5 text-[11px] text-[var(--sq-ink-muted)]">Detect deceptive triggers</p>
                 </div>
                 <div className="rounded-[16px] border border-teal-400/30 bg-teal-500/10 p-2.5">
-                  <span className="text-[10px] font-black text-teal-300">HOLD · Echo</span>
+                  <span className="text-[10px] font-black text-teal-400">HOLD · Echo</span>
                   <p className="mt-0.5 text-[11px] text-[var(--sq-ink-muted)]">Pause before sending funds</p>
                 </div>
                 <div className="rounded-[16px] border border-blue-400/30 bg-blue-500/10 p-2.5">
