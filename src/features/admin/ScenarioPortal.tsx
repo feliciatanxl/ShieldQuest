@@ -303,7 +303,7 @@ export function ScenarioPortal({
           </div>
 
           <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold uppercase leading-tight tracking-[0.12em] text-amber-700">
-            <span>Prototype Admin View</span>
+            <span>Admin Console View</span>
             <span className="hidden sm:inline">
               {' '}
               · Demonstration environment · Simulated data
@@ -567,7 +567,7 @@ export function ScenarioPortal({
                   </strong>{' '}
                   measures how clearly a scenario teaches — which topics need
                   more support. It is not a measure of the young people who
-                  answered it. Prototype / simulated data, aggregated only.
+                  answered it. Simulated session data, aggregated only.
                 </p>
               </Section>
             )}
@@ -580,7 +580,7 @@ export function ScenarioPortal({
               >
                 <AdminReviewQueue rows={reviewRows} onSelect={setDetail} />
                 <SimulatedDataNote>
-                  Prototype / simulated data. Content analytics only — no
+                  Simulated session data. Content analytics only — no
                   individual responses, participants or risk scores are shown
                   anywhere in this portal.
                 </SimulatedDataNote>
@@ -596,7 +596,7 @@ export function ScenarioPortal({
                 >
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
                     <p className="text-[13px] font-bold text-amber-700">
-                      Prototype moderation pipeline · simulated submissions
+                      Youth moderation pipeline · simulated submissions
                     </p>
                     <p className="mt-1 max-w-[92ch] text-[13px] leading-relaxed text-amber-700">
                       There is no submission service behind this queue and no
@@ -658,7 +658,7 @@ export function ScenarioPortal({
                 >
                   <GroupDecisionSignalPanel signals={groupSignals} />
                   <SimulatedDataNote>
-                    Simulated prototype data from a demonstration flow — there
+                    Simulated session data from a demonstration flow — there
                     is no live multiplayer session behind it. Question-level
                     and aggregate only: no individual response, no participant
                     history and no risk score is produced or displayed.
@@ -671,7 +671,7 @@ export function ScenarioPortal({
                 >
                   <EngagementPanel metrics={ENGAGEMENT_METRICS} />
                   <SimulatedDataNote>
-                    Simulated prototype data. These are authored demonstration
+                    Simulated session data. These are authored demonstration
                     values, not pilot results — this build has no telemetry
                     pipeline, no cohort and no participant records behind them.
                   </SimulatedDataNote>
@@ -679,7 +679,7 @@ export function ScenarioPortal({
 
                 <Section
                   title="Pilot evaluation framework"
-                  description="The six KPIs the funded pilot would measure, and what this prototype can honestly show against each one."
+                  description="The six KPIs the funded pilot would measure, and what current evaluations show against each one."
                 >
                   <PilotEvaluationFramework kpis={PILOT_KPIS} />
                   <div className="rounded-xl border border-line-strong bg-surface-sunk p-4">
@@ -705,7 +705,7 @@ export function ScenarioPortal({
                 >
                   <SkillCoverageChart rows={coverage} />
                   <SimulatedDataNote>
-                    Simulated prototype data. Aggregated across content —
+                    Simulated session data. Aggregated across content —
                     individual participant performance is not displayed.
                   </SimulatedDataNote>
                 </Section>
@@ -722,7 +722,7 @@ export function ScenarioPortal({
 
           <footer className="mt-10 border-t border-line pt-5">
             <p className="max-w-[92ch] text-[12px] leading-relaxed text-ink-soft">
-              ShieldQuest is a concept prototype for Project SHIELD. It is not an
+              ShieldQuest is an interactive educational platform for Project SHIELD. It is not an
               official Singapore Police Force platform and carries no official
               endorsement. All figures shown are simulated.
             </p>

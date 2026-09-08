@@ -313,7 +313,7 @@ function PrototypeNote({ children }: { children?: React.ReactNode }) {
       <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
       {children ?? (
         <>
-          Prototype Group Simulation. Group figures on this screen are authored
+          Group Decision Simulation. Group figures on this screen are authored
           demonstration values — there is no live session, no other device and
           no participant data behind them.
         </>

@@ -74,4 +74,4 @@ export function nextPeerRole(round: number): PeerRole {
 
 /** Shown wherever a role appears, so the prototype's limits are never implied away. */
 export const PEER_ROLE_DISCLOSURE =
-  'Facilitated Role Demonstration. In a facilitated group session these roles are held by different participants and rotate between rounds. This prototype runs on one device and shows the role one participant would be holding — it does not represent three connected users.';
+  'Facilitated Role Demonstration. In a facilitated group session these roles are held by different participants and rotate between rounds. This preview runs on one device and shows the role one participant would be holding — it does not represent three connected users.';

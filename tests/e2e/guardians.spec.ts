@@ -24,7 +24,7 @@ test('six guardians start unmet; first meeting, roster and checkpoint share prog
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1440, height: 950 });
-  await page.goto('/');
+  await page.goto('/board');
   const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true });
   await nav.getByRole('button', { name: 'Guardians', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Skills you are building' })).toBeVisible();
@@ -69,7 +69,7 @@ test('six guardians start unmet; first meeting, roster and checkpoint share prog
 
 test('mobile guardian selector exposes one card and returns to the board', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/board');
   await page
     .getByRole('navigation', { name: 'Mobile navigation' })
     .getByRole('button', { name: 'Guardians', exact: true })

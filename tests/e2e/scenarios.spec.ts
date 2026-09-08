@@ -19,7 +19,7 @@ test('risky reward precedes the consequence; replay and learning review preserve
   page.on('pageerror', (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.clock.install();
-  await page.goto('/');
+  await page.goto('/board');
   await openMission(page);
   await page.getByRole('button', { name: 'Why does this seem suspicious?' }).click();
   await page.getByRole('button', { name: 'Easy money', exact: true }).click();
@@ -95,7 +95,7 @@ test('cautious choice preserves its authored debrief; desktop Peer Shield uses t
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 950 });
-  await page.goto('/');
+  await page.goto('/board');
   await openMission(page);
   await page.getByRole('button', { name: /^Ask for proof/ }).click();
   await expect(page.getByRole('heading', { name: 'Partly there' })).toBeVisible();
@@ -118,7 +118,7 @@ test('mobile Peer Shield preserves friend context, skill-specific awards and no 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/board');
   await openMission(page, 'Community Hub', "Jayden's Offer");
   await page.getByRole('button', { name: 'About Peer Shield' }).click();
   await expect(
@@ -156,7 +156,7 @@ test('mobile Peer Shield preserves friend context, skill-specific awards and no 
 
 test('leaving during the reward delay cancels the old takeover', async ({ page }) => {
   await page.clock.install();
-  await page.goto('/');
+  await page.goto('/board');
   await openMission(page);
   await page.getByRole('button', { name: /^Accept Share/ }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true }).click();
@@ -178,7 +178,7 @@ test('API detail retries, uses current content and does not grant a Guardian for
       json: { error: { code: 'UNAVAILABLE', message: 'Mission unavailable' } },
     }),
   );
-  await page.goto('/');
+  await page.goto('/board');
   await openMission(page, 'School Street', 'The group chat dilemma');
   await expect(page.getByRole('alert')).toContainText('Mission unavailable');
   const data = { ...demoScenarios[0], prompt: 'Fresh scenario detail from the server.' };

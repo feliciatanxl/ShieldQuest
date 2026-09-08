@@ -161,7 +161,7 @@ export function ShieldCentralHub() {
             Navigation Modules
           </h3>
           <span className="rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-bold text-slate-600">
-            ILLUSTRATIVE PROTOTYPE DATA
+            ILLUSTRATIVE HUB DATA
           </span>
         </div>
 

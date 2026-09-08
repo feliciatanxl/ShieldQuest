@@ -32,7 +32,7 @@ export function AdminRouteWrapper() {
       initialSection={section}
       onReturnToGame={() => {
         useCityBoardStore.getState().navigate('/game');
-        navigate('/');
+        navigate('/board');
       }}
     />
   );

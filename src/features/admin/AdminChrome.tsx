@@ -285,7 +285,7 @@ export function SimulatedDataNote({ children }: { children?: ReactNode }) {
       <p className="text-[12.5px] leading-relaxed text-amber-700">
         {children ?? (
           <>
-            <strong className="font-bold">Prototype / simulated data.</strong>{' '}
+            <strong className="font-bold">Simulated session data.</strong>{' '}
             Content analytics only — no individual responses, participants or risk
             scores are shown anywhere in this portal.
           </>

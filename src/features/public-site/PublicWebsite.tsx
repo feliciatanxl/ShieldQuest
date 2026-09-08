@@ -136,7 +136,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
   const allFaqs = [
     {
       q: 'What age groups is ShieldQuest designed for?',
-      a: 'ShieldQuest is calibrated for youths aged 11 to 18+, covering Secondary, Post-Secondary (ITE/Poly/JC), and youth community groups. Scenarios and debrief prompts are modularly assigned to match specific developmental stages.',
+      a: 'ShieldQuest is designed for youths aged approximately 10–24. The initial pilot prioritises secondary and post-secondary cohorts, with age-banded language, clues, choices, and debrief prompts.',
     },
     {
       q: 'Do participants need to install an app or create an account?',
@@ -156,14 +156,14 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
     },
     {
       q: 'How long does a typical learning workshop take?',
-      a: 'A standard workshop is designed for 90 minutes (10 min briefing, 45 min interactive board and scenario choices, 25 min Think–Vote–Explain peer debrief, and 10 min reflection). It can also be split into two 45-minute modular periods.',
+      a: 'A standard workshop is designed for 90 minutes: 15 minutes of onboarding and briefing, 45 minutes of gameplay, 20 minutes of facilitated debrief and peer reflection, and 10 minutes of evaluation.',
     },
   ];
 
   const visibleFaqs = showAllFaqs ? allFaqs : allFaqs.slice(0, 3);
 
   // Check if we are viewing a dedicated subpage
-  const isSubpage = location.pathname !== '/';
+  const isSubpage = location.pathname !== '/' && location.pathname !== '/website';
   const subpageType = location.pathname.replace(/^\//, '');
 
   return (
@@ -236,13 +236,6 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
             >
               About
             </button>
-            <button
-              type="button"
-              onClick={handleFacilitatorLogin}
-              className="text-sm font-bold text-slate-600 transition hover:text-navy-950"
-            >
-              Admin Portal
-            </button>
           </nav>
 
           {/* Right Action CTA */}
@@ -250,9 +243,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
             <button
               type="button"
               onClick={handleFacilitatorLogin}
-              className="text-xs font-bold text-slate-600 hover:text-navy-950 transition px-2 py-1"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 hover:text-navy-950 active:scale-95"
             >
-              For facilitators
+              <span>Admin Portal</span>
             </button>
             <button
               type="button"
@@ -335,27 +328,27 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
               >
                 About
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleFacilitatorLogin();
-                }}
-                className="text-left rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
-              >
-                Admin Portal
-              </button>
               <div className="mt-4 flex flex-col gap-2 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleFacilitatorLogin();
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 active:scale-95"
+                >
+                  Admin Portal
+                </button>
                 <button
                   type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handlePlay();
                   }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-civic-600 px-4 py-3 text-sm font-black text-white"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-civic-600 px-4 py-2.5 text-sm font-black text-white active:scale-95"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Try ShieldQuest (PWA)
+                  Try ShieldQuest
                 </button>
               </div>
             </nav>
@@ -383,28 +376,53 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Pedagogical Architecture
                 </span>
                 <h1 className="mt-2 text-3xl font-black text-navy-950 sm:text-4xl">
-                  How ShieldQuest Works: The 9-Stage Learning Loop
+                  How ShieldQuest Works: The Six-Stage Learning Loop
                 </h1>
                 <p className="mt-3 text-base text-slate-600 leading-relaxed font-medium">
-                  ShieldQuest uses experiential learning and peer deliberation rather than passive lecturing.
-                  Here is the complete end-to-end framework connecting individual reflection, anonymous squad voting,
-                  facilitator-guided debrief, and delayed consequence evaluation.
+                  ShieldQuest uses experiential learning and peer deliberation rather than passive
+                  lecturing. Here is the complete end-to-end framework connecting individual
+                  reflection, anonymous squad voting, facilitator-guided debrief, and delayed
+                  consequence evaluation.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
-                  { num: '01', title: 'Join Session', desc: 'Scan a room QR code or enter a 6-letter room code on any phone, tablet, or laptop.' },
-                  { num: '02', title: 'Explore City', desc: 'Navigate the 2.5D isometric district board with your chosen squad token avatar.' },
-                  { num: '03', title: 'Encounter Scenario', desc: 'Land on an active challenge involving real-life scam or crime temptations.' },
-                  { num: '04', title: 'Think Privately', desc: 'Privately analyze situational warning signs, risk signals, and trust cues.' },
-                  { num: '05', title: 'Vote Anonymously', desc: 'Cast an individual vote on the best and safest course of action.' },
-                  { num: '06', title: 'Explain & Deliberate', desc: 'Debate divergent choices with squad members to hear diverse peer perspectives.' },
-                  { num: '07', title: 'See Consequences', desc: 'Discover how choices unfold with immediate feedback and delayed legal/social fallout.' },
-                  { num: '08', title: 'Facilitator Debrief', desc: 'Facilitator-guided group discussion highlights statutory laws and safer habits.' },
-                  { num: '09', title: 'Build Your S.H.I.E.L.D.', desc: 'Unlock Guardian competencies and earn Shield Tokens to solidify habits.' },
+                  {
+                    num: '01',
+                    title: 'Explore',
+                    desc: 'Navigate the hybrid 2.5D city board and encounter risks in familiar school, retail, digital, and community settings.',
+                  },
+                  {
+                    num: '02',
+                    title: 'Investigate',
+                    desc: 'Inspect chats, images, offers, and environmental clues before choosing a response.',
+                  },
+                  {
+                    num: '03',
+                    title: 'Discuss',
+                    desc: 'Think privately, vote anonymously, then explain the reasoning behind each choice.',
+                  },
+                  {
+                    num: '04',
+                    title: 'Decide',
+                    desc: 'Choose a response under urgency, temptation, uncertainty, or peer pressure.',
+                  },
+                  {
+                    num: '05',
+                    title: 'Experience',
+                    desc: 'See immediate outcomes and delayed legal, financial, and social consequences.',
+                  },
+                  {
+                    num: '06',
+                    title: 'Protect',
+                    desc: 'Apply the learning through Peer Shield practice and support a friend safely.',
+                  },
                 ].map((step) => (
-                  <div key={step.num} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div
+                    key={step.num}
+                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                  >
                     <div className="text-2xl font-black text-civic-600/30">{step.num}</div>
                     <h3 className="mt-2 text-base font-extrabold text-navy-950 uppercase tracking-tight">
                       {step.title}
@@ -419,7 +437,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
               <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center">
                 <h3 className="text-xl font-black text-navy-950">Ready to test the experience?</h3>
                 <p className="mt-2 text-xs text-slate-600 max-w-md mx-auto">
-                  Experience the interactive board prototype directly in your browser.
+                  Experience the interactive board directly in your browser.
                 </p>
                 <button
                   type="button"
@@ -427,7 +445,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   className="mt-5 inline-flex items-center gap-2 rounded-xl bg-navy-950 px-6 py-3 text-xs font-black uppercase text-white shadow-lg"
                 >
                   <Sparkles className="h-4 w-4 text-amber-400" />
-                  <span>Launch Prototype</span>
+                  <span>Launch ShieldQuest</span>
                 </button>
               </div>
             </div>
@@ -443,26 +461,33 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Facilitated 90-Minute Youth Learning Workshops
                 </h1>
                 <p className="mt-3 text-base text-slate-600 leading-relaxed font-medium">
-                  ShieldQuest is designed for straightforward deployment in school classrooms, computer labs, or
-                  multi-purpose halls. Facilitators receive real-time cohort dashboards and structured debrief guides.
+                  ShieldQuest is designed for straightforward deployment in school classrooms,
+                  computer labs, or multi-purpose halls. Facilitators receive real-time cohort
+                  dashboards and structured debrief guides.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                  <h3 className="text-base font-extrabold text-navy-950 uppercase">Workshop Agenda</h3>
+                  <h3 className="text-base font-extrabold text-navy-950 uppercase">
+                    Workshop Agenda
+                  </h3>
                   <div className="mt-4 space-y-3 text-xs font-medium text-slate-600">
                     <div className="flex justify-between border-b pb-2">
                       <span className="font-bold text-slate-800">1. Onboarding & Ground Rules</span>
-                      <span>10 mins</span>
+                      <span>15 mins</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span className="font-bold text-slate-800">2. City Exploration & Scenarios</span>
+                      <span className="font-bold text-slate-800">
+                        2. City Exploration & Scenarios
+                      </span>
                       <span>45 mins</span>
                     </div>
                     <div className="flex justify-between border-b pb-2">
-                      <span className="font-bold text-slate-800">3. Think–Vote–Explain Squad Debrief</span>
-                      <span>25 mins</span>
+                      <span className="font-bold text-slate-800">
+                        3. Think–Vote–Explain Squad Debrief
+                      </span>
+                      <span>20 mins</span>
                     </div>
                     <div className="flex justify-between pb-2">
                       <span className="font-bold text-slate-800">4. Reflection & Evaluation</span>
@@ -472,7 +497,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                  <h3 className="text-base font-extrabold text-navy-950 uppercase">Technical Requirements</h3>
+                  <h3 className="text-base font-extrabold text-navy-950 uppercase">
+                    Technical Requirements
+                  </h3>
                   <ul className="mt-4 space-y-2.5 text-xs font-medium text-slate-600">
                     <li className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -495,7 +522,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-8">
-                <h3 className="text-lg font-black text-navy-950 uppercase">Request a Facilitated Session</h3>
+                <h3 className="text-lg font-black text-navy-950 uppercase">
+                  Request a Facilitated Session
+                </h3>
                 <p className="mt-1 text-xs text-slate-600">
                   Contact our facilitation team to plan a workshop session for your cohort.
                 </p>
@@ -521,8 +550,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Safety, Privacy & Institutional Safeguards
                 </h1>
                 <p className="mt-3 text-base text-slate-600 leading-relaxed font-medium">
-                  ShieldQuest adheres strictly to privacy-first, non-punitive principles suitable for presentation
-                  to government agencies, school leadership, and grant evaluators.
+                  ShieldQuest adheres strictly to privacy-first, non-punitive principles suitable
+                  for presentation to government agencies, school leadership, and grant evaluators.
                 </p>
               </div>
 
@@ -531,9 +560,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 mb-4">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
-                  <h3 className="text-base font-extrabold text-navy-950">Zero Sensitive Data Collection</h3>
+                  <h3 className="text-base font-extrabold text-navy-950">
+                    Zero Sensitive Data Collection
+                  </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    No NRICs, no banking numbers, no phone numbers, and no home addresses are ever requested, processed, or stored.
+                    No NRICs, no banking numbers, no phone numbers, and no home addresses are ever
+                    requested, processed, or stored.
                   </p>
                 </div>
 
@@ -541,9 +573,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 mb-4">
                     <Eye className="h-5 w-5" />
                   </div>
-                  <h3 className="text-base font-extrabold text-navy-950">Pseudonymous Cohort Evaluation</h3>
+                  <h3 className="text-base font-extrabold text-navy-950">
+                    Pseudonymous Cohort Evaluation
+                  </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Participants enter sessions via temporary random codes. All pre/post learning outcomes are aggregated at cohort level.
+                    Participants enter sessions via temporary random codes. All pre/post learning
+                    outcomes are aggregated at cohort level.
                   </p>
                 </div>
 
@@ -551,9 +586,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 mb-4">
                     <Users className="h-5 w-5" />
                   </div>
-                  <h3 className="text-base font-extrabold text-navy-950">Facilitated & Non-Punitive Ethos</h3>
+                  <h3 className="text-base font-extrabold text-navy-950">
+                    Facilitated & Non-Punitive Ethos
+                  </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Mistakes made during scenario play are treated as constructive learning moments, not infractions.
+                    Mistakes made during scenario play are treated as constructive learning moments,
+                    not infractions.
                   </p>
                 </div>
 
@@ -561,16 +599,21 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 mb-4">
                     <ShieldAlert className="h-5 w-5" />
                   </div>
-                  <h3 className="text-base font-extrabold text-navy-950">Legitimate Escalation Pathways</h3>
+                  <h3 className="text-base font-extrabold text-navy-950">
+                    Legitimate Escalation Pathways
+                  </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Every scenario connects to official Singapore resources: National Crime Prevention Council (NCPC), ScamShield, and school counselling.
+                    Every scenario connects to official Singapore resources: National Crime
+                    Prevention Council (NCPC), ScamShield, and school counselling.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {(subpageType === 'about' || subpageType === 'faq' || subpageType === 'accessibility') && (
+          {(subpageType === 'about' ||
+            subpageType === 'faq' ||
+            subpageType === 'accessibility') && (
             <div className="space-y-8">
               <h1 className="text-3xl font-black text-navy-950">
                 {subpageType === 'about' && 'About Project SHIELD & ShieldQuest'}
@@ -578,7 +621,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 {subpageType === 'accessibility' && 'Accessibility & Inclusivity Standards'}
               </h1>
               <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                ShieldQuest is a youth-focused crime-prevention and scam-awareness learning platform that uses an interactive city-board experience, scenario-based decision-making, peer discussion and delayed consequences to help youths practise safer choices.
+                ShieldQuest is a youth-focused crime-prevention and scam-awareness learning platform
+                that uses an interactive city-board experience, scenario-based decision-making, peer
+                discussion and delayed consequences to help youths practise safer choices.
               </p>
               <div className="pt-4">
                 <button
@@ -586,7 +631,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   onClick={handlePlay}
                   className="rounded-xl bg-navy-950 px-6 py-3 text-xs font-black uppercase text-white shadow-md"
                 >
-                  Explore ShieldQuest Prototype
+                  Explore ShieldQuest Board
                 </button>
               </div>
             </div>
@@ -618,8 +663,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </h1>
 
                   <p className="mt-5 text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
-                    ShieldQuest turns crime-prevention education into interactive decisions, consequences and peer
-                    discussion — helping youths practise what they would do before facing the situation in real life.
+                    ShieldQuest turns crime-prevention education into interactive decisions,
+                    consequences and peer discussion — helping youths practise what they would do
+                    before facing the situation in real life.
                   </p>
 
                   {/* Hero CTAs */}
@@ -644,17 +690,7 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     </button>
                   </div>
 
-                  {/* Secondary Administrator Link */}
-                  <div className="mt-5">
-                    <button
-                      type="button"
-                      onClick={handleFacilitatorLogin}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-civic-600 transition"
-                    >
-                      <span>Are you an administrator?</span>
-                      <span className="font-extrabold underline">Admin Portal →</span>
-                    </button>
-                  </div>
+
 
                   {/* Trust Micro-Badge */}
                   <div className="mt-8 flex items-center gap-3 border-t border-slate-200/80 pt-5">
@@ -662,7 +698,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                       <CheckCircle className="h-4 w-4" />
                     </div>
                     <p className="text-xs font-semibold text-slate-500">
-                      Built with Privacy by Design: zero app downloads, zero NRICs, and anonymous cohort evaluation.
+                      Built with Privacy by Design: zero app downloads, zero NRICs, and anonymous
+                      cohort evaluation.
                     </p>
                   </div>
                 </div>
@@ -676,9 +713,11 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                         <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
                         <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                        <span className="ml-2 text-xs font-bold text-white/70">ShieldQuest City · Live Experience</span>
+                        <span className="ml-2 text-xs font-bold text-white/70">
+                          ShieldQuest City · Live Experience
+                        </span>
                       </div>
-                      <PrototypeNotice text="Interactive 2.5D PWA" />
+                      <PrototypeNotice text="Hybrid 2.5D + 3D PWA" />
                     </div>
 
                     {/* 2.5D Diamond Stage Representation */}
@@ -715,7 +754,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                           {/* Central Landmark */}
                           <div className="flex flex-col items-center justify-center rounded-xl bg-navy-950/90 border border-white/20 p-2 shadow-lg">
                             <Shield className="h-7 w-7 text-amber-400 fill-current" />
-                            <span className="text-[8px] font-black uppercase text-white mt-1">School</span>
+                            <span className="text-[8px] font-black uppercase text-white mt-1">
+                              School
+                            </span>
                           </div>
 
                           {/* Pawn Token */}
@@ -732,7 +773,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                           <div className="h-6 w-6 rounded-lg bg-white text-navy-950 font-black text-xs flex items-center justify-center shadow">
                             ⚄ 5
                           </div>
-                          <span className="text-[10px] font-bold text-slate-200">Roll to Explore</span>
+                          <span className="text-[10px] font-bold text-slate-200">
+                            Roll to Explore
+                          </span>
                         </div>
                       </div>
 
@@ -794,8 +837,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Crime-prevention education should be experienced, not just explained.
                 </h2>
                 <p className="mt-3 text-slate-600 font-medium text-base">
-                  Traditional awareness material can tell youths what the safer choice is. ShieldQuest lets them
-                  make the choice, discuss it with peers and see what happens next.
+                  Traditional awareness material can tell youths what the safer choice is.
+                  ShieldQuest lets them make the choice, discuss it with peers and see what happens
+                  next.
                 </p>
               </div>
 
@@ -805,10 +849,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-md shadow-amber-500/25">
                     <Zap className="h-6 w-6" />
                   </div>
-                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">PRACTISE</h3>
+                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">
+                    PRACTISE
+                  </h3>
                   <p className="mt-2 text-sm text-slate-600 font-medium leading-relaxed">
-                    Make decisions in realistic scenarios before real-world stakes occur. Youths experience authentic
-                    chat offers, marketplace listings, and urgent requests.
+                    Make decisions in realistic scenarios before real-world stakes occur. Youths
+                    experience authentic chat offers, marketplace listings, and urgent requests.
                   </p>
                 </div>
 
@@ -817,10 +863,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-md shadow-teal-600/25">
                     <MessageSquare className="h-6 w-6" />
                   </div>
-                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">DISCUSS</h3>
+                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">
+                    DISCUSS
+                  </h3>
                   <p className="mt-2 text-sm text-slate-600 font-medium leading-relaxed">
-                    Compare reasoning with peers using structured Think–Vote–Explain mechanics. Anonymous squad voting
-                    sparks deep dialogue on underlying risk cues.
+                    Compare reasoning with peers using structured Think–Vote–Explain mechanics.
+                    Anonymous squad voting sparks deep dialogue on underlying risk cues.
                   </p>
                 </div>
 
@@ -829,10 +877,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-civic-600 text-white shadow-md shadow-civic-600/25">
                     <TrendingUp className="h-6 w-6" />
                   </div>
-                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">REFLECT</h3>
+                  <h3 className="mt-5 text-xl font-black uppercase tracking-tight text-navy-950">
+                    REFLECT
+                  </h3>
                   <p className="mt-2 text-sm text-slate-600 font-medium leading-relaxed">
-                    Experience both immediate outcomes and delayed consequences. Learn how a single shared password or
-                    bank transfer can compound over time.
+                    Experience both immediate outcomes and delayed consequences. Learn how a single
+                    shared password or bank transfer can compound over time.
                   </p>
                 </div>
               </div>
@@ -852,8 +902,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Enter ShieldQuest City
                 </h2>
                 <p className="mt-3 text-slate-600 font-medium">
-                  Explore districts, encounter realistic scenarios, meet S.H.I.E.L.D. Guardians and build safer
-                  decision-making skills.
+                  Explore districts, encounter realistic scenarios, meet S.H.I.E.L.D. Guardians and
+                  build safer decision-making skills.
                 </p>
               </div>
 
@@ -864,13 +914,16 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 font-black">
                       1
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Stage 1</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Stage 1
+                    </span>
                   </div>
                   <h3 className="mt-4 text-base font-extrabold uppercase tracking-tight text-navy-950">
                     City Board
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Navigate 4 themed districts on an isometric Monopoly Go-style perimeter board using dice rolls and strategic stops.
+                    Navigate four themed districts on ShieldQuest's original isometric city track
+                    using dice rolls and purposeful stops.
                   </p>
                 </div>
 
@@ -879,13 +932,16 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 font-black">
                       2
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Stage 2</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Stage 2
+                    </span>
                   </div>
                   <h3 className="mt-4 text-base font-extrabold uppercase tracking-tight text-navy-950">
                     Scenario
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Encounter authentic situations: fast-cash job offers, marketplace deals, phishing alerts, and peer dares.
+                    Encounter authentic situations: fast-cash job offers, marketplace deals,
+                    phishing alerts, and peer dares.
                   </p>
                 </div>
 
@@ -894,13 +950,16 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 font-black">
                       3
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Stage 3</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Stage 3
+                    </span>
                   </div>
                   <h3 className="mt-4 text-base font-extrabold uppercase tracking-tight text-navy-950">
                     Decision
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Think privately, cast an anonymous squad vote, and defend your perspective using structured Think–Vote–Explain.
+                    Think privately, cast an anonymous squad vote, and defend your perspective using
+                    structured Think–Vote–Explain.
                   </p>
                 </div>
 
@@ -909,13 +968,16 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-civic-500/10 text-civic-600 font-black">
                       4
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Stage 4</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      Stage 4
+                    </span>
                   </div>
                   <h3 className="mt-4 text-base font-extrabold uppercase tracking-tight text-navy-950">
                     Consequence
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                    Uncover immediate fallout and delayed consequences to understand compounding risk over time.
+                    Uncover immediate fallout and delayed consequences to understand compounding
+                    risk over time.
                   </p>
                 </div>
               </div>
@@ -935,31 +997,42 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   How ShieldQuest Works
                 </h2>
                 <p className="mt-3 text-slate-600 font-medium">
-                  A four-step learning loop designed for quick onboarding and high squad engagement.
+                  The six-stage learning loop from the proposal, with Think–Vote–Explain inside the
+                  Discuss stage.
                 </p>
               </div>
 
-              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                   {
                     step: '01',
-                    title: 'JOIN',
-                    desc: 'Scan a session QR code and enter the city on any phone or laptop.',
+                    title: 'EXPLORE',
+                    desc: 'Enter the city and encounter familiar school, retail, digital, and community settings.',
                   },
                   {
                     step: '02',
-                    title: 'DECIDE',
-                    desc: 'Navigate realistic crime-prevention scenarios and evaluate risk signals.',
+                    title: 'INVESTIGATE',
+                    desc: 'Inspect messages, offers, images, and environmental clues before acting.',
                   },
                   {
                     step: '03',
                     title: 'DISCUSS',
-                    desc: 'Think, Vote and Explain choices anonymously with your squad peers.',
+                    desc: 'Think privately, vote anonymously, and explain choices with your squad.',
                   },
                   {
                     step: '04',
-                    title: 'EXPERIENCE CONSEQUENCES',
-                    desc: 'See how decisions create immediate and delayed legal or social outcomes.',
+                    title: 'DECIDE',
+                    desc: 'Choose a response under urgency, temptation, uncertainty, or peer pressure.',
+                  },
+                  {
+                    step: '05',
+                    title: 'EXPERIENCE',
+                    desc: 'See immediate results and delayed legal, financial, and social consequences.',
+                  },
+                  {
+                    step: '06',
+                    title: 'PROTECT',
+                    desc: 'Practise safe peer intervention and connect the choice to trusted help.',
                   },
                 ].map((item) => (
                   <div
@@ -967,8 +1040,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     className="relative rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:shadow-sm"
                   >
                     <span className="text-3xl font-black text-civic-600/30">{item.step}</span>
-                    <h3 className="mt-2 text-base font-extrabold uppercase text-navy-950">{item.title}</h3>
-                    <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">{item.desc}</p>
+                    <h3 className="mt-2 text-base font-extrabold uppercase text-navy-950">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -1000,7 +1077,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Real situations. Safer choices.
                   </h2>
                   <p className="mt-2 text-slate-600 font-medium max-w-xl">
-                    Three featured scenarios calibrated directly to youth digital vulnerabilities in Singapore.
+                    Three featured scenarios calibrated directly to youth digital vulnerabilities in
+                    Singapore.
                   </p>
                 </div>
                 <button
@@ -1021,7 +1099,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   >
                     <div>
                       <div className="flex items-center justify-between text-xs font-bold">
-                        <span className="text-civic-700 uppercase tracking-wider">{s.category}</span>
+                        <span className="text-civic-700 uppercase tracking-wider">
+                          {s.category}
+                        </span>
                         <span className="rounded-md bg-rose-50 px-2 py-0.5 font-extrabold text-rose-700 border border-rose-200">
                           {s.risk}
                         </span>
@@ -1076,10 +1156,14 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     className={`rounded-2xl border bg-gradient-to-br p-4 backdrop-blur-md transition hover:scale-105 ${g.border} ${g.bg}`}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-black text-white uppercase tracking-tight">{g.name}</h3>
+                      <h3 className="text-sm font-black text-white uppercase tracking-tight">
+                        {g.name}
+                      </h3>
                     </div>
                     <div className="mt-2">
-                      <span className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${g.badge}`}>
+                      <span
+                        className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${g.badge}`}
+                      >
                         {g.competency}
                       </span>
                     </div>
@@ -1108,26 +1192,35 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                       Bring ShieldQuest to your students
                     </h2>
                     <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
-                      Designed as a facilitated 90-minute youth learning experience that works with phones, tablets or computers.
+                      Designed as a facilitated 90-minute youth learning experience that works with
+                      phones, tablets or computers.
                     </p>
 
                     {/* 4 Compact Facts */}
                     <div className="mt-8 grid grid-cols-2 gap-4">
                       <div className="rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="text-lg font-black text-navy-950">20–30 participants</div>
-                        <div className="text-xs font-semibold text-slate-500">Typical controlled session</div>
+                        <div className="text-xs font-semibold text-slate-500">
+                          Typical controlled session
+                        </div>
                       </div>
                       <div className="rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="text-lg font-black text-navy-950">4–5 per squad</div>
-                        <div className="text-xs font-semibold text-slate-500">Collaborative learning</div>
+                        <div className="text-xs font-semibold text-slate-500">
+                          Collaborative learning
+                        </div>
                       </div>
                       <div className="rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="text-lg font-black text-navy-950">90 minutes</div>
-                        <div className="text-xs font-semibold text-slate-500">Facilitated experience</div>
+                        <div className="text-xs font-semibold text-slate-500">
+                          Facilitated experience
+                        </div>
                       </div>
                       <div className="rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="text-lg font-black text-navy-950">No installation</div>
-                        <div className="text-xs font-semibold text-slate-500">Browser-based PWA</div>
+                        <div className="text-xs font-semibold text-slate-500">
+                          Browser-based PWA
+                        </div>
                       </div>
                     </div>
 
@@ -1160,24 +1253,33 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     </div>
                     <div className="mt-4 space-y-3 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-700">1. Onboarding & Ground Rules</span>
-                        <span className="font-bold text-slate-400">10 mins</span>
+                        <span className="font-semibold text-slate-700">
+                          1. Onboarding & Ground Rules
+                        </span>
+                        <span className="font-bold text-slate-400">15 mins</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-700">2. City Exploration & Scenarios</span>
+                        <span className="font-semibold text-slate-700">
+                          2. City Exploration & Scenarios
+                        </span>
                         <span className="font-bold text-slate-400">45 mins</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-700">3. Think–Vote–Explain Debrief</span>
-                        <span className="font-bold text-slate-400">25 mins</span>
+                        <span className="font-semibold text-slate-700">
+                          3. Think–Vote–Explain Debrief
+                        </span>
+                        <span className="font-bold text-slate-400">20 mins</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-700">4. Post-Reflection & Takeaways</span>
+                        <span className="font-semibold text-slate-700">
+                          4. Post-Reflection & Takeaways
+                        </span>
                         <span className="font-bold text-slate-400">10 mins</span>
                       </div>
                     </div>
                     <div className="mt-5 rounded-xl bg-slate-50 p-3 text-[11px] text-slate-500 font-medium">
-                      Includes facilitator slides, discussion rubrics, and aggregated cohort learning summaries.
+                      Includes facilitator slides, discussion rubrics, and aggregated cohort
+                      learning summaries.
                     </div>
                   </div>
                 </div>
@@ -1198,8 +1300,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   Designed to Measure Real Learning Outcomes
                 </h2>
                 <p className="mt-3 text-slate-600 font-medium text-sm">
-                  More than engagement — we want to measure learning. ShieldQuest uses pre/post learning checks
-                  and, where feasible, follow-up evaluation to understand whether participants retain safer decision-making skills.
+                  More than engagement — we want to measure learning. ShieldQuest uses pre/post
+                  learning checks and, where feasible, follow-up evaluation to understand whether
+                  participants retain safer decision-making skills.
                 </p>
               </div>
 
@@ -1212,7 +1315,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Risk Recognition
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
-                    Can youths identify warning signs, urgency triggers, and suspicious commission offers?
+                    Can youths identify warning signs, urgency triggers, and suspicious commission
+                    offers?
                   </p>
                 </div>
 
@@ -1224,7 +1328,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Decision Accuracy
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
-                    Can they choose safer actions and independent verification under realistic peer pressure?
+                    Can they choose safer actions and independent verification under realistic peer
+                    pressure?
                   </p>
                 </div>
 
@@ -1260,7 +1365,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Retention
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
-                    Do participants recall key statutory definitions and safe habits weeks after workshop completion?
+                    Do participants recall key statutory definitions and safe habits weeks after
+                    workshop completion?
                   </p>
                 </div>
 
@@ -1272,7 +1378,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Engagement
                   </h3>
                   <p className="mt-2 text-xs text-slate-600 font-medium leading-relaxed">
-                    Sustained participation, uncoerced squad debates, and voluntary replay of alternative branches.
+                    Sustained participation, uncoerced squad debates, and voluntary replay of
+                    alternative branches.
                   </p>
                 </div>
               </div>
@@ -1294,11 +1401,12 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     Designed with youth safety and privacy in mind
                   </h2>
                   <p className="mt-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
-                    Data minimisation · Pseudonymous evaluation · Facilitated debriefs · Moderated content
+                    Data minimisation · Pseudonymous evaluation · Facilitated debriefs · Moderated
+                    content
                   </p>
                   <p className="mt-2 text-xs text-slate-400 max-w-2xl leading-relaxed">
-                    Zero NRICs, zero banking details, and zero phone numbers collected. Sessions use temporary room
-                    codes to protect learner identities during and after workshops.
+                    Zero NRICs, zero banking details, and zero phone numbers collected. Sessions use
+                    temporary room codes to protect learner identities during and after workshops.
                   </p>
                 </div>
 
@@ -1364,7 +1472,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   className="inline-flex items-center gap-1.5 text-xs font-extrabold text-civic-600 hover:text-civic-800"
                 >
                   <span>{showAllFaqs ? 'Show Fewer Questions' : 'View All FAQs'}</span>
-                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAllFaqs ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition-transform ${showAllFaqs ? 'rotate-180' : ''}`}
+                  />
                 </button>
               </div>
             </div>
@@ -1382,7 +1492,8 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 Ready to enter ShieldQuest?
               </h2>
               <p className="mt-4 text-base text-slate-300 max-w-2xl mx-auto font-medium">
-                Experience the prototype or explore how ShieldQuest could support youth learning in your organisation.
+                Experience the platform or explore how ShieldQuest could support youth learning in
+                your organisation.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -1422,31 +1533,49 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 </span>
               </div>
               <p className="mt-3 text-xs text-slate-400 max-w-md leading-relaxed">
-                An evidence-informed, scenario-based youth crime-prevention and scam-awareness platform designed for
-                schools, youth organisations, and community facilitators.
+                An evidence-informed, scenario-based youth crime-prevention and scam-awareness
+                platform designed for schools, youth organisations, and community facilitators.
               </p>
             </div>
 
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-300">Quick Links</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                Quick Links
+              </h4>
               <ul className="mt-3 space-y-2 text-xs text-slate-400">
                 <li>
-                  <button type="button" onClick={() => navigate('/how-it-works')} className="hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/how-it-works')}
+                    className="hover:text-white"
+                  >
                     How It Works
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => navigate('/for-schools')} className="hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/for-schools')}
+                    className="hover:text-white"
+                  >
                     For Schools & Partners
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => navigate('/safety')} className="hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/safety')}
+                    className="hover:text-white"
+                  >
                     Safety & Privacy
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={() => navigate('/about')} className="hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/about')}
+                    className="hover:text-white"
+                  >
                     About Project SHIELD
                   </button>
                 </li>
@@ -1454,7 +1583,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
             </div>
 
             <div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-300">Access Portals</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                Access Portals
+              </h4>
               <ul className="mt-3 space-y-2 text-xs text-slate-400">
                 <li>
                   <button type="button" onClick={handlePlay} className="hover:text-white text-left">
@@ -1462,19 +1593,23 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </button>
                 </li>
                 <li>
-                  <button type="button" onClick={handleFacilitatorLogin} className="hover:text-white text-left">
+                  <button
+                    type="button"
+                    onClick={handleFacilitatorLogin}
+                    className="hover:text-white text-left"
+                  >
                     Facilitator Login Portal
                   </button>
                 </li>
                 <li>
-                  <span className="text-slate-500">Preview 0.1 · Prototype</span>
+                  <span className="text-slate-500">Release Preview 1.0</span>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="mt-10 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-            <span>© Project SHIELD · Youth Crime Prevention Learning Prototype.</span>
+            <span>© Project SHIELD · Youth Crime Prevention Learning Platform.</span>
             <div className="mt-2 sm:mt-0 flex gap-4">
               <span>Privacy by Design</span>
               <span>·</span>
@@ -1505,8 +1640,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                 </div>
                 <h3 className="mt-4 text-xl font-black text-navy-950">Session Request Received</h3>
                 <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                  Thank you for your enquiry. In a full deployment, our facilitation team will contact your school or
-                  organisation to review dates, learner bands, and room setup.
+                  Thank you for your enquiry. In a full deployment, our facilitation team will
+                  contact your school or organisation to review dates, learner bands, and room
+                  setup.
                 </p>
                 <button
                   type="button"
@@ -1523,7 +1659,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                     <Handshake className="h-4 w-4" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black uppercase text-navy-950">Plan a ShieldQuest Session</h3>
+                    <h3 className="text-lg font-black uppercase text-navy-950">
+                      Plan a ShieldQuest Session
+                    </h3>
                     <p className="text-[11px] text-slate-500 font-medium">
                       For schools, tertiary institutions, and youth partners
                     </p>
@@ -1548,7 +1686,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">School / Organisation</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      School / Organisation
+                    </label>
                     <input
                       required
                       type="text"
@@ -1559,7 +1699,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700">Official Email</label>
+                      <label className="block text-xs font-bold text-slate-700">
+                        Official Email
+                      </label>
                       <input
                         required
                         type="email"
@@ -1579,7 +1721,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">Estimated Cohort Size</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Estimated Cohort Size
+                    </label>
                     <input
                       type="number"
                       placeholder="e.g. 120 students"
@@ -1588,7 +1732,9 @@ export function PublicWebsite({ onPlay, onFacilitatorLogin }: PublicWebsiteProps
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700">Additional Notes / Preferred Dates</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Additional Notes / Preferred Dates
+                    </label>
                     <textarea
                       rows={3}
                       placeholder="Share your preferred timeframe or specific crime-prevention focus..."

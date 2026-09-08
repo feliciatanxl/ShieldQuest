@@ -152,7 +152,7 @@ export function MissionNodeCard({
       ) : planned ? (
         <p className="mt-2.5 flex items-center gap-1.5 border-t border-coral-200 pt-2 text-[12px] font-bold uppercase tracking-wide text-coral-700">
           <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-          Coming soon · Planned for prototype expansion
+          Coming soon · In development
         </p>
       ) : locked ? (
         <div className="mt-3 border-t border-line pt-2.5 text-[12px] text-ink-soft">

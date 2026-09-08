@@ -382,7 +382,7 @@ export const PILOT_KPIS: PilotKpi[] = [
 ];
 
 export const RETENTION_LIMITATION =
-  'Follow-up measurement needs participants to be re-engaged two to four weeks after a facilitated session, inside a controlled pilot. This local prototype has no cohort, no scheduling and no participant contact, so it cannot measure retention — and no retention figure is shown anywhere in this build.';
+  'Follow-up measurement needs participants to be re-engaged two to four weeks after a facilitated session, inside a controlled pilot. This build has no cohort, no scheduling and no participant contact, so it cannot measure retention — and no retention figure is shown anywhere in this build.';
 
 export const MOCK_YOUTH_SUBMISSIONS: YouthMissionSubmission[] = [
   {
@@ -456,7 +456,7 @@ export const MOCK_YOUTH_SUBMISSIONS: YouthMissionSubmission[] = [
     submittedOn: '15 Aug 2026',
     submitterBand: 'Secondary',
     status: 'CHANGES_REQUESTED',
-    reviewedBy: 'Content Lead (prototype)',
+    reviewedBy: 'Content Lead',
     reviewNote:
       'Good instinct and the right age band. Needs rewriting without the branded currency name, and the debrief should not describe how the generator page works.',
     safeguardingFlags: [
@@ -478,7 +478,7 @@ export const MOCK_YOUTH_SUBMISSIONS: YouthMissionSubmission[] = [
     submittedOn: '14 Aug 2026',
     submitterBand: 'Secondary',
     status: 'CONVERTED',
-    reviewedBy: 'Content Lead (prototype)',
+    reviewedBy: 'Content Lead',
     reviewNote:
       'Converted to a Peer Shield draft. Held for a safeguarding read before it goes any further — harassment content needs a support route in the debrief.',
     safeguardingFlags: [
@@ -518,7 +518,7 @@ export const MOCK_YOUTH_SUBMISSIONS: YouthMissionSubmission[] = [
     submittedOn: '11 Aug 2026',
     submitterBand: 'Post-Secondary / Tertiary',
     status: 'REJECTED',
-    reviewedBy: 'Content Lead (prototype)',
+    reviewedBy: 'Content Lead',
     reviewNote:
       'Not taken forward as proposed. Player-uploaded real messages would put personal data and identifiable third parties into the platform, and youth-rating-youth content is outside what this programme will do. The underlying idea — keeping examples current — is being picked up through the authored library instead.',
     safeguardingFlags: [

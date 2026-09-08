@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { demoScenarios } from '../../types/demo';
 
 test('all districts can be discovered directly without awarding progress', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/board');
   await expect(page.getByText('Mission previews · Progress lasts for this visit')).toBeVisible();
   for (const name of ['School Street', 'Retail District', 'Digi-District', 'Community Hub']) {
     await page.getByRole('button', { name: new RegExp(`Open ${name}, Chapter`) }).click();
@@ -29,7 +29,7 @@ test('dice landing discovers a district, opens its checkpoint and permits the ne
   await page.addInitScript(() => {
     Math.random = () => 0;
   });
-  await page.goto('/');
+  await page.goto('/board');
   const roll = page.getByRole('button', { name: /Roll dice/ });
   await roll.click();
   await expect(
@@ -64,7 +64,7 @@ test('API failure is recoverable and an empty catalogue does not invent missions
       json: { error: { code: 'UNAVAILABLE', message: 'Unavailable' } },
     }),
   );
-  await page.goto('/');
+  await page.goto('/board');
   await expect(page.getByText('Missions could not be loaded.', { exact: false })).toBeVisible();
   await page.route('**/api/scenarios', (route) =>
     route.fulfill({ json: { mode: 'live', data: [] } }),
@@ -77,7 +77,9 @@ test('API failure is recoverable and an empty catalogue does not invent missions
   await expect(
     page.getByRole('dialog').getByText('Coming soon — activity update pending'),
   ).toHaveCount(2);
-  await expect(page.getByRole('dialog').getByRole('link', { name: /Risk or Safe\?/ })).toBeVisible();
+  await expect(
+    page.getByRole('dialog').getByRole('link', { name: /Risk or Safe\?/ }),
+  ).toBeVisible();
 });
 
 test('API mission content reaches the district sheet and the existing player', async ({ page }) => {
@@ -87,7 +89,7 @@ test('API mission content reaches the district sheet and the existing player', a
   await page.route('**/api/scenarios/school-group-chat', (route) =>
     route.fulfill({ json: { mode: 'demo', data: data[0] } }),
   );
-  await page.goto('/');
+  await page.goto('/board');
   await page.getByRole('button', { name: /Open School Street, Chapter 1/ }).click();
   await page.getByRole('button', { name: 'Explore district', exact: true }).click();
   await page.getByRole('link', { name: /A mission from the API catalogue/ }).click();
@@ -97,7 +99,7 @@ test('API mission content reaches the district sheet and the existing player', a
 });
 
 test('sheet keyboard focus stays inside and returns to its opener', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/board');
   const help = page.getByRole('button', { name: 'About this game', exact: true });
   await help.click();
   for (let i = 0; i < 16; i++) {

@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  BookOpen,
-  Info,
-  Shield,
-  Sparkles,
-  Users,
-  Volume2,
-  VolumeX,
-} from 'lucide-react';
+import { BookOpen, Info, Shield, Sparkles, Users, Volume2, VolumeX } from 'lucide-react';
 import { CityTrack } from './board/CityTrack';
 import { DiceRoller } from './board/DiceRoller';
 import { SpaceSheet } from './board/SpaceSheet';
@@ -45,16 +37,13 @@ export function CityHomeExperience() {
 
   const activeDistrictId = DISTRICT_PROGRESSION[districtIndex] ?? 'school';
 
-  const {
-    spaces,
-    position,
-  } = useBoard(activeDistrictId);
+  const { spaces, position } = useBoard(activeDistrictId);
 
   // HUD & Drawer states
   const [casebookOpen, setCasebookOpen] = useState(false);
   const [guardianVaultOpen, setGuardianVaultOpen] = useState(false);
   const [squadModalOpen, setSquadModalOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(profile.settings.sound);
   const [celebrationOpen, setCelebrationOpen] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [goBonusToast, setGoBonusToast] = useState(false);
@@ -137,14 +126,11 @@ export function CityHomeExperience() {
       const reveal = () => {
         setLandingSpace(null);
         const districtId = destination.districtId;
-        const newlyDiscovered =
-          districtId && !profile.discoveredDistricts.includes(districtId);
+        const newlyDiscovered = districtId && !profile.discoveredDistricts.includes(districtId);
         if (newlyDiscovered && districtId) {
           discoverDistrict(districtId);
           setDiscoveryLanding(destination);
-          setDiscoveryDistrict(
-            districts.find((district) => district.id === districtId) ?? null,
-          );
+          setDiscoveryDistrict(districts.find((district) => district.id === districtId) ?? null);
         } else {
           setLandedSpace(destination);
         }
@@ -200,12 +186,11 @@ export function CityHomeExperience() {
     }, 750);
   };
 
-  const nextDistrictId =
-    DISTRICT_PROGRESSION[(districtIndex + 1) % DISTRICT_PROGRESSION.length];
+  const nextDistrictId = DISTRICT_PROGRESSION[(districtIndex + 1) % DISTRICT_PROGRESSION.length];
   const nextDistrictName = nextDistrictId ? districtNames[nextDistrictId] : undefined;
 
   return (
-    <div className="city-home relative flex h-full min-h-[100dvh] w-full flex-col overflow-hidden bg-navy-950 text-white select-none">
+    <div className="city-home relative flex flex-1 h-full w-full flex-col overflow-hidden bg-navy-950 text-white select-none">
       {/* ------------------------------------------------------------- */}
       {/* 1. FLOATING CURRENT QUEST CARD (Top-Left, Z-Index 40)         */}
       {/* ------------------------------------------------------------- */}
@@ -222,9 +207,7 @@ export function CityHomeExperience() {
         <div className="mt-1 flex items-center gap-1.5 text-[10px] font-bold text-white/70">
           <span className="truncate">{currentActiveDistrict?.name ?? 'School Street'}</span>
           <span>·</span>
-          <span className="text-amber-300 font-extrabold">
-            Stage {districtIndex + 1}/4
-          </span>
+          <span className="text-amber-300 font-extrabold">Stage {districtIndex + 1}/4</span>
         </div>
       </div>
 
@@ -323,7 +306,7 @@ export function CityHomeExperience() {
       {/* ------------------------------------------------------------- */}
       {/* 4. DEDICATED 2.5D ISOMETRIC BOARD CANVAS                       */}
       {/* ------------------------------------------------------------- */}
-      <main className="relative w-full h-[600px] flex-1 overflow-hidden flex items-center justify-center">
+      <main className="relative w-full h-full flex-1 overflow-hidden flex items-center justify-center">
         <CityTrack
           spaces={spaces}
           tokenIndex={turn.tokenIndex}
@@ -341,6 +324,7 @@ export function CityHomeExperience() {
           districtTotal={currentActiveDistrict?.total ?? 3}
           districtCleared={currentActiveDistrict?.cleared ?? false}
           isAdvancing={isAdvancing}
+          enhanced3d={profile.settings.enhanced3d && !reducedMotion}
           onDistrictSecuredClick={() => setCelebrationOpen(true)}
         />
       </main>
@@ -348,7 +332,7 @@ export function CityHomeExperience() {
       {/* ------------------------------------------------------------- */}
       {/* 5. PINNED BOTTOM ACTION BAR: Tactile Monopoly Go Dice Roller   */}
       {/* ------------------------------------------------------------- */}
-      <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-2 w-full max-w-[640px] px-4">
+      <div className="absolute bottom-16 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-2 w-full max-w-[640px] px-4">
         <DiceRoller
           phase={turn.phase}
           value={turn.value}
@@ -377,9 +361,7 @@ export function CityHomeExperience() {
                     ? 'Discovered'
                     : 'Unexplored';
               const progressLabel =
-                district.total > 0
-                  ? `${district.completed}/${district.total}`
-                  : 'Chapter';
+                district.total > 0 ? `${district.completed}/${district.total}` : 'Chapter';
               const chapter = DISTRICT_CHAPTER[district.id];
 
               return (
@@ -418,11 +400,10 @@ export function CityHomeExperience() {
                       {state}
                     </span>
                     <span className="sr-only">
-                      Open {district.name}, {chapter.label}:{' '}
-                      {chapter.title}.{' '}
+                      Open {district.name}, {chapter.label}: {chapter.title}.{' '}
                       {district.total > 0
                         ? `${district.completed} of ${district.total} built activities completed.`
-                        : 'Chapter available; activities are planned for prototype expansion.'}{' '}
+                        : 'Chapter available; more activities coming soon.'}{' '}
                       {state}.
                     </span>
                   </button>
@@ -479,10 +460,7 @@ export function CityHomeExperience() {
       <CasebookDrawer open={casebookOpen} onClose={() => setCasebookOpen(false)} />
 
       {/* SPF Guardian Vault Slide-over Drawer */}
-      <GuardianVaultDrawer
-        open={guardianVaultOpen}
-        onClose={() => setGuardianVaultOpen(false)}
-      />
+      <GuardianVaultDrawer open={guardianVaultOpen} onClose={() => setGuardianVaultOpen(false)} />
 
       {/* SPF Squad View Modal */}
       <SquadViewModal open={squadModalOpen} onClose={() => setSquadModalOpen(false)} />

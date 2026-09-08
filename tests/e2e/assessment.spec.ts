@@ -11,7 +11,7 @@ test.describe('Assessment & Progress Tracking', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 
-    await page.goto('/');
+    await page.goto('/board');
     await page.getByRole('button', { name: 'Reflection' }).click();
 
     // Verify main headings
@@ -70,7 +70,7 @@ test.describe('Assessment & Progress Tracking', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 
-    await page.goto('/');
+    await page.goto('/board');
 
     // Navigate to School Street
     await page.getByRole('button', { name: /Open School Street, Chapter 1/ }).click();
@@ -90,7 +90,9 @@ test.describe('Assessment & Progress Tracking', () => {
     await page.getByRole('button', { name: 'Finish preview' }).click();
 
     // Dismiss Echo met dialog if present
-    const continueBtn = page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true });
+    const continueBtn = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Continue', exact: true });
     if (await continueBtn.isVisible()) {
       await continueBtn.click();
     }
@@ -128,12 +130,16 @@ test.describe('Assessment & Progress Tracking', () => {
 
     // 1. Guardian introduction goes FIRST: ByteBuddy met dialog
     const guardianDialog = page.getByRole('dialog');
-    await expect(guardianDialog.getByRole('heading', { name: 'ByteBuddy', exact: true })).toBeVisible();
+    await expect(
+      guardianDialog.getByRole('heading', { name: 'ByteBuddy', exact: true }),
+    ).toBeVisible();
     await guardianDialog.getByRole('button', { name: 'Continue', exact: true }).click();
 
     // 2. District Complete celebration modal appears SECOND (all built activities cleared)
     const districtDialog = page.getByRole('dialog');
-    await expect(districtDialog.getByRole('heading', { name: 'School Street', exact: true })).toBeVisible();
+    await expect(
+      districtDialog.getByRole('heading', { name: 'School Street', exact: true }),
+    ).toBeVisible();
     await expect(districtDialog.getByText('District complete')).toBeVisible();
     await expect(districtDialog.getByText('Street Guardian')).toBeVisible();
     await expect(districtDialog.getByText('+100 Shield Tokens')).toBeVisible();
@@ -169,7 +175,7 @@ test.describe('Assessment & Progress Tracking', () => {
 
   test('Mobile reflection page responsiveness (375x667)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/');
+    await page.goto('/board');
 
     await page
       .getByRole('navigation', { name: 'Mobile navigation' })
@@ -177,9 +183,9 @@ test.describe('Assessment & Progress Tracking', () => {
       .click();
 
     await expect(page.getByRole('heading', { name: 'What you have practised' })).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
-      true,
-    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
 
     // Screenshot mobile progress view
     await page.screenshot({

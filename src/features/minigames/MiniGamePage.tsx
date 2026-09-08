@@ -35,7 +35,7 @@ export function MiniGamePage({ gameId }: { gameId: string }) {
           Activity not found
         </h1>
         <p className="mt-2 text-[14px] text-ink-muted">
-          This mini-game is not part of the prototype yet.
+          This mini-game is not currently available.
         </p>
         <CityLink
           href="/game"

@@ -12,11 +12,11 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.getByRole('button', { name: 'Admin Portal', exact: true }).click();
 
-    // Verify main header and prototype disclaimers
+    // Verify main header and admin badge
     await expect(page.getByRole('heading', { name: 'Scenario Management Portal', exact: true })).toBeVisible();
-    await expect(page.getByText('Prototype Admin View', { exact: true })).toBeVisible();
+    await expect(page.getByText('Admin Console View', { exact: true })).toBeVisible();
 
     // Verify 4 overview metrics
     await expect(page.getByText('Active scenarios', { exact: true })).toBeVisible();
@@ -47,7 +47,7 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.getByRole('button', { name: 'Admin Portal', exact: true }).click();
 
     // Navigate to Scenario Library
     await page.getByRole('button', { name: 'Scenario Library', exact: true }).click();
@@ -92,7 +92,7 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.getByRole('button', { name: 'Admin Portal', exact: true }).click();
 
     // Open Deploy Flash Mission
     await page.getByRole('button', { name: 'Deploy Flash Mission' }).click();
@@ -132,12 +132,12 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.getByRole('button', { name: 'Admin Portal', exact: true }).click();
 
     // Navigate to Youth-Created Missions
     await page.getByRole('button', { name: 'Youth-Created Missions' }).click();
     await expect(page.getByRole('heading', { name: 'Youth-Created Missions' })).toBeVisible();
-    await expect(page.getByText('Prototype moderation pipeline')).toBeVisible();
+    await expect(page.getByText('Youth moderation pipeline')).toBeVisible();
 
     // Open submission drawer
     await page.getByRole('button', { name: /The Study Group That Wanted My Login/ }).click();
@@ -175,7 +175,7 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
     page.on('pageerror', (err) => errors.push(err.message));
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.getByRole('button', { name: 'Admin Portal', exact: true }).click();
 
     // Navigate to Insights
     await page.getByRole('button', { name: 'Insights' }).click();
@@ -218,8 +218,7 @@ test.describe('Admin Dashboard & Scenario Portal', () => {
 
   test('Mobile admin responsiveness (375x667)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/');
-    await page.getByRole('button', { name: 'For facilitators' }).click();
+    await page.goto('/admin');
 
     await expect(page.getByRole('heading', { name: 'Scenario Management Portal' })).toBeVisible();
     expect(

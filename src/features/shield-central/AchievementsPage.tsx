@@ -1,4 +1,4 @@
-﻿import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   CheckCircle,
@@ -73,7 +73,7 @@ export function AchievementsPage() {
               District Mastery Badges
             </h3>
             <span className="rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-bold text-slate-600">
-              ILLUSTRATIVE PROTOTYPE DATA
+              ILLUSTRATIVE BADGE DATA
             </span>
           </div>
 

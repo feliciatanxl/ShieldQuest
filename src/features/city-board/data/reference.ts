@@ -7,5 +7,5 @@ export {
   GUARDIAN_BEACON,
   GUARDIAN_SHIELDFIN,
 } from '../../guardians/data';
-export const PROTOTYPE_DISCLAIMER = 'Concept prototype · simulated scenarios and data';
+export const PROTOTYPE_DISCLAIMER = 'Educational simulation · structured scenarios and data';
 export const DEFAULT_PLAYER_TOKEN = 'pt_shield';

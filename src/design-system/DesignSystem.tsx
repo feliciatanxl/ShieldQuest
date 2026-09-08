@@ -193,7 +193,7 @@ export function PrototypeNotice({ text }: { text?: string }) {
   return (
     <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-900">
       <Info className="h-3 w-3 text-amber-700" />
-      <span>{text ?? 'Illustrative Prototype Data'}</span>
+      <span>{text ?? 'Illustrative Demonstration Data'}</span>
     </div>
   );
 }

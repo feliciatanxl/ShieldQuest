@@ -47,10 +47,16 @@ interface SessionState extends GuardianState {
   dismissGuardianNotice: () => void;
   reset: () => void;
 }
+function getInitialSessionCode(): string | null {
+  if (typeof window === 'undefined') return null;
+  const code = new URLSearchParams(window.location.search).get('session')?.toUpperCase();
+  return code && /^[A-Z0-9]{6,8}$/.test(code) ? code : null;
+}
+
 // In-memory demo only. Do not persist participant tokens or private votes in localStorage.
 export const useSessionStore = create<SessionState>((set) => ({
   district: 'school',
-  previewCode: null,
+  previewCode: getInitialSessionCode(),
   completed: [],
   shieldTokens: 0,
   tokenGrants: [],

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowUpRight,
   BookOpen,
-  ChevronRight,
   Map,
   Shield,
   ShieldCheck,
@@ -32,11 +31,7 @@ const nav = [
   { id: 'reflection', label: 'Reflection', icon: BookOpen },
 ] as const;
 
-export function PlayerExperience({
-  initialPage = 'city',
-}: {
-  initialPage?: GamePage;
-}) {
+export function PlayerExperience({ initialPage = 'city' }: { initialPage?: GamePage }) {
   const navigate = useNavigate();
   const [page, setPage] = useState<GamePage>(initialPage);
   const [mission, setMission] = useState<Scenario | null>(null);
@@ -68,7 +63,6 @@ export function PlayerExperience({
     }
   }, [setPreviewCode]);
 
-
   const handleCompleteOnboarding = () => {
     localStorage.setItem('sq_onboarded_seen', 'true');
     setOnboardingOpen(false);
@@ -76,49 +70,14 @@ export function PlayerExperience({
 
   return (
     <div
-      className={`app-shell ${page === 'city' || page === 'guardians' ? 'city-shell' : ''} ${activeLessonOpen ? 'mission-shell' : ''}`}
+      className={`app-shell ${page === 'city' ? 'city-shell' : ''} ${activeLessonOpen ? 'mission-shell' : ''}`}
     >
       <a className="skip-link" href="#main">
         Skip to content
       </a>
       <PwaStatus />
 
-      {/* Top Reviewer Bar */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-navy-950 px-3 py-1.5 text-[11px] text-white/70">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          <span className="font-extrabold uppercase tracking-widest text-white/80">
-            Player PWA Mode
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/shield-central"
-            className="rounded-lg border border-amber-400/40 bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 hover:bg-amber-500/30"
-          >
-            Shield Central
-          </Link>
-          <button
-            type="button"
-            onClick={() => setOnboardingOpen(true)}
-            className="rounded-lg border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] font-bold text-amber-300 hover:bg-white/10"
-          >
-            Replay Onboarding
-          </button>
-          <Link
-            to="/website"
-            className="rounded-lg border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/80 hover:bg-white/10"
-          >
-            Public Site
-          </Link>
-          <Link
-            to="/admin"
-            className="rounded-lg border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] font-bold text-white/80 hover:bg-white/10"
-          >
-            Facilitator Portal
-          </Link>
-        </div>
-      </div>
+
 
       <header className="header">
         <button className="brand" onClick={() => showPage('city')} aria-label="ShieldQuest home">
@@ -168,11 +127,7 @@ export function PlayerExperience({
             <section className="page-heading">
               <div>
                 <span className="eyebrow">YOUR SHIELDQUEST JOURNEY</span>
-                <h1>
-                  {page === 'squad'
-                    ? 'Good company. Great choices.'
-                    : 'Pause. Think. Grow.'}
-                </h1>
+                <h1>{page === 'squad' ? 'Good company. Great choices.' : 'Pause. Think. Grow.'}</h1>
                 <p>A space to connect, explore and build confidence together.</p>
               </div>
             </section>
@@ -184,14 +139,6 @@ export function PlayerExperience({
           <span>
             <Shield size={14} /> A safer community starts with us.
           </span>
-          <button
-            type="button"
-            onClick={() => navigate('/admin')}
-            className="inline-flex items-center gap-1 hover:text-civic-600 transition"
-          >
-            <span>For facilitators</span>
-            <ChevronRight size={14} />
-          </button>
           <span className="footer-version">ShieldQuest · Preview 0.1</span>
         </footer>
       </main>
@@ -216,10 +163,7 @@ export function PlayerExperience({
       )}
 
       {/* 7-Step Player Onboarding Wizard */}
-      <PlayerOnboardingModal
-        open={onboardingOpen}
-        onComplete={handleCompleteOnboarding}
-      />
+      <PlayerOnboardingModal open={onboardingOpen} onComplete={handleCompleteOnboarding} />
     </div>
   );
 }

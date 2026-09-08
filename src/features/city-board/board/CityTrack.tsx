@@ -1,10 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { SpaceMark, spaceStateLabel } from './SpaceMark';
 import { PlayerTokenMark } from './PlayerTokenMark';
 import { DistrictLandmark } from './DistrictLandmark';
 import { getGridTilePos, type GridTilePos } from './trackGeometry';
 import type { ResolvedSpace } from '../hooks/useBoard';
-import { BOARD_SPACE_LABEL, type CityDistrictId, type BoardGuardian } from '../../../../types/city-board';
+import {
+  BOARD_SPACE_LABEL,
+  type CityDistrictId,
+  type BoardGuardian,
+} from '../../../../types/city-board';
+
+const ThreeBoardBackdrop = lazy(() => import('./ThreeBoardBackdrop'));
 
 export function CityTrack({
   spaces,
@@ -23,6 +29,7 @@ export function CityTrack({
   districtTotal = 3,
   districtCleared = false,
   isAdvancing = false,
+  enhanced3d = true,
   onDistrictSecuredClick,
 }: {
   spaces: ResolvedSpace[];
@@ -41,6 +48,7 @@ export function CityTrack({
   districtTotal?: number;
   districtCleared?: boolean;
   isAdvancing?: boolean;
+  enhanced3d?: boolean;
   onDistrictSecuredClick?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,7 +77,7 @@ export function CityTrack({
   return (
     <div
       ref={containerRef}
-      className="isometric-viewport relative w-full h-[600px] flex-1 overflow-hidden flex items-center justify-center bg-radial from-navy-900 via-navy-950 to-navy-950 p-2 select-none"
+      className="isometric-viewport relative w-full h-full flex-1 overflow-hidden flex items-center justify-center bg-radial from-navy-900 via-navy-950 to-navy-950 p-2 select-none"
     >
       {/* 2.5D Ground Glow */}
       <div
@@ -80,14 +88,20 @@ export function CityTrack({
         }}
       />
 
+      {enhanced3d && (
+        <Suspense fallback={null}>
+          <ThreeBoardBackdrop districtId={activeDistrictId} active={isStepping || isAdvancing} />
+        </Suspense>
+      )}
+
       {/* 2.5D ISOMETRIC STAGE: 5x5 CSS Grid rotated in 3D */}
       <div
-        className={`isometric-stage relative grid grid-cols-5 grid-rows-5 gap-2 rounded-3xl border-4 border-amber-400/25 bg-navy-950/95 p-3 shadow-[0_45px_90px_rgba(0,0,0,0.95)] ${
+        className={`isometric-stage relative z-10 grid grid-cols-5 grid-rows-5 gap-2 rounded-3xl border-4 border-amber-400/25 bg-navy-950/90 p-3 shadow-[0_45px_90px_rgba(0,0,0,0.95)] ${
           isAdvancing ? 'advancing' : ''
         }`}
         style={{
           perspective: '1000px',
-          transform: `scale(${boardScale}) rotateX(60deg) rotateZ(-45deg)`,
+          transform: `translateY(-24px) scale(${boardScale}) rotateX(60deg) rotateZ(-45deg)`,
           transformStyle: 'preserve-3d',
           width: '460px',
           height: '460px',
@@ -178,8 +192,7 @@ export function CityTrack({
 
                 <span className="sr-only">
                   Space {space.index + 1} of {spaces.length}. {BOARD_SPACE_LABEL[space.kind]}.{' '}
-                  {space.title}. {spaceStateLabel(space, true)}.
-                  {isCurrent ? ' You are here.' : ''}
+                  {space.title}. {spaceStateLabel(space, true)}.{isCurrent ? ' You are here.' : ''}
                 </span>
               </button>
             </div>
@@ -198,8 +211,7 @@ export function CityTrack({
                 aria-current={isCur ? 'location' : undefined}
               >
                 Space {space.index + 1} of {spaces.length}. {BOARD_SPACE_LABEL[space.kind]}.{' '}
-                {space.title}. {spaceStateLabel(space, true)}.
-                {isCur ? ' You are here.' : ''}
+                {space.title}. {spaceStateLabel(space, true)}.{isCur ? ' You are here.' : ''}
               </button>
             );
           })}
@@ -214,11 +226,7 @@ export function CityTrack({
             transformStyle: 'preserve-3d',
           }}
         >
-          <PlayerTokenMark
-            tokenId={playerTokenId}
-            hopping={isStepping}
-            className={tokenClass}
-          />
+          <PlayerTokenMark tokenId={playerTokenId} hopping={isStepping} className={tokenClass} />
         </div>
       </div>
     </div>

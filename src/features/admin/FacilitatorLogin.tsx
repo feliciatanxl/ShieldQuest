@@ -84,7 +84,7 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
                   </label>
                   <button
                     type="button"
-                    onClick={() => alert('For prototype demonstration, click "Sign In" with the demo credentials.')}
+                    onClick={() => alert('For demonstration, click "Sign In" with the demo credentials.')}
                     className="text-[11px] font-bold text-civic-400 hover:underline"
                   >
                     Demo Password?
@@ -111,7 +111,7 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
 
               <div className="mt-6 rounded-xl border border-navy-800 bg-navy-950/50 p-3.5 text-center">
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  <strong className="text-slate-300">Prototype Note:</strong> Pre-filled with demonstration evaluator credentials for rapid testing.
+                  <strong className="text-slate-300">Demo Note:</strong> Pre-filled with demonstration evaluator credentials for testing.
                 </p>
               </div>
             </form>

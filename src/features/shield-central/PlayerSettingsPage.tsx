@@ -1,34 +1,26 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Settings,
-} from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { useSessionStore } from '../../stores/sessionStore';
+import { readPlayerPreferences, savePlayerPreferences } from '../city-board/playerPreferences';
 
 export function PlayerSettingsPage() {
   const navigate = useNavigate();
   const { previewCode } = useSessionStore();
+  const initialPreferences = readPlayerPreferences();
 
   const [pseudonym, setPseudonym] = useState<string>(() => {
     return localStorage.getItem('sq_player_pseudonym') || 'Defender_Alex';
   });
-  const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
-    return localStorage.getItem('sq_reduced_motion') === 'true';
-  });
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
-    return localStorage.getItem('sq_sound_enabled') !== 'false';
-  });
-  const [highContrast, setHighContrast] = useState<boolean>(() => {
-    return localStorage.getItem('sq_high_contrast') === 'true';
-  });
+  const [reducedMotion, setReducedMotion] = useState(initialPreferences.reducedMotion);
+  const [soundEnabled, setSoundEnabled] = useState(initialPreferences.soundEnabled);
+  const [highContrast, setHighContrast] = useState(initialPreferences.highContrast);
+  const [enhanced3d, setEnhanced3d] = useState(initialPreferences.enhanced3d);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
 
   const handleSave = () => {
     localStorage.setItem('sq_player_pseudonym', pseudonym);
-    localStorage.setItem('sq_reduced_motion', String(reducedMotion));
-    localStorage.setItem('sq_sound_enabled', String(soundEnabled));
-    localStorage.setItem('sq_high_contrast', String(highContrast));
+    savePlayerPreferences({ reducedMotion, soundEnabled, highContrast, enhanced3d });
     setSavedNotice('Settings saved successfully!');
     setTimeout(() => setSavedNotice(null), 2500);
   };
@@ -70,9 +62,7 @@ export function PlayerSettingsPage() {
               <Settings className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-navy-900">
-                Experience Controls
-              </h2>
+              <h2 className="text-lg font-black text-navy-900">Experience Controls</h2>
               <p className="text-xs text-slate-500">
                 Customise accessibility features and privacy safeguards.
               </p>
@@ -118,9 +108,7 @@ export function PlayerSettingsPage() {
             {/* Reduced Motion */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <p className="text-xs font-extrabold text-navy-900">
-                  Reduced Motion
-                </p>
+                <p className="text-xs font-extrabold text-navy-900">Reduced Motion</p>
                 <p className="text-[11px] text-slate-500">
                   Disable 2.5D board tilts and spinning pawn jumps.
                 </p>
@@ -133,12 +121,32 @@ export function PlayerSettingsPage() {
               />
             </div>
 
+            {/* Progressive 3D Enhancement */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p className="text-xs font-extrabold text-navy-900">Enhanced 3D City Atmosphere</p>
+                <p className="text-[11px] text-slate-500">
+                  Add a lightweight 3D skyline behind the accessible 2.5D board. Low-power devices
+                  keep the 2.5D view.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={enhanced3d}
+                onChange={(e) => setEnhanced3d(e.target.checked)}
+                disabled={reducedMotion}
+                aria-describedby="enhanced-3d-note"
+                className="h-5 w-5 rounded border-slate-300 text-civic-600 focus:ring-civic-500"
+              />
+              <span id="enhanced-3d-note" className="sr-only">
+                Reduced Motion also disables the enhanced 3D atmosphere.
+              </span>
+            </div>
+
             {/* Audio Effects */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <p className="text-xs font-extrabold text-navy-900">
-                  Sound Effects & Audio Cues
-                </p>
+                <p className="text-xs font-extrabold text-navy-900">Sound Effects & Audio Cues</p>
                 <p className="text-[11px] text-slate-500">
                   Enable subtle auditory chimes on dice roll and reward claims.
                 </p>
@@ -154,9 +162,7 @@ export function PlayerSettingsPage() {
             {/* High Contrast */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold text-navy-900">
-                  Enhanced Contrast Mode
-                </p>
+                <p className="text-xs font-extrabold text-navy-900">Enhanced Contrast Mode</p>
                 <p className="text-[11px] text-slate-500">
                   Increase border weight and font contrast for classroom projectors.
                 </p>
@@ -177,11 +183,10 @@ export function PlayerSettingsPage() {
             </span>
             <div className="mt-3 flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold text-navy-900">
-                  Room Session Code
-                </p>
+                <p className="text-xs font-extrabold text-navy-900">Room Session Code</p>
                 <p className="text-[11px] text-slate-500">
-                  Active code: <strong className="text-civic-700">{previewCode ?? 'SQ-DEMO'}</strong>
+                  Active code:{' '}
+                  <strong className="text-civic-700">{previewCode ?? 'SQ-DEMO'}</strong>
                 </p>
               </div>
               <button

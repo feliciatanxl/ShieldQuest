@@ -17,7 +17,7 @@ test('development entry loads React, opens a mission and survives a reload', asy
     if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
   });
 
-  await page.goto('/');
+  await page.goto('/board');
   const heading = page.getByRole('heading', { name: 'ShieldQuest City', exact: true });
   await expect(heading).toBeVisible();
   await page.getByRole('button', { name: /Open School Street, Chapter 1/ }).click();

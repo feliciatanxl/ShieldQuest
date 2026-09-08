@@ -7,7 +7,7 @@ test('Think · Vote · Explain full group decision flow, simulated disclosures, 
   page.on('pageerror', (error) => errors.push(error.message));
 
   await page.setViewportSize({ width: 1440, height: 950 });
-  await page.goto('/');
+  await page.goto('/board');
 
   // Navigate to Digi-District
   await page.getByRole('button', { name: /Open Digi-District, Chapter 3/ }).click();
@@ -20,11 +20,13 @@ test('Think · Vote · Explain full group decision flow, simulated disclosures, 
   await groupNode.click();
 
   // 1. Stage: THINK
-  await expect(page.getByRole('heading', { name: 'The Group Chat Job', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'The Group Chat Job', exact: true }),
+  ).toBeVisible();
   await expect(page.getByText('Think privately')).toBeVisible();
   await expect(page.getByText('Evidence Checker', { exact: true })).toBeVisible();
   await expect(page.getByText('Round 1 · Facilitated role demonstration')).toBeVisible();
-  await expect(page.getByText(/Prototype Group Simulation/)).toBeVisible();
+  await expect(page.getByText(/Group Decision Simulation/)).toBeVisible();
   // Ensure group percentages are not revealed yet
   await expect(page.getByText('Simulated Group Responses')).not.toBeVisible();
 
@@ -61,7 +63,9 @@ test('Think · Vote · Explain full group decision flow, simulated disclosures, 
   // Toggle factors
   await page.getByRole('button', { name: 'He would lose face in front of the group' }).click();
   await expect(compareButton).toBeEnabled();
-  await page.getByRole('button', { name: 'The details are already sent — this is past advice' }).click();
+  await page
+    .getByRole('button', { name: 'The details are already sent — this is past advice' })
+    .click();
 
   await compareButton.click();
 
@@ -104,7 +108,9 @@ test('Think · Vote · Explain full group decision flow, simulated disclosures, 
 
   // Mobile layout check
   await page.setViewportSize({ width: 390, height: 844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
   await page.screenshot({
     path: '.local/voting-debrief-mobile.png',
     animations: 'disabled',
@@ -141,7 +147,9 @@ test('Think · Vote · Explain full group decision flow, simulated disclosures, 
   await page.getByRole('link', { name: 'Back to the district' }).click();
 
   // Acknowledge Guardian meeting if presented
-  const meeting = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Beacon', exact: true }) });
+  const meeting = page
+    .getByRole('dialog')
+    .filter({ has: page.getByRole('heading', { name: 'Beacon', exact: true }) });
   if (await meeting.isVisible()) {
     await meeting.getByRole('button', { name: 'Continue', exact: true }).click();
   }

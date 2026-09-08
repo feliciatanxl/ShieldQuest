@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 async function openDistrictRoute(page: Page, name: string) {
   if (page.url() === 'about:blank') {
-    await page.goto('/');
+    await page.goto('/board');
   }
   await page.getByRole('button', { name: new RegExp(`Open ${name}, Chapter`) }).click();
   const explore = page.getByRole('button', { name: 'Explore district', exact: true });
@@ -76,7 +76,9 @@ test.describe('Mini-games', () => {
     // All 6 found, transfer question appears
     await expect(page.getByRole('button', { name: /Found 6 \/ 6/ })).toBeVisible();
     await expect(
-      page.getByRole('heading', { name: 'Which warning sign appeared in the Easy Money scenario?' }),
+      page.getByRole('heading', {
+        name: 'Which warning sign appeared in the Easy Money scenario?',
+      }),
     ).toBeVisible();
 
     // Answer transfer question
@@ -131,7 +133,9 @@ test.describe('Mini-games', () => {
     await page.getByRole('link', { name: 'Back to the district' }).last().click();
 
     // Dismiss Guardian meeting dialog for VeriFox if present
-    const continueBtn = page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true });
+    const continueBtn = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Continue', exact: true });
     if (await continueBtn.isVisible()) {
       await continueBtn.click();
     }
@@ -321,7 +325,9 @@ test.describe('Mini-games', () => {
 
     // Pair 4: account -> The service itself
     await page.getByRole('button', { name: /You think someone else has got/ }).click();
-    await page.getByRole('button', { name: 'The service itself, through the app you already use' }).click();
+    await page
+      .getByRole('button', { name: 'The service itself, through the app you already use' })
+      .click();
 
     // Pair 5: unsafe -> An adult who is near you
     await page.getByRole('button', { name: /You feel unsafe right now/ }).click();
@@ -337,7 +343,9 @@ test.describe('Mini-games', () => {
     await page.getByRole('link', { name: 'Back to the district' }).last().click();
 
     // Dismiss Beacon met dialog if present
-    const continueBtn = page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true });
+    const continueBtn = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Continue', exact: true });
     if (await continueBtn.isVisible()) {
       await continueBtn.click();
     }
@@ -349,7 +357,9 @@ test.describe('Mini-games', () => {
     await complete.getByRole('link', { name: 'Return to city' }).click();
 
     // Dismiss Shieldfin met dialog if present
-    const continueBtn2 = page.getByRole('dialog').getByRole('button', { name: 'Continue', exact: true });
+    const continueBtn2 = page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Continue', exact: true });
     if (await continueBtn2.isVisible()) {
       await continueBtn2.click();
     }
@@ -397,7 +407,7 @@ test.describe('Mini-games', () => {
   }) => {
     await page.goto('/#/mini-game/nonexistent-game-id');
     await expect(page.getByRole('heading', { name: 'Activity not found' })).toBeVisible();
-    await expect(page.getByText('This mini-game is not part of the prototype yet.')).toBeVisible();
+    await expect(page.getByText('This mini-game is not currently available.')).toBeVisible();
     const backLink = page.getByRole('link', { name: 'Back to the city' });
     await expect(backLink).toBeVisible();
     await backLink.click();

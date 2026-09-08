@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Users, Link, Check } from 'lucide-react';
 import { useSessionStore } from '../../stores/sessionStore';
@@ -11,6 +11,12 @@ export function SquadPanel() {
   const [input, setInput] = useState(code ?? '');
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
+
+  useEffect(() => {
+    if (code) {
+      setInput(code);
+    }
+  }, [code]);
   const joinUrl = new URL(window.location.origin);
   joinUrl.searchParams.set('session', code ?? 'DEMO01');
 

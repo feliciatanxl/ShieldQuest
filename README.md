@@ -3,10 +3,10 @@
 > **Choose Right. Protect Together.**  
 > A youth-focused interactive crime-prevention and scam-awareness learning platform that combines an interactive 2.5D city board, scenario-based deliberation, peer discussion, delayed consequences, and bystander intervention to empower youths to make safer decisions.
 
-[![Tests](https://img.shields.io/badge/tests-38%20passing-brightgreen.svg)]()
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)]()
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)]()
-[![PWA](https://img.shields.io/badge/PWA-ready-orange.svg)]()
+[![Tests](https://img.shields.io/badge/tests-38%20passing-brightgreen.svg)](<>)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](<>)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](<>)
+[![PWA](https://img.shields.io/badge/PWA-ready-orange.svg)](<>)
 
 ---
 
@@ -25,8 +25,9 @@
 1. **Credible Public Institutional Website** (`/`, `/about`, `/how-it-works`, `/for-schools`, `/safety`, `/faq`):
    - Clear institutional messaging for schools, government agencies (SPF, MHA, NCPC), and grant evaluators.
    - Transparent workshop deployment model, RAMS safety guidelines, and "Request a Session" enquiry modal.
-2. **Playful 2.5D Isometric Player PWA** (`/board`, `/join`, `/onboarding`, `/scenario/:id`, `/minigame/:id`):
-   - Battery-friendly 2.5D CSS perspective matrix transforms (`rotateX(60deg) rotateZ(-45deg)`).
+2. **Hybrid 2.5D and 3D Player PWA** (`/board`, `/join`, `/onboarding`, `/scenario/:id`, `/minigame/:id`):
+   - Accessible 2.5D CSS board remains the interaction layer and low-power fallback.
+   - A lazy-loaded procedural Three.js skyline adds genuine 3D depth on capable devices without using third-party Monopoly artwork.
    - 16 perimeter tiles on a 5x5 grid with upright billboarded pawns and district landmarks.
    - Pinned bottom dice roller, floating HUD, and unblocked canvas.
 3. **Peer Shield Mode** (`/peer-shield`):
@@ -54,46 +55,48 @@
 
 ## 4. Complete Application Routes
 
-| Path | Description | Target Audience |
-| :--- | :--- | :--- |
-| `/` | Public Institutional Website (Hero, 3 Pillars, 9-Step Flow, Guardians, FAQ) | Public, Schools, Grant Evaluators |
-| `/about` | Project background, SecurePi team, and NYC YCM alignment | Public & Educators |
-| `/how-it-works` | The 4-phase pedagogical loop & Think–Vote–Explain methodology | Educators & Facilitators |
-| `/for-schools` | 90-minute workshop structure & booking request modal | School Leaders & Teachers |
-| `/safety` | RAMS safety principles & Privacy-by-Design policies | Compliance & Parents |
-| `/board` | 2.5D Isometric Diamond Grid City Board experience | Players |
-| `/join` | Room session code entry and Squad lobby | Players |
-| `/onboarding` | 7-step player orientation briefing and pawn token selection | Players |
-| `/scenario/:id` | Interactive scenario investigation & consequence simulation | Players |
-| `/minigame/:id` | Dedicated runner for all 6 playable mini-games | Players |
-| `/peer-shield` | Interactive "Friend in Trouble" bystander dilemma simulation | Players |
-| `/shield-central` | Operations Hub (overview of all secondary features) | Players |
-| `/shield-central/casebook` | 10 forensic threat dossiers and scam breakdown cards | Players |
-| `/shield-central/rewards` | Ethical cosmetics (auras, frames, badges) for tokens | Players |
-| `/shield-central/achievements` | Personal decision milestones (zero competitive ranking) | Players |
-| `/shield-central/skills` | S.H.I.E.L.D. 6 competencies overview and practice counts | Players |
-| `/shield-central/trusted-help` | Singapore hotlines (SPF 1799, ScamShield, SOS) & advice | Players |
-| `/shield-central/settings` | Accessibility controls, reduced motion, and pseudonym | Players |
-| `/shield-central/check-in` | Pre- and post-workshop evaluation survey | Players & Facilitators |
-| `/session-complete` | Post-session certificate & completion celebration | Players |
-| `/admin/login` | Evaluator credentials login (`facilitator@shieldquest.sg`) | Facilitators |
-| `/admin` | Portal command dashboard and quick actions | Facilitators |
-| `/admin/sessions` | Active sessions list & live attendance monitor | Facilitators |
-| `/admin/scenarios` | Curated scenario library with multi-faceted filters | Facilitators |
-| `/admin/builder` | 8-step Scenario Authoring Wizard with live preview | Facilitators |
-| `/admin/youth-missions` | Youth proposal review queue & Flash Mission dispatch | Facilitators |
-| `/admin/analytics` | Pilot Evaluation Framework (6 KPIs) & Group Signals | Facilitators & Evaluators |
-| `/admin/resources` | Facilitator guides, debrief slides, printable RAMS kit | Facilitators |
+| Path                           | Description                                                                 | Target Audience                   |
+| :----------------------------- | :-------------------------------------------------------------------------- | :-------------------------------- |
+| `/`                            | Public Institutional Website (Hero, 3 Pillars, 9-Step Flow, Guardians, FAQ) | Public, Schools, Grant Evaluators |
+| `/about`                       | Project background, SecurePi team, and NYC YCM alignment                    | Public & Educators                |
+| `/how-it-works`                | The 4-phase pedagogical loop & Think–Vote–Explain methodology               | Educators & Facilitators          |
+| `/for-schools`                 | 90-minute workshop structure & booking request modal                        | School Leaders & Teachers         |
+| `/safety`                      | RAMS safety principles & Privacy-by-Design policies                         | Compliance & Parents              |
+| `/board`                       | 2.5D Isometric Diamond Grid City Board experience                           | Players                           |
+| `/join`                        | Room session code entry and Squad lobby                                     | Players                           |
+| `/onboarding`                  | 7-step player orientation briefing and pawn token selection                 | Players                           |
+| `/scenario/:id`                | Interactive scenario investigation & consequence simulation                 | Players                           |
+| `/minigame/:id`                | Dedicated runner for all 6 playable mini-games                              | Players                           |
+| `/peer-shield`                 | Interactive "Friend in Trouble" bystander dilemma simulation                | Players                           |
+| `/shield-central`              | Operations Hub (overview of all secondary features)                         | Players                           |
+| `/shield-central/casebook`     | 10 forensic threat dossiers and scam breakdown cards                        | Players                           |
+| `/shield-central/rewards`      | Ethical cosmetics (auras, frames, badges) for tokens                        | Players                           |
+| `/shield-central/achievements` | Personal decision milestones (zero competitive ranking)                     | Players                           |
+| `/shield-central/skills`       | S.H.I.E.L.D. 6 competencies overview and practice counts                    | Players                           |
+| `/shield-central/trusted-help` | Singapore hotlines (SPF 1799, ScamShield, SOS) & advice                     | Players                           |
+| `/shield-central/settings`     | Accessibility controls, reduced motion, and pseudonym                       | Players                           |
+| `/shield-central/check-in`     | Pre- and post-workshop evaluation survey                                    | Players & Facilitators            |
+| `/session-complete`            | Post-session certificate & completion celebration                           | Players                           |
+| `/admin/login`                 | Evaluator credentials login (`facilitator@shieldquest.sg`)                  | Facilitators                      |
+| `/admin`                       | Portal command dashboard and quick actions                                  | Facilitators                      |
+| `/admin/sessions`              | Active sessions list & live attendance monitor                              | Facilitators                      |
+| `/admin/scenarios`             | Curated scenario library with multi-faceted filters                         | Facilitators                      |
+| `/admin/builder`               | 8-step Scenario Authoring Wizard with live preview                          | Facilitators                      |
+| `/admin/youth-missions`        | Youth proposal review queue & Flash Mission dispatch                        | Facilitators                      |
+| `/admin/analytics`             | Pilot Evaluation Framework (6 KPIs) & Group Signals                         | Facilitators & Evaluators         |
+| `/admin/resources`             | Facilitator guides, debrief slides, printable RAMS kit                      | Facilitators                      |
 
 ---
 
 ## 5. Quick Start & Development
 
 ### Prerequisites
+
 - Node.js **22.12+** (Node 24 recommended)
 - npm
 
 ### Installation & Run
+
 ```sh
 npm install
 npm run dev
@@ -103,6 +106,7 @@ npm run dev
 - Backend API: **http://localhost:3001/api/health**
 
 ### Verification Commands
+
 ```sh
 npm run typecheck    # 0 errors across client and server
 npm test             # 38 unit & integration tests passing

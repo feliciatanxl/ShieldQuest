@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -95,7 +95,7 @@ export function CasebookPage() {
             ))}
           </div>
           <span className="shrink-0 rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-bold text-slate-600">
-            ILLUSTRATIVE PROTOTYPE DATA
+            ILLUSTRATIVE DOSSIER DATA
           </span>
         </div>
 

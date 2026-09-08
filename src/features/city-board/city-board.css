@@ -46,38 +46,79 @@
   .app-shell.mission-shell {
     padding-bottom: 0;
   }
-  .city-viewport {
-    height: calc(100dvh - 174px);
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+}
+
+/* Unlayered City Shell & Board Viewport Layout */
+.app-shell.city-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  width: 100%;
+}
+.app-shell.city-shell > .header {
+  flex-shrink: 0;
+  height: 72px;
+  width: 100%;
+}
+.app-shell.city-shell main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.app-shell.city-shell .city-feature {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.app-shell.city-shell .city-api-status {
+  flex-shrink: 0;
+  min-height: 26px;
+  width: 100%;
+}
+.app-shell.city-shell .city-viewport {
+  flex: 1 1 auto;
+  height: calc(100dvh - 138px);
+  min-height: 560px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.app-shell.city-shell .city-viewport:not(:has(.city-home)) {
+  overflow-y: auto;
+  height: auto;
+  min-height: calc(100dvh - 138px);
+}
+.city-shell .breadcrumb {
+  display: none !important;
+}
+.app-shell.city-shell .footer {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0 !important;
+  padding: 10px 24px !important;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  z-index: 20;
+}
+@media (max-width: 850px) {
   .app-shell.city-shell main {
-    max-width: none;
-    padding: 0;
+    padding-bottom: 77px !important;
   }
-  .city-shell .breadcrumb {
-    display: none;
+}
+@media (max-width: 700px) {
+  .app-shell.city-shell > .header {
+    display: none !important;
   }
-  .app-shell.city-shell .footer {
-    margin: 0;
-    padding: 12px 24px;
-  }
-  @media (max-width: 1279px) {
-    .city-viewport {
-      height: calc(100dvh - 76px);
-      min-height: 600px;
-      overflow: hidden;
-    }
-    .app-shell.city-shell main {
-      padding-bottom: 76px;
-    }
-  }
-  @media (max-width: 700px) {
-    .app-shell.city-shell > .header {
-      display: none;
-    }
+  .app-shell.city-shell .city-viewport {
+    height: calc(100dvh - 66px);
+    min-height: 500px;
   }
 }
 

@@ -5,7 +5,7 @@ test('district selection and six-phase mission preview unlock a demo Guardian', 
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  await page.goto('/board');
   await page.getByRole('button', { name: /Open Retail District, Chapter 2/ }).click();
   await page.getByRole('button', { name: 'Explore district', exact: true }).click();
   await page.getByRole('link', { name: /Too good to be true/ }).click();
@@ -31,7 +31,7 @@ test('district selection and six-phase mission preview unlock a demo Guardian', 
 });
 
 test('QR entry prefills a preview code without claiming live membership', async ({ page }) => {
-  await page.goto('/?session=TEST42');
+  await page.goto('/join?session=TEST42');
   await expect(page.getByLabel('Session code')).toHaveValue('TEST42');
   await expect(page.getByRole('status')).toContainText(
     'Session lookup and joining are not connected yet',
@@ -43,8 +43,7 @@ test('QR entry prefills a preview code without claiming live membership', async 
 });
 
 test('facilitator draft editing is local and reversible', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'For facilitators' }).click();
+  await page.goto('/admin');
   await page.getByRole('button', { name: 'New draft' }).click();
   await page.getByLabel('Scenario title').fill('A new sample story');
   await page.getByRole('button', { name: 'Save local preview' }).click();
@@ -56,7 +55,7 @@ test('facilitator draft editing is local and reversible', async ({ page }) => {
 
 test('mobile navigation and reflection work without horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/board');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
@@ -74,15 +73,19 @@ test('production board and QR entry remain usable offline with an honest mission
   page,
   context,
 }) => {
-  await page.goto('/');
+  await page.goto('/board');
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
-    if (!navigator.serviceWorker.controller)
-      await new Promise<void>((resolve) =>
-        navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {
-          once: true,
-        }),
-      );
+    if (!navigator.serviceWorker.controller) {
+      await Promise.race([
+        new Promise<void>((resolve) =>
+          navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {
+            once: true,
+          }),
+        ),
+        new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    }
   });
   const manifest = await page.request.get('/manifest.json');
   expect(await manifest.json()).toMatchObject({
@@ -106,18 +109,19 @@ test('production board and QR entry remain usable offline with an honest mission
   await page.getByRole('button', { name: /Open Community Hub, Chapter 4/ }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
-  await page.goto('/?session=DEMO01');
+  await page.goto('/join?session=DEMO01');
   await expect(page.getByLabel('Session code')).toHaveValue('DEMO01');
 });
 
 test('desktop board renders cleanly and dialog restores keyboard focus', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
-  await page.goto('/');
+  await page.goto('/board');
+  const help = page.getByRole('button', { name: 'About this game', exact: true });
+  await expect(help).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );
   await page.screenshot({ path: '.local/desktop-preview.png', fullPage: true });
-  const help = page.getByRole('button', { name: 'About this game', exact: true });
   await help.click();
   await page.keyboard.press('Escape');
   await expect(help).toBeFocused();
