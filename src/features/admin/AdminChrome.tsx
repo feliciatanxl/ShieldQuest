@@ -51,37 +51,15 @@ export function AdminSidebar({
 }) {
   return (
     <aside className="shrink-0 border-b border-line bg-surface lg:sticky lg:top-16 lg:h-[calc(100dvh-4rem)] lg:w-[272px] lg:overflow-y-auto lg:border-b-0 lg:border-r">
-      {/* The portal identity lives here, once. The top bar used to repeat it. */}
-      <div className="hidden items-center gap-2.5 border-b border-line px-5 py-5 lg:flex">
-        <span
-          aria-hidden="true"
-          className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900 shadow-sm"
-        >
-          <Shield className="h-4.5 w-4.5 text-amber-400" />
-        </span>
-        <div>
-          <p className="text-[13px] font-black uppercase tracking-tight text-navy-950">
-            Shield<span className="text-civic-600">Quest</span>
-          </p>
-          {/*
-            The demonstration context lives here now, in place of the amber
-            banner that used to occupy the top bar. Always on screen, never
-            competing with the actions beside it.
-          */}
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--sq-ink-muted)]">
-            Admin Portal
-            {/* Decorative punctuation, so it is hidden from assistive tech and
-              * takes the muted ink rather than the line colour — a separator
-              * at 1.58:1 is invisible, which rather defeats separating. */}
-            <span aria-hidden="true" className="mx-1.5 text-[var(--sq-ink-muted)]">
-              ·
-            </span>
-            <span className="text-[var(--sq-earned-text)]">Demo</span>
-          </p>
-        </div>
-      </div>
+      {/*
+        Navigation only.
 
-      <nav aria-label="Portal sections" className="px-3 py-3 lg:py-0">
+        The identity block that used to sit here moved to the top bar: the
+        sidebar has one job, and a facilitator scanning for a section should
+        not have to look past a logo to start reading it. The demonstration
+        marker travelled with the brand.
+      */}
+      <nav aria-label="Portal sections" className="px-3 py-3 lg:pt-5">
         <ul className="flex gap-1.5 overflow-x-auto lg:block lg:space-y-1 lg:overflow-visible">
           {ADMIN_NAV.map(({ id, label, icon: Icon }) => {
             const isActive = active === id;

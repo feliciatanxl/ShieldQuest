@@ -1,3 +1,18 @@
+> [!WARNING]
+> **SUPERSEDED — kept for history, not for reference.**
+>
+> This document describes the design system as it stood before the September
+> 2026 token consolidation. It still lists the `--sq-brand-*` variables (since
+> removed as dead) and the pre-consolidation values `#0a1128`, `#2563eb` and
+> `#3b82f6` — which were resolved in favour of the contrast-checked palette
+> `#061527`, `#1a66bc` and `#2a7dd8`. It also describes three experiences where
+> the product settled on **two skins, one spine**.
+>
+> **Source of truth:** `src/design-system/tokens.css`
+> **Start here instead:** [`doc/HANDOVER.md`](./HANDOVER.md)
+
+---
+
 # SHIELDQUEST DESIGN SYSTEM (DESIGN_SYSTEM.md)
 
 **Version:** 1.0.0  

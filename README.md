@@ -8,6 +8,11 @@
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](<>)
 [![PWA](https://img.shields.io/badge/PWA-ready-orange.svg)](<>)
 
+> **Picking this up?** Start with **[`doc/HANDOVER.md`](doc/HANDOVER.md)** — the
+> design system's rules, the traps already hit, how to verify visual work, and
+> what to build next. Design tokens live in `src/design-system/tokens.css` and
+> nowhere else.
+
 ---
 
 ## 1. Institutional Context & Partnerships

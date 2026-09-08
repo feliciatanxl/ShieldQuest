@@ -303,23 +303,30 @@ export function ScenarioPortal({
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 lg:h-full lg:flex-nowrap lg:py-0">
           <div className="flex items-center gap-3">
             {/*
-              Shown only below `lg`, where the sidebar (and the identity block
-              inside it) is collapsed. On desktop this was a second ShieldQuest
-              wordmark sitting directly above the one in the sidebar — the
-              sidebar already tells a facilitator where they are.
+              The portal identity, at every width.
+
+              It lived in the sidebar for a while, which left the top bar empty
+              on the left with the actions crowded against the right edge. Logo
+              top-left with the sidebar carrying only navigation is both the
+              conventional admin layout and the one that balances this bar —
+              and the brand stays put however far the sidebar is scrolled.
             */}
             <span
               aria-hidden="true"
-              className="grid h-9 w-9 place-items-center rounded-[10px] bg-navy-900 lg:hidden"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] bg-navy-900 shadow-sm"
             >
-              <Shield className="h-4 w-4 text-amber-400" />
+              <Shield className="h-4.5 w-4.5 text-amber-400" />
             </span>
-            <div className="lg:hidden">
-              <p className="text-[13px] font-extrabold text-navy-900">
-                ShieldQuest
+            <div>
+              <p className="text-[13px] font-black uppercase tracking-tight text-navy-950">
+                Shield<span className="text-civic-600">Quest</span>
               </p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-civic-700">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--sq-ink-muted)]">
                 Admin Portal
+                <span aria-hidden="true" className="mx-1.5 text-[var(--sq-ink-muted)]">
+                  ·
+                </span>
+                <span className="text-[var(--sq-earned-text)]">Demo</span>
               </p>
             </div>
           </div>
