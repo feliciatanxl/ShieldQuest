@@ -138,7 +138,11 @@ test('a seeded roll is reproducible and always 2-12', () => {
 
 test('moving pays the stipend once per gate crossed', () => {
   const state = newGame();
-  const { state: moved, path, passedGate } = applyRoll(state, { a: 4, b: 3, total: 7, isDouble: false });
+  const {
+    state: moved,
+    path,
+    passedGate,
+  } = applyRoll(state, { a: 4, b: 3, total: 7, isDouble: false });
   assert.equal(moved.position, 7);
   assert.equal(path.length, 7);
   assert.ok(passedGate);
@@ -292,7 +296,10 @@ test('a 10-13 session is never shown out-of-band mission content', () => {
       );
     }
     if (landing.kind === 'CARD') {
-      assert.ok(landing.card.bands.includes('B10_13'), `${landing.card.id} is not approved for 10-13`);
+      assert.ok(
+        landing.card.bands.includes('B10_13'),
+        `${landing.card.id} is not approved for 10-13`,
+      );
     }
   }
 });

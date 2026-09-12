@@ -201,9 +201,9 @@ export default function Onboarding() {
 
       <footer className="space-y-2 border-t border-[var(--sq-line)] pt-4 text-[11px] leading-relaxed text-[var(--sq-ink-muted)]">
         <p>
-          <strong className="text-[var(--sq-ink)]">What this never asks for:</strong> your name, NRIC,
-          phone number, address, or any banking or account details. Not in a form, and not inside a
-          scenario.
+          <strong className="text-[var(--sq-ink)]">What this never asks for:</strong> your name,
+          NRIC, phone number, address, or any banking or account details. Not in a form, and not
+          inside a scenario.
         </p>
         <p>
           Every situation in the game is fictional. Statistics quoted in facilitator materials come

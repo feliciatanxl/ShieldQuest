@@ -475,7 +475,7 @@ const FRIEND_UNDER_PRESSURE: Scenario = {
     },
     { id: 'f4', author: 'them', displayName: 'Your friend', body: '…fine, ok, whatever.' },
   ],
-  clueQuestion: "What is holding your friend in place?",
+  clueQuestion: 'What is holding your friend in place?',
   clues: [
     {
       id: 'fc_audience',
@@ -525,8 +525,11 @@ const FRIEND_UNDER_PRESSURE: Scenario = {
       debrief: {
         headline: 'Peer Shield success',
         body: 'You did not argue with the group or make your friend defend themselves. Changing the subject and creating a reason to leave lets someone step back without losing face, which is the single biggest barrier to them changing their mind.',
-        spotted: ['Moved the attention, not the argument', 'Let your friend exit without losing face'],
-        sampleScript: "Come lah, we need to go. You can do your thing another time.",
+        spotted: [
+          'Moved the attention, not the argument',
+          'Let your friend exit without losing face',
+        ],
+        sampleScript: 'Come lah, we need to go. You can do your thing another time.',
         competency: 'DEFEND',
         guardianId: 'shieldfin',
       },
@@ -690,7 +693,8 @@ const FAKE_LISTING: Scenario = {
   primaryCompetency: 'SPOT',
   competencies: ['SPOT', 'HOLD'],
   bands: ['B10_13', 'B14_16', 'B17_24'],
-  prompt: 'A listing has the console you want at less than half price — if you pay outside the app.',
+  prompt:
+    'A listing has the console you want at less than half price — if you pay outside the app.',
   messages: [
     {
       id: 'e1',
@@ -964,9 +968,19 @@ const COVER_FOR_ME: Scenario = {
       body: 'Direct message · 11:40pm',
       meta: 'Something happened earlier that you were not part of',
     },
-    { id: 'c2', author: 'them', displayName: 'Friend', body: 'If anyone asks, we were together ok.' },
+    {
+      id: 'c2',
+      author: 'them',
+      displayName: 'Friend',
+      body: 'If anyone asks, we were together ok.',
+    },
     { id: 'c3', author: 'them', displayName: 'Friend', body: 'Please. I will owe you one.' },
-    { id: 'c4', author: 'them', displayName: 'Friend', body: 'You are my only friend who can do this.' },
+    {
+      id: 'c4',
+      author: 'them',
+      displayName: 'Friend',
+      body: 'You are my only friend who can do this.',
+    },
   ],
   clueQuestion: 'What is being asked of you?',
   clues: [
@@ -1045,7 +1059,8 @@ const COVER_FOR_ME: Scenario = {
       id: 'cch_route',
       label: 'Point to real help',
       hint: 'Get them to someone who can actually deal with it',
-      reply: "This is bigger than me covering for you. Let's talk to someone who can actually help.",
+      reply:
+        "This is bigger than me covering for you. Let's talk to someone who can actually help.",
       outcome: 'SAFE',
       immediate: {
         deltas: { coins: 50, resilience: 22, trust: 14 },
@@ -1056,7 +1071,8 @@ const COVER_FOR_ME: Scenario = {
         headline: 'You routed it correctly',
         body: 'A situation with a formal consequence attached needs an adult or an official channel, not a second version of events. Offering to go with them is what makes that suggestion something they might actually take.',
         spotted: ['Recognised it had gone past peer advice', 'Offered to go with them'],
-        sampleScript: "I'll go with you. Telling it straight now is going to go better than the other way.",
+        sampleScript:
+          "I'll go with you. Telling it straight now is going to go better than the other way.",
         competency: 'LEAD',
         guardianId: 'beacon',
       },

@@ -47,13 +47,16 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((key) => !key.startsWith(VERSION)).map((key) => caches.delete(key))),
+        Promise.all(
+          keys.filter((key) => !key.startsWith(VERSION)).map((key) => caches.delete(key)),
+        ),
       )
       .then(() => self.clients.claim()),
   );
 });
 
-const isHashedAsset = (url) => /\/assets\/.+-[A-Za-z0-9_-]{8,}\.(js|css|woff2?)$/.test(url.pathname);
+const isHashedAsset = (url) =>
+  /\/assets\/.+-[A-Za-z0-9_-]{8,}\.(js|css|woff2?)$/.test(url.pathname);
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
@@ -71,15 +74,13 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() =>
-          caches
-            .match('/index.html')
-            .then(
-              (cached) =>
-                cached ??
-                new Response('<h1>ShieldQuest is offline</h1>', {
-                  headers: { 'Content-Type': 'text/html' },
-                }),
-            ),
+          caches.match('/index.html').then(
+            (cached) =>
+              cached ??
+              new Response('<h1>ShieldQuest is offline</h1>', {
+                headers: { 'Content-Type': 'text/html' },
+              }),
+          ),
         ),
     );
     return;

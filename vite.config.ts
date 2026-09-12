@@ -12,10 +12,7 @@ import tailwindcss from '@tailwindcss/vite';
  * than generated — see the header of `public/sw.js` for why.
  */
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react(), tailwindcss()],
   build: {
     rollupOptions: {
       output: {

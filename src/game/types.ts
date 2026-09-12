@@ -242,13 +242,7 @@ export interface District {
 }
 
 export type SpaceKind =
-  | 'GATE'
-  | 'MISSION'
-  | 'PEER_SHIELD'
-  | 'SITUATION'
-  | 'CLUE'
-  | 'GUARDIAN'
-  | 'COMMUNITY';
+  'GATE' | 'MISSION' | 'PEER_SHIELD' | 'SITUATION' | 'CLUE' | 'GUARDIAN' | 'COMMUNITY';
 
 export interface BoardSpace {
   /** Index around the track, 0..TRACK_LENGTH-1. */
@@ -312,14 +306,7 @@ export interface DistrictState {
 }
 
 export type GamePhase =
-  | 'IDLE'
-  | 'ROLLING'
-  | 'MOVING'
-  | 'LANDED'
-  | 'SCENARIO'
-  | 'DEBRIEF'
-  | 'CONSEQUENCE'
-  | 'AWARD';
+  'IDLE' | 'ROLLING' | 'MOVING' | 'LANDED' | 'SCENARIO' | 'DEBRIEF' | 'CONSEQUENCE' | 'AWARD';
 
 export interface LogEntry {
   turn: number;

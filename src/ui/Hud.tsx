@@ -81,7 +81,9 @@ export function GuardianStrip({ game, onOpen }: { game: GameState; onOpen: () =>
             className="relative grid h-9 w-9 flex-1 place-content-center rounded-full border transition-colors"
             style={{
               borderColor: met ? 'var(--sq-earned)' : 'var(--sq-line)',
-              background: met ? 'color-mix(in oklab, var(--sq-earned) 18%, transparent)' : 'transparent',
+              background: met
+                ? 'color-mix(in oklab, var(--sq-earned) 18%, transparent)'
+                : 'transparent',
               opacity: met ? 1 : 0.45 + (progress / guardian.target) * 0.35,
             }}
           >

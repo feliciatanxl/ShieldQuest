@@ -58,7 +58,11 @@ const KIND_GLYPH: Record<BoardSpace['kind'], string> = {
  * the board to arrive unreadable. A 2D canvas is synchronous, hits the system
  * font stack, and costs one texture per tile.
  */
-function makeLabelTexture(space: BoardSpace, corner: boolean, rotation: number): THREE.CanvasTexture {
+function makeLabelTexture(
+  space: BoardSpace,
+  corner: boolean,
+  rotation: number,
+): THREE.CanvasTexture {
   const w = 300;
   const h = 300;
   const canvas = document.createElement('canvas');
@@ -196,7 +200,13 @@ export class BoardScene {
   private camera: THREE.PerspectiveCamera;
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
-  private clock = new THREE.Clock();
+  /**
+   * `Timer` rather than the deprecated `Clock`, and connected to the document
+   * so the Page Visibility API clamps the delta. A participant who switches
+   * apps mid-session and comes back would otherwise return to a frame with
+   * thirty seconds of accumulated time in it, which teleports the token.
+   */
+  private timer = new THREE.Timer();
 
   private tiles: TileHandle[] = [];
   private token = new THREE.Group();
@@ -242,10 +252,11 @@ export class BoardScene {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
 
+    this.timer.connect(document);
     this.scene.fog = new THREE.FogExp2(0x061527, 0.022);
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120);
 
@@ -477,7 +488,11 @@ export class BoardScene {
     this.diceThrowing = true;
     this.dice.forEach((die, i) => {
       die.visible = true;
-      die.position.set(this.token.position.x + (i === 0 ? -0.8 : 0.8), 3.4, this.token.position.z + 1.4);
+      die.position.set(
+        this.token.position.x + (i === 0 ? -0.8 : 0.8),
+        3.4,
+        this.token.position.z + 1.4,
+      );
       die.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
     });
   }
@@ -662,7 +677,8 @@ export class BoardScene {
     // one radius for both — the obvious version — either clips the near corners
     // or leaves the board sitting small in the middle of a phone screen.
     const halfFov = (this.camera.fov * Math.PI) / 360;
-    const fitHorizontal = (HALF_SPAN * 1.18) / (Math.tan(halfFov) * Math.min(1, this.camera.aspect));
+    const fitHorizontal =
+      (HALF_SPAN * 1.18) / (Math.tan(halfFov) * Math.min(1, this.camera.aspect));
     const fitVertical = (HALF_SPAN * 1.24) / Math.tan(halfFov);
     this.cameraDistance = THREE.MathUtils.clamp(Math.max(fitVertical, fitHorizontal), 12, 34);
     this.camera.updateProjectionMatrix();
@@ -671,6 +687,7 @@ export class BoardScene {
   dispose() {
     this.disposed = true;
     this.renderer.setAnimationLoop(null);
+    this.timer.disconnect();
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.geometry.dispose();
@@ -723,9 +740,11 @@ export class BoardScene {
 
   private tick() {
     if (this.disposed) return;
-    const dt = Math.min(this.clock.getDelta(), 0.05);
+    this.timer.update();
+    const dt = Math.min(this.timer.getDelta(), 0.05);
+    const elapsed = this.timer.getElapsed();
 
-    this.animateToken(dt);
+    this.animateToken(dt, elapsed);
     this.animateDice(dt);
     this.animateTiles(dt);
     this.animatePulses(dt);
@@ -736,7 +755,7 @@ export class BoardScene {
     if (!this.options.reducedMotion) {
       if (core) {
         core.rotation.y += dt * 0.4;
-        core.position.y = 1.1 + Math.sin(this.clock.elapsedTime * 1.1) * 0.06;
+        core.position.y = 1.1 + Math.sin(elapsed * 1.1) * 0.06;
       }
       if (halo) halo.rotation.z += dt * 0.15;
     }
@@ -744,7 +763,7 @@ export class BoardScene {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private animateToken(dt: number) {
+  private animateToken(dt: number, elapsed: number) {
     if (this.hopping) {
       // A hop per tile at a pace that stays legible for a 12-space roll: fast
       // enough not to be waiting, slow enough to count the tiles being passed.
@@ -765,11 +784,15 @@ export class BoardScene {
         this.beginHop();
       }
     } else if (!this.options.reducedMotion) {
-      this.token.position.y = TILE_HEIGHT + Math.sin(this.clock.elapsedTime * 2.2) * 0.035;
+      this.token.position.y = TILE_HEIGHT + Math.sin(elapsed * 2.2) * 0.035;
       this.token.rotation.y += dt * 0.6;
     }
 
-    this.tokenShadow.position.set(this.token.position.x, TILE_HEIGHT + 0.014, this.token.position.z);
+    this.tokenShadow.position.set(
+      this.token.position.x,
+      TILE_HEIGHT + 0.014,
+      this.token.position.z,
+    );
     const lift = THREE.MathUtils.clamp(this.token.position.y - TILE_HEIGHT, 0, 0.6);
     const shrink = 1 - lift * 0.9;
     this.tokenShadow.scale.setScalar(Math.max(0.35, shrink));

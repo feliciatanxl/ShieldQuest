@@ -129,7 +129,11 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
         <ol>
           {TRACK.map((space) => {
             const resolved = game?.resolved.includes(space.id) ?? false;
-            const current = game?.position === space.index;
+            // `position` updates the moment the roll is applied, so during the
+            // hop it names the DESTINATION. Marking that tile while the token
+            // is still three spaces away reads as the ring being in the wrong
+            // place, so it only appears once the token has actually arrived.
+            const current = game?.position === space.index && path.length === 0;
             return (
               <li key={space.id}>
                 <button
@@ -140,15 +144,17 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
                   className="sq-tile-hit"
                   data-current={current}
                   onClick={() => onInspect(space.index)}
-                >
-                  {/* Visually hidden, because the tile face is drawn in the
-                      scene behind. This is the accessible name for it. */}
-                  <span className="sr-only">
-                    {`Space ${space.index + 1}. ${space.title}. ${DISTRICTS[space.districtId].name}. ${space.summary}`}
-                    {current ? ' You are here.' : ''}
-                    {resolved ? ' Already played.' : ''}
-                  </span>
-                </button>
+                  /* The tile's face is painted in the scene behind, so the
+                     button has no text of its own to name it. Stated outright
+                     rather than left to a visually-hidden child: this is the
+                     only description of the space a screen-reader user gets. */
+                  aria-label={
+                    `Space ${space.index + 1}. ${space.title}. ` +
+                    `${DISTRICTS[space.districtId].name}. ${space.summary}` +
+                    (current ? ' You are here.' : '') +
+                    (resolved ? ' Already played.' : '')
+                  }
+                />
               </li>
             );
           })}

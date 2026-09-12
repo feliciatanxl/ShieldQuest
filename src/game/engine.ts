@@ -1,4 +1,11 @@
-import { DISTRICTS, DISTRICT_ORDER, GATE_STIPEND, TRACK, TRACK_LENGTH, securingSpaces } from './board.ts';
+import {
+  DISTRICTS,
+  DISTRICT_ORDER,
+  GATE_STIPEND,
+  TRACK,
+  TRACK_LENGTH,
+  securingSpaces,
+} from './board.ts';
 import { GUARDIANS, GUARDIAN_BY_ID } from './content/guardians.ts';
 import { CLUE_CARDS, SITUATION_CARDS } from './content/situations.ts';
 import { SCENARIO_BY_ID } from './content/scenarios.ts';
@@ -41,7 +48,7 @@ export function makeRng(seed: number): Rng {
   };
 }
 
-const pick = <T,>(items: readonly T[], rng: Rng): T => items[Math.floor(rng() * items.length)]!;
+const pick = <T>(items: readonly T[], rng: Rng): T => items[Math.floor(rng() * items.length)]!;
 
 /* ------------------------------------------------------------------ */
 /* Session identity                                                    */

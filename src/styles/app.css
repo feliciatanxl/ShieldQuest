@@ -268,8 +268,7 @@
   overflow: hidden;
   background:
     radial-gradient(120% 90% at 50% 8%, rgb(26 102 188 / 0.22), transparent 62%),
-    radial-gradient(100% 80% at 50% 100%, rgb(6 21 39 / 0.9), transparent 70%),
-    var(--sq-canvas);
+    radial-gradient(100% 80% at 50% 100%, rgb(6 21 39 / 0.9), transparent 70%), var(--sq-canvas);
 }
 
 /* The focusable control layer. It is transparent and sits exactly over the 3D

@@ -1,6 +1,11 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
-import { COMPETENCY_LABEL, COMPETENCY_LETTER, type ChoiceOutcome, type Competency } from '../game/types.ts';
+import {
+  COMPETENCY_LABEL,
+  COMPETENCY_LETTER,
+  type ChoiceOutcome,
+  type Competency,
+} from '../game/types.ts';
 
 /* ------------------------------------------------------------------ */
 /* Button                                                              */

@@ -37,7 +37,10 @@ export default function GameShell() {
   const latest = log[0];
 
   return (
-    <div data-skin="game" className="flex h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]">
+    <div
+      data-skin="game"
+      className="flex h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]"
+    >
       {/* ---------- top ---------- */}
       <header className="shrink-0 border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="mb-2.5 flex items-center justify-between gap-3">
@@ -116,7 +119,8 @@ export default function GameShell() {
       {/* ---------- bottom ---------- */}
       <footer className="shrink-0 border-t border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
         <p className="mb-2 truncate text-xs text-[var(--sq-ink-muted)]">
-          <span className="font-semibold text-[var(--sq-ink)]">{space.title}</span> — {space.summary}
+          <span className="font-semibold text-[var(--sq-ink)]">{space.title}</span> —{' '}
+          {space.summary}
         </p>
         <RollButton />
       </footer>

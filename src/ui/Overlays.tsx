@@ -1,7 +1,12 @@
 import { useState } from 'react';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
-import { COMPETENCY_MEANING, GUARDIANS, GUARDIAN_BY_ID, guardianArt } from '../game/content/guardians.ts';
+import {
+  COMPETENCY_MEANING,
+  GUARDIANS,
+  GUARDIAN_BY_ID,
+  guardianArt,
+} from '../game/content/guardians.ts';
 import { nextUpgrade, sessionReport } from '../game/engine.ts';
 import { useGame } from '../state/store.ts';
 import { Button, CompetencyChip, OutcomeBadge, Sheet } from './primitives.tsx';
@@ -51,7 +56,9 @@ function ScenarioSheet() {
                     {message.body}
                   </p>
                   {message.meta ? (
-                    <p className="text-[11px] text-[var(--sq-ink-muted)] opacity-80">{message.meta}</p>
+                    <p className="text-[11px] text-[var(--sq-ink-muted)] opacity-80">
+                      {message.meta}
+                    </p>
                   ) : null}
                 </li>
               );
@@ -111,7 +118,10 @@ function ScenarioSheet() {
                 {scenario.clues
                   .filter((clue) => tagged.includes(clue.id))
                   .map((clue) => (
-                    <li key={clue.id} className="text-xs leading-relaxed text-[var(--sq-ink-muted)]">
+                    <li
+                      key={clue.id}
+                      className="text-xs leading-relaxed text-[var(--sq-ink-muted)]"
+                    >
                       <strong className="text-[var(--sq-ink)]">{clue.label}:</strong> {clue.note}
                     </li>
                   ))}
@@ -231,7 +241,9 @@ function DebriefSheet() {
           <h2 id="debrief-title" className="text-xl font-bold">
             {debrief.headline}
           </h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-[var(--sq-ink-muted)]">{debrief.body}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--sq-ink-muted)]">
+            {debrief.body}
+          </p>
         </div>
 
         {debrief.spotted && debrief.spotted.length > 0 ? (
@@ -277,8 +289,8 @@ function DebriefSheet() {
           <p className="flex items-center gap-2 text-xs text-[var(--sq-ink-muted)]">
             <img src={guardianArt(guardian.id)} alt="" className="h-6 w-6" aria-hidden="true" />
             <span>
-              <strong className="text-[var(--sq-earned-text)]">{guardian.name}</strong> grew stronger —{' '}
-              {guardian.skill}.
+              <strong className="text-[var(--sq-earned-text)]">{guardian.name}</strong> grew
+              stronger — {guardian.skill}.
             </span>
           </p>
         ) : null}
@@ -419,8 +431,8 @@ function AwardSheet() {
 
         <p className="mx-auto mt-4 max-w-[40ch] rounded-[var(--radius-card)] bg-[var(--sq-surface-sunk)] p-3 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
           You met {guardian.name} by making {guardian.target / 2} decisions that showed{' '}
-          {COMPETENCY_MEANING[guardian.competency].split('.')[0]!.toLowerCase()}. Guardians are never
-          bought and never rolled for.
+          {COMPETENCY_MEANING[guardian.competency].split('.')[0]!.toLowerCase()}. Guardians are
+          never bought and never rolled for.
         </p>
 
         <Button full variant="earned" className="mt-5" onClick={dismiss}>
@@ -447,7 +459,11 @@ function SecuredSheet() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--sq-ink-muted)]">
           District secured
         </p>
-        <h2 id="secured-title" className="mt-2 text-2xl font-bold" style={{ color: district.colour }}>
+        <h2
+          id="secured-title"
+          className="mt-2 text-2xl font-bold"
+          style={{ color: district.colour }}
+        >
           {district.name}
         </h2>
         <p className="mx-auto mt-2 max-w-[36ch] text-sm leading-relaxed text-[var(--sq-ink-muted)]">
@@ -552,7 +568,9 @@ function CommunitySheet() {
                 <p className="mt-1 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
                   {upgrade.blurb}
                 </p>
-                <p className="mt-1 text-xs font-medium text-[var(--sq-safe)]">+{upgrade.trust} Trust</p>
+                <p className="mt-1 text-xs font-medium text-[var(--sq-safe)]">
+                  +{upgrade.trust} Trust
+                </p>
               </li>
             );
           })}
@@ -561,11 +579,7 @@ function CommunitySheet() {
         {message ? <p className="text-sm text-[var(--sq-risk)]">{message}</p> : null}
 
         <div className="flex gap-2">
-          <Button
-            variant="quiet"
-            className="flex-1"
-            onClick={dismiss}
-          >
+          <Button variant="quiet" className="flex-1" onClick={dismiss}>
             Not now
           </Button>
           <Button
@@ -785,9 +799,10 @@ function ReportSheet() {
         </section>
 
         <p className="rounded-[var(--radius-card)] bg-[var(--sq-surface-sunk)] p-3 text-[11px] leading-relaxed text-[var(--sq-ink-muted)]">
-          Keep your session code — <strong className="text-[var(--sq-ink)]">{report.sessionCode}</strong>{' '}
-          — for the short form at the end. It is the only thing linking your answers before and
-          after, and it is not linked to your name.
+          Keep your session code —{' '}
+          <strong className="text-[var(--sq-ink)]">{report.sessionCode}</strong> — for the short
+          form at the end. It is the only thing linking your answers before and after, and it is not
+          linked to your name.
         </p>
 
         <div className="flex gap-2">
