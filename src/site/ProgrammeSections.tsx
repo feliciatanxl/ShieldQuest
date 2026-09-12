@@ -35,8 +35,11 @@ function BoardPreview() {
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto w-full max-w-md select-none"
-      style={{ perspective: '1100px' }}
+      // A rotated element still occupies its flat layout box, so the corners it
+      // throws outside that box had nothing to sit in and crowded the legend
+      // below. The padding gives the tilt somewhere to go.
+      className="relative mx-auto w-full max-w-md select-none px-2 py-4"
+      style={{ perspective: '1200px' }}
     >
       <div
         className="grid aspect-square gap-1 rounded-[var(--radius-panel)] border border-[var(--color-navy-800)] p-3 shadow-[var(--sq-shadow-float)]"
@@ -45,7 +48,7 @@ function BoardPreview() {
           gridTemplateRows: 'repeat(8, minmax(0, 1fr))',
           background:
             'radial-gradient(80% 70% at 50% 18%, #14345c, transparent 70%), var(--color-navy-950)',
-          transform: 'rotateX(24deg) rotateZ(-6deg)',
+          transform: 'rotateX(18deg) rotateZ(-4deg)',
         }}
       >
         {TRACK.map((space) => {
@@ -75,7 +78,7 @@ function BoardPreview() {
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+      <div className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-1.5">
         {Object.values(DISTRICTS).map((district) => (
           <span
             key={district.id}
@@ -232,7 +235,7 @@ const STAGES = [
   {
     icon: Compass,
     action: 'Explore',
-    player: 'Roll, move, and navigate the interactive city board.',
+    player: 'Roll, move, and read the city board.',
     learning: 'Puts risk in places youths recognise',
   },
   {
@@ -280,7 +283,7 @@ export function LearningLoop() {
         {STAGES.map((stage, index) => (
           <li
             key={stage.action}
-            className="rounded-[var(--radius-card)] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-5 shadow-[var(--sq-shadow-flat)]"
+            className="flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--sq-line)] bg-[var(--sq-surface)] p-5 shadow-[var(--sq-shadow-flat)]"
           >
             <div className="flex items-start justify-between gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-civic-50)] text-[var(--sq-action-text)]">
@@ -295,10 +298,13 @@ export function LearningLoop() {
             </div>
 
             <h3 className="mt-4 text-base font-extrabold text-[var(--sq-ink)]">{stage.action}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-[var(--sq-ink-muted)]">
+            <p className="mt-1.5 flex-1 text-sm leading-relaxed text-[var(--sq-ink-muted)]">
               {stage.player}
             </p>
-            <p className="mt-3 border-t border-[var(--sq-line)] pt-3 text-xs font-bold uppercase tracking-wide text-[var(--sq-peer)]">
+            {/* `mt-auto` rather than a fixed height: the learning line is the
+                claim these cards exist to make, so it lines up across the row
+                whatever length the description above it turns out to be. */}
+            <p className="mt-auto border-t border-[var(--sq-line)] pt-3 text-xs font-bold uppercase tracking-wide text-[var(--sq-peer)]">
               {stage.learning}
             </p>
           </li>
@@ -350,7 +356,7 @@ export function Framework() {
         {GUARDIANS.map((guardian) => (
           <li
             key={guardian.competency}
-            className="row-span-3 grid grid-rows-subgrid gap-0 rounded-[var(--radius-card)] border border-[var(--color-navy-800)] bg-[var(--color-navy-900)] p-5"
+            className="flex h-full flex-col rounded-[var(--radius-card)] border border-[var(--color-navy-800)] bg-[var(--color-navy-900)] p-5"
           >
             <div className="flex items-center gap-3">
               <span
@@ -364,13 +370,23 @@ export function Framework() {
               </h3>
             </div>
 
-            <p className="mt-3 text-sm leading-relaxed text-[var(--color-navy-200)]">
+            <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--color-navy-200)]">
               {COMPETENCY_MEANING[guardian.competency]}
             </p>
 
-            <p className="mt-3 flex items-center gap-2 border-t border-[var(--color-navy-800)] pt-3 text-xs text-[var(--color-navy-200)]">
-              <img src={guardianArt(guardian.id)} alt="" aria-hidden="true" className="h-7 w-7" />
-              <span>
+            {/* The ability strings are the proposal's own wording (§3.2) and
+                are not edited to fit. Instead the line is given the room to
+                hold them: a smaller mark, tighter type, and `text-balance` so
+                the three longest ones break evenly when a narrow screen does
+                force a second line. */}
+            <p className="mt-auto flex items-center gap-2 border-t border-[var(--color-navy-800)] pt-3 text-[11px] leading-snug text-[var(--color-navy-200)]">
+              <img
+                src={guardianArt(guardian.id)}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 shrink-0"
+              />
+              <span className="text-balance">
                 <strong className="text-[var(--color-amber-400)]">{guardian.name}</strong> ·{' '}
                 {guardian.ability}
               </span>
