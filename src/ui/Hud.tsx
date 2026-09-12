@@ -99,6 +99,27 @@ export function GuardianStrip({ game, onOpen }: { game: GameState; onOpen: () =>
 /* Dice                                                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Randomised faces while a roll is in the air.
+ *
+ * Shared by the toolbar and the flat board so they tumble together and stop
+ * together. Nothing reads the real values until the renderer says the dice have
+ * settled — showing the answer early is the fastest way to make a two-second
+ * animation feel like a two-second wait.
+ */
+export function useDiceTumble(active: boolean): [number, number] {
+  const [faces, setFaces] = useState<[number, number]>([1, 1]);
+
+  useEffect(() => {
+    if (!active) return;
+    const roll = () => 1 + Math.floor(Math.random() * 6);
+    const timer = window.setInterval(() => setFaces([roll(), roll()]), 90);
+    return () => window.clearInterval(timer);
+  }, [active]);
+
+  return faces;
+}
+
 const PIP_LAYOUT: Record<number, number[]> = {
   1: [4],
   2: [0, 8],
@@ -131,7 +152,9 @@ export function RollButton() {
   const path = useGame((s) => s.path);
   const dice = useGame((s) => s.dice);
   const overlay = useGame((s) => s.overlay);
+  const rolling = useGame((s) => s.rolling);
   const roll = useGame((s) => s.roll);
+  const tumble = useDiceTumble(rolling);
 
   if (!game) return null;
 
@@ -142,8 +165,8 @@ export function RollButton() {
   return (
     <div className="flex items-center gap-3">
       <div className="flex gap-2" aria-hidden="true">
-        <DiceFace value={dice?.a ?? 1} />
-        <DiceFace value={dice?.b ?? 1} />
+        <DiceFace value={rolling ? tumble[0] : (dice?.a ?? 1)} />
+        <DiceFace value={rolling ? tumble[1] : (dice?.b ?? 1)} />
       </div>
       <button
         type="button"
@@ -152,7 +175,13 @@ export function RollButton() {
         className="relative flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--sq-action)] px-5 py-4 text-left text-[var(--sq-action-ink)] shadow-[var(--sq-shadow-raised)] transition-transform active:scale-[0.98] disabled:opacity-45"
       >
         <span className="block text-lg font-bold leading-tight">
-          {finished ? 'See your results' : busy ? 'Playing…' : 'Roll the dice'}
+          {finished
+            ? 'See your results'
+            : rolling
+              ? 'Rolling…'
+              : busy
+                ? 'Playing…'
+                : 'Roll the dice'}
         </span>
         <span className="block text-xs opacity-90">
           {finished

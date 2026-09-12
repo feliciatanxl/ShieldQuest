@@ -162,6 +162,14 @@ interface Store {
   /** Spaces the token still has to hop through. Empty when it has arrived. */
   path: number[];
   dice: DiceRoll | null;
+  /**
+   * True from the moment the button is pressed until the dice have settled.
+   *
+   * The result exists the instant `roll()` runs, so without this every dice
+   * face on screen jumps to the answer while the board is still tumbling them —
+   * which gives the roll away and makes the animation look like a delay.
+   */
+  rolling: boolean;
   renderer: RendererMode;
   rendererForced: boolean;
   celebrate: number;
@@ -172,6 +180,8 @@ interface Store {
   abandon(): void;
 
   roll(): void;
+  /** The renderer reporting that the dice have stopped. */
+  settleDice(): void;
   arrive(): void;
   choose(choiceId: string): void;
   answerCard(optionId: string): void;
@@ -192,6 +202,7 @@ export const useGame = create<Store>((set, get) => ({
   flash: null,
   path: [],
   dice: null,
+  rolling: false,
   renderer: loadRendererPreference() ?? (detect3dSupport() ? '3d' : 'flat'),
   rendererForced: loadRendererPreference() !== null,
   celebrate: 0,
@@ -200,19 +211,33 @@ export const useGame = create<Store>((set, get) => ({
   start({ handle, band, turnLimit }) {
     const game = createGame({ handle, band, turnLimit });
     persist(game);
-    set({ game, overlay: { kind: 'none' }, queue: [], path: [], dice: null, flash: null });
+    set({
+      game,
+      overlay: { kind: 'none' },
+      queue: [],
+      path: [],
+      dice: null,
+      rolling: false,
+      flash: null,
+    });
   },
 
   resume() {
     const game = loadSave();
     if (!game) return false;
-    set({ game: { ...game, phase: 'IDLE' }, overlay: { kind: 'none' }, queue: [], path: [] });
+    set({
+      game: { ...game, phase: 'IDLE' },
+      overlay: { kind: 'none' },
+      queue: [],
+      path: [],
+      rolling: false,
+    });
     return true;
   },
 
   abandon() {
     persist(null);
-    set({ game: null, overlay: { kind: 'none' }, queue: [], path: [], dice: null });
+    set({ game: null, overlay: { kind: 'none' }, queue: [], path: [], dice: null, rolling: false });
   },
 
   /* --- the turn ---------------------------------------------------- */
@@ -229,7 +254,11 @@ export const useGame = create<Store>((set, get) => ({
     const dice = rollDice(rng);
     const moved = applyRoll(game, dice);
     persist(moved.state);
-    set({ game: moved.state, path: moved.path, dice });
+    set({ game: moved.state, path: moved.path, dice, rolling: true });
+  },
+
+  settleDice() {
+    set({ rolling: false });
   },
 
   /**
@@ -245,7 +274,7 @@ export const useGame = create<Store>((set, get) => ({
     const space = { ...game, phase: 'LANDED' as const };
     const landing: Landing = resolveLanding(game, spaceAt(game), rng);
     persist(space);
-    set({ game: space, path: [], overlay: overlayFor(landing) });
+    set({ game: space, path: [], rolling: false, overlay: overlayFor(landing) });
   },
 
   choose(choiceId) {

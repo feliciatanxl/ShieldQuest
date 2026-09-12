@@ -35,14 +35,14 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scene = new BoardScene(canvas, {
       reducedMotion: reduced,
-      onTokenArrived: () => {
-        scene.pulse(useGame.getState().game?.position ?? 0);
-        useGame.getState().arrive();
-      },
+      // The scene owns the pacing of a turn; this only says what happens at
+      // each hand-off. The landing pulse and the pause after it live in the
+      // scene so they stay tied to the render loop.
       onDiceSettled: () => {
-        const state = useGame.getState();
-        scene.moveToken(state.path);
+        useGame.getState().settleDice();
+        scene.moveToken(useGame.getState().path);
       },
+      onTokenArrived: () => useGame.getState().arrive(),
     });
     sceneRef.current = scene;
 

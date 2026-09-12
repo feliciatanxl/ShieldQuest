@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { DISTRICTS, TRACK } from '../game/board.ts';
 import { fallbackCell } from '../game/geometry.ts';
 import { useGame } from '../state/store.ts';
-import { DiceFace } from './Hud.tsx';
+import { DiceFace, useDiceTumble } from './Hud.tsx';
 import type { BoardSpace } from '../game/types.ts';
 
 /**
@@ -37,13 +37,14 @@ const KIND_GLYPH: Record<BoardSpace['kind'], string> = {
 const DICE_MS = 700;
 const STEP_MS = 150;
 
-const randomFace = () => 1 + Math.floor(Math.random() * 6);
-
 export default function FlatBoard({ onInspect }: { onInspect: (index: number) => void }) {
   const game = useGame((s) => s.game);
   const path = useGame((s) => s.path);
   const dice = useGame((s) => s.dice);
+  const rolling = useGame((s) => s.rolling);
+  const settleDice = useGame((s) => s.settleDice);
   const arrive = useGame((s) => s.arrive);
+  const tumble = useDiceTumble(rolling);
 
   /**
    * Where the token actually is, which is not the same as `game.position`.
@@ -51,8 +52,6 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
    * behind it one space at a time.
    */
   const [tokenIndex, setTokenIndex] = useState(game?.position ?? 0);
-  const [rolling, setRolling] = useState(false);
-  const [tumble, setTumble] = useState<[number, number]>([1, 1]);
 
   const position = game?.position ?? 0;
   const moving = path.length > 0;
@@ -75,18 +74,11 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
 
     let cancelled = false;
     const timers: number[] = [];
-    let shuffle = 0;
-
-    if (!reduced) {
-      setRolling(true);
-      shuffle = window.setInterval(() => setTumble([randomFace(), randomFace()]), 90);
-    }
 
     timers.push(
       window.setTimeout(() => {
         if (cancelled) return;
-        window.clearInterval(shuffle);
-        setRolling(false);
+        settleDice();
 
         path.forEach((space, step) => {
           timers.push(
@@ -111,10 +103,9 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
 
     return () => {
       cancelled = true;
-      window.clearInterval(shuffle);
       timers.forEach(window.clearTimeout);
     };
-  }, [path, arrive]);
+  }, [path, arrive, settleDice]);
 
   if (!game) return null;
 

@@ -18,6 +18,25 @@ import type { BoardSpace, DistrictId } from '../game/types.ts';
  */
 
 const TILE_HEIGHT = 0.28;
+
+/**
+ * The shape of a turn, in seconds.
+ *
+ * A turn is not one animation, it is four beats: the dice tumble, a pause long
+ * enough to READ them, the token walking the spaces it was told to, and a pause
+ * on the space it landed on. Losing the two pauses is what made a roll feel
+ * like the board had skipped straight to the scenario — the movement was all
+ * there, it just never stopped long enough for anyone to watch it.
+ */
+const DICE_THROW = 0.95;
+const DICE_READ = 0.55;
+const HOP = 0.16;
+const LANDING_HOLD = 0.5;
+
+/** The dice land here, in the open middle of the board, facing the camera. */
+const DICE_REST_Z = 2.15;
+const DICE_SPREAD = 0.78;
+const DICE_SIZE = 0.68;
 const UP = new THREE.Vector3(0, 1, 0);
 const BOARD_DROP = 0.34;
 
@@ -237,6 +256,15 @@ export class BoardScene {
   private diceThrowing = false;
   private diceTarget: [number, number] = [1, 1];
 
+  /**
+   * Pending beats, counted down by the render loop rather than by `setTimeout`.
+   *
+   * Tying them to the loop means they pause when the tab is hidden, resume with
+   * it, and die with `dispose()`. A stray timeout firing into a disposed scene
+   * is how a turn ends up half-played.
+   */
+  private delays: { left: number; run: () => void }[] = [];
+
   constructor(canvas: HTMLCanvasElement, options: BoardSceneOptions) {
     this.options = options;
 
@@ -441,11 +469,34 @@ export class BoardScene {
         }),
     );
     for (let i = 0; i < 2; i += 1) {
-      const die = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.46, 0.46), materials);
+      const die = new THREE.Mesh(new THREE.BoxGeometry(DICE_SIZE, DICE_SIZE, DICE_SIZE), materials);
       die.castShadow = true;
       die.visible = false;
       this.scene.add(die);
       this.dice.push(die);
+    }
+  }
+
+  /** Run `fn` after `seconds` of rendered time. */
+  private after(seconds: number, fn: () => void) {
+    // Reduced motion removes the movement, not the reading time: the player
+    // still has to see what they rolled and where they landed.
+    const wait = this.options.reducedMotion ? Math.min(seconds, 0.4) : seconds;
+    if (wait <= 0) {
+      fn();
+      return;
+    }
+    this.delays.push({ left: wait, run: fn });
+  }
+
+  private tickDelays(dt: number) {
+    for (let i = this.delays.length - 1; i >= 0; i -= 1) {
+      const delay = this.delays[i]!;
+      delay.left -= dt;
+      if (delay.left <= 0) {
+        this.delays.splice(i, 1);
+        delay.run();
+      }
     }
   }
 
@@ -461,24 +512,52 @@ export class BoardScene {
     this.focusTarget.copy(this.focusFor(index));
   }
 
-  /** Hop the token through every space in `path`, one tile at a time. */
+  /**
+   * Hop the token through every space in `path`, one space at a time — after
+   * pausing long enough for the dice to have been read.
+   */
   moveToken(path: number[]) {
-    if (path.length === 0) {
-      this.options.onTokenArrived?.();
-      return;
-    }
-    if (this.options.reducedMotion) {
-      this.setTokenIndex(path[path.length - 1]!, true);
-      this.options.onTokenArrived?.();
-      return;
-    }
-    this.hopQueue = [...path];
-    this.beginHop();
+    this.after(DICE_READ, () => {
+      if (path.length === 0) {
+        this.land();
+        return;
+      }
+      if (this.options.reducedMotion) {
+        this.setTokenIndex(path[path.length - 1]!, true);
+        this.land();
+        return;
+      }
+      this.hopQueue = [...path];
+      this.beginHop();
+    });
   }
 
-  /** Throw the dice and settle them showing `a` and `b`. */
+  /** The token is on its space. Mark it, hold, then hand the turn back. */
+  private land() {
+    this.pulse(this.tokenIndex);
+    this.after(LANDING_HOLD, () => this.options.onTokenArrived?.());
+  }
+
+  /**
+   * Throw the dice and settle them showing `a` and `b`.
+   *
+   * They land in the open middle of the board rather than beside the token.
+   * Thrown at the player's own piece they were small, half hidden behind the
+   * space it was standing on, and sometimes off the bottom of a phone screen —
+   * the roll was happening, just not anywhere the player was looking.
+   */
   throwDice(a: number, b: number) {
     this.diceTarget = [a, b];
+    this.dice.forEach((die, i) => {
+      die.visible = true;
+      die.position.set(
+        (i === 0 ? -DICE_SPREAD : DICE_SPREAD) + (Math.random() - 0.5) * 0.3,
+        4.6,
+        DICE_REST_Z - 0.6 + (Math.random() - 0.5) * 0.3,
+      );
+      die.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+    });
+
     if (this.options.reducedMotion) {
       this.placeDiceAtRest();
       this.options.onDiceSettled?.();
@@ -486,15 +565,6 @@ export class BoardScene {
     }
     this.diceTime = 0;
     this.diceThrowing = true;
-    this.dice.forEach((die, i) => {
-      die.visible = true;
-      die.position.set(
-        this.token.position.x + (i === 0 ? -0.8 : 0.8),
-        3.4,
-        this.token.position.z + 1.4,
-      );
-      die.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
-    });
   }
 
   hideDice() {
@@ -687,6 +757,7 @@ export class BoardScene {
   dispose() {
     this.disposed = true;
     this.renderer.setAnimationLoop(null);
+    this.delays.length = 0;
     this.timer.disconnect();
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
@@ -716,7 +787,7 @@ export class BoardScene {
     const next = this.hopQueue.shift();
     if (next === undefined) {
       this.hopping = false;
-      this.options.onTokenArrived?.();
+      this.land();
       return;
     }
     const from = tokenAnchor(this.tokenIndex);
@@ -732,8 +803,7 @@ export class BoardScene {
   private placeDiceAtRest() {
     this.dice.forEach((die, i) => {
       die.visible = true;
-      const anchor = tokenAnchor(this.tokenIndex);
-      die.position.set(anchor.x + (i === 0 ? -0.55 : 0.55), TILE_HEIGHT + 0.25, anchor.z + 0.9);
+      die.position.set(i === 0 ? -DICE_SPREAD : DICE_SPREAD, DICE_SIZE / 2 + 0.06, DICE_REST_Z);
       die.rotation.copy(faceUpRotation(this.diceTarget[i] ?? 1));
     });
   }
@@ -744,6 +814,7 @@ export class BoardScene {
     const dt = Math.min(this.timer.getDelta(), 0.05);
     const elapsed = this.timer.getElapsed();
 
+    this.tickDelays(dt);
     this.animateToken(dt, elapsed);
     this.animateDice(dt);
     this.animateTiles(dt);
@@ -767,7 +838,7 @@ export class BoardScene {
     if (this.hopping) {
       // A hop per tile at a pace that stays legible for a 12-space roll: fast
       // enough not to be waiting, slow enough to count the tiles being passed.
-      this.hopTime += dt / 0.19;
+      this.hopTime += dt / HOP;
       const t = Math.min(1, this.hopTime);
       const eased = t * t * (3 - 2 * t);
 
@@ -802,15 +873,14 @@ export class BoardScene {
   private animateDice(dt: number) {
     if (!this.diceThrowing) return;
     this.diceTime += dt;
-    const duration = 0.95;
+    const duration = DICE_THROW;
     const t = Math.min(1, this.diceTime / duration);
 
     this.dice.forEach((die, i) => {
-      const anchor = tokenAnchor(this.tokenIndex);
-      const targetX = anchor.x + (i === 0 ? -0.55 : 0.55);
-      const targetZ = anchor.z + 0.9;
-      const startY = 3.4;
-      const restY = TILE_HEIGHT + 0.25;
+      const targetX = i === 0 ? -DICE_SPREAD : DICE_SPREAD;
+      const targetZ = DICE_REST_Z;
+      const startY = 4.6;
+      const restY = DICE_SIZE / 2 + 0.06;
 
       die.position.x = THREE.MathUtils.lerp(die.position.x, targetX, 0.12);
       die.position.z = THREE.MathUtils.lerp(die.position.z, targetZ, 0.12);
