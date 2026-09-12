@@ -15,6 +15,24 @@ npm test         # 28 engine tests
 npm run build    # typecheck + production bundle
 ```
 
+## Two front doors
+
+| Route   | Surface     | Audience                                            | Skin          |
+| ------- | ----------- | --------------------------------------------------- | ------------- |
+| `/`     | Public site | Educators, schools, youth partners, grant assessors | Light "civic" |
+| `/play` | Player PWA  | Youths 10–24, arriving from a QR code               | Dark "game"   |
+
+Both are lazy-loaded, so neither pays for the other: an assessor reading the
+landing page does not download the game engine or Three.js, and a participant
+scanning a QR code does not download a landing page they will never see. QR
+codes point at `/play`, which is also the installed app's `start_url`.
+
+Routing is ~40 lines in `src/router.ts` rather than a library — see the header
+of that file for why, and for when to replace it. It does create one hosting
+requirement: **every path must serve `index.html`.** Vite's dev server does that
+by default, the service worker does it offline, and `vercel.json` does it in
+production.
+
 ---
 
 ## What this is
@@ -100,6 +118,8 @@ borrowed from tabletop games is the rhythm of roll, move, land, play.
 
 ```
 src/
+  router.ts      Two routes, no library. `/` and `/play`.
+
   game/          The rules. No React, no Three.js, no DOM.
     types.ts       Every shape in the game.
     board.ts       The 28-space track and the four districts.
@@ -121,10 +141,45 @@ src/
     Overlays.tsx   Every sheet: scenario, card, debrief, consequence, award…
     Onboarding.tsx Codename, age band, run length.
 
+  site/          The public site. Light "civic" skin, no game code.
+    PublicSite.tsx       Header, footer, page composition.
+    parts.tsx            Section, SectionHeading, Stat, buttons, links.
+    ProgrammeSections.tsx  What it is: hero, evidence, the loop, framework, missions.
+    DeliverySections.tsx   What running it costs you: schools, safety, FAQ, closing.
+    EnquiryDialog.tsx      Session request, composed for the visitor to send.
+
   styles/
     tokens.css     The ONLY @theme. Two skins, one spine.
     app.css        Base layer, motion, board furniture.
 ```
+
+### The public site
+
+The landing page is the grant-assessor-facing surface, so its claims have to
+hold up:
+
+- **Every statistic carries its source on the card itself.** Assessors check
+  numbers, and an unattributed crime statistic on a crime-prevention site does
+  more harm than leaving it out.
+- **The SPF is a statistics source, not a backer.** The footer says so
+  explicitly. Never imply MHA/SPF endorsement, and never present Delta Challenge
+  as a sponsor — it is a competition this was submitted to.
+- **Scenarios are described by the offender's tactic, not the victim's
+  mistake.** The no-victim-blaming rule applies to marketing copy as much as to
+  in-game feedback.
+- **The framework section renders from the same constants the game reads.** In
+  v1 the site, the player's skills panel and the type definitions each carried
+  their own wording and had drifted far enough that two Guardians' abilities
+  were swapped relative to the proposal.
+- **The board preview is built from `TRACK`**, not from a screenshot, so it
+  cannot go stale.
+
+**Before the site goes live:** set `CONTACT_EMAIL` in
+`src/site/EnquiryDialog.tsx`. Until it is set the request form still works — it
+composes the enquiry and hands it to the visitor to send — but it deliberately
+never shows a "thanks, we'll be in touch" screen, because there is no backend to
+receive a submission and a school that believes it has contacted you when it has
+not is worse than no form at all.
 
 ### Why the engine is separate
 
@@ -208,7 +263,6 @@ ported into v2 yet. See "Not yet ported" below.
 
 - **Scenario Management Portal** (educator moderation, AI drafting assistance
   with no publish path, youth-created missions pipeline) — a proposal deliverable.
-- **Public institutional site** — the grant-assessor-facing surface.
 - **Pre/post assessment forms** and the Think–Vote–Explain multi-device flow.
 - **Express + Prisma API** — v2 is currently client-only, which is correct for a
   no-accounts PWA but does not yet support cross-device squad play.
