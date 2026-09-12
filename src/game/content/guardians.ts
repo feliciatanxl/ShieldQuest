@@ -30,7 +30,7 @@ export const GUARDIANS: Guardian[] = [
     target: 6,
     description: 'Strengthens when you slow down and check who you are really dealing with.',
     greeting: 'Nobody who is telling the truth minds being checked.',
-    ability: 'Checks a claim against trusted information.',
+    ability: 'Checks a claim against trusted information',
     colour: '#f2ae33',
   },
   {
@@ -43,7 +43,7 @@ export const GUARDIANS: Guardian[] = [
     description:
       'Strengthens when you pause under pressure and talk a request through with someone before answering it.',
     greeting: 'You still have time to pause.',
-    ability: "Invites a teammate's explanation.",
+    ability: "Invites a teammate's explanation",
     colour: '#5fa0e8',
   },
   {
@@ -56,7 +56,7 @@ export const GUARDIANS: Guardian[] = [
     description:
       'Strengthens when you read what is really going on — who benefits, who is pushing, and what is being left out.',
     greeting: 'You already noticed. Now say what you noticed.',
-    ability: 'Reveals one overlooked clue.',
+    ability: 'Reveals one overlooked clue',
     colour: '#d76b53',
   },
   {
@@ -69,7 +69,11 @@ export const GUARDIANS: Guardian[] = [
     description:
       'Strengthens when you weigh what a digital request actually costs — accounts, logins, payments and the trail they leave.',
     greeting: 'The account has your name on it. That is the whole story.',
-    ability: 'Highlights unsafe links, permissions, or data requests.',
+    // Condensed from the proposal's §3.2 wording, "Highlights unsafe links,
+    // permissions, or data requests." It keeps all three concepts; it is
+    // shorter only so it fits on one line beside the Guardian mark on the
+    // public site, where it was the single ability long enough to wrap.
+    ability: 'Flags unsafe links, permissions, data requests',
     colour: '#35b3a6',
   },
   {
@@ -82,7 +86,7 @@ export const GUARDIANS: Guardian[] = [
     description:
       'Strengthens when you step out of a situation and reach the right channel for help.',
     greeting: 'Asking for help is the move, not the last resort.',
-    ability: 'Identifies a safe reporting channel.',
+    ability: 'Identifies a safe reporting channel',
     colour: '#8dbdf0',
   },
   {
@@ -94,7 +98,7 @@ export const GUARDIANS: Guardian[] = [
     target: 6,
     description: 'Strengthens when you look out for a friend without escalating the situation.',
     greeting: 'You can look out for someone without making a scene of it.',
-    ability: 'Protects another player from a pressure event.',
+    ability: 'Protects another player from a pressure event',
     colour: '#55bb8e',
   },
 ];

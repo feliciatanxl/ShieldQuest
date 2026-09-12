@@ -298,7 +298,11 @@ export function LearningLoop() {
             </div>
 
             <h3 className="mt-4 text-base font-extrabold text-[var(--sq-ink)]">{stage.action}</h3>
-            <p className="mt-1.5 flex-1 text-sm leading-relaxed text-[var(--sq-ink-muted)]">
+            {/* `pb-5` rather than relying on the divider's own padding: the
+                description box stretches to fill the card, so without it the
+                rule sits hard against the last line of text whenever the card
+                happens to be exactly as tall as its content. */}
+            <p className="mt-1.5 flex-1 pb-5 text-sm leading-relaxed text-[var(--sq-ink-muted)]">
               {stage.player}
             </p>
             {/* `mt-auto` rather than a fixed height: the learning line is the
@@ -365,31 +369,30 @@ export function Framework() {
               >
                 {COMPETENCY_LETTER[guardian.competency]}
               </span>
-              <h3 className="text-base font-extrabold text-white">
+              <h3 className="min-w-0 flex-1 text-base font-extrabold text-white">
                 {COMPETENCY_LABEL[guardian.competency]}
               </h3>
-            </div>
-
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-[var(--color-navy-200)]">
-              {COMPETENCY_MEANING[guardian.competency]}
-            </p>
-
-            {/* The ability strings are the proposal's own wording (§3.2) and
-                are not edited to fit. Instead the line is given the room to
-                hold them: a smaller mark, tighter type, and `text-balance` so
-                the three longest ones break evenly when a narrow screen does
-                force a second line. */}
-            <p className="mt-auto flex items-center gap-2 border-t border-[var(--color-navy-800)] pt-3 text-[11px] leading-snug text-[var(--color-navy-200)]">
               <img
                 src={guardianArt(guardian.id)}
                 alt=""
                 aria-hidden="true"
-                className="h-6 w-6 shrink-0"
+                className="h-8 w-8 shrink-0"
               />
-              <span className="text-balance">
-                <strong className="text-[var(--color-amber-400)]">{guardian.name}</strong> ·{' '}
-                {guardian.ability}
-              </span>
+            </div>
+
+            <p className="mt-3 flex-1 pb-5 text-sm leading-relaxed text-[var(--color-navy-200)]">
+              {COMPETENCY_MEANING[guardian.competency]}
+            </p>
+
+            {/* The Guardian mark lives in the header rather than here, so this
+                line gets the card's full width. It is the tightest line on the
+                page — the longest ability runs to within about a tenth of the
+                space — and 26px of avatar was the difference between one line
+                and two. `text-balance` keeps a forced wrap even, on the narrow
+                screens where one is unavoidable. */}
+            <p className="mt-auto text-balance border-t border-[var(--color-navy-800)] pt-3 text-[11px] leading-snug text-[var(--color-navy-200)]">
+              <strong className="text-[var(--color-amber-400)]">{guardian.name}</strong> ·{' '}
+              {guardian.ability}
             </p>
           </li>
         ))}
