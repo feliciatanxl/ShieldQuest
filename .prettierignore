@@ -1,8 +1,0 @@
-node_modules/
-dist/
-dist-server/
-server/generated/
-package-lock.json
-.local/
-test-results/
-playwright-report/

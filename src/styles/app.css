@@ -1,0 +1,504 @@
+@import 'tailwindcss';
+
+/* The only place tokens are declared. See the header of tokens.css. */
+@import './tokens.css';
+
+/* =============================================================================
+ * BASE
+ * -----------------------------------------------------------------------------
+ * Token-driven throughout, so one ruleset is correct under both skins. Nothing
+ * here hardcodes a hex value.
+ * ========================================================================== */
+@layer base {
+  :root {
+    font-family: var(--font-sans);
+    color: var(--sq-ink);
+    background: var(--sq-canvas);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    /* The board is a game surface: a stray text selection or a double-tap zoom
+     * in the middle of a dice throw reads as a bug, not a feature. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    color: var(--sq-ink);
+    background: var(--sq-canvas);
+    overscroll-behavior-y: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  /* One high-contrast focus ring everywhere. Never remove it: the whole board
+   * is operable from the keyboard, and this is how that is visible. */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid var(--sq-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-inset);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  ul,
+  ol,
+  figure {
+    margin: 0;
+  }
+
+  ul,
+  ol {
+    padding: 0;
+    list-style: none;
+  }
+
+  canvas {
+    display: block;
+    touch-action: manipulation;
+  }
+}
+
+/* =============================================================================
+ * MOTION
+ * -----------------------------------------------------------------------------
+ * The game leans hard on motion — hops, tumbles, bursts, camera pushes — and
+ * every one of them is decoration over a state change that has already
+ * happened. Under `prefers-reduced-motion` the animation is removed and the end
+ * state is shown immediately; nothing is ever only communicated by movement.
+ * The 3D scene reads the same preference and stops animating the camera.
+ * ========================================================================== */
+
+@keyframes sq-pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sq-rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sq-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sq-float-up {
+  0% {
+    transform: translate(-50%, 0) scale(0.9);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-50%, -14px) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -84px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes sq-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-6px, 2px, 0);
+  }
+  40% {
+    transform: translate3d(5px, -2px, 0);
+  }
+  60% {
+    transform: translate3d(-4px, 1px, 0);
+  }
+  80% {
+    transform: translate3d(3px, -1px, 0);
+  }
+}
+
+@keyframes sq-pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes sq-sweep {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}
+
+@keyframes sq-stamp {
+  0% {
+    transform: scale(1.7) rotate(-9deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.94) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes sq-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes sq-confetti-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 96vh, 0) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.sq-pop {
+  animation: sq-pop 0.34s var(--ease-bounce) both;
+}
+.sq-rise {
+  animation: sq-rise 0.4s var(--ease-entrance) both;
+}
+.sq-slide-up {
+  animation: sq-slide-up 0.3s var(--ease-entrance) both;
+}
+.sq-shake {
+  animation: sq-shake 0.5s ease-in-out both;
+}
+.sq-stamp {
+  animation: sq-stamp 0.5s var(--ease-bounce) both;
+}
+.sq-breathe {
+  animation: sq-breathe 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =============================================================================
+ * BOARD
+ * -----------------------------------------------------------------------------
+ * Two renderers, one board. The 3D scene draws the world; this layer draws the
+ * controls that sit on top of it, and the flat board that replaces it when WebGL
+ * is unavailable, the device is small and slow, or the player has asked for
+ * reduced motion. Both are the same 28 spaces in the same order, so a session
+ * that switches renderers mid-way does not lose its place.
+ * ========================================================================== */
+
+.sq-board-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgb(26 102 188 / 0.22), transparent 62%),
+    radial-gradient(100% 80% at 50% 100%, rgb(6 21 39 / 0.9), transparent 70%),
+    var(--sq-canvas);
+}
+
+/* The focusable control layer. It is transparent and sits exactly over the 3D
+ * tiles; `pointer-events` is enabled per button, not on the container, so drags
+ * still reach the canvas underneath for camera control. */
+.sq-tile-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sq-tile-hit {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: var(--radius-control);
+  color: transparent;
+  /* Sized to the projected tile by the renderer. Visible only on focus or when
+   * the tile is the player's current space. */
+}
+
+.sq-tile-hit:focus-visible {
+  outline: 3px solid var(--sq-focus);
+  outline-offset: 0;
+  background: rgb(95 160 232 / 0.18);
+}
+
+.sq-tile-hit[data-current='true']::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 2px solid var(--sq-earned);
+  animation: sq-pulse-ring 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+/* --- Flat fallback board ------------------------------------------------- */
+
+.sq-flat-board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  aspect-ratio: 1;
+  width: min(100%, 62vh);
+  margin-inline: auto;
+  padding: 10px;
+  border-radius: var(--radius-panel);
+  background: var(--sq-surface-sunk);
+  border: 1px solid var(--sq-line);
+  /* A little depth, entirely in CSS: the 2.5D board the fallback replaces the
+   * 3D one with. Perspective only, no transform on children that would take
+   * them out of the accessibility tree's reading order. */
+  box-shadow: var(--sq-shadow-float);
+}
+
+.sq-flat-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 5px;
+  border-radius: var(--sq-tile-radius);
+  border: 1px solid var(--sq-line);
+  background: var(--sq-surface);
+  color: var(--sq-ink);
+  font-size: 9px;
+  line-height: 1.15;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.18s var(--ease-entrance);
+}
+
+.sq-flat-tile::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 5px;
+  background: var(--district-colour);
+}
+
+.sq-flat-tile[data-current='true'] {
+  transform: scale(1.06);
+  border-color: var(--sq-earned);
+  box-shadow: 0 0 0 2px var(--sq-earned);
+  z-index: 2;
+}
+
+.sq-flat-tile[data-resolved='true'] {
+  opacity: 0.62;
+}
+
+.sq-flat-centre {
+  grid-column: 2 / 8;
+  grid-row: 2 / 8;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  text-align: center;
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(80% 80% at 50% 30%, rgb(26 102 188 / 0.2), transparent 70%),
+    var(--sq-surface-sunk);
+}
+
+/* --- Dice ---------------------------------------------------------------- */
+
+.sq-dice-face {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  width: 44px;
+  height: 44px;
+  padding: 6px;
+  border-radius: 10px;
+  background: #f7fafc;
+  color: var(--color-navy-950);
+  box-shadow:
+    inset 0 -3px 0 rgb(6 21 39 / 0.18),
+    var(--sq-shadow-raised);
+}
+
+.sq-pip {
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* --- Confetti ------------------------------------------------------------ */
+
+.sq-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 60;
+}
+
+.sq-confetti span {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  animation: sq-confetti-fall 2.4s linear forwards;
+}
+
+/* --- Floating gain/loss numbers ------------------------------------------ */
+
+.sq-float-value {
+  position: absolute;
+  left: 50%;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  animation: sq-float-up 1.5s var(--ease-entrance) forwards;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* --- Meters -------------------------------------------------------------- */
+
+.sq-meter {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sq-surface-sunk);
+  overflow: hidden;
+}
+
+.sq-meter > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--meter-colour, var(--sq-action));
+  transition: width 0.6s var(--ease-entrance);
+}
+
+/* --- Sheets -------------------------------------------------------------- */
+
+.sq-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(3 10 20 / 0.72);
+  backdrop-filter: blur(3px);
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .sq-sheet {
+    align-items: center;
+    padding: 24px;
+  }
+}
+
+.sq-sheet-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: min(92dvh, 820px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--sq-surface);
+  color: var(--sq-ink);
+  border: 1px solid var(--sq-line);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  box-shadow: var(--sq-shadow-float);
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+@media (min-width: 640px) {
+  .sq-sheet-panel {
+    border-radius: var(--radius-panel);
+  }
+}
+
+/* A chat transcript reads better with a hard edge on the sender's side. */
+.sq-bubble-them {
+  border-radius: var(--radius-card) var(--radius-card) var(--radius-card) 4px;
+}
+
+.sq-bubble-you {
+  border-radius: var(--radius-card) var(--radius-card) 4px var(--radius-card);
+}

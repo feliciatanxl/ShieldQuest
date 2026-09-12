@@ -1,0 +1,420 @@
+/* =============================================================================
+ * ShieldQuest — Canonical Design Tokens
+ * -----------------------------------------------------------------------------
+ * SINGLE SOURCE OF TRUTH for colour, type, spacing, radii and motion.
+ *
+ * Do not declare `@theme` anywhere else. Feature stylesheets consume these
+ * tokens; they must never define them. (Before consolidation, `styles.css` and
+ * `features/city-board/city-board.css` each declared a `@theme` block with
+ * CONFLICTING values for the same token names — navy-950, civic-600 and
+ * civic-500 all resolved differently depending on import order, which is why
+ * colour drifted between the public site, the board and the admin portal.)
+ *
+ * TWO SKINS, ONE SPINE
+ *   Default (light "civic")  — public site + facilitator/admin portal.
+ *                              Reads as an institutional programme: the
+ *                              audience here is educators, schools and NYC
+ *                              grant evaluators.
+ *   [data-skin="game"] (dark) — the player PWA. Reads as a game: the audience
+ *                              here is youths aged 10-24.
+ *
+ * Both skins share the SAME spine — type scale, spacing, radii, motion,
+ * component APIs and S.H.I.E.L.D. iconography. Only the surface/ink/accent
+ * ramps swap. That is what makes it one design system rather than two designs.
+ *
+ * ACCESSIBILITY CONTRACT (per proposal §4 "Accessibility")
+ *   - Every ink-on-surface pair below meets WCAG AA (4.5:1) at body sizes.
+ *   - Status is never carried by colour alone; pair every status token with an
+ *     icon or text label (see STATUS_CONFIG in DesignSystem.tsx).
+ *   - Contrast ratios noted inline. If you change a value, re-check the pair.
+ * ========================================================================== */
+
+@theme {
+  /* ---------------------------------------------------------------------------
+   * TYPE
+   * ------------------------------------------------------------------------ */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ---------------------------------------------------------------------------
+   * NAVY — hero surfaces, headers, consequence takeover, game canvas
+   * Canonical values from the AA-checked board palette.
+   * ------------------------------------------------------------------------ */
+  --color-navy-950: #061527;
+  --color-navy-900: #0b2545;
+  --color-navy-800: #12385f;
+  --color-navy-700: #1b4e7e;
+  --color-navy-600: #24608f;
+  --color-navy-200: #b9cadd;
+  --color-navy-100: #dbe5f0;
+
+  /* ---------------------------------------------------------------------------
+   * CIVIC BLUE — primary actions, links, focus
+   * civic-600 on white ....... 5.4:1  AA  (body text + button fill)
+   * civic-400 on navy-950 .... 6.9:1  AA  (small text on dark surfaces)
+   * NOTE: civic-500 is 3.7:1 on white — LARGE TEXT / NON-TEXT ONLY.
+   * ------------------------------------------------------------------------ */
+  --color-civic-900: #0a3768;
+  --color-civic-800: #0f4a8a;
+  --color-civic-700: #14539a;
+  --color-civic-600: #1a66bc;
+  --color-civic-500: #2a7dd8;
+  --color-civic-400: #5fa0e8;
+  --color-civic-300: #8dbdf0;
+  --color-civic-200: #bcd6f4;
+  --color-civic-100: #ddeaf9;
+  --color-civic-50: #eff5fd;
+
+  /* ---------------------------------------------------------------------------
+   * TEAL — Peer Shield Mode, secondary emphasis
+   * The "protect a peer" colour. Reserved for Peer Shield + Squad surfaces so
+   * that peer-intervention affordances are visually consistent everywhere.
+   * ------------------------------------------------------------------------ */
+  --color-teal-800: #0d504a;
+  --color-teal-700: #12645c;
+  --color-teal-600: #17786f;
+  --color-teal-500: #1e958a;
+  --color-teal-400: #35b3a6;
+  --color-teal-200: #b4ddd7;
+  --color-teal-100: #d6edea;
+  --color-teal-50: #ecf7f5;
+
+  /* ---------------------------------------------------------------------------
+   * AMBER — Guardians, rewards, earned progress
+   * Guardians are EARNED through demonstrated S.H.I.E.L.D. skills, never
+   * randomised (proposal §3.2). Amber marks earned status only — never chance.
+   * ------------------------------------------------------------------------ */
+  --color-amber-800: #6f4404;
+  --color-amber-700: #8f5906;
+  --color-amber-600: #b8730b;
+  --color-amber-500: #e0930f;
+  --color-amber-400: #f2ae33;
+  --color-amber-300: #f6c669;
+  --color-amber-200: #f8ddab;
+  --color-amber-100: #fbebcc;
+  --color-amber-50: #fdf6e7;
+
+  /* ---------------------------------------------------------------------------
+   * LEAF — safer choice, positive outcome. Deliberately restrained.
+   * ------------------------------------------------------------------------ */
+  --color-leaf-800: #17523a;
+  --color-leaf-700: #1f6b4a;
+  --color-leaf-600: #2a835b;
+  --color-leaf-500: #35a071;
+  --color-leaf-400: #55bb8e;
+  --color-leaf-200: #b6dcc7;
+  --color-leaf-100: #d9ede2;
+  --color-leaf-50: #eff7f2;
+
+  /* ---------------------------------------------------------------------------
+   * CORAL — risk and delayed consequence. Restrained on purpose.
+   * Consequences must land as sober, not punitive or lurid: feedback never
+   * implies a victim "deserved" harm (proposal §7 risk register).
+   * ------------------------------------------------------------------------ */
+  --color-coral-800: #7d2c1e;
+  --color-coral-700: #9e3b2a;
+  --color-coral-600: #c0523c;
+  --color-coral-500: #d76b53;
+  --color-coral-200: #eec4ba;
+  --color-coral-100: #f7dfd9;
+  --color-coral-50: #fdf1ee;
+
+  /* ---------------------------------------------------------------------------
+   * NEUTRALS + INK — light "civic" skin defaults
+   * ink on surface .......... 13.6:1  AAA
+   * ink-muted on surface ....  5.9:1  AA
+   * ------------------------------------------------------------------------ */
+  --color-canvas: #eef1f6;
+  --color-surface: #ffffff;
+  --color-surface-sunk: #f6f8fb;
+  --color-surface-raised: #ffffff;
+  --color-line: #dfe4ec;
+  --color-line-strong: #c6cedb;
+
+  --color-ink: #16202e;
+  --color-ink-muted: #56637a;
+  --color-ink-soft: #5e6a7c;
+  --color-ink-inverse: #ffffff;
+
+  /* ---------------------------------------------------------------------------
+   * RADII — canonical scale. Five steps, no ad-hoc values.
+   * Before consolidation the app used rounded-xl 284x, 2xl 200x, lg 107x,
+   * md 60x and 3xl 32x interchangeably with no rule. The rule is now:
+   *   control  — buttons, inputs, chips
+   *   card     — cards, panels, sheets
+   *   panel    — page-level containers, modals, takeovers
+   *   pill     — fully round (badges, avatars, tokens)
+   * ------------------------------------------------------------------------ */
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-panel: 24px;
+  --radius-inset: 6px;
+
+  /* ---------------------------------------------------------------------------
+   * ELEVATION — three steps only. Depth is meaning, not decoration.
+   *   flat    — sits on the canvas
+   *   raised  — interactive / lifted
+   *   float   — overlays, sheets, modals
+   * ------------------------------------------------------------------------ */
+  --shadow-flat: 0 1px 2px rgb(6 21 39 / 0.05);
+  --shadow-raised: 0 4px 12px -2px rgb(6 21 39 / 0.1), 0 2px 4px -2px rgb(6 21 39 / 0.06);
+  --shadow-float: 0 16px 40px -8px rgb(6 21 39 / 0.24), 0 4px 12px -4px rgb(6 21 39 / 0.12);
+
+  /* ---------------------------------------------------------------------------
+   * MOTION — shared by both skins.
+   * `--ease-entrance` is the house curve: fast out, soft settle.
+   * All of these are disabled wholesale under prefers-reduced-motion (see the
+   * base layer in styles.css) — motion is never load-bearing.
+   * ------------------------------------------------------------------------ */
+  --ease-entrance: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --animate-rise: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-arrive: arrive 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-travel: travel 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-found: found 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-pop: pop 0.32s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-float-up: float-up 2s ease-out forwards;
+  --animate-fade: fade 0.5s ease-out both;
+  --animate-sweep: sweep 2.4s ease-out both;
+  --animate-node-pulse: node-pulse 2.4s ease-out infinite;
+  --animate-stamp: stamp 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-tumble: tumble 0.42s linear infinite;
+  --animate-slide-up: slide-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-landing: landing 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-token-hop: token-hop 0.32s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-fly-out: fly-out-level-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* =============================================================================
+ * SEMANTIC LAYER
+ * -----------------------------------------------------------------------------
+ * Components should reach for these role-named variables, not raw ramp steps.
+ * Swapping a skin rewrites the roles; the components do not change.
+ * ========================================================================== */
+
+:root {
+  /* Surfaces */
+  --sq-canvas: var(--color-canvas);
+  --sq-surface: var(--color-surface);
+  --sq-surface-sunk: var(--color-surface-sunk);
+  --sq-surface-raised: var(--color-surface-raised);
+
+  /* Ink */
+  --sq-ink: var(--color-ink);
+  --sq-ink-muted: var(--color-ink-muted);
+  --sq-ink-inverse: var(--color-ink-inverse);
+
+  /* Lines */
+  --sq-line: var(--color-line);
+  --sq-line-strong: var(--color-line-strong);
+
+  /* Actions.
+   *
+   * `--sq-action` is a FILL and `--sq-action-text` is the same idea used as
+   * TEXT. They have to be separate tokens, because no single step of the civic
+   * ramp can do both jobs on the dark skin: a fill needs white ink to pass AA
+   * (so civic-600 or darker), while action-coloured text needs to pass against
+   * a navy surface (so civic-400 or lighter). Measured, there is no overlap.
+   *   white on civic-600 ......... 5.72  AA
+   *   white on civic-500 ......... 4.18  FAILS at body sizes
+   *   civic-500 on #0d2039 ....... 3.92  FAILS
+   *   civic-400 on #0d2039 ....... 5.99  AA
+   */
+  --sq-action: var(--color-civic-600);
+  --sq-action-hover: var(--color-civic-700);
+  --sq-action-ink: #ffffff;
+  --sq-action-text: var(--color-civic-600);
+  --sq-focus: var(--color-civic-500);
+
+  /* S.H.I.E.L.D. semantic roles — stable across skins so that a "safer
+   * choice" or a "delayed consequence" looks the same everywhere. */
+  --sq-safe: var(--color-leaf-600);
+  --sq-risk: var(--color-coral-600);
+  --sq-earned: var(--color-amber-500);
+  --sq-peer: var(--color-teal-600);
+
+  /* The role colours above are tuned for TEXT, borders and translucent tints,
+   * which is how they are used almost everywhere. A SOLID fill carrying white
+   * ink needs to go a step darker to clear AA, and it stays the same in both
+   * skins — a leaf-700 button reads correctly on white and on navy alike.
+   *   white on leaf-700 .......... 6.44  AA
+   *   white on coral-700 ......... 6.75  AA
+   * Amber is the exception and never takes white ink at all: earned fills use
+   * navy-950 ink (see the `gold` variant in Button).
+   */
+  --sq-safe-fill: var(--color-leaf-700);
+  --sq-risk-fill: var(--color-coral-700);
+
+  /* Amber as TEXT. The accent value (amber-500) is only 2.52:1 on white, so
+   * text has to drop to amber-700 (5.83:1). Amber is the sole role needing a
+   * separate text value on the LIGHT skin — teal, leaf and coral all clear AA
+   * as text on white at their -600 step. */
+  --sq-earned-text: var(--color-amber-700);
+
+  /* Elevation */
+  --sq-shadow-flat: var(--shadow-flat);
+  --sq-shadow-raised: var(--shadow-raised);
+  --sq-shadow-float: var(--shadow-float);
+
+  color-scheme: light;
+}
+
+/* -----------------------------------------------------------------------------
+ * GAME SKIN — the player PWA.
+ * Set `data-skin="game"` on the player shell's root element. Everything the
+ * player sees inherits it; the public site and admin portal never do.
+ *
+ * Contrast on the dark skin:
+ *   ink (#eaf1fa) on canvas (#061527) ..... 15.1:1  AAA
+ *   ink-muted (#9db4cd) on canvas .........  7.6:1  AA
+ *   civic-400 on canvas ....................  6.9:1  AA
+ * -------------------------------------------------------------------------- */
+[data-skin='game'] {
+  --sq-canvas: var(--color-navy-950);
+  --sq-surface: #0d2039;
+  --sq-surface-sunk: #081a2e;
+  --sq-surface-raised: #123054;
+
+  --sq-ink: #eaf1fa;
+  --sq-ink-muted: #9db4cd;
+  --sq-ink-inverse: var(--color-navy-950);
+
+  --sq-line: #1b3a5c;
+  --sq-line-strong: #2a5480;
+
+  /* The FILL stays at civic-600 so white ink still clears AA on it (5.72).
+   * Only the text variant brightens. Brightening the fill too — which is the
+   * obvious move — is what put white-on-civic-500 buttons at 4.18 across the
+   * player app. */
+  --sq-action: var(--color-civic-600);
+  --sq-action-hover: var(--color-civic-500);
+  --sq-action-ink: #ffffff;
+  --sq-action-text: var(--color-civic-400);
+  --sq-focus: var(--color-civic-400);
+
+  /* Semantic roles brighten in step, preserving their meaning. */
+  --sq-safe: var(--color-leaf-400);
+  --sq-risk: var(--color-coral-500);
+  --sq-earned: var(--color-amber-400);
+  --sq-peer: var(--color-teal-400);
+
+  /* On navy, amber is the brightest thing in the palette — amber-400 reads at
+   * 8.48:1, so text uses the accent value directly. Without this the light
+   * skin's amber-700 leaks through and lands at 2.81:1 on a navy surface. */
+  --sq-earned-text: var(--color-amber-400);
+
+  /* Shadows read as glow-free depth on dark; black instead of navy. */
+  --sq-shadow-flat: 0 1px 2px rgb(0 0 0 / 0.3);
+  --sq-shadow-raised: 0 6px 16px -4px rgb(0 0 0 / 0.5);
+  --sq-shadow-float: 0 20px 48px -12px rgb(0 0 0 / 0.65);
+
+  /* ---------------------------------------------------------------------------
+   * Re-point the NEUTRAL @theme scale at the game values.
+   *
+   * The neutral scale generates Tailwind utilities — `bg-surface`,
+   * `border-line`, `text-ink`, `text-ink-muted` — that compile to
+   * `var(--color-surface)` and friends. Without these lines every one of them
+   * would keep rendering its LIGHT value inside the dark player shell: white
+   * cards, near-black text on a navy ground, pale hairline borders.
+   *
+   * Re-pointing them here means those utilities are correct under both skins.
+   * New code should still prefer the semantic roles above, which say what a
+   * colour is FOR rather than what it is; these aliases exist so components
+   * ported from the v1 codebase keep working without a call-site migration.
+   * ------------------------------------------------------------------------ */
+  --color-canvas: var(--sq-canvas);
+  --color-surface: var(--sq-surface);
+  --color-surface-sunk: var(--sq-surface-sunk);
+  --color-line: var(--sq-line);
+  --color-line-strong: var(--sq-line-strong);
+  --color-ink: var(--sq-ink);
+  --color-ink-muted: var(--sq-ink-muted);
+  --color-ink-soft: var(--sq-ink-muted);
+
+  /* Set the INHERITED colour too, not just the variables.
+   *
+   * Redefining the tokens is not enough on its own: an element that never
+   * declares its own `color` inherits from `:root`, which is outside this
+   * selector and still holds the light ink. That put #16202e text on the navy
+   * canvas — a 1.12:1 ratio, i.e. invisible — anywhere a component relied on
+   * inheritance rather than an explicit colour class. */
+  color: var(--sq-ink);
+
+  color-scheme: dark;
+}
+
+/* -----------------------------------------------------------------------------
+ * The document behind a game-skin shell.
+ *
+ * `data-skin` sits on the player shell, not on `<body>`, so the document itself
+ * keeps the light canvas underneath. That shows: as a pale flash during
+ * overscroll / rubber-banding on iOS, behind a short page, and in the
+ * scrollbar trough. Painting the document to match whenever a game-skin
+ * subtree is mounted keeps the player app looking like one dark surface.
+ * -------------------------------------------------------------------------- */
+body:has([data-skin='game']) {
+  background: var(--color-navy-950);
+  color-scheme: dark;
+}
+
+/* =============================================================================
+ * UTILITY BRIDGE
+ * -----------------------------------------------------------------------------
+ * Lets components use the semantic roles from Tailwind class names, so a
+ * component written once works correctly under BOTH skins.
+ *   <div className="sq-surface sq-ink">  -> correct in light and game skins
+ * ========================================================================== */
+
+@utility sq-canvas {
+  background-color: var(--sq-canvas);
+}
+@utility sq-surface {
+  background-color: var(--sq-surface);
+}
+@utility sq-surface-sunk {
+  background-color: var(--sq-surface-sunk);
+}
+@utility sq-surface-raised {
+  background-color: var(--sq-surface-raised);
+}
+@utility sq-ink {
+  color: var(--sq-ink);
+}
+@utility sq-ink-muted {
+  color: var(--sq-ink-muted);
+}
+@utility sq-line {
+  border-color: var(--sq-line);
+}
+@utility sq-line-strong {
+  border-color: var(--sq-line-strong);
+}
+
+/* =============================================================================
+ * BOARD LAYER
+ * -----------------------------------------------------------------------------
+ * The four districts are the only place a colour is allowed to carry identity
+ * rather than meaning. They are consumed by BOTH renderers — CSS reads the
+ * custom property, Three.js reads the same hex through `DISTRICTS` in
+ * `src/game/board.ts` — so the two must stay in step. If you change one, change
+ * the other; a district that is amber on the 3D board and coral on the fallback
+ * board is two different places to a player.
+ * ========================================================================== */
+
+:root {
+  --sq-district-school: var(--color-amber-400);
+  --sq-district-retail: var(--color-coral-500);
+  --sq-district-digital: var(--color-civic-400);
+  --sq-district-community: var(--color-teal-400);
+
+  /* Board furniture. The 3D scene owns depth; these describe the DOM layer that
+   * sits on top of it and the flat fallback that replaces it. */
+  --sq-tile-radius: 8px;
+  --sq-board-glow: 0 0 24px -4px rgb(95 160 232 / 0.55);
+}
+
+@utility sq-district-tint {
+  background-color: color-mix(in oklab, var(--district-colour) 14%, transparent);
+  border-color: color-mix(in oklab, var(--district-colour) 42%, transparent);
+}
