@@ -164,6 +164,7 @@ const SCHOOL_SIDE: SideSpec[] = [
   {
     kind: 'MISSION',
     title: 'Just Hold It For Me',
+    short: 'Hold It',
     summary: 'A classmate wants something kept in your bag until after class.',
     competency: 'HOLD',
     guardianId: 'echo',
@@ -172,6 +173,7 @@ const SCHOOL_SIDE: SideSpec[] = [
   {
     kind: 'CLUE',
     title: 'Read the Room',
+    short: 'Read Room',
     summary: 'One question. Name the signal that actually matters.',
     competency: 'IDENTIFY',
     guardianId: 'cluepaw',
@@ -179,12 +181,14 @@ const SCHOOL_SIDE: SideSpec[] = [
   {
     kind: 'SITUATION',
     title: 'Corridor Card',
+    short: 'Card',
     summary: 'A short situation, one decision, fifteen seconds.',
     competency: 'SPOT',
   },
   {
     kind: 'PEER_SHIELD',
     title: 'Friend Under Pressure',
+    short: 'Friend',
     summary: 'Your friend is being dared. You are the witness, not the target.',
     competency: 'DEFEND',
     guardianId: 'shieldfin',
@@ -193,6 +197,7 @@ const SCHOOL_SIDE: SideSpec[] = [
   {
     kind: 'GUARDIAN',
     title: 'Echo Checkpoint',
+    short: 'Echo',
     summary: 'See what your decisions have actually built.',
     competency: 'HOLD',
     guardianId: 'echo',
@@ -200,6 +205,7 @@ const SCHOOL_SIDE: SideSpec[] = [
   {
     kind: 'COMMUNITY',
     title: 'School Street Works',
+    short: 'Works',
     summary: 'Spend coins on something the district keeps.',
   },
 ];
@@ -208,6 +214,7 @@ const RETAIL_SIDE: SideSpec[] = [
   {
     kind: 'MISSION',
     title: 'The Dare at Checkout',
+    short: 'The Dare',
     summary: 'Friends filming, and someone says the aisle is a blind spot.',
     competency: 'IDENTIFY',
     guardianId: 'cluepaw',
@@ -216,12 +223,14 @@ const RETAIL_SIDE: SideSpec[] = [
   {
     kind: 'SITUATION',
     title: 'Shopfront Card',
+    short: 'Card',
     summary: 'A short situation, one decision, fifteen seconds.',
     competency: 'EVALUATE',
   },
   {
     kind: 'CLUE',
     title: 'Spot the Signal',
+    short: 'Signal',
     summary: 'One question. Name the signal that actually matters.',
     competency: 'SPOT',
     guardianId: 'verifox',
@@ -229,6 +238,7 @@ const RETAIL_SIDE: SideSpec[] = [
   {
     kind: 'MISSION',
     title: 'Too Cheap To Be Real',
+    short: 'Listing',
     summary: 'Half price, if you pay outside the app.',
     competency: 'SPOT',
     guardianId: 'verifox',
@@ -237,6 +247,7 @@ const RETAIL_SIDE: SideSpec[] = [
   {
     kind: 'GUARDIAN',
     title: 'Cluepaw Checkpoint',
+    short: 'Cluepaw',
     summary: 'See what your decisions have actually built.',
     competency: 'IDENTIFY',
     guardianId: 'cluepaw',
@@ -244,6 +255,7 @@ const RETAIL_SIDE: SideSpec[] = [
   {
     kind: 'COMMUNITY',
     title: 'Retail District Works',
+    short: 'Works',
     summary: 'Spend coins on something the district keeps.',
   },
 ];
@@ -252,6 +264,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'MISSION',
     title: 'Easy Money?',
+    short: 'Money?',
     summary: 'S$200 to let money pass through your account. No risk, they say.',
     competency: 'SPOT',
     guardianId: 'verifox',
@@ -260,6 +273,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'CLUE',
     title: 'Warning Signs',
+    short: 'Signs',
     summary: 'One question. Name the signal that actually matters.',
     competency: 'SPOT',
     guardianId: 'verifox',
@@ -267,6 +281,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'SITUATION',
     title: 'Inbox Card',
+    short: 'Card',
     summary: 'A short situation, one decision, fifteen seconds.',
     competency: 'EVALUATE',
     guardianId: 'bytebuddy',
@@ -274,6 +289,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'MISSION',
     title: 'The Part-Time Listing',
+    short: 'Job Ad',
     summary: 'S$80 an hour — after you pay the activation fee.',
     competency: 'IDENTIFY',
     guardianId: 'cluepaw',
@@ -282,6 +298,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'GUARDIAN',
     title: 'VeriFox Checkpoint',
+    short: 'VeriFox',
     summary: 'See what your decisions have actually built.',
     competency: 'SPOT',
     guardianId: 'verifox',
@@ -289,6 +306,7 @@ const DIGITAL_SIDE: SideSpec[] = [
   {
     kind: 'COMMUNITY',
     title: 'Digi-District Works',
+    short: 'Works',
     summary: 'Spend coins on something the district keeps.',
   },
 ];
@@ -297,6 +315,7 @@ const COMMUNITY_SIDE: SideSpec[] = [
   {
     kind: 'PEER_SHIELD',
     title: "Jayden's Offer",
+    short: 'Jayden',
     summary: 'Your friend is about to hand over his account number.',
     competency: 'DEFEND',
     guardianId: 'shieldfin',
@@ -305,12 +324,14 @@ const COMMUNITY_SIDE: SideSpec[] = [
   {
     kind: 'SITUATION',
     title: 'Hub Card',
+    short: 'Card',
     summary: 'A short situation, one decision, fifteen seconds.',
     competency: 'DEFEND',
   },
   {
     kind: 'CLUE',
     title: 'Who Would You Tell?',
+    short: 'Who?',
     summary: 'One question. Name the signal that actually matters.',
     competency: 'LEAD',
     guardianId: 'beacon',
@@ -318,6 +339,7 @@ const COMMUNITY_SIDE: SideSpec[] = [
   {
     kind: 'PEER_SHIELD',
     title: 'Cover For Me',
+    short: 'Cover',
     summary: 'A friend wants you to say you were together. You were not.',
     competency: 'LEAD',
     guardianId: 'beacon',
@@ -326,6 +348,7 @@ const COMMUNITY_SIDE: SideSpec[] = [
   {
     kind: 'GUARDIAN',
     title: 'Shieldfin Checkpoint',
+    short: 'Shieldfin',
     summary: 'See what your decisions have actually built.',
     competency: 'DEFEND',
     guardianId: 'shieldfin',
@@ -333,6 +356,7 @@ const COMMUNITY_SIDE: SideSpec[] = [
   {
     kind: 'COMMUNITY',
     title: 'Community Hub Works',
+    short: 'Works',
     summary: 'Spend coins on something the district keeps.',
   },
 ];
@@ -343,6 +367,7 @@ const SIDES: { districtId: DistrictId; gate: SideSpec; spaces: SideSpec[] }[] = 
     gate: {
       kind: 'GATE',
       title: 'School Street',
+      short: 'School',
       summary: 'Enter School Street. Collect your community stipend.',
       corner: true,
     },
@@ -353,6 +378,7 @@ const SIDES: { districtId: DistrictId; gate: SideSpec; spaces: SideSpec[] }[] = 
     gate: {
       kind: 'GATE',
       title: 'Retail District',
+      short: 'Retail',
       summary: 'Enter the Retail District. Collect your community stipend.',
       corner: true,
     },
@@ -363,6 +389,7 @@ const SIDES: { districtId: DistrictId; gate: SideSpec; spaces: SideSpec[] }[] = 
     gate: {
       kind: 'GATE',
       title: 'Digi-District',
+      short: 'Digi',
       summary: 'Enter the Digi-District. Collect your community stipend.',
       corner: true,
     },
@@ -373,6 +400,7 @@ const SIDES: { districtId: DistrictId; gate: SideSpec; spaces: SideSpec[] }[] = 
     gate: {
       kind: 'GATE',
       title: 'Community Hub',
+      short: 'Hub',
       summary: 'Enter the Community Hub. Collect your community stipend.',
       corner: true,
     },

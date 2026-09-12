@@ -78,7 +78,7 @@ export function GuardianStrip({ game, onOpen }: { game: GameState; onOpen: () =>
             key={guardian.id}
             aria-hidden="true"
             title={`${guardian.name} — ${progress}/${guardian.target}`}
-            className="relative grid h-9 w-9 flex-1 place-content-center rounded-full border transition-colors"
+            className="relative grid h-8 w-8 flex-1 place-content-center rounded-full border transition-colors"
             style={{
               borderColor: met ? 'var(--sq-earned)' : 'var(--sq-line)',
               background: met
@@ -87,7 +87,7 @@ export function GuardianStrip({ game, onOpen }: { game: GameState; onOpen: () =>
               opacity: met ? 1 : 0.45 + (progress / guardian.target) * 0.35,
             }}
           >
-            <img src={guardianArt(guardian.id)} alt="" className="h-6 w-6" />
+            <img src={guardianArt(guardian.id)} alt="" className="h-5 w-5" />
           </span>
         );
       })}

@@ -251,6 +251,16 @@ export interface BoardSpace {
   districtId: DistrictId;
   kind: SpaceKind;
   title: string;
+  /**
+   * A one- or two-word label for when the tile is too small for the title.
+   *
+   * The flat board on a phone gives each space about forty pixels. "Community
+   * Hub Works" in forty pixels is not a shorter title, it is a clipped one —
+   * and a clipped label is worse than a short one, because the player cannot
+   * tell what was cut. The full title is still the accessible name, still in
+   * the footer, and still in the tile's own sheet.
+   */
+  short: string;
   /** One line, shown on the tile face and read by the DOM control layer. */
   summary: string;
   competency?: Competency;

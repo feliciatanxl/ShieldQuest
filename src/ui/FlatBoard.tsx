@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
 import { fallbackCell } from '../game/geometry.ts';
 import { useGame } from '../state/store.ts';
+import { DiceFace } from './Hud.tsx';
 import type { BoardSpace } from '../game/types.ts';
 
 /**
@@ -15,8 +16,11 @@ import type { BoardSpace } from '../game/types.ts';
  * access and to running on "common phones, tablets and laptops"; this is the
  * part of the codebase that keeps that true rather than aspirational.
  *
- * Because there is no hop to wait for, the turn resolves as soon as the roll
- * lands.
+ * It gets the same turn *structure* as the 3D board, not just the same rules:
+ * the dice tumble in the middle of the board, then the token walks the spaces
+ * one at a time. Cutting straight from the button to the scenario — which is
+ * what this did first — loses the two things the roll is actually for: seeing
+ * what you rolled, and seeing which spaces you passed to get here.
  */
 
 const KIND_GLYPH: Record<BoardSpace['kind'], string> = {
@@ -29,27 +33,102 @@ const KIND_GLYPH: Record<BoardSpace['kind'], string> = {
   COMMUNITY: '⌂',
 };
 
+/** Dice tumble, then one hop per space. Tuned to match the 3D board's pacing. */
+const DICE_MS = 700;
+const STEP_MS = 150;
+
+const randomFace = () => 1 + Math.floor(Math.random() * 6);
+
 export default function FlatBoard({ onInspect }: { onInspect: (index: number) => void }) {
   const game = useGame((s) => s.game);
   const path = useGame((s) => s.path);
+  const dice = useGame((s) => s.dice);
   const arrive = useGame((s) => s.arrive);
 
-  // No animation to wait for: land, then open the space.
+  /**
+   * Where the token actually is, which is not the same as `game.position`.
+   * The engine moves the player the instant the roll is applied; this follows
+   * behind it one space at a time.
+   */
+  const [tokenIndex, setTokenIndex] = useState(game?.position ?? 0);
+  const [rolling, setRolling] = useState(false);
+  const [tumble, setTumble] = useState<[number, number]>([1, 1]);
+
+  const position = game?.position ?? 0;
+  const moving = path.length > 0;
+
+  // Any time we are not mid-move — a resume, a reload, a renderer switch — the
+  // token belongs wherever the engine says the player is.
+  useEffect(() => {
+    if (!moving) setTokenIndex(position);
+  }, [moving, position]);
+
   useEffect(() => {
     if (path.length === 0) return;
-    const timer = window.setTimeout(arrive, 420);
-    return () => window.clearTimeout(timer);
+
+    // Reduced motion still gets the full sequence, just without the theatre:
+    // the values still land on the dice and the token still ends up in the
+    // right place, it simply happens at once.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const diceMs = reduced ? 0 : DICE_MS;
+    const stepMs = reduced ? 0 : STEP_MS;
+
+    let cancelled = false;
+    const timers: number[] = [];
+    let shuffle = 0;
+
+    if (!reduced) {
+      setRolling(true);
+      shuffle = window.setInterval(() => setTumble([randomFace(), randomFace()]), 90);
+    }
+
+    timers.push(
+      window.setTimeout(() => {
+        if (cancelled) return;
+        window.clearInterval(shuffle);
+        setRolling(false);
+
+        path.forEach((space, step) => {
+          timers.push(
+            window.setTimeout(() => {
+              if (!cancelled) setTokenIndex(space);
+            }, step * stepMs),
+          );
+        });
+
+        // A short beat after the last hop, so the space the player landed on is
+        // visible for a moment before its sheet covers the board.
+        timers.push(
+          window.setTimeout(
+            () => {
+              if (!cancelled) arrive();
+            },
+            path.length * stepMs + (reduced ? 0 : 260),
+          ),
+        );
+      }, diceMs),
+    );
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(shuffle);
+      timers.forEach(window.clearTimeout);
+    };
   }, [path, arrive]);
 
   if (!game) return null;
 
+  const tokenCell = fallbackCell(tokenIndex);
+
   return (
-    <div className="grid h-full place-content-center p-3">
+    <div className="sq-flat-stage">
       <div className="sq-flat-board">
         {TRACK.map((space) => {
           const cell = fallbackCell(space.index);
           const district = DISTRICTS[space.districtId];
-          const current = game.position === space.index;
+          // Follows the token, not the engine, so the highlight never runs on
+          // ahead of the piece while it is still walking.
+          const current = tokenIndex === space.index;
           const resolved = game.resolved.includes(space.id);
           return (
             <button
@@ -65,18 +144,18 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
               }}
               onClick={() => onInspect(space.index)}
             >
-              <span aria-hidden="true" className="text-[13px] leading-none opacity-70">
+              <span aria-hidden="true" className="sq-tile-glyph">
                 {KIND_GLYPH[space.kind]}
               </span>
-              <span aria-hidden="true" className="font-semibold">
+              {/* Both are rendered; a container query on the board decides
+                  which one there is room for. Neither is the accessible name —
+                  that is the full description on the button itself. */}
+              <span aria-hidden="true" className="sq-tile-title">
                 {space.title}
               </span>
-              {current ? (
-                <span
-                  aria-hidden="true"
-                  className="absolute right-1 top-2 h-3 w-3 rounded-full bg-[var(--sq-earned)] ring-2 ring-[var(--sq-canvas)]"
-                />
-              ) : null}
+              <span aria-hidden="true" className="sq-tile-short">
+                {space.short}
+              </span>
               <span className="sr-only">
                 {`Space ${space.index + 1}. ${space.title}. ${district.name}. ${space.summary}`}
                 {current ? ' You are here.' : ''}
@@ -86,15 +165,37 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
           );
         })}
 
+        <span
+          aria-hidden="true"
+          className="sq-flat-token"
+          style={{
+            ['--col' as string]: tokenCell.col,
+            ['--row' as string]: tokenCell.row,
+          }}
+        />
+
         <div className="sq-flat-centre">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--sq-ink-muted)]">
-            ShieldQuest City
+          <p className="sq-centre-label">ShieldQuest City</p>
+
+          <div className="sq-flat-dice" data-rolling={rolling}>
+            <DiceFace value={rolling ? tumble[0] : (dice?.a ?? 1)} />
+            <DiceFace value={rolling ? tumble[1] : (dice?.b ?? 1)} />
+          </div>
+
+          <p className="sq-centre-status">
+            {rolling
+              ? 'Rolling…'
+              : dice
+                ? `Rolled ${dice.total}${dice.isDouble ? ' · double' : ''}`
+                : 'Roll to move'}
           </p>
-          <p className="text-2xl font-bold text-[var(--sq-ink)]">{game.stats.trust}</p>
-          <p className="text-xs text-[var(--sq-ink-muted)]">Trust Meter</p>
-          <p className="mt-2 max-w-[22ch] text-[11px] leading-snug text-[var(--sq-ink-muted)]">
-            Flat board — same spaces, same rules, no 3D.
-          </p>
+
+          <div>
+            <p className="sq-centre-trust">{game.stats.trust}</p>
+            <p className="sq-centre-note">Trust Meter</p>
+          </div>
+
+          <p className="sq-centre-note">Flat board — same spaces, same rules, no 3D.</p>
         </div>
       </div>
     </div>

@@ -61,7 +61,9 @@ export type Overlay =
   | { kind: 'consequence'; pending: PendingConsequence; shortfall: number }
   | { kind: 'award'; guardianId: GuardianId }
   | { kind: 'secured'; districtId: DistrictId }
-  | { kind: 'report' };
+  | { kind: 'report' }
+  /** Ending a run wipes it from the device, so it gets asked properly. */
+  | { kind: 'confirmEnd' };
 
 /** A queued follow-up, shown one at a time after a decision resolves. */
 type FollowUp =
@@ -176,6 +178,7 @@ interface Store {
   build(districtId: DistrictId): { ok: boolean; reason?: string };
   dismiss(): void;
   openReport(): void;
+  requestEndSession(): void;
   setRenderer(mode: RendererMode): void;
   clearFlash(): void;
 }
@@ -398,6 +401,10 @@ export const useGame = create<Store>((set, get) => ({
 
   openReport() {
     set({ overlay: { kind: 'report' } });
+  },
+
+  requestEndSession() {
+    set({ overlay: { kind: 'confirmEnd' } });
   },
 
   setRenderer(mode) {

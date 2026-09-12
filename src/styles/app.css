@@ -311,40 +311,131 @@
 
 /* --- Flat fallback board ------------------------------------------------- */
 
+/* The board is square and must fit the space between the HUD and the roll
+ * button, whatever shape that space is. Sizing it from viewport units instead
+ * is how it ended up taller than its own stage and sitting under the header. */
+.sq-flat-stage {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  container-type: size;
+}
+
 .sq-flat-board {
+  /* Shared by the grid, the token and the dice, so a spacing change moves all
+   * three together. The token is positioned from these rather than from a
+   * grid cell, because grid placement cannot be transitioned — and a token
+   * that teleports between spaces is not a board game. */
+  --pad: 14px;
+  --gap: 6px;
+  --edge: 8;
+  --cell: calc((100% - (2 * var(--pad)) - ((var(--edge) - 1) * var(--gap))) / var(--edge));
+
+  position: relative;
+  /* The board is itself a container, so everything inside the centre panel can
+   * be sized in `cqmin` and shrink with the board. Fixed pixel sizes in there
+   * are what made the Trust Meter spill over the tiles on a short window. */
+  container-type: size;
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   grid-template-rows: repeat(8, minmax(0, 1fr));
-  gap: 4px;
+  gap: var(--gap);
   aspect-ratio: 1;
-  width: min(100%, 62vh);
-  margin-inline: auto;
-  padding: 10px;
+  /* Whichever of the stage's two axes is smaller wins, so the square always
+   * fits and never has to be clipped or scrolled. */
+  width: min(100cqw, 100cqh, 860px);
+  padding: var(--pad);
   border-radius: var(--radius-panel);
   background: var(--sq-surface-sunk);
   border: 1px solid var(--sq-line);
-  /* A little depth, entirely in CSS: the 2.5D board the fallback replaces the
-   * 3D one with. Perspective only, no transform on children that would take
-   * them out of the accessibility tree's reading order. */
   box-shadow: var(--sq-shadow-float);
 }
 
 .sq-flat-tile {
   position: relative;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 2px;
-  padding: 5px;
+  align-items: center;
+  /* Centred, not bottom-aligned: a tile is roughly a twelfth of the board and
+   * anything pushed to an edge is the thing that gets cut. */
+  justify-content: center;
+  gap: 1px;
+  padding: clamp(3px, 1.4cqmin, 7px) clamp(2px, 0.9cqmin, 4px) clamp(2px, 1cqmin, 5px);
   border-radius: var(--sq-tile-radius);
   border: 1px solid var(--sq-line);
   background: var(--sq-surface);
   color: var(--sq-ink);
-  font-size: 9px;
-  line-height: 1.15;
-  text-align: left;
+  line-height: 1.1;
+  text-align: center;
+  /* `break-word`, deliberately not `anywhere`. `anywhere` also shrinks the
+   * element's min-content width, which let the label box collapse and split
+   * words that would have fitted perfectly well — "VeriFo/x", "Jayde/n". This
+   * breaks a word only when it genuinely cannot fit on a line. */
+  overflow-wrap: break-word;
+  hyphens: auto;
   overflow: hidden;
-  transition: transform 0.18s var(--ease-entrance);
+  transition:
+    transform 0.18s var(--ease-entrance),
+    border-color 0.18s ease,
+    opacity 0.3s ease;
+}
+
+/* Three tiers, because a space on this board can be anywhere from 26px to 100px
+ * across depending on the window.
+ *
+ *   tiny   — the short label only. A 26px cell fits two lines of text OR a
+ *            glyph, not both, and "Hold It" tells a player more than "▶" does.
+ *   medium — glyph and short label.
+ *   large  — glyph and the full title.
+ */
+.sq-tile-glyph {
+  display: none;
+  font-size: clamp(8px, 2.4cqmin, 14px);
+  line-height: 1;
+  opacity: 0.6;
+}
+
+@container (min-width: 380px) {
+  .sq-tile-glyph {
+    display: block;
+  }
+}
+
+/* Sized against the BOARD, not the viewport. A cell is about an eighth of the
+ * board, so the label has to be a fraction of the board too — a viewport-based
+ * size is right on one window and clipped on the next. */
+.sq-tile-title,
+.sq-tile-short {
+  font-weight: 600;
+  font-size: clamp(6.5px, 1.9cqmin, 11px);
+}
+
+/* Below roughly 60px a cell, the full title can only be shown clipped. The
+ * short label is shown instead — the full one is still the button's accessible
+ * name, still in the footer, and still in the space's own sheet. */
+.sq-tile-title {
+  display: none;
+}
+
+@container (min-width: 500px) {
+  .sq-tile-title {
+    display: block;
+  }
+
+  .sq-tile-short {
+    display: none;
+  }
+
+  .sq-tile-glyph {
+    font-size: clamp(10px, 2.2cqmin, 16px);
+  }
+
+  .sq-tile-title {
+    font-size: clamp(8px, 1.7cqmin, 12px);
+  }
 }
 
 .sq-flat-tile::before {
@@ -352,19 +443,40 @@
   position: absolute;
   inset-inline: 0;
   top: 0;
-  height: 5px;
+  height: 4px;
   background: var(--district-colour);
 }
 
 .sq-flat-tile[data-current='true'] {
-  transform: scale(1.06);
+  transform: scale(1.07);
   border-color: var(--sq-earned);
   box-shadow: 0 0 0 2px var(--sq-earned);
   z-index: 2;
 }
 
 .sq-flat-tile[data-resolved='true'] {
-  opacity: 0.62;
+  opacity: 0.55;
+}
+
+/* The travelling token. Absolutely positioned from the same cell metrics the
+ * grid uses, so `left`/`top` can transition and the piece visibly hops from
+ * space to space. */
+.sq-flat-token {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  width: clamp(12px, calc(var(--cell) * 0.42), 26px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ffe6b0, var(--color-amber-500) 62%, #9a5f05);
+  border: 2px solid var(--sq-canvas);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.45);
+  left: calc(var(--pad) + ((var(--col) - 1) * (var(--cell) + var(--gap))) + (var(--cell) / 2));
+  top: calc(var(--pad) + ((var(--row) - 1) * (var(--cell) + var(--gap))) + (var(--cell) / 2));
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.15s var(--ease-entrance),
+    top 0.15s var(--ease-entrance);
 }
 
 .sq-flat-centre {
@@ -372,12 +484,74 @@
   grid-row: 2 / 8;
   display: grid;
   place-content: center;
-  gap: 8px;
+  justify-items: center;
+  gap: clamp(3px, 1.8cqmin, 12px);
   text-align: center;
+  padding: clamp(4px, 2.5cqmin, 16px);
+  overflow: hidden;
   border-radius: var(--radius-card);
   background:
     radial-gradient(80% 80% at 50% 30%, rgb(26 102 188 / 0.2), transparent 70%),
     var(--sq-surface-sunk);
+}
+
+/* Dice on the board itself, not only in the toolbar. The roll is the moment
+ * the turn belongs to the player, and it should happen where they are looking. */
+.sq-flat-dice {
+  --dice-size: clamp(20px, 9cqmin, 46px);
+  display: flex;
+  gap: clamp(5px, 2.2cqmin, 12px);
+}
+
+.sq-centre-label {
+  font-size: clamp(7px, 2.3cqmin, 11px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sq-ink-muted);
+}
+
+.sq-centre-status {
+  min-height: 1.2em;
+  font-size: clamp(8px, 2.5cqmin, 13px);
+  font-weight: 500;
+  color: var(--sq-ink-muted);
+}
+
+.sq-centre-trust {
+  font-size: clamp(17px, 7cqmin, 34px);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--sq-ink);
+}
+
+.sq-centre-note {
+  max-width: 24ch;
+  font-size: clamp(7px, 2.2cqmin, 11px);
+  line-height: 1.35;
+  color: var(--sq-ink-muted);
+}
+
+.sq-flat-dice[data-rolling='true'] > * {
+  animation: sq-dice-tumble 0.28s linear infinite;
+}
+
+.sq-flat-dice[data-rolling='true'] > *:nth-child(2) {
+  animation-direction: reverse;
+  animation-duration: 0.22s;
+}
+
+@keyframes sq-dice-tumble {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(14deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
 }
 
 /* --- Dice ---------------------------------------------------------------- */
@@ -386,11 +560,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  gap: 2px;
-  width: 44px;
-  height: 44px;
-  padding: 6px;
-  border-radius: 10px;
+  gap: calc(var(--dice-size, 44px) * 0.05);
+  width: var(--dice-size, 44px);
+  height: var(--dice-size, 44px);
+  padding: calc(var(--dice-size, 44px) * 0.14);
+  border-radius: calc(var(--dice-size, 44px) * 0.22);
   background: #f7fafc;
   color: var(--color-navy-950);
   box-shadow:

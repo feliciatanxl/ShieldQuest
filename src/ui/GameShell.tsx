@@ -42,8 +42,8 @@ export default function GameShell() {
       className="flex h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]"
     >
       {/* ---------- top ---------- */}
-      <header className="shrink-0 border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <div className="mb-2.5 flex items-center justify-between gap-3">
+      <header className="shrink-0 border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-2.5 pt-[max(0.6rem,env(safe-area-inset-top))]">
+        <div className="mb-2 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-bold">{game.handle}</p>
             <p className="text-[11px] text-[var(--sq-ink-muted)]">
@@ -62,7 +62,7 @@ export default function GameShell() {
 
         <StatBar game={game} />
 
-        <div className="mt-2.5">
+        <div className="mt-2">
           <GuardianStrip game={game} onOpen={() => setSkillsOpen(true)} />
         </div>
 

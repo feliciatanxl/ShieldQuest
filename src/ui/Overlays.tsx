@@ -738,7 +738,7 @@ export function SkillsSheet({ game, onClose }: { game: GameState; onClose: () =>
  */
 function ReportSheet() {
   const game = useGame((s) => s.game);
-  const abandon = useGame((s) => s.abandon);
+  const requestEndSession = useGame((s) => s.requestEndSession);
   const dismiss = useGame((s) => s.dismiss);
   if (!game) return null;
   const report = sessionReport(game);
@@ -809,13 +809,86 @@ function ReportSheet() {
           <Button variant="quiet" className="flex-1" onClick={dismiss}>
             Back to the board
           </Button>
-          <Button
-            className="flex-1"
-            onClick={() => {
-              if (confirm('End this session and clear the run from this device?')) abandon();
-            }}
-          >
+          <Button className="flex-1" onClick={requestEndSession}>
             End session
+          </Button>
+        </div>
+      </div>
+    </Sheet>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* End the session                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ending a run is the only irreversible thing a player can do.
+ *
+ * It gets a real dialog rather than the browser's `confirm()`, for three
+ * reasons: the native one is unstyled and breaks the game's surface at exactly
+ * the moment the player is deciding something they cannot undo; it cannot show
+ * the session code, which is the one thing they need to write down first; and
+ * it is not reliably readable in a phone's in-app browser, which is how a QR
+ * code opens this.
+ */
+function ConfirmEndSheet() {
+  const game = useGame((s) => s.game);
+  const abandon = useGame((s) => s.abandon);
+  const openReport = useGame((s) => s.openReport);
+  if (!game) return null;
+
+  return (
+    <Sheet labelledBy="confirm-end-title" tone="risk" onDismiss={openReport}>
+      <div className="space-y-4 px-5 py-6">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--sq-risk)]">
+            This cannot be undone
+          </p>
+          <h2 id="confirm-end-title" className="mt-1 text-2xl font-bold leading-tight">
+            End this session?
+          </h2>
+        </div>
+
+        <p className="text-sm leading-relaxed text-[var(--sq-ink-muted)]">
+          The run is cleared from this device. Your turns, coins, city Trust and every Guardian you
+          earned go with it, and there is no way to get them back.
+        </p>
+
+        <div className="rounded-[var(--radius-card)] border border-[var(--sq-line-strong)] bg-[var(--sq-surface-sunk)] p-4 text-center">
+          <p className="text-[11px] uppercase tracking-wider text-[var(--sq-ink-muted)]">
+            Write this down first
+          </p>
+          <p className="mt-1 text-3xl font-bold tracking-[0.22em] text-[var(--sq-ink)]">
+            {game.sessionCode}
+          </p>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--sq-ink-muted)]">
+            Your session code. It is the only thing linking your answers before and after the
+            session, and it is not linked to your name.
+          </p>
+        </div>
+
+        <ul className="space-y-1.5 text-sm">
+          {[
+            `${game.turn} turn${game.turn === 1 ? '' : 's'} played`,
+            `${game.decisions.length} decision${game.decisions.length === 1 ? '' : 's'} made`,
+            `${game.metGuardians.length} of 6 Guardians earned`,
+          ].map((line) => (
+            <li key={line} className="flex gap-2 text-[var(--sq-ink-muted)]">
+              <span aria-hidden="true" style={{ color: 'var(--sq-risk)' }}>
+                ×
+              </span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-col gap-2 sm:flex-row-reverse">
+          <Button variant="risk" className="flex-1" onClick={abandon}>
+            Yes, end the session
+          </Button>
+          <Button variant="quiet" className="flex-1" onClick={openReport}>
+            Keep playing
           </Button>
         </div>
       </div>
@@ -846,6 +919,8 @@ export function Overlays() {
       return <CommunitySheet />;
     case 'report':
       return <ReportSheet />;
+    case 'confirmEnd':
+      return <ConfirmEndSheet />;
     default:
       return null;
   }
