@@ -144,6 +144,26 @@ buys the entire catalogue and asserts the achievement count is still zero.
 > are fixed here: the claim of competence is not for sale, and the purchase
 > takes the tokens.
 
+### Joining a facilitator's session
+
+The room code is the only thing tying a participant to a session, and the only
+thing linking their before and after responses — there is no account and no
+name. So onboarding asks for it, `?code=` in the URL fills it in for a scanned
+QR, and `normaliseSessionCode` forgives the ways a code gets mistyped after
+being read off a projector: lowercase, spaced, hyphenated, or carrying a prefix
+somebody half-remembers. Characters outside the alphabet are dropped rather than
+rejected. O/0 and I/1 are never "corrected", because the alphabet contains no
+vowels and no 0 or 1 — the confusable pairs cannot occur in a real code.
+
+Leaving it blank is a valid answer: a device playing on its own generates one.
+
+Both surfaces have to agree on the shape of a code or the room cannot get in.
+The portal's Live Sessions panel used to show `SQ-7842`, which the join field
+would have refused — a facilitator would have read out a code nobody could type.
+It now shows one from the same alphabet the engine generates. Nothing syncs over
+a network (v2 is client-only), so the code is a shared label rather than a
+connection.
+
 ### How to play is always one tap away
 
 A facilitated session explains the rules once, in its first fifteen minutes, to
@@ -312,7 +332,7 @@ From the proposal and the implementation plan. Several are asserted in
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mobile-first PWA, no install            | One screen to start, one to play. No router, no account, no sign-up.                                                                                                              |
 | Data minimisation                       | A self-chosen codename and a random six-character session code. No names, NRICs, phone numbers or banking data — not in a form, and not as something a scenario asks you to type. |
-| Pseudonymous pre/post linking           | `makeSessionCode()`. Vowel-free so it cannot spell anything. Generated on device.                                                                                                 |
+| Pseudonymous pre/post linking           | `makeSessionCode()`. Vowel-free so it cannot spell anything. Typed in from the facilitator's room code, or generated on device.                                                   |
 | Aggregate reporting only                | `sessionReport()` reports the run, never the person. A test asserts the codename cannot reach it.                                                                                 |
 | Spendable credit, unbuyable recognition | Shield Tokens pay for taking part and buy cosmetics only. Achievements are derived from the run and have no price. Tested.                                                        |
 | Guardians earned, never granted         | `progressFor()` moves a Guardian only on a decision. Tested against rolls, stipends and purchases.                                                                                |
