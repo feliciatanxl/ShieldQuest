@@ -1,16 +1,20 @@
 import { create } from 'zustand';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
+import { COSMETIC_BY_ID } from '../game/content/cosmetics.ts';
 import { GUARDIAN_BY_ID } from '../game/content/guardians.ts';
 import {
   applyCard,
   applyDecision,
   applyRoll,
   buildUpgrade,
+  buyCosmetic,
   createGame,
   dueConsequences,
+  equipCosmetic,
   makeRng,
   markCelebrated,
+  migrateSave,
   resolveConsequence,
   resolveLanding,
   rollDice,
@@ -101,7 +105,8 @@ function loadSave(): GameState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as GameState;
     if (!parsed.sessionCode || typeof parsed.position !== 'number') return null;
-    return parsed;
+    // A run saved before a field existed is still a valid run. See migrateSave.
+    return migrateSave(parsed);
   } catch {
     return null;
   }
@@ -186,6 +191,10 @@ interface Store {
   choose(choiceId: string): void;
   answerCard(optionId: string): void;
   build(districtId: DistrictId): { ok: boolean; reason?: string };
+  /** Spend Shield Tokens on a cosmetic, and wear it. */
+  buy(cosmeticId: string): { ok: boolean; reason?: string };
+  /** Wear a cosmetic already owned. */
+  equip(cosmeticId: string): void;
   dismiss(): void;
   openReport(): void;
   requestEndSession(): void;
@@ -367,6 +376,31 @@ export const useGame = create<Store>((set, get) => ({
       },
     });
     return { ok: true };
+  },
+
+  buy(cosmeticId) {
+    const { game } = get();
+    if (!game) return { ok: false, reason: 'No session' };
+
+    const result = buyCosmetic(game, cosmeticId);
+    persist(result.state);
+    set({ game: result.state });
+
+    if (result.bought) return { ok: true };
+    if (result.reason === 'funds') {
+      const short = (COSMETIC_BY_ID[cosmeticId]?.cost ?? 0) - game.tokens;
+      return { ok: false, reason: `${short} more Shield Tokens needed.` };
+    }
+    // 'owned' equips instead of buying, which is not a failure.
+    return { ok: result.reason === 'owned' };
+  },
+
+  equip(cosmeticId) {
+    const { game } = get();
+    if (!game) return;
+    const next = equipCosmetic(game, cosmeticId);
+    persist(next);
+    set({ game: next });
   },
 
   /**

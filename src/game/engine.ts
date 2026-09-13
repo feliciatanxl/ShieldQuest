@@ -6,6 +6,7 @@ import {
   TRACK_LENGTH,
   securingSpaces,
 } from './board.ts';
+import { COSMETIC_BY_ID } from './content/cosmetics.ts';
 import { GUARDIANS, GUARDIAN_BY_ID } from './content/guardians.ts';
 import { CLUE_CARDS, SITUATION_CARDS } from './content/situations.ts';
 import { SCENARIO_BY_ID } from './content/scenarios.ts';
@@ -13,6 +14,7 @@ import type {
   AgeBand,
   BoardSpace,
   ChoiceOutcome,
+  Cosmetic,
   Deltas,
   DiceRoll,
   DistrictId,
@@ -149,8 +151,30 @@ export function createGame(opts: {
       digital: freshDistrict(),
       community: freshDistrict(),
     },
+    tokens: 0,
+    tokenGrants: [],
+    unlocked: [],
+    equipped: null,
     decisions: [],
     log: [{ turn: 0, text: 'Session started. Roll to enter the city.', tone: 'neutral' }],
+  };
+}
+
+/**
+ * Bring a save forward.
+ *
+ * A run saved before Shield Tokens existed is still a valid run — the player is
+ * mid-session on a phone and the fields they are missing are additive. Filling
+ * them in beats discarding a session, and beats crashing on the first decision
+ * because `tokenGrants` was undefined.
+ */
+export function migrateSave(saved: GameState): GameState {
+  return {
+    ...saved,
+    tokens: saved.tokens ?? 0,
+    tokenGrants: saved.tokenGrants ?? [],
+    unlocked: saved.unlocked ?? [],
+    equipped: saved.equipped ?? null,
   };
 }
 
@@ -309,6 +333,115 @@ function drawCard(
 }
 
 /* ------------------------------------------------------------------ */
+/* Shield Tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * What taking part is worth.
+ *
+ * Read these three numbers as the whole policy, because they are:
+ *
+ *   decision   paid for ANSWERING a scenario, whatever the answer was. A risky
+ *              choice pays the same as a safe one. Tokens measure taking part,
+ *              not getting it right — the reward for getting it right is a
+ *              Guardian, and that one cannot be bought.
+ *   peerShield a small top-up when a player protected someone else and it went
+ *              well. The one place the amount depends on the outcome, and it is
+ *              deliberate: Peer Shield Mode is a named proposal hook and the
+ *              hardest thing the game asks anyone to do.
+ *   district   paid when a district is secured, which happens only by resolving
+ *              every decision space in it. Not by building, not by spending.
+ *
+ * Nothing else in this file pays tokens. Rolling does not, passing a gate does
+ * not, buying an upgrade does not, and finishing ahead of somebody else does
+ * not — there is nobody to finish ahead of.
+ */
+export const TOKEN_AWARD = {
+  decision: 40,
+  peerShield: 10,
+  district: 60,
+} as const;
+
+/**
+ * Pay a set of keyed awards, skipping any already paid.
+ *
+ * Every award is idempotent by key. A board is a loop, so without this the
+ * second lap would pay for the same scenario again and "participation credit"
+ * would quietly become "credit for walking in circles".
+ */
+function grantTokens(
+  state: GameState,
+  awards: [key: string, amount: number][],
+): { tokens: number; tokenGrants: string[]; gained: number } {
+  const fresh = awards.filter(([key]) => !state.tokenGrants.includes(key));
+  const gained = fresh.reduce((total, [, amount]) => total + amount, 0);
+  return {
+    tokens: state.tokens + gained,
+    tokenGrants:
+      gained > 0 ? [...state.tokenGrants, ...fresh.map(([key]) => key)] : state.tokenGrants,
+    gained,
+  };
+}
+
+/** The district award, owed only on the turn a district becomes secured. */
+function districtAward(
+  before: GameState,
+  districts: GameState['districts'],
+  districtId: DistrictId,
+): [string, number][] {
+  const becameSecured = districts[districtId].secured && !before.districts[districtId].secured;
+  return becameSecured ? [[`district:${districtId}`, TOKEN_AWARD.district]] : [];
+}
+
+/* ------------------------------------------------------------------ */
+/* Spending                                                            */
+/* ------------------------------------------------------------------ */
+
+export interface PurchaseResult {
+  state: GameState;
+  /** The cosmetic bought, or null when nothing changed hands. */
+  bought: Cosmetic | null;
+  reason?: 'unknown' | 'owned' | 'funds';
+}
+
+/**
+ * Buy a cosmetic, and equip it.
+ *
+ * Three things this deliberately does NOT do, each of which v1's shop did:
+ * it does not hand over the item without taking the tokens, it does not let a
+ * balance go negative, and it does not touch a single thing the game measures —
+ * no stat, no Guardian, no district, no scenario. A purchase changes a colour
+ * and a balance. `engine.test.ts` asserts all three.
+ */
+export function buyCosmetic(state: GameState, id: string): PurchaseResult {
+  const cosmetic = COSMETIC_BY_ID[id];
+  if (!cosmetic) return { state, bought: null, reason: 'unknown' };
+  if (state.unlocked.includes(id) || cosmetic.cost === 0) {
+    return { state: equipCosmetic(state, id), bought: null, reason: 'owned' };
+  }
+  if (state.tokens < cosmetic.cost) return { state, bought: null, reason: 'funds' };
+
+  return {
+    state: {
+      ...state,
+      tokens: state.tokens - cosmetic.cost,
+      unlocked: [...state.unlocked, id],
+      equipped: id,
+      log: logged(state, { text: `Unlocked ${cosmetic.name}`, tone: 'earned' }),
+    },
+    bought: cosmetic,
+  };
+}
+
+/** Put an owned cosmetic on the piece. The default is always owned. */
+export function equipCosmetic(state: GameState, id: string): GameState {
+  const cosmetic = COSMETIC_BY_ID[id];
+  if (!cosmetic) return state;
+  if (cosmetic.cost > 0 && !state.unlocked.includes(id)) return state;
+  return { ...state, equipped: cosmetic.cost === 0 ? null : id };
+}
+
+/* ------------------------------------------------------------------ */
 /* Decisions                                                           */
 /* ------------------------------------------------------------------ */
 
@@ -322,6 +455,8 @@ export interface DecisionResult {
   awarded: GuardianId[];
   /** True if a delayed consequence was scheduled. Never shown to the player. */
   scheduled: boolean;
+  /** Shield Tokens this resolution paid. Zero on a space already credited. */
+  tokensGained: number;
 }
 
 /**
@@ -393,13 +528,27 @@ export function applyDecision(
     });
   }
 
+  const districts = registerCleared(state, space);
+
+  // Participation credit for answering, plus the Peer Shield top-up, plus the
+  // district if this decision was the one that secured it.
+  const credit = grantTokens(state, [
+    [`decision:${scenario.id}`, TOKEN_AWARD.decision],
+    ...(scenario.mode === 'PEER_SHIELD' && choice.outcome === 'SAFE'
+      ? ([[`peer:${scenario.id}`, TOKEN_AWARD.peerShield]] as [string, number][])
+      : []),
+    ...districtAward(state, districts, space.districtId),
+  ]);
+
   const next: GameState = {
     ...state,
     stats,
     guardianProgress: progress,
     metGuardians: met,
     pending,
-    districts: registerCleared(state, space),
+    districts,
+    tokens: credit.tokens,
+    tokenGrants: credit.tokenGrants,
     resolved: state.resolved.includes(space.id) ? state.resolved : [...state.resolved, space.id],
     decisions: [
       ...state.decisions,
@@ -420,6 +569,7 @@ export function applyDecision(
     deltas: choice.immediate.deltas,
     awarded,
     scheduled: Boolean(choice.delayed),
+    tokensGained: credit.gained,
   };
 }
 
@@ -442,12 +592,21 @@ export function applyCard(
   }
   const { met, awarded } = awardGuardians(progress, state.metGuardians);
 
+  const districts = registerCleared(state, space);
+
+  // A card is practice, not a scenario, so it pays no participation credit of
+  // its own. It can still be the thing that secures a district, and that award
+  // is for the district rather than for the card.
+  const credit = grantTokens(state, districtAward(state, districts, space.districtId));
+
   const next: GameState = {
     ...state,
     stats,
     guardianProgress: progress,
     metGuardians: met,
-    districts: registerCleared(state, space),
+    districts,
+    tokens: credit.tokens,
+    tokenGrants: credit.tokenGrants,
     resolved: state.resolved.includes(space.id) ? state.resolved : [...state.resolved, space.id],
     decisions: [
       ...state.decisions,
@@ -467,6 +626,7 @@ export function applyCard(
     deltas: option.deltas,
     awarded,
     scheduled: false,
+    tokensGained: credit.gained,
   };
 }
 

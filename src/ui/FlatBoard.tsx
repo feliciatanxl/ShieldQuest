@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
 import { fallbackCell } from '../game/geometry.ts';
+import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
 import { DiceFace, useDiceTumble } from './Hud.tsx';
 import type { BoardSpace } from '../game/types.ts';
@@ -110,6 +111,7 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
   if (!game) return null;
 
   const tokenCell = fallbackCell(tokenIndex);
+  const look = equippedCosmetic(game.equipped);
 
   return (
     <div className="sq-flat-stage">
@@ -156,12 +158,18 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
           );
         })}
 
+        {/* The piece wears whatever cosmetic is equipped. The colours come
+            from `content/cosmetics.ts` — the same module the 3D board reads —
+            so the two renderers can never show different pieces. */}
         <span
           aria-hidden="true"
           className="sq-flat-token"
+          data-glow={look.glow ? 'true' : undefined}
           style={{
             ['--col' as string]: tokenCell.col,
             ['--row' as string]: tokenCell.row,
+            ['--piece' as string]: look.colour,
+            ['--piece-glow' as string]: look.glow ?? 'transparent',
           }}
         />
 

@@ -5,6 +5,8 @@ import { GATE_STIPEND, TRACK, TRACK_LENGTH, securingSpaces } from './board.ts';
 import { FALLBACK_EDGE, LAYOUT, fallbackCell } from './geometry.ts';
 import { SCENARIO_BY_ID, SCENARIOS } from './content/scenarios.ts';
 import { GUARDIANS } from './content/guardians.ts';
+import { COSMETICS, DEFAULT_COSMETIC, equippedCosmetic } from './content/cosmetics.ts';
+import { achievementsFor, earnedCount } from './achievements.ts';
 import {
   applyCard,
   applyDecision,
@@ -17,9 +19,13 @@ import {
   makeSessionCode,
   markCelebrated,
   resolveConsequence,
+  buyCosmetic,
+  equipCosmetic,
+  migrateSave,
   resolveLanding,
   rollDice,
   sessionReport,
+  TOKEN_AWARD,
   turnsRemaining,
 } from './engine.ts';
 import type { GameState } from './types.ts';
@@ -390,4 +396,171 @@ test('a session code is six characters with no vowels', () => {
     const code = makeSessionCode(makeRng(i));
     assert.match(code, /^[BCDFGHJKLMNPQRSTVWXZ23456789]{6}$/);
   }
+});
+
+/* ------------------------------------------------------------------ */
+/* Shield Tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+const peerSpace = TRACK.find((s) => s.scenarioId === 'scn_peer_jayden')!;
+const peerScenario = SCENARIO_BY_ID['scn_peer_jayden']!;
+
+test('a decision pays participation credit whatever the player decided', () => {
+  const safe = applyDecision(newGame(), easyMoneySpace, easyMoney, 'ch_reject');
+  const risky = applyDecision(newGame(), easyMoneySpace, easyMoney, 'ch_accept');
+
+  // The same, on purpose. Tokens are credit for taking part; the reward for
+  // deciding well is a Guardian, and that one cannot be spent.
+  assert.equal(safe.tokensGained, TOKEN_AWARD.decision);
+  assert.equal(risky.tokensGained, TOKEN_AWARD.decision);
+  assert.equal(safe.state.tokens, TOKEN_AWARD.decision);
+  assert.equal(risky.state.tokens, TOKEN_AWARD.decision);
+});
+
+test('protecting a peer pays a top-up, and only when it went well', () => {
+  const helped = applyDecision(newGame(), peerSpace, peerScenario, 'pc_help');
+  const ignored = applyDecision(newGame(), peerSpace, peerScenario, 'pc_ignore');
+
+  assert.equal(helped.tokensGained, TOKEN_AWARD.decision + TOKEN_AWARD.peerShield);
+  assert.equal(ignored.tokensGained, TOKEN_AWARD.decision);
+});
+
+test('a scenario pays once however many laps the player walks', () => {
+  let state = newGame();
+  let paid = 0;
+  for (let i = 0; i < 5; i += 1) {
+    const result = applyDecision(state, easyMoneySpace, easyMoney, 'ch_reject');
+    state = result.state;
+    paid += result.tokensGained;
+  }
+  assert.equal(paid, TOKEN_AWARD.decision);
+  assert.equal(state.tokens, TOKEN_AWARD.decision);
+});
+
+test('rolls, gate stipends and upgrades never pay a single token', () => {
+  let state = { ...newGame(), stats: { ...newGame().stats, coins: 5000 } };
+  for (let i = 0; i < 30; i += 1) {
+    state = applyRoll(state, rollDice(makeRng(i))).state;
+  }
+  state = buildUpgrade(state, 'school').state;
+  state = buildUpgrade(state, 'school').state;
+
+  assert.equal(state.tokens, 0);
+  assert.deepEqual(state.tokenGrants, []);
+});
+
+test('securing a district pays for the district, once, and a card pays nothing', () => {
+  let state = newGame();
+  let paid = 0;
+
+  // Resolve every space that secures the school district. Some are scenarios
+  // and some are cards, which is the point: the award is for the district, not
+  // for whichever space happened to complete it.
+  for (const space of securingSpaces('school')) {
+    const scenario = space.scenarioId ? SCENARIO_BY_ID[space.scenarioId] : undefined;
+    if (scenario?.bands.includes(state.band)) {
+      const result = applyDecision(state, space, scenario, scenario.choices[0]!.id);
+      state = result.state;
+      paid += result.tokensGained;
+      continue;
+    }
+    const landing = resolveLanding(state, space, makeRng(1));
+    assert.equal(landing.kind, 'CARD');
+    if (landing.kind !== 'CARD') continue;
+    const result = applyCard(state, space, landing.card, landing.card.options[0]!.id, false);
+    state = result.state;
+    paid += result.tokensGained;
+  }
+
+  assert.ok(state.districts.school.secured);
+  assert.ok(state.tokenGrants.includes('district:school'));
+  assert.ok(paid >= TOKEN_AWARD.district);
+
+  // Walking the district again cannot pay for it a second time.
+  const before = state.tokens;
+  for (const space of securingSpaces('school')) {
+    const landing = resolveLanding(state, space, makeRng(2));
+    if (landing.kind !== 'CARD') continue;
+    state = applyCard(state, space, landing.card, landing.card.options[0]!.id, false).state;
+  }
+  assert.equal(state.tokens, before);
+});
+
+/* ------------------------------------------------------------------ */
+/* Spending                                                            */
+/* ------------------------------------------------------------------ */
+
+test('a purchase deducts the tokens and can never overdraw', () => {
+  const item = COSMETICS.find((c) => c.cost > 0)!;
+  const broke = { ...newGame(), tokens: item.cost - 1 };
+  const refused = buyCosmetic(broke, item.id);
+
+  assert.equal(refused.bought, null);
+  assert.equal(refused.reason, 'funds');
+  assert.equal(refused.state.tokens, item.cost - 1);
+  assert.deepEqual(refused.state.unlocked, []);
+
+  const funded = { ...newGame(), tokens: item.cost };
+  const bought = buyCosmetic(funded, item.id);
+
+  assert.equal(bought.bought?.id, item.id);
+  assert.equal(bought.state.tokens, 0);
+  assert.deepEqual(bought.state.unlocked, [item.id]);
+  assert.equal(bought.state.equipped, item.id);
+});
+
+test('buying a cosmetic changes a colour and a balance, and nothing else', () => {
+  const item = COSMETICS.find((c) => c.cost > 0)!;
+  const before: GameState = { ...newGame(), tokens: 9999 };
+  const after = buyCosmetic(before, item.id).state;
+
+  assert.deepEqual(after.stats, before.stats);
+  assert.deepEqual(after.guardianProgress, before.guardianProgress);
+  assert.deepEqual(after.metGuardians, before.metGuardians);
+  assert.deepEqual(after.districts, before.districts);
+  assert.deepEqual(after.decisions, before.decisions);
+  assert.equal(after.position, before.position);
+  assert.equal(after.turn, before.turn);
+});
+
+test('a cosmetic cannot be equipped without owning it, and the default always can', () => {
+  const item = COSMETICS.find((c) => c.cost > 0)!;
+  const state = newGame();
+
+  assert.equal(equipCosmetic(state, item.id).equipped, null);
+  assert.equal(equippedCosmetic(equipCosmetic(state, item.id).equipped).id, DEFAULT_COSMETIC.id);
+
+  const owner = buyCosmetic({ ...state, tokens: 9999 }, item.id).state;
+  assert.equal(equipCosmetic(owner, item.id).equipped, item.id);
+  assert.equal(equipCosmetic(owner, DEFAULT_COSMETIC.id).equipped, null);
+});
+
+/* ------------------------------------------------------------------ */
+/* Achievements                                                        */
+/* ------------------------------------------------------------------ */
+
+test('an achievement is earned by the run, and there is no way to buy one', () => {
+  const fresh = newGame();
+  assert.equal(earnedCount(fresh), 0);
+
+  const played = applyDecision(fresh, easyMoneySpace, easyMoney, 'ch_reject').state;
+  assert.ok(achievementsFor(played).find((a) => a.id === 'first-call')?.earned);
+
+  // A full purse buys every cosmetic in the catalogue and no achievement.
+  let rich: GameState = { ...fresh, tokens: 100000 };
+  for (const cosmetic of COSMETICS) rich = buyCosmetic(rich, cosmetic.id).state;
+  assert.equal(earnedCount(rich), 0);
+});
+
+test('a save written before tokens existed still loads', () => {
+  // Exactly what comes back out of localStorage for a run started before the
+  // token fields existed: the same object, four keys short.
+  const { tokens, tokenGrants, unlocked, equipped, ...older } = newGame();
+  void [tokens, tokenGrants, unlocked, equipped];
+
+  const migrated = migrateSave(older as GameState);
+  assert.equal(migrated.tokens, 0);
+  assert.deepEqual(migrated.tokenGrants, []);
+  assert.deepEqual(migrated.unlocked, []);
+  assert.equal(migrated.equipped, null);
 });

@@ -115,6 +115,45 @@ community pile, jail, free parking, railways or utilities, and no board layout,
 colour banding or trade dress from any existing commercial game. The only thing
 borrowed from tabletop games is the rhythm of roll, move, land, play.
 
+### Shield Tokens, and what they can never buy
+
+Two currencies, and the split between them is deliberate.
+
+**Coins** are the city's money. They come from decisions and gate stipends, they
+are spent on district works, and a delayed consequence can take them back.
+
+**Shield Tokens** are participation credit. 40 for answering a situation —
+whatever the answer was — plus 10 when a Peer Shield decision protected someone,
+plus 60 for a district the player's decisions secured. They are paid for taking
+part, never for taking part _well_, and never by a roll, a stipend or a
+purchase; `engine.test.ts` asserts each half of that.
+
+They buy **cosmetics and nothing else**: seven looks for the player's piece,
+every price visible, nothing sealed, nothing randomised, nothing on a timer.
+Urgency and mystery are the exact tactics half the scenarios teach players to
+recognise, so neither is allowed in the one screen that asks them to spend
+something. No item changes a roll, a stat, a scenario or a Guardian.
+
+Recognition lives on the other tab and has no price on it. The eight
+**achievements** in `game/achievements.ts` are derived from the run rather than
+stored, so nothing can grant one by mistake and nothing can sell one. A test
+buys the entire catalogue and asserts the achievement count is still zero.
+
+> v1's shop sold a badge called "Anti-Scam Pioneer — mastery of phishing
+> vectors" for 80 tokens, and handed over items without deducting anything. Both
+> are fixed here: the claim of competence is not for sale, and the purchase
+> takes the tokens.
+
+### How to play is always one tap away
+
+A facilitated session explains the rules once, in its first fifteen minutes, to
+a room of up to sixty people. Some will not have heard it and more will have
+forgotten it by turn nine, so the manual is a `?` in the game header rather than
+a step in onboarding — and it opens itself once, on a device's first run.
+
+Its board legend and its numbers are read from `TRACK` and `TOKEN_AWARD`, not
+written down, so the manual cannot drift from the game it describes.
+
 ---
 
 ## Architecture
@@ -125,11 +164,12 @@ src/
 
   game/          The rules. No React, no Three.js, no DOM.
     types.ts       Every shape in the game.
+    achievements.ts Earned recognition, derived from the run. Never stored, never sold.
     board.ts       The 28-space track and the four districts.
     geometry.ts    Where each space sits — shared by BOTH renderers.
     engine.ts      Pure functions: roll, move, decide, consequence, upgrade.
     engine.test.ts 28 tests, several of which encode proposal commitments.
-    content/       Scenarios, Guardians, situation and clue cards.
+    content/       Scenarios, Guardians, situation and clue cards, cosmetics.
 
   three/
     BoardScene.ts  The 3D board. Told what to show; never reads game state.
@@ -143,6 +183,8 @@ src/
     Hud.tsx        Stats, Guardians, the roll button, flashes, confetti.
     Overlays.tsx   Every sheet: scenario, card, debrief, consequence, award…
     Onboarding.tsx Codename, age band, run length.
+    HowToPlay.tsx  The manual. Reads the real board, so it cannot go stale.
+    ShieldCentral.tsx Spend tokens on a look; see what was earned and cannot be bought.
 
   site/          The public site. Light "civic" skin, no game code.
     PublicSite.tsx       Header, footer, page composition.
@@ -266,18 +308,19 @@ ramp steps that exist; four radii only.
 From the proposal and the implementation plan. Several are asserted in
 `engine.test.ts` — the test name says which.
 
-| Commitment                      | How the code honours it                                                                                                                                                           |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mobile-first PWA, no install    | One screen to start, one to play. No router, no account, no sign-up.                                                                                                              |
-| Data minimisation               | A self-chosen codename and a random six-character session code. No names, NRICs, phone numbers or banking data — not in a form, and not as something a scenario asks you to type. |
-| Pseudonymous pre/post linking   | `makeSessionCode()`. Vowel-free so it cannot spell anything. Generated on device.                                                                                                 |
-| Aggregate reporting only        | `sessionReport()` reports the run, never the person. A test asserts the codename cannot reach it.                                                                                 |
-| Guardians earned, never granted | `progressFor()` moves a Guardian only on a decision. Tested against rolls, stipends and purchases.                                                                                |
-| Age-banded content (§4)         | Every scenario and card declares its bands; `resolveLanding()` will not serve out-of-band content. Tested.                                                                        |
-| No victim-blaming               | Every debrief describes the offender's tactic and a stronger response. No line implies a player should have known better.                                                         |
-| Accessibility                   | Real buttons, full focus trap in sheets, a live region announcing every state change, status never carried by colour alone, complete reduced-motion path.                         |
-| No official endorsement         | The SPF is a **statistics source**, not a backer. Never imply MHA/SPF endorsement.                                                                                                |
-| Offline                         | Hand-written service worker; the whole game — every scenario, every Guardian — works with no network, because there is no server to lose.                                         |
+| Commitment                              | How the code honours it                                                                                                                                                           |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mobile-first PWA, no install            | One screen to start, one to play. No router, no account, no sign-up.                                                                                                              |
+| Data minimisation                       | A self-chosen codename and a random six-character session code. No names, NRICs, phone numbers or banking data — not in a form, and not as something a scenario asks you to type. |
+| Pseudonymous pre/post linking           | `makeSessionCode()`. Vowel-free so it cannot spell anything. Generated on device.                                                                                                 |
+| Aggregate reporting only                | `sessionReport()` reports the run, never the person. A test asserts the codename cannot reach it.                                                                                 |
+| Spendable credit, unbuyable recognition | Shield Tokens pay for taking part and buy cosmetics only. Achievements are derived from the run and have no price. Tested.                                                        |
+| Guardians earned, never granted         | `progressFor()` moves a Guardian only on a decision. Tested against rolls, stipends and purchases.                                                                                |
+| Age-banded content (§4)                 | Every scenario and card declares its bands; `resolveLanding()` will not serve out-of-band content. Tested.                                                                        |
+| No victim-blaming                       | Every debrief describes the offender's tactic and a stronger response. No line implies a player should have known better.                                                         |
+| Accessibility                           | Real buttons, full focus trap in sheets, a live region announcing every state change, status never carried by colour alone, complete reduced-motion path.                         |
+| No official endorsement                 | The SPF is a **statistics source**, not a backer. Never imply MHA/SPF endorsement.                                                                                                |
+| Offline                                 | Hand-written service worker; the whole game — every scenario, every Guardian — works with no network, because there is no server to lose.                                         |
 
 ### Who the audience is
 

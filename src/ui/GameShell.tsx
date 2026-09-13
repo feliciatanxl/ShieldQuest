@@ -1,11 +1,21 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 
 import { TRACK } from '../game/board.ts';
 import { useGame } from '../state/store.ts';
 import FlatBoard from './FlatBoard.tsx';
+import HowToPlay from './HowToPlay.tsx';
+import ShieldCentral from './ShieldCentral.tsx';
 import { Confetti, FlashLayer, GuardianStrip, RollButton, StatBar } from './Hud.tsx';
 import { InspectSheet, Overlays, SkillsSheet } from './Overlays.tsx';
 import { Announcer, Button } from './primitives.tsx';
+
+/**
+ * Shown once per device, the first time a run reaches the board.
+ *
+ * A manual that reappears every session is one people learn to dismiss without
+ * reading, so this is a one-time nudge towards a button that is always there.
+ */
+const SEEN_MANUAL_KEY = 'shieldquest.manual-seen.v2';
 
 // Three.js is a third of the bundle. The shell, the HUD and the flat board all
 // paint without it, so it is fetched only when the 3D renderer is actually the
@@ -31,6 +41,18 @@ export default function GameShell() {
   const [inspecting, setInspecting] = useState<number | null>(null);
   const [skillsOpen, setSkillsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
+  const [hubOpen, setHubOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SEEN_MANUAL_KEY)) return;
+      localStorage.setItem(SEEN_MANUAL_KEY, '1');
+      setManualOpen(true);
+    } catch {
+      /* Storage disabled. The button in the header is the real route in. */
+    }
+  }, []);
 
   if (!game) return null;
   const space = TRACK[game.position]!;
@@ -50,9 +72,38 @@ export default function GameShell() {
               Session {game.sessionCode} · turn {game.turn}
             </p>
           </div>
-          <div className="flex shrink-0 gap-1.5">
+          {/*
+            Four controls on a phone header is the most it will take, so each
+            one is as short as it can be and the manual is an icon. "How to
+            play" is deliberately NOT buried in the menu: a player who has
+            forgotten the rules mid-turn should be able to see the way back to
+            them without opening anything first.
+          */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Button
+              variant="ghost"
+              className="px-2.5 py-2"
+              aria-label="How to play"
+              title="How to play"
+              onClick={() => setManualOpen(true)}
+            >
+              <span aria-hidden="true" className="text-base font-bold leading-none">
+                ?
+              </span>
+            </Button>
             <Button variant="ghost" className="px-2.5 py-2" onClick={() => setSkillsOpen(true)}>
               Skills
+            </Button>
+            <Button
+              variant="quiet"
+              className="px-2.5 py-2"
+              onClick={() => setHubOpen(true)}
+              aria-label={`Shield Central — ${game.tokens} Shield Tokens`}
+            >
+              <span aria-hidden="true" className="text-[var(--sq-earned-text)]">
+                ◆
+              </span>
+              <span className="tabular-nums">{game.tokens}</span>
             </Button>
             <Button variant="ghost" className="px-2.5 py-2" onClick={() => setMenuOpen((v) => !v)}>
               Menu
@@ -132,6 +183,12 @@ export default function GameShell() {
       ) : null}
       {skillsOpen && overlayKind === 'none' ? (
         <SkillsSheet game={game} onClose={() => setSkillsOpen(false)} />
+      ) : null}
+      {hubOpen && overlayKind === 'none' ? (
+        <ShieldCentral game={game} onClose={() => setHubOpen(false)} />
+      ) : null}
+      {manualOpen && overlayKind === 'none' ? (
+        <HowToPlay onClose={() => setManualOpen(false)} />
       ) : null}
 
       <Confetti trigger={celebrate} />

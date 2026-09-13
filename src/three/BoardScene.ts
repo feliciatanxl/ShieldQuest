@@ -229,6 +229,8 @@ export class BoardScene {
 
   private tiles: TileHandle[] = [];
   private token = new THREE.Group();
+  private tokenBody: THREE.Mesh | null = null;
+  private tokenCrest: THREE.Mesh | null = null;
   private tokenShadow: THREE.Mesh;
   private dice: THREE.Mesh[] = [];
   private buildings = new Map<DistrictId, THREE.Group>();
@@ -414,6 +416,16 @@ export class BoardScene {
     }
   }
 
+  /**
+   * The piece.
+   *
+   * Built once and re-coloured in place by `setPieceLook`, because the look is
+   * a cosmetic the player can change mid-run and rebuilding geometry to change
+   * a colour would drop a frame in the middle of a hop. The colours it starts
+   * with are the default cosmetic's; `content/cosmetics.ts` is the source both
+   * renderers read, so the piece can never be amber here and teal on the flat
+   * board.
+   */
   private buildToken() {
     const body = new THREE.Mesh(
       new THREE.CapsuleGeometry(0.17, 0.2, 6, 16),
@@ -441,6 +453,8 @@ export class BoardScene {
     crest.position.y = 0.62;
     crest.castShadow = true;
 
+    this.tokenBody = body;
+    this.tokenCrest = crest;
     this.token.add(body, crest);
     this.scene.add(this.token);
   }
@@ -501,6 +515,24 @@ export class BoardScene {
   }
 
   /* --- public API --------------------------------------------------- */
+
+  /**
+   * Put the equipped cosmetic on the piece.
+   *
+   * `glow` becomes the crest and the emissive lift, which is what reads as a
+   * ring from the camera's angle — a literal halo mesh would be hidden by the
+   * tile the piece is standing on half the time.
+   */
+  setPieceLook(colour: string, glow: string | null) {
+    const body = this.tokenBody?.material as THREE.MeshStandardMaterial | undefined;
+    if (body) {
+      body.color.set(colour);
+      body.emissive.set(glow ?? colour);
+      body.emissiveIntensity = glow ? 0.55 : 0.35;
+    }
+    const crest = this.tokenCrest?.material as THREE.MeshStandardMaterial | undefined;
+    if (crest) crest.emissive.set(glow ?? '#3f6ea8');
+  }
 
   setTokenIndex(index: number, instant = false) {
     this.tokenIndex = index;

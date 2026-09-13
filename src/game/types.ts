@@ -73,6 +73,31 @@ export interface Guardian {
 /* Age bands (proposal §4)                                             */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Cosmetics                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A look for the player's piece, bought with Shield Tokens.
+ *
+ * Cosmetic and nothing else. A cosmetic never changes a roll, a stat, a
+ * scenario, a Guardian or what the game says about a decision — which is the
+ * whole reason tokens are allowed to be spendable at all. Recognition for
+ * demonstrated skill is a Guardian or an achievement, and neither can be
+ * bought (proposal, section 3.2).
+ */
+export interface Cosmetic {
+  id: string;
+  name: string;
+  /** In Shield Tokens. */
+  cost: number;
+  blurb: string;
+  /** The piece's core colour. Read by BOTH renderers, so they never diverge. */
+  colour: string;
+  /** Ring colour around the piece, or null for a plain piece. */
+  glow: string | null;
+}
+
 export type AgeBand = 'B10_13' | 'B14_16' | 'B17_24';
 
 export const AGE_BAND_LABEL: Record<AgeBand, string> = {
@@ -363,6 +388,27 @@ export interface GameState {
 
   pending: PendingConsequence[];
   districts: Record<DistrictId, DistrictState>;
+
+  /**
+   * Shield Tokens: participation credit, and only that.
+   *
+   * They are not money, cannot be cashed out, and are never paid for a dice
+   * roll, a gate stipend, a purchase, or for doing better than anyone else.
+   * They are paid for taking part in a decision and for a district the
+   * player's decisions secured, and they buy cosmetics and nothing else.
+   * `engine.test.ts` holds each half of that sentence to account.
+   */
+  tokens: number;
+  /**
+   * Award keys already paid. A scenario pays once however many times a player
+   * passes it — without this, walking a lap becomes a way to farm credit, and
+   * "participation" would quietly turn into "time spent".
+   */
+  tokenGrants: string[];
+  /** Cosmetic ids bought. Buying is permanent; there is no way to lose one. */
+  unlocked: string[];
+  /** The cosmetic on the piece, or null for the one everybody starts with. */
+  equipped: string | null;
 
   /** Decisions made, for the facilitator's aggregate debrief. Never per-person. */
   decisions: { scenarioId: string; choiceId: string; outcome: ChoiceOutcome; turn: number }[];

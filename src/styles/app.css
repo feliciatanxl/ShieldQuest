@@ -468,7 +468,17 @@
   width: clamp(12px, calc(var(--cell) * 0.42), 26px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #ffe6b0, var(--color-amber-500) 62%, #9a5f05);
+  /* `--piece` is the equipped cosmetic's colour, set inline by FlatBoard. The
+   * fallback is the default piece, so the board is still correct if the style
+   * never arrives. */
+  --piece: var(--color-amber-500);
+  --piece-glow: transparent;
+  background: radial-gradient(
+    circle at 32% 28%,
+    color-mix(in oklab, var(--piece) 35%, white),
+    var(--piece) 62%,
+    color-mix(in oklab, var(--piece) 55%, black)
+  );
   border: 2px solid var(--sq-canvas);
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.45);
   left: calc(var(--pad) + ((var(--col) - 1) * (var(--cell) + var(--gap))) + (var(--cell) / 2));
@@ -477,6 +487,12 @@
   transition:
     left 0.15s var(--ease-entrance),
     top 0.15s var(--ease-entrance);
+}
+
+.sq-flat-token[data-glow='true'] {
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--piece-glow) 55%, transparent),
+    0 2px 8px rgb(0 0 0 / 0.5);
 }
 
 .sq-flat-centre {

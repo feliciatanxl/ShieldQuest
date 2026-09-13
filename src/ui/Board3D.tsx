@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { TRACK } from '../game/board.ts';
 import { DISTRICTS } from '../game/board.ts';
 import { BoardScene } from '../three/BoardScene.ts';
+import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
 import type { DistrictId } from '../game/types.ts';
 
@@ -83,6 +84,15 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
   }, [arrive]);
 
   /* --- drive the scene from state ---------------------------------- */
+
+  // The equipped cosmetic. Same source as the flat board, so a piece that is
+  // teal on one renderer is teal on the other.
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene || !game) return;
+    const look = equippedCosmetic(game.equipped);
+    scene.setPieceLook(look.colour, look.glow);
+  }, [game?.equipped, game]);
 
   useEffect(() => {
     const scene = sceneRef.current;
