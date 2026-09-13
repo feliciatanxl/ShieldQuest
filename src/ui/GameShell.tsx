@@ -1,11 +1,20 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 
-import { TRACK } from '../game/board.ts';
+import { DISTRICTS, TRACK } from '../game/board.ts';
 import { useGame } from '../state/store.ts';
+import CityWorks from './CityWorks.tsx';
 import FlatBoard from './FlatBoard.tsx';
 import HowToPlay from './HowToPlay.tsx';
 import ShieldCentral from './ShieldCentral.tsx';
-import { Confetti, FlashLayer, GuardianStrip, RollButton, StatBar } from './Hud.tsx';
+import {
+  BuildNudge,
+  Confetti,
+  FlashLayer,
+  GuardianStrip,
+  Purse,
+  RollButton,
+  StatBar,
+} from './Hud.tsx';
 import { InspectSheet, Overlays, SkillsSheet } from './Overlays.tsx';
 import { Announcer, Button } from './primitives.tsx';
 
@@ -28,6 +37,11 @@ const Board3D = lazy(() => import('./Board3D.tsx'));
  * Layout is board-fills-the-space with the controls pinned top and bottom,
  * because the game is played standing up on a phone. The board never scrolls;
  * only sheets do.
+ *
+ * The header is ordered by how often a player looks at it: what they have, then
+ * how the city is doing, then who they are becoming. The purse comes first
+ * because it is also a button — it is the way into the build loop, and a build
+ * loop nobody can find is a coin sink nobody uses.
  */
 export default function GameShell() {
   const game = useGame((s) => s.game);
@@ -43,6 +57,7 @@ export default function GameShell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [hubOpen, setHubOpen] = useState(false);
+  const [worksOpen, setWorksOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -56,6 +71,7 @@ export default function GameShell() {
 
   if (!game) return null;
   const space = TRACK[game.position]!;
+  const district = DISTRICTS[space.districtId];
   const latest = log[0];
 
   return (
@@ -64,22 +80,20 @@ export default function GameShell() {
       className="flex h-dvh flex-col bg-[var(--sq-canvas)] text-[var(--sq-ink)]"
     >
       {/* ---------- top ---------- */}
-      <header className="shrink-0 border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-2.5 pt-[max(0.6rem,env(safe-area-inset-top))]">
-        <div className="mb-2 flex items-center justify-between gap-3">
+      <header className="shrink-0 border-b border-[var(--sq-line)] bg-[var(--sq-surface)] px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
+        <div className="mb-2 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold">{game.handle}</p>
-            <p className="text-[11px] text-[var(--sq-ink-muted)]">
-              Session {game.sessionCode} · turn {game.turn}
+            <p className="truncate text-sm font-extrabold">{game.handle}</p>
+            <p className="text-[10px] text-[var(--sq-ink-muted)]">
+              {game.sessionCode} · turn {game.turn}
             </p>
           </div>
           {/*
-            Four controls on a phone header is the most it will take, so each
-            one is as short as it can be and the manual is an icon. "How to
-            play" is deliberately NOT buried in the menu: a player who has
-            forgotten the rules mid-turn should be able to see the way back to
-            them without opening anything first.
+            "How to play" is deliberately NOT buried in the menu: a player who
+            has forgotten the rules mid-turn should be able to see the way back
+            to them without opening anything first.
           */}
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1">
             <Button
               variant="ghost"
               className="px-2.5 py-2"
@@ -94,21 +108,18 @@ export default function GameShell() {
             <Button variant="ghost" className="px-2.5 py-2" onClick={() => setSkillsOpen(true)}>
               Skills
             </Button>
-            <Button
-              variant="quiet"
-              className="px-2.5 py-2"
-              onClick={() => setHubOpen(true)}
-              aria-label={`Shield Central — ${game.tokens} Shield Tokens`}
-            >
-              <span aria-hidden="true" className="text-[var(--sq-earned-text)]">
-                ◆
-              </span>
-              <span className="tabular-nums">{game.tokens}</span>
-            </Button>
             <Button variant="ghost" className="px-2.5 py-2" onClick={() => setMenuOpen((v) => !v)}>
               Menu
             </Button>
           </div>
+        </div>
+
+        <div className="mb-2.5">
+          <Purse
+            game={game}
+            onOpenWorks={() => setWorksOpen(true)}
+            onOpenHub={() => setHubOpen(true)}
+          />
         </div>
 
         <StatBar game={game} />
@@ -164,15 +175,27 @@ export default function GameShell() {
         ) : (
           <FlatBoard onInspect={setInspecting} />
         )}
+        <BuildNudge game={game} onOpen={() => setWorksOpen(true)} />
         <FlashLayer />
       </div>
 
       {/* ---------- bottom ---------- */}
-      <footer className="shrink-0 border-t border-[var(--sq-line)] bg-[var(--sq-surface)] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
-        <p className="mb-2 truncate text-xs text-[var(--sq-ink-muted)]">
-          <span className="font-semibold text-[var(--sq-ink)]">{space.title}</span> —{' '}
-          {space.summary}
-        </p>
+      <footer className="shrink-0 border-t border-[var(--sq-line)] bg-[var(--sq-surface)] px-3 pb-[max(0.7rem,env(safe-area-inset-bottom))] pt-2.5">
+        {/* The space under the piece, in its district's colour. One tap opens
+            its sheet — the same route as tapping the tile, which is a 40px
+            target on a phone and the one a thumb misses. */}
+        <button
+          type="button"
+          onClick={() => setInspecting(game.position)}
+          className="sq-space-chip mb-2"
+          style={{ ['--district-colour' as string]: district.colour }}
+        >
+          <span className="sq-space-dot" aria-hidden="true" />
+          <span className="truncate">
+            <span className="font-bold">{space.title}</span>
+            <span className="text-[var(--sq-ink-muted)]"> — {space.summary}</span>
+          </span>
+        </button>
         <RollButton />
       </footer>
 
@@ -183,6 +206,9 @@ export default function GameShell() {
       ) : null}
       {skillsOpen && overlayKind === 'none' ? (
         <SkillsSheet game={game} onClose={() => setSkillsOpen(false)} />
+      ) : null}
+      {worksOpen && overlayKind === 'none' ? (
+        <CityWorks game={game} onClose={() => setWorksOpen(false)} />
       ) : null}
       {hubOpen && overlayKind === 'none' ? (
         <ShieldCentral game={game} onClose={() => setHubOpen(false)} />

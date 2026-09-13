@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { TRACK } from '../game/board.ts';
 import { DISTRICTS } from '../game/board.ts';
+import { moveOrigin } from '../game/geometry.ts';
 import { BoardScene } from '../three/BoardScene.ts';
 import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
@@ -21,6 +22,8 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
   const layerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<BoardScene | null>(null);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  /** False until the scene has been told the city once. See the sync below. */
+  const syncedOnce = useRef(false);
   const [viewMoved, setViewMoved] = useState(false);
 
   const game = useGame((s) => s.game);
@@ -35,6 +38,14 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // A new scene has an empty city, so the next sync is its first — whatever
+    // an older scene had already been told. Resetting here rather than only at
+    // declaration matters under StrictMode, which mounts, unmounts and mounts
+    // again: the ref survives that, the scene does not, and the second mount
+    // would have replayed a construction sequence for works bought in an
+    // earlier sitting.
+    syncedOnce.current = false;
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scene = new BoardScene(canvas, {
       reducedMotion: reduced,
@@ -48,6 +59,19 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
       onTokenArrived: () => useGame.getState().arrive(),
     });
     sceneRef.current = scene;
+
+    /*
+      Put the piece where the player is, before the first frame.
+
+      A fresh scene starts its piece on space 0, and nothing used to move it
+      until a roll hopped it — so a player who switched to the flat board and
+      back found their piece standing at School Street, and their next roll
+      walked the wrong six spaces to get to the right answer. Read from the
+      store rather than from props so this is the state at the instant the
+      scene exists, not the state of the render that created it.
+    */
+    const live = useGame.getState();
+    scene.setTokenIndex(moveOrigin(live.path, live.game?.position ?? 0), true);
 
     const observer = new ResizeObserver(() => scene.resize());
     observer.observe(canvas.parentElement ?? canvas);
@@ -230,14 +254,23 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !game) return;
+    // While a move is running the scene owns the piece, hop by hop. Any other
+    // time the engine's position is the truth — a resume, a renderer switch, a
+    // turn that ended somewhere the scene was not told about.
+    if (path.length === 0) scene.setTokenIndex(game.position, true);
     scene.setCurrent(game.position);
     scene.setResolved(
       new Set(TRACK.filter((s) => game.resolved.includes(s.id)).map((s) => s.index)),
     );
+    // The first push is the city as the player left it — a resume must not
+    // replay a construction sequence for every work bought in an earlier
+    // sitting. Everything after it is something they just built, and rises.
+    const animate = syncedOnce.current;
+    syncedOnce.current = true;
     for (const districtId of Object.keys(DISTRICTS) as DistrictId[]) {
-      scene.setUpgrades(districtId, game.districts[districtId].upgrades);
+      scene.setUpgrades(districtId, game.districts[districtId].upgrades, animate);
     }
-  }, [game]);
+  }, [game, path.length]);
 
   // A new roll: throw the dice, and let the settle callback start the move.
   useEffect(() => {

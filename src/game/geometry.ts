@@ -122,6 +122,28 @@ export function tokenAnchor(index: number): { x: number; z: number } {
   };
 }
 
+/**
+ * Where a move currently in flight started.
+ *
+ * The engine moves the player the instant a roll is applied, so `position` is
+ * already the DESTINATION while the piece is still walking; the only record of
+ * where it set off from is the path it is walking, whose first entry is one
+ * space past the origin.
+ *
+ * Both renderers need this, and they need it for the same reason: either one
+ * can be mounted in the middle of a turn — the player switched boards from the
+ * menu — and a piece placed at `position` would start its hop from the end of
+ * its own journey, walking the roll a second time from the wrong place.
+ *
+ * `fallback` is used when nothing is moving, where the destination is simply
+ * where the piece belongs.
+ */
+export function moveOrigin(path: readonly number[], fallback: number): number {
+  const first = path[0];
+  if (first === undefined) return fallback;
+  return (first - 1 + TRACK_LENGTH) % TRACK_LENGTH;
+}
+
 /** Cells along one edge of the flat fallback board, corners included. */
 export const FALLBACK_EDGE = SIDE_TILES + 2;
 

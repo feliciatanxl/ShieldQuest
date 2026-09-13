@@ -14,6 +14,7 @@ import {
   ZOOM_MIN,
   cameraPlacement,
   fallbackCell,
+  moveOrigin,
   orbitView,
   zoomView,
 } from './geometry.ts';
@@ -104,6 +105,28 @@ test('geometry produces one unique fallback cell per space', () => {
     seen.add(`${cell.col},${cell.row}`);
   }
   assert.equal(seen.size, TRACK_LENGTH, 'two spaces landed on the same fallback cell');
+});
+
+test('a move in flight can always say where it started', () => {
+  // Both renderers place the piece with this when they mount, because either
+  // can be mounted in the middle of a turn — the player switched boards from
+  // the menu. Get it wrong and the piece walks the roll from the wrong space.
+  assert.equal(moveOrigin([], 11), 11, 'nothing moving means the piece is at the fallback');
+
+  const base = createGame({ handle: 'T', band: 'B14_16', turnLimit: 0 });
+  for (let start = 0; start < TRACK_LENGTH; start += 1) {
+    for (let total = 2; total <= 12; total += 1) {
+      const moved = applyRoll(
+        { ...base, position: start },
+        { a: 1, b: total - 1, total, isDouble: false },
+      );
+      assert.equal(
+        moveOrigin(moved.path, moved.state.position),
+        start,
+        `a roll of ${total} from ${start} lost its origin`,
+      );
+    }
+  }
 });
 
 /* ------------------------------------------------------------------ */

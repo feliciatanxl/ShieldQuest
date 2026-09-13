@@ -270,9 +270,15 @@
    * for scrolling first. Safe here because this area never scrolls: the shell
    * pins the controls top and bottom and gives the board what is left. */
   touch-action: none;
+  /* The room the toy city sits in: a lit sky above, a warm bounce off the
+     plaza below. The board itself is bright — see the palette note at the top
+     of `three/BoardScene.ts` — so this has to read as depth behind it rather
+     than as the same navy the HUD is painted in. */
   background:
-    radial-gradient(120% 90% at 50% 8%, rgb(26 102 188 / 0.22), transparent 62%),
-    radial-gradient(100% 80% at 50% 100%, rgb(6 21 39 / 0.9), transparent 70%), var(--sq-canvas);
+    radial-gradient(115% 62% at 50% 6%, rgb(70 136 214 / 0.38), transparent 66%),
+    radial-gradient(120% 45% at 50% 96%, rgb(242 174 51 / 0.2), transparent 70%),
+    radial-gradient(150% 100% at 50% 50%, transparent 52%, rgb(3 10 20 / 0.55) 100%),
+    linear-gradient(180deg, #0c2442 0%, #071a30 55%, #050f1e 100%);
 }
 
 /* The focusable control layer. It is transparent and sits exactly over the 3D
@@ -394,7 +400,17 @@
   padding: clamp(3px, 1.4cqmin, 7px) clamp(2px, 0.9cqmin, 4px) clamp(2px, 1cqmin, 5px);
   border-radius: var(--sq-tile-radius);
   border: 1px solid var(--sq-line);
-  background: var(--sq-surface);
+  /* A wash of the district's colour, matching the tile faces on the 3D board.
+     A player who switches renderers mid-session has to land in the same city,
+     and four quarters that only differ by a 4px stripe are not four quarters. */
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--district-colour) 22%, var(--sq-surface)),
+    var(--sq-surface) 70%
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 2px 0 rgb(0 0 0 / 0.3);
   color: var(--sq-ink);
   line-height: 1.1;
   text-align: center;
@@ -476,9 +492,11 @@
 }
 
 .sq-flat-tile[data-current='true'] {
-  transform: scale(1.07);
+  transform: scale(1.09);
   border-color: var(--sq-earned);
-  box-shadow: 0 0 0 2px var(--sq-earned);
+  box-shadow:
+    0 0 0 2px var(--sq-earned),
+    0 0 18px -2px color-mix(in oklab, var(--sq-earned) 70%, transparent);
   z-index: 2;
 }
 
@@ -577,6 +595,43 @@
   color: var(--sq-ink-muted);
 }
 
+/* Twelve slots, grouped four by three — the same twelve works the 3D board
+   raises as buildings, and the same twelve the city works sheet lists. */
+.sq-centre-works {
+  display: flex;
+  gap: clamp(3px, 1.6cqmin, 8px);
+  align-items: flex-end;
+}
+
+.sq-centre-works > span {
+  display: flex;
+  gap: clamp(1px, 0.6cqmin, 3px);
+  align-items: flex-end;
+}
+
+.sq-centre-works i {
+  width: clamp(3px, 1.3cqmin, 7px);
+  height: clamp(5px, 2.4cqmin, 13px);
+  border-radius: 2px;
+  /* An unbuilt slot has to be visible, or the skyline only shows what has
+     been built and never what is left — which is the half that pulls. */
+  background: color-mix(in oklab, var(--district-colour) 22%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.sq-centre-works i:nth-child(2) {
+  height: clamp(7px, 3.2cqmin, 17px);
+}
+
+.sq-centre-works i:nth-child(3) {
+  height: clamp(9px, 4cqmin, 21px);
+}
+
+.sq-centre-works i[data-on] {
+  background: var(--district-colour);
+  box-shadow: 0 0 6px color-mix(in oklab, var(--district-colour) 60%, transparent);
+}
+
 .sq-flat-dice[data-rolling='true'] > * {
   animation: sq-dice-tumble 0.28s linear infinite;
 }
@@ -645,29 +700,420 @@
 .sq-float-value {
   position: absolute;
   left: 50%;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  animation: sq-float-up 1.5s var(--ease-entrance) forwards;
+  /* A dark halo rather than a drop shadow: this number lands over a bright
+     board and over a dark sky depending on where the piece is, and a single
+     shadow direction is unreadable against one of the two. */
+  text-shadow:
+    0 0 10px rgb(6 21 39 / 0.85),
+    0 2px 0 rgb(6 21 39 / 0.6);
+  animation: sq-float-up 1.6s var(--ease-entrance) forwards;
   pointer-events: none;
   white-space: nowrap;
 }
 
-/* --- Meters -------------------------------------------------------------- */
+/* The name of what just happened, above the number. Smaller and shorter-lived:
+   the number is the reward, this is only the label on it. */
+.sq-float-label {
+  position: absolute;
+  left: 50%;
+  top: -1.9rem;
+  transform: translateX(-50%);
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sq-ink);
+  text-shadow: 0 0 10px rgb(6 21 39 / 0.9);
+  animation: sq-float-label 1.6s var(--ease-entrance) forwards;
+  pointer-events: none;
+}
 
-.sq-meter {
+@keyframes sq-float-label {
+  0% {
+    transform: translate(-50%, 10px) scale(0.85);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -28px);
+    opacity: 0;
+  }
+}
+
+/* --- Coins flying into the purse ----------------------------------------- */
+
+/* The signature reward beat: what you earned visibly becomes what you have.
+   `--dx`/`--dy` are measured at spawn time from this layer's centre to the
+   purse, so the flight is correct at any screen size and after a rotation. */
+.sq-coin-fly {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  animation: sq-coin-fly 0.78s cubic-bezier(0.45, 0, 0.3, 1) forwards;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.5));
+}
+
+@keyframes sq-coin-fly {
+  0% {
+    transform: translate(-50%, 0) scale(0.4);
+    opacity: 0;
+  }
+  22% {
+    transform: translate(-50%, -26px) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), var(--dy)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* =============================================================================
+ * HUD
+ * -----------------------------------------------------------------------------
+ * The chrome around the board is built like moulded plastic: solid bottom
+ * edges, inset tracks, a highlight along the top of anything raised. That is
+ * one rule, applied consistently — a control with a visible edge underneath it
+ * reads as pressable, and a control that visibly presses when tapped reads as
+ * having worked. Both are load-bearing on a phone, where there is no cursor and
+ * no hover state to tell a player that anything happened.
+ * ========================================================================== */
+
+/* --- Purse ---------------------------------------------------------------- */
+
+/* Coins, and the way into the build loop. It is a button, and it is the widest
+   thing in the header, because spending coins on works is the only progression
+   in the game a player drives entirely by choice. */
+.sq-purse {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  padding: 7px 12px 7px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-amber-500) 45%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-amber-500) 22%, var(--sq-surface-raised)),
+    var(--sq-surface-sunk)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    0 3px 0 rgb(0 0 0 / 0.35);
+  color: var(--sq-ink);
+  text-align: left;
+}
+
+.sq-purse-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--sq-earned-text);
+}
+
+.sq-purse-tag {
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--sq-action);
+  color: var(--sq-action-ink);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.sq-token-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--sq-line-strong);
+  background: linear-gradient(180deg, var(--sq-surface-raised), var(--sq-surface-sunk));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 3px 0 rgb(0 0 0 / 0.35);
+  color: var(--sq-ink);
+}
+
+/* A pop whenever the value behind it changes. Paired with the counting digits
+   in `useCountUp`, this is what turns a number going up into a payout. */
+.sq-purse[data-bump],
+.sq-token-pill[data-bump] {
+  animation: sq-bump 0.42s var(--ease-bounce);
+}
+
+@keyframes sq-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.09);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* --- Stat meters ---------------------------------------------------------- */
+
+.sq-stat-bar {
   position: relative;
-  height: 6px;
+  height: 9px;
   border-radius: 999px;
   background: var(--sq-surface-sunk);
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.45);
   overflow: hidden;
 }
 
-.sq-meter > i {
+.sq-stat-bar > i {
   display: block;
   height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--bar) 55%, white),
+    var(--bar) 70%,
+    color-mix(in oklab, var(--bar) 75%, black)
+  );
+  transition: width 0.65s var(--ease-entrance);
+}
+
+/* Ten notches over the track, so the bar can be read as a quantity and not
+   only as a length. Colour is never the only cue: the number is beside it. */
+.sq-stat-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(10% - 2px),
+    rgb(6 21 39 / 0.45) calc(10% - 2px) 10%
+  );
+}
+
+/* --- Guardian rings ------------------------------------------------------- */
+
+/* Each Guardian is a ring that fills with demonstrated skill, so progress
+   towards one is legible without opening anything. `--sweep` is the angle. */
+.sq-guardian-chip {
+  position: relative;
+  display: grid;
+  place-content: center;
+  flex: 1;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--sq-surface-sunk);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.4);
+  opacity: 0.6;
+}
+
+.sq-guardian-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: inherit;
-  background: var(--meter-colour, var(--sq-action));
-  transition: width 0.6s var(--ease-entrance);
+  padding: 2px;
+  background: conic-gradient(var(--sq-earned) var(--sweep, 0deg), transparent 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.sq-guardian-chip[data-met] {
+  opacity: 1;
+  background: color-mix(in oklab, var(--sq-earned) 20%, var(--sq-surface-sunk));
+}
+
+.sq-guardian-chip img {
+  height: 22px;
+  width: 22px;
+}
+
+/* --- Roll key ------------------------------------------------------------- */
+
+.sq-roll {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  overflow: hidden;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--color-civic-500), var(--sq-action));
+  color: var(--sq-action-ink);
+  /* The solid edge underneath is the whole trick: it is what the button
+     presses INTO when tapped, and it is why the press reads as mechanical
+     rather than as an opacity change. */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 5px 0 var(--color-civic-900),
+    0 12px 20px -8px rgb(0 0 0 / 0.7);
+  transition:
+    transform 0.09s ease,
+    box-shadow 0.09s ease;
+}
+
+.sq-roll:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    0 1px 0 var(--color-civic-900),
+    0 4px 10px -6px rgb(0 0 0 / 0.6);
+}
+
+.sq-roll:disabled {
+  filter: saturate(0.55);
+}
+
+.sq-roll[data-finished] {
+  background: linear-gradient(180deg, var(--color-amber-400), var(--color-amber-600));
+  color: var(--color-navy-950);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 5px 0 var(--color-amber-800),
+    0 12px 20px -8px rgb(0 0 0 / 0.7);
+}
+
+/* The same two dice the board is throwing, tumbling in step with it. */
+.sq-roll-dice {
+  --dice-size: 30px;
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sq-roll-dice[data-rolling] > * {
+  animation: sq-dice-tumble 0.26s linear infinite;
+}
+
+.sq-roll-dice[data-rolling] > *:nth-child(2) {
+  animation-direction: reverse;
+  animation-duration: 0.21s;
+}
+
+.sq-roll-sheen {
+  position: absolute;
+  inset-block: 0;
+  width: 70px;
+  background: rgb(255 255 255 / 0.22);
+  animation: sq-sweep 3.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* --- Build prompt --------------------------------------------------------- */
+
+/* Sits in the sky above the board — space a portrait phone has going spare,
+   because the board is square and the screen is not. */
+.sq-build-nudge {
+  position: absolute;
+  /* Centred by auto margins, not by `translateX(-50%)`. The entrance animation
+     below animates `transform`, and a centring translate on the same property
+     is simply overwritten by it — which parked this banner half off the right
+     edge of the screen. */
+  inset-inline: 0;
+  margin-inline: auto;
+  width: fit-content;
+  top: 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(92%, 340px);
+  padding: 8px 8px 8px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-amber-500) 55%, transparent);
+  background: linear-gradient(180deg, rgb(18 48 84 / 0.96), rgb(9 27 48 / 0.96));
+  backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 8px 22px -8px rgb(0 0 0 / 0.8);
+  color: var(--sq-ink);
+  text-align: left;
+  animation: sq-rise 0.4s var(--ease-entrance) both;
+}
+
+.sq-build-nudge-cost {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--sq-earned);
+  color: var(--color-navy-950);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+/* --- Current space -------------------------------------------------------- */
+
+.sq-space-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  border: 1px solid color-mix(in oklab, var(--district-colour) 40%, transparent);
+  background: color-mix(in oklab, var(--district-colour) 12%, transparent);
+  color: var(--sq-ink);
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+.sq-space-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--district-colour);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--district-colour) 60%, transparent);
+}
+
+/* --- City works ----------------------------------------------------------- */
+
+.sq-works-card {
+  padding: 14px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--sq-line);
+  border-left: 4px solid var(--district-colour);
+  background: var(--sq-surface-sunk);
+}
+
+.sq-works-slot {
+  width: 22px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--sq-surface);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.45);
+}
+
+.sq-works-slot[data-on] {
+  background: var(--district-colour);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--district-colour) 55%, transparent);
 }
 
 /* --- Sheets -------------------------------------------------------------- */

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { DISTRICTS, TRACK } from '../game/board.ts';
-import { fallbackCell } from '../game/geometry.ts';
+import { DISTRICTS, DISTRICT_ORDER, TRACK } from '../game/board.ts';
+import { fallbackCell, moveOrigin } from '../game/geometry.ts';
 import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
 import { DiceFace, useDiceTumble } from './Hud.tsx';
@@ -51,8 +51,13 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
    * Where the token actually is, which is not the same as `game.position`.
    * The engine moves the player the instant the roll is applied; this follows
    * behind it one space at a time.
+   *
+   * It starts at the move's ORIGIN rather than at the player's position, so a
+   * board mounted mid-turn — the player switched renderers from the menu while
+   * the piece was walking — picks the walk up from where it set off instead of
+   * from where it was going to end up.
    */
-  const [tokenIndex, setTokenIndex] = useState(game?.position ?? 0);
+  const [tokenIndex, setTokenIndex] = useState(() => moveOrigin(path, game?.position ?? 0));
 
   const position = game?.position ?? 0;
   const moving = path.length > 0;
@@ -194,7 +199,28 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
             <p className="sq-centre-note">Trust Meter</p>
           </div>
 
-          <p className="sq-centre-note">Flat board — same spaces, same rules, no 3D.</p>
+          {/* The city's skyline, as twelve slots. The 3D board raises a
+              building for each work bought; this is the same information in
+              the space a flat board has for it, so a player who switches
+              renderers can still see what their coins built. */}
+          <div
+            className="sq-centre-works"
+            aria-label={`City works built: ${DISTRICT_ORDER.reduce(
+              (sum, id) => sum + game.districts[id].upgrades,
+              0,
+            )} of 12`}
+          >
+            {DISTRICT_ORDER.map((districtId) => (
+              <span
+                key={districtId}
+                style={{ ['--district-colour' as string]: DISTRICTS[districtId].colour }}
+              >
+                {[0, 1, 2].map((i) => (
+                  <i key={i} data-on={i < game.districts[districtId].upgrades || undefined} />
+                ))}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

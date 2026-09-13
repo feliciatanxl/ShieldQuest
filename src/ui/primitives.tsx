@@ -176,44 +176,6 @@ export function CompetencyChip({ competency }: { competency: Competency }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Meter                                                               */
-/* ------------------------------------------------------------------ */
-
-export function Meter({
-  label,
-  value,
-  max = 100,
-  colour,
-  hint,
-}: {
-  label: string;
-  value: number;
-  max?: number;
-  colour: string;
-  hint?: string;
-}) {
-  const pct = Math.round((Math.min(value, max) / max) * 100);
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-2 text-[11px] font-medium">
-        <span className="text-[var(--sq-ink-muted)]">{label}</span>
-        <span className="tabular-nums text-[var(--sq-ink)]">{value}</span>
-      </div>
-      <div
-        className="sq-meter mt-1"
-        role="meter"
-        aria-valuenow={value}
-        aria-valuemin={0}
-        aria-valuemax={max}
-        aria-label={hint ? `${label}. ${hint}` : label}
-      >
-        <i style={{ width: `${pct}%`, ['--meter-colour' as string]: colour }} />
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Live region                                                         */
 /* ------------------------------------------------------------------ */
 

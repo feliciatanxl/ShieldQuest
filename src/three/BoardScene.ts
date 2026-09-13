@@ -4,6 +4,7 @@ import { DISTRICTS, TRACK } from '../game/board.ts';
 import {
   HALF_SPAN,
   RESTING_VIEW,
+  TILE_DEPTH,
   cameraPlacement,
   layoutAt,
   orbitView,
@@ -26,7 +27,33 @@ import type { BoardSpace, DistrictId } from '../game/types.ts';
  * Nothing here reads or writes game state. It is told what to show.
  */
 
-const TILE_HEIGHT = 0.28;
+const TILE_HEIGHT = 0.34;
+
+/* ------------------------------------------------------------------ */
+/* Palette                                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The board is a toy, and it is lit like one.
+ *
+ * Everything above the table is bright, saturated and warm; the dark navy of
+ * the game skin is the *room* the toy is sitting in, not the toy itself. That
+ * split is deliberate. The HUD and the decision sheets carry the programme's
+ * sober voice — a delayed consequence is not a cartoon — but the city a player
+ * is building has to look like something worth building, and a board painted
+ * in the same navy as the chrome around it reads as a spreadsheet with
+ * perspective on it.
+ *
+ * District hues are the SAME four in `board.ts`; only their lightness moves, so
+ * a district that is amber on the flat board is amber here.
+ */
+const BOARD_RIM = 0x0e3660;
+const BOARD_EDGE = 0x17497d;
+/** The plaza inside the ring. Warm sand, so white tiles still read as tiles. */
+const PLAZA = 0xefe3c8;
+const PLAZA_EDGE = 0xd9c8a4;
+const TILE_FACE = 0xffffff;
+const TILE_RESOLVED = 0x9aa8b8;
 
 /**
  * The shape of a turn, in seconds.
@@ -62,6 +89,8 @@ interface TileHandle {
   top: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
   band: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
   baseY: number;
+  /** 1 the instant the piece lands on it, decaying to 0. */
+  squash: number;
 }
 
 /* ------------------------------------------------------------------ */
@@ -98,19 +127,42 @@ function makeLabelTexture(
   canvas.height = h;
   const ctx = canvas.getContext('2d')!;
 
-  ctx.fillStyle = '#f4f7fb';
+  const district = DISTRICTS[space.districtId].colour;
+
+  // A wash of the district's own colour, not one neutral face for all 28.
+  // Colour is the fastest way to see which quarter of the city you are in from
+  // a phone held at arm's length — but it stays a WASH: the tile has to keep
+  // enough contrast behind black type to be readable, and a colour-blind
+  // player still has the band, the glyph and the name.
+  ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
+  ctx.globalAlpha = corner ? 0.3 : 0.16;
+  ctx.fillStyle = district;
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalAlpha = 1;
 
   // No district stripe is drawn here: the stripe is a separate mesh on the
   // tile's inner edge, which stays put when this texture is counter-rotated
   // below. Baking it into the texture would send it wandering round the tile.
-  ctx.fillStyle = 'rgba(6,21,39,0.5)';
-  ctx.font = `600 ${corner ? 34 : 32}px system-ui, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillText(KIND_GLYPH[space.kind], w / 2, 96);
 
+  // The kind glyph sits in a filled disc, so it reads as an icon rather than
+  // as a stray punctuation mark at the top of the tile.
+  ctx.beginPath();
+  ctx.arc(w / 2, 70, corner ? 38 : 32, 0, Math.PI * 2);
+  ctx.fillStyle = district;
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `700 ${corner ? 38 : 32}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(KIND_GLYPH[space.kind], w / 2, 72);
+  ctx.textBaseline = 'alphabetic';
+
+  // Heavier and larger than a print board would use. A tile is roughly 40px
+  // across on a phone; at that size the weight is doing more work than the
+  // size is, and anything lighter than 800 dissolves into the district wash.
   ctx.fillStyle = '#0b2545';
-  ctx.font = `700 ${corner ? 30 : 26}px system-ui, sans-serif`;
+  ctx.font = `800 ${corner ? 34 : 31}px system-ui, sans-serif`;
   const words = space.title.split(' ');
   const lines: string[] = [];
   let line = '';
@@ -126,9 +178,9 @@ function makeLabelTexture(
   if (line) lines.push(line);
 
   const kept = lines.slice(0, 3);
-  const startY = 168 - (kept.length - 1) * 8;
+  const startY = 170 - (kept.length - 1) * 16;
   kept.forEach((text, i) => {
-    ctx.fillText(text, w / 2, startY + i * 33);
+    ctx.fillText(text, w / 2, startY + i * 36);
   });
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -154,6 +206,14 @@ function makePipTexture(value: number): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
   ctx.fillStyle = '#f8fafc';
   ctx.fillRect(0, 0, size, size);
+
+  // A drawn edge on every face. The dice now land on a sand-coloured plaza
+  // rather than on dark navy, and a white cube on a warm light ground has
+  // almost nothing but its own shading to separate it from the board.
+  ctx.strokeStyle = 'rgba(11, 37, 69, 0.4)';
+  ctx.lineWidth = size * 0.05;
+  ctx.strokeRect(size * 0.025, size * 0.025, size * 0.95, size * 0.95);
+
   ctx.fillStyle = '#0b2545';
 
   const q = size / 4;
@@ -219,6 +279,122 @@ function faceUpRotation(value: number): THREE.Euler {
 }
 
 /* ------------------------------------------------------------------ */
+/* Landmarks                                                           */
+/* ------------------------------------------------------------------ */
+
+const ROOF_TRIM = 0xffffff;
+
+/**
+ * A community work, as a small building.
+ *
+ * Four silhouettes, one per district, so a player can see at a glance which
+ * quarter of the city they have been investing in — a row of identical boxes
+ * in four colours tells them how MANY they built and nothing about where. The
+ * shapes are built from primitives on purpose: no model file to fetch, nothing
+ * to fall back from on a school connection, and the whole set costs four
+ * geometries a district.
+ *
+ * `tier` is 0, 1 or 2 — the three works in `board.ts`, in the order they are
+ * bought. Later works are taller, so the skyline itself is the progress bar.
+ */
+function makeLandmark(districtId: DistrictId, tier: number): THREE.Group {
+  const group = new THREE.Group();
+  const colour = new THREE.Color(DISTRICTS[districtId].colour);
+
+  const body = new THREE.MeshStandardMaterial({ color: colour, roughness: 0.5, metalness: 0.1 });
+  // Walls are a PASTEL OF THE DISTRICT, not cream. Cream walls disappeared
+  // into the cream plaza they stand on and left only the roofs visible — four
+  // coloured shapes lying flat on a beige field.
+  const wall = new THREE.MeshStandardMaterial({
+    color: colour.clone().lerp(new THREE.Color(0xffffff), 0.34),
+    roughness: 0.75,
+  });
+  const trim = new THREE.MeshStandardMaterial({ color: ROOF_TRIM, roughness: 0.55 });
+  const scale = 1 + tier * 0.24;
+
+  const add = (mesh: THREE.Mesh, x: number, y: number, z: number) => {
+    mesh.position.set(x, y, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    group.add(mesh);
+    return mesh;
+  };
+
+  // A darker pad under every work, so it reads as standing ON the plaza rather
+  // than sinking into it at this camera angle.
+  const pad = new THREE.Mesh(
+    new THREE.BoxGeometry(0.98, 0.07, 0.92),
+    new THREE.MeshStandardMaterial({
+      color: colour.clone().lerp(new THREE.Color(0x000000), 0.35),
+      roughness: 1,
+    }),
+  );
+  pad.position.y = 0.03;
+  pad.receiveShadow = true;
+  group.add(pad);
+
+  switch (districtId) {
+    case 'school': {
+      // A schoolhouse: pale block, steep pitched roof, flag on the ridge.
+      const h = 0.62 * scale;
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.78, h, 0.64), wall), 0, h / 2 + 0.06, 0);
+      const roof = add(
+        new THREE.Mesh(new THREE.ConeGeometry(0.62, 0.46 * scale, 4), body),
+        0,
+        h + 0.29 * scale,
+        0,
+      );
+      roof.rotation.y = Math.PI / 4;
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.34, 6), trim), 0, h + 0.68, 0);
+      break;
+    }
+    case 'retail': {
+      // A shopfront: wide block, awning over the pavement, sign above it.
+      const h = 0.56 * scale;
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.86, h, 0.6), wall), 0, h / 2 + 0.06, 0);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.09, 0.74), body), 0, h * 0.62, 0.1);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.22, 0.1), body), 0, h + 0.2, 0.22);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.08, 0.66), trim), 0, h + 0.1, 0);
+      break;
+    }
+    case 'digital': {
+      // A relay tower: slim shaft, two lit bands, antenna.
+      const h = 1.02 * scale;
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.44, h, 0.44), wall), 0, h / 2 + 0.06, 0);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.5), body), 0, h * 0.42, 0);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.5), body), 0, h * 0.76, 0);
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.1, 0.54), trim), 0, h + 0.11, 0);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 6), body), 0, h + 0.36, 0);
+      break;
+    }
+    default: {
+      // A hall: round drum under a coloured dome.
+      const h = 0.5 * scale;
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.46, h, 18), wall), 0, h / 2 + 0.06, 0);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 0.07, 18), trim), 0, h + 0.09, 0);
+      add(
+        new THREE.Mesh(
+          new THREE.SphereGeometry(0.43, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+          body,
+        ),
+        0,
+        h + 0.12,
+        0,
+      );
+      break;
+    }
+  }
+
+  // Wrapped, not scaled in place. The rise animation drives `scale.y` on the
+  // object `setUpgrades` adds to the scene, so the overall size has to live on
+  // a child or the two would fight over the same property.
+  const outer = new THREE.Group();
+  group.scale.setScalar(1.3);
+  outer.add(group);
+  return outer;
+}
+
+/* ------------------------------------------------------------------ */
 /* Scene                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -243,6 +419,8 @@ export class BoardScene {
   private tokenShadow: THREE.Mesh;
   private dice: THREE.Mesh[] = [];
   private buildings = new Map<DistrictId, THREE.Group>();
+  /** Works currently rising out of the plaza. */
+  private growing: { districtId: DistrictId; group: THREE.Group; t: number }[] = [];
   private pulses: { mesh: THREE.Mesh; life: number }[] = [];
 
   private options: BoardSceneOptions;
@@ -307,7 +485,10 @@ export class BoardScene {
     this.renderer.toneMappingExposure = 1.05;
 
     this.timer.connect(document);
-    this.scene.fog = new THREE.FogExp2(0x061527, 0.022);
+    // Light and thin. The old navy fog at this density was pulling the
+    // saturation out of the far side of the board — the exact half a player
+    // looks at to decide where they are heading.
+    this.scene.fog = new THREE.FogExp2(0x123a63, 0.009);
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120);
 
     this.buildLights();
@@ -325,9 +506,13 @@ export class BoardScene {
   /* --- construction ------------------------------------------------ */
 
   private buildLights() {
-    this.scene.add(new THREE.HemisphereLight(0xcfe4ff, 0x0a1a2e, 1.25));
+    // Bright sky, warm bounce off the plaza. The old pairing lit a light-blue
+    // sky against a near-black ground, which is a night-time key: it drained
+    // the saturation out of every district colour on the board and left the
+    // tiles reading grey.
+    this.scene.add(new THREE.HemisphereLight(0xffffff, 0xc9a97a, 1.55));
 
-    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    const key = new THREE.DirectionalLight(0xfff4e0, 2.1);
     key.position.set(6, 14, 8);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -343,56 +528,137 @@ export class BoardScene {
 
     // A warm rim from the city centre, so tiles read as objects rather than
     // flat cards when the key light is behind the camera.
-    const rim = new THREE.PointLight(0xffc879, 26, 22, 2);
-    rim.position.set(0, 2.6, 0);
+    const rim = new THREE.PointLight(0xffd9a0, 30, 24, 2);
+    rim.position.set(0, 3.2, 0);
     this.scene.add(rim);
   }
 
+  /**
+   * The table the city sits on.
+   *
+   * Three stacked slabs — a deep blue frame, a lighter bevel on top of it, and
+   * a warm sand plaza inside the ring — because a single flat plane gives a
+   * board no edge, and an edge is what makes it read as an object you could
+   * pick up rather than a texture the tiles are floating over.
+   */
   private buildBoard() {
-    const span = HALF_SPAN * 2 + 0.6;
+    const span = HALF_SPAN * 2 + 0.7;
 
     const slab = new THREE.Mesh(
       new THREE.BoxGeometry(span, BOARD_DROP, span),
-      new THREE.MeshStandardMaterial({ color: 0x0a1d33, roughness: 0.9, metalness: 0.05 }),
+      new THREE.MeshStandardMaterial({ color: BOARD_RIM, roughness: 0.85, metalness: 0.05 }),
     );
     slab.position.y = -BOARD_DROP / 2;
     slab.receiveShadow = true;
     this.scene.add(slab);
 
-    const inner = new THREE.Mesh(
-      new THREE.BoxGeometry(span - 2.6, 0.08, span - 2.6),
-      new THREE.MeshStandardMaterial({ color: 0x0d2743, roughness: 0.75, metalness: 0.12 }),
+    const bevel = new THREE.Mesh(
+      new THREE.BoxGeometry(span - 0.22, 0.1, span - 0.22),
+      new THREE.MeshStandardMaterial({ color: BOARD_EDGE, roughness: 0.7, metalness: 0.08 }),
     );
-    inner.position.y = 0.02;
-    inner.receiveShadow = true;
-    this.scene.add(inner);
+    bevel.position.y = 0.01;
+    bevel.receiveShadow = true;
+    this.scene.add(bevel);
 
-    // The city core: a slowly turning shield at the centre of the board. It is
+    const plazaSpan = span - 2 * (TILE_DEPTH + 0.35);
+    const plaza = new THREE.Mesh(
+      new THREE.BoxGeometry(plazaSpan, 0.14, plazaSpan),
+      new THREE.MeshStandardMaterial({ color: PLAZA, roughness: 0.95, metalness: 0 }),
+    );
+    plaza.position.y = 0.06;
+    plaza.receiveShadow = true;
+    this.scene.add(plaza);
+
+    const kerb = new THREE.Mesh(
+      new THREE.BoxGeometry(plazaSpan + 0.3, 0.1, plazaSpan + 0.3),
+      new THREE.MeshStandardMaterial({ color: PLAZA_EDGE, roughness: 0.95, metalness: 0 }),
+    );
+    kerb.position.y = 0.04;
+    kerb.receiveShadow = true;
+    this.scene.add(kerb);
+
+    // The city core: a shield on a plinth in the middle of the plaza. It is
     // pure atmosphere and carries no state, so it is safe for it to be the one
     // thing on screen that moves when nothing is happening.
-    const core = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.9, 0),
+    const core = new THREE.Group();
+    core.name = 'core';
+
+    const plinth = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.78, 0.92, 0.3, 24),
+      new THREE.MeshStandardMaterial({ color: 0xf7f2e4, roughness: 0.8 }),
+    );
+    plinth.position.y = 0.24;
+    plinth.castShadow = true;
+    plinth.receiveShadow = true;
+    this.scene.add(plinth);
+
+    const shield = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.62, 0.62, 0.2, 6),
       new THREE.MeshStandardMaterial({
-        color: 0x1a66bc,
-        roughness: 0.25,
-        metalness: 0.4,
-        emissive: 0x0d3f7a,
-        emissiveIntensity: 0.6,
+        color: 0xf2ae33,
+        roughness: 0.3,
+        metalness: 0.55,
+        emissive: 0x8a5400,
+        emissiveIntensity: 0.35,
       }),
     );
-    core.position.y = 1.1;
-    core.castShadow = true;
-    core.name = 'core';
+    shield.rotation.x = Math.PI / 2;
+    shield.castShadow = true;
+    core.add(shield);
+
+    const crest = new THREE.Mesh(
+      new THREE.TorusGeometry(0.44, 0.07, 10, 6),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.3 }),
+    );
+    crest.position.z = 0.12;
+    core.add(crest);
+
+    core.position.y = 1.15;
     this.scene.add(core);
 
     const halo = new THREE.Mesh(
-      new THREE.TorusGeometry(1.5, 0.045, 8, 64),
-      new THREE.MeshBasicMaterial({ color: 0x5fa0e8, transparent: true, opacity: 0.5 }),
+      new THREE.TorusGeometry(1.5, 0.05, 8, 64),
+      new THREE.MeshBasicMaterial({ color: 0xf2ae33, transparent: true, opacity: 0.45 }),
     );
     halo.rotation.x = Math.PI / 2;
-    halo.position.y = 0.35;
+    halo.position.y = 0.42;
     halo.name = 'halo';
     this.scene.add(halo);
+
+    // A ring path and four planters, so the plaza reads as a public square
+    // rather than as the empty middle of a board. Deliberately neutral stone
+    // and sage: the four district hues are the only colours on this board
+    // allowed to carry identity, and a fifth bright colour in the centre would
+    // start competing with them.
+    const path = new THREE.Mesh(
+      new THREE.RingGeometry(2.5, 2.9, 48),
+      new THREE.MeshStandardMaterial({ color: PLAZA_EDGE, roughness: 1 }),
+    );
+    path.rotation.x = -Math.PI / 2;
+    path.position.y = 0.132;
+    path.receiveShadow = true;
+    this.scene.add(path);
+
+    const planterBase = new THREE.MeshStandardMaterial({ color: 0xf7f2e4, roughness: 0.9 });
+    const foliage = new THREE.MeshStandardMaterial({ color: 0x8fa37a, roughness: 0.95 });
+    for (const [px, pz] of [
+      [-2.2, -2.2],
+      [2.2, -2.2],
+      [-2.2, 2.2],
+      [2.2, 2.2],
+    ] as const) {
+      const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.2, 12), planterBase);
+      pot.position.set(px, 0.23, pz);
+      pot.castShadow = true;
+      pot.receiveShadow = true;
+      this.scene.add(pot);
+
+      const bush = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), foliage);
+      bush.position.set(px, 0.44, pz);
+      bush.scale.y = 0.8;
+      bush.castShadow = true;
+      this.scene.add(bush);
+    }
   }
 
   private buildTiles() {
@@ -402,15 +668,33 @@ export class BoardScene {
       group.position.set(layout.x, 0, layout.z);
       group.rotation.y = layout.rotation;
 
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(layout.width * 0.94, TILE_HEIGHT, layout.depth * 0.94),
+      const districtColour = new THREE.Color(DISTRICTS[space.districtId].colour);
+
+      // A coloured plinth under every tile, so a tile has visible thickness in
+      // its district's colour rather than four grey sides. This is most of what
+      // makes the board read as moulded plastic instead of printed card.
+      const plinth = new THREE.Mesh(
+        new THREE.BoxGeometry(layout.width * 0.97, TILE_HEIGHT * 0.62, layout.depth * 0.97),
         new THREE.MeshStandardMaterial({
-          map: makeLabelTexture(space, Boolean(layout.corner), layout.rotation),
-          roughness: 0.62,
-          metalness: 0.05,
+          color: districtColour.clone().multiplyScalar(0.72),
+          roughness: 0.72,
+          metalness: 0.04,
         }),
       );
-      body.position.y = TILE_HEIGHT / 2;
+      plinth.position.y = TILE_HEIGHT * 0.31;
+      plinth.castShadow = true;
+      plinth.receiveShadow = true;
+      group.add(plinth);
+
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(layout.width * 0.9, TILE_HEIGHT * 0.5, layout.depth * 0.9),
+        new THREE.MeshStandardMaterial({
+          map: makeLabelTexture(space, Boolean(layout.corner), layout.rotation),
+          roughness: 0.55,
+          metalness: 0.02,
+        }),
+      );
+      body.position.y = TILE_HEIGHT * 0.75;
       body.castShadow = true;
       body.receiveShadow = true;
       body.userData.index = space.index;
@@ -419,20 +703,20 @@ export class BoardScene {
       // A colour band on the tile's inner edge, so district identity is legible
       // from the low camera angle where the face is foreshortened.
       const band = new THREE.Mesh(
-        new THREE.BoxGeometry(layout.width * 0.94, TILE_HEIGHT * 1.25, 0.09),
+        new THREE.BoxGeometry(layout.width * 0.9, TILE_HEIGHT * 0.34, 0.11),
         new THREE.MeshStandardMaterial({
-          color: new THREE.Color(DISTRICTS[space.districtId].colour),
-          roughness: 0.45,
-          emissive: new THREE.Color(DISTRICTS[space.districtId].colour),
-          emissiveIntensity: 0.25,
+          color: districtColour,
+          roughness: 0.4,
+          emissive: districtColour,
+          emissiveIntensity: 0.3,
         }),
       );
-      band.position.set(0, TILE_HEIGHT * 0.62, -layout.depth * 0.47);
+      band.position.set(0, TILE_HEIGHT * 1.02, -layout.depth * 0.44);
       band.castShadow = true;
       group.add(band);
 
       this.scene.add(group);
-      this.tiles.push({ index: space.index, group, top: body, band, baseY: 0 });
+      this.tiles.push({ index: space.index, group, top: body, band, baseY: 0, squash: 0 });
     }
   }
 
@@ -473,9 +757,19 @@ export class BoardScene {
     crest.position.y = 0.62;
     crest.castShadow = true;
 
+    // A white base under the piece. Without it the capsule reads as a bead
+    // hovering over the tile from the resting camera angle, and the piece is
+    // the one object on the board a player has to be able to find instantly.
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.27, 0.07, 20),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.1 }),
+    );
+    base.position.y = 0.035;
+    base.castShadow = true;
+
     this.tokenBody = body;
     this.tokenCrest = crest;
-    this.token.add(body, crest);
+    this.token.add(base, body, crest);
     this.scene.add(this.token);
   }
 
@@ -626,6 +920,8 @@ export class BoardScene {
   /** The token is on its space. Mark it, hold, then hand the turn back. */
   private land() {
     this.pulse(this.tokenIndex);
+    const tile = this.tiles.find((entry) => entry.index === this.tokenIndex);
+    if (tile && !this.options.reducedMotion) tile.squash = 1;
     this.after(LANDING_HOLD, () => this.options.onTokenArrived?.());
   }
 
@@ -694,7 +990,7 @@ export class BoardScene {
    * cosmetic by design — see `board.ts` for why a purchase may never buy an
    * advantage in a decision.
    */
-  setUpgrades(districtId: DistrictId, count: number) {
+  setUpgrades(districtId: DistrictId, count: number, animate = true) {
     let group = this.buildings.get(districtId);
     if (!group) {
       group = new THREE.Group();
@@ -703,32 +999,40 @@ export class BoardScene {
     }
     if (group.children.length === count) return;
 
-    group.clear();
-    const colour = new THREE.Color(DISTRICTS[districtId].colour);
-    const sideSpaces = TRACK.filter((s) => s.districtId === districtId);
+    // Only ever ADD, so a resume does not re-raise a city the player already
+    // built and a single new work is the only thing that animates. Rebuilding
+    // the whole district on every state change — which is what a `clear()`
+    // here did — made three buildings pop every time one was bought.
+    if (group.children.length > count) {
+      group.clear();
+      this.growing = this.growing.filter((entry) => entry.districtId !== districtId);
+    }
 
-    for (let i = 0; i < count; i += 1) {
-      const host = sideSpaces[i * 2 + 1] ?? sideSpaces[1]!;
+    const sideSpaces = TRACK.filter((s) => s.districtId === districtId && !s.corner);
+
+    for (let i = group.children.length; i < count; i += 1) {
+      const host = sideSpaces[i * 2 + 1] ?? sideSpaces[i] ?? sideSpaces[0]!;
       const layout = layoutAt(host.index);
-      const height = 0.5 + i * 0.42;
-      const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.34, height, 0.34),
-        new THREE.MeshStandardMaterial({
-          color: colour,
-          roughness: 0.5,
-          metalness: 0.2,
-          emissive: colour,
-          emissiveIntensity: 0.18,
-        }),
-      );
+      const landmark = makeLandmark(districtId, i);
+
       const toCentre = Math.hypot(layout.x, layout.z) || 1;
-      mesh.position.set(
-        layout.x - (layout.x / toCentre) * 1.05,
-        height / 2 + 0.06,
-        layout.z - (layout.z / toCentre) * 1.05,
+      landmark.position.set(
+        layout.x - (layout.x / toCentre) * (TILE_DEPTH * 0.62 + 0.5),
+        0.13,
+        layout.z - (layout.z / toCentre) * (TILE_DEPTH * 0.62 + 0.5),
       );
-      mesh.castShadow = true;
-      group.add(mesh);
+      landmark.rotation.y = layout.rotation;
+      group.add(landmark);
+
+      // A new work rises out of the plaza with an overshoot, and throws a ring
+      // where it lands. This is the only moment in the game where coins the
+      // player earned turn into something that stays on the board, so it is
+      // the one that has to be worth watching.
+      if (animate && !this.options.reducedMotion) {
+        landmark.scale.set(1, 0.001, 1);
+        this.growing.push({ districtId, group: landmark, t: 0 });
+        this.pulse(host.index, new THREE.Color(DISTRICTS[districtId].colour).getHex());
+      }
     }
   }
 
@@ -739,15 +1043,15 @@ export class BoardScene {
       // Resolved tiles desaturate rather than disappear: a space the player has
       // already played still has to be findable, and still has to be legible to
       // a facilitator pointing at it from across the room.
-      tile.top.material.color.setHex(done ? 0x93a7bc : 0xffffff);
-      tile.band.material.emissiveIntensity = done ? 0.05 : 0.25;
+      tile.top.material.color.setHex(done ? TILE_RESOLVED : TILE_FACE);
+      tile.band.material.emissiveIntensity = done ? 0.05 : 0.3;
     }
   }
 
   /** Lift and glow the tile the player is standing on. */
   setCurrent(index: number) {
     for (const tile of this.tiles) {
-      tile.baseY = tile.index === index ? 0.1 : 0;
+      tile.baseY = tile.index === index ? 0.14 : 0;
     }
   }
 
@@ -838,9 +1142,14 @@ export class BoardScene {
     // one radius for both — the obvious version — either clips the near corners
     // or leaves the board sitting small in the middle of a phone screen.
     const halfFov = (this.camera.fov * Math.PI) / 360;
+    //
+    // The horizontal margin cannot go much below this. The camera leans
+    // towards the token (see `cameraPlacement`), so on a portrait phone the
+    // board is already off-centre before perspective widens its near edge —
+    // measured at 1.08 the west side of the track was cut off entirely.
     const fitHorizontal =
-      (HALF_SPAN * 1.18) / (Math.tan(halfFov) * Math.min(1, this.camera.aspect));
-    const fitVertical = (HALF_SPAN * 1.24) / Math.tan(halfFov);
+      (HALF_SPAN * 1.17) / (Math.tan(halfFov) * Math.min(1, this.camera.aspect));
+    const fitVertical = (HALF_SPAN * 1.12) / Math.tan(halfFov);
     this.cameraDistance = THREE.MathUtils.clamp(Math.max(fitVertical, fitHorizontal), 12, 34);
     this.camera.updateProjectionMatrix();
   }
@@ -909,6 +1218,7 @@ export class BoardScene {
     this.animateToken(dt, elapsed);
     this.animateDice(dt);
     this.animateTiles(dt);
+    this.animateBuildings(dt);
     this.animatePulses(dt);
     this.animateCamera(dt);
 
@@ -916,8 +1226,10 @@ export class BoardScene {
     const halo = this.scene.getObjectByName('halo');
     if (!this.options.reducedMotion) {
       if (core) {
-        core.rotation.y += dt * 0.4;
-        core.position.y = 1.1 + Math.sin(elapsed * 1.1) * 0.06;
+        // A sway rather than a spin: the shield is flat, and a full rotation
+        // takes it edge-on twice a lap, which reads as the emblem blinking out.
+        core.rotation.y = Math.sin(elapsed * 0.5) * 0.42;
+        core.position.y = 1.15 + Math.sin(elapsed * 1.1) * 0.07;
       }
       if (halo) halo.rotation.z += dt * 0.15;
     }
@@ -1004,6 +1316,33 @@ export class BoardScene {
   private animateTiles(dt: number) {
     for (const tile of this.tiles) {
       tile.group.position.y = THREE.MathUtils.lerp(tile.group.position.y, tile.baseY, dt * 9);
+
+      // The squash a tile takes when the piece lands on it. Decays on its own,
+      // so nothing has to remember to clear it.
+      if (tile.squash > 0) {
+        tile.squash = Math.max(0, tile.squash - dt * 3.2);
+        const wobble = Math.sin(tile.squash * Math.PI * 3) * tile.squash * 0.18;
+        tile.group.scale.set(1 + wobble * 0.6, 1 - wobble, 1 + wobble * 0.6);
+      } else if (tile.group.scale.y !== 1) {
+        tile.group.scale.set(1, 1, 1);
+      }
+    }
+  }
+
+  /** Works rising out of the plaza, with an overshoot at the top. */
+  private animateBuildings(dt: number) {
+    for (let i = this.growing.length - 1; i >= 0; i -= 1) {
+      const entry = this.growing[i]!;
+      entry.t = Math.min(1, entry.t + dt * 1.7);
+      const t = entry.t;
+      // Ease out with a single overshoot, clamped so it never dips below zero
+      // mid-rise — a building that flickers under the plaza looks like a bug.
+      const eased = 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
+      entry.group.scale.set(1, Math.max(0.001, eased), 1);
+      if (t >= 1) {
+        entry.group.scale.set(1, 1, 1);
+        this.growing.splice(i, 1);
+      }
     }
   }
 
