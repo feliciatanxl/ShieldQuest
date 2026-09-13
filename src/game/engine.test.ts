@@ -15,8 +15,11 @@ import {
   createGame,
   dueConsequences,
   RUN_LENGTH,
+  isSessionCode,
   makeRng,
   makeSessionCode,
+  normaliseSessionCode,
+  SESSION_CODE_LENGTH,
   markCelebrated,
   resolveConsequence,
   buyCosmetic,
@@ -563,4 +566,35 @@ test('a save written before tokens existed still loads', () => {
   assert.deepEqual(migrated.tokenGrants, []);
   assert.deepEqual(migrated.unlocked, []);
   assert.equal(migrated.equipped, null);
+});
+
+test('a session code survives being read off a projector and typed into a phone', () => {
+  // Lowercase, spaced, hyphenated — all of which a room of teenagers will type.
+  assert.equal(normaliseSessionCode('ktp4rj'), 'KTP4RJ');
+  assert.equal(normaliseSessionCode('KTP 4RJ'), 'KTP4RJ');
+  assert.equal(normaliseSessionCode('SQ-KTP4RJ'), 'SQKTP4');
+  assert.equal(normaliseSessionCode('ktp4rj-extra'), 'KTP4RJ');
+
+  // Characters that cannot appear in a real code are dropped, not guessed at:
+  // the alphabet has no vowels and no 0/1, so O/0 and I/1 never collide.
+  assert.equal(normaliseSessionCode('K T P 4 R J !'), 'KTP4RJ');
+  assert.equal(normaliseSessionCode(''), '');
+
+  assert.ok(isSessionCode('KTP4RJ'));
+  assert.ok(isSessionCode('ktp4rj'));
+  assert.ok(!isSessionCode('KTP4R'));
+  assert.ok(!isSessionCode(''));
+  assert.ok(!isSessionCode('   '));
+});
+
+test('a facilitator code and a generated one are the same shape', () => {
+  const generated = makeSessionCode(makeRng(7));
+  assert.equal(generated.length, SESSION_CODE_LENGTH);
+  assert.ok(isSessionCode(generated));
+  assert.equal(normaliseSessionCode(generated), generated);
+
+  // A run started with a room code keeps it, character for character: it is the
+  // only thing a pre/post response is linked by, so it cannot be rewritten.
+  const joined = createGame({ handle: 'Tester', band: 'B14_16', sessionCode: 'KTP4RJ' });
+  assert.equal(joined.sessionCode, 'KTP4RJ');
 });

@@ -104,26 +104,37 @@ function Rewards({ game }: { game: GameState }) {
             >
               <PieceSwatch cosmetic={cosmetic} />
               <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="truncate text-sm font-semibold">{cosmetic.name}</h3>
-                  {!owned ? (
-                    <span className="shrink-0 text-[12px] font-bold tabular-nums text-[var(--sq-earned-text)]">
-                      ◆ {cosmetic.cost}
-                    </span>
-                  ) : null}
-                </div>
+                <h3 className="truncate text-sm font-semibold">{cosmetic.name}</h3>
                 <p className="text-[12px] leading-snug text-[var(--sq-ink-muted)]">
                   {cosmetic.blurb}
                 </p>
               </div>
-              <Button
-                variant={worn ? 'ghost' : owned ? 'quiet' : affordable ? 'earned' : 'ghost'}
-                className="shrink-0 px-3 py-2 text-[13px]"
-                disabled={worn || (!owned && !affordable)}
-                onClick={() => act(cosmetic)}
-              >
-                {worn ? 'Worn' : owned ? 'Wear' : affordable ? 'Unlock' : 'Locked'}
-              </Button>
+              {/*
+                Price and button share one fixed-width right column, so the
+                prices line up with each other and with the buttons under them.
+                The price used to sit at the end of the title row, which made
+                its position depend on how long the name was: ◆ 80, ◆ 120 and
+                ◆ 160 each landed somewhere different down the list.
+              */}
+              <div className="flex w-[92px] shrink-0 flex-col items-end gap-1.5">
+                <span
+                  className="text-[12px] font-bold tabular-nums text-[var(--sq-earned-text)]"
+                  // Held in place rather than removed when there is nothing to
+                  // charge, so an owned row is the same height as a locked one.
+                  style={{ visibility: owned ? 'hidden' : 'visible' }}
+                  aria-hidden={owned}
+                >
+                  ◆ {cosmetic.cost}
+                </span>
+                <Button
+                  variant={worn ? 'ghost' : owned ? 'quiet' : affordable ? 'earned' : 'ghost'}
+                  className="w-full px-3 py-2 text-[13px]"
+                  disabled={worn || (!owned && !affordable)}
+                  onClick={() => act(cosmetic)}
+                >
+                  {worn ? 'Worn' : owned ? 'Wear' : affordable ? 'Unlock' : 'Locked'}
+                </Button>
+              </div>
             </li>
           );
         })}

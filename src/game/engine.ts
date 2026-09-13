@@ -65,11 +65,39 @@ const pick = <T>(items: readonly T[], rng: Rng): T => items[Math.floor(rng() * i
  * anything, and generated on the device. Nothing derived from the participant
  * goes into it.
  */
+export const SESSION_CODE_ALPHABET = 'BCDFGHJKLMNPQRSTVWXZ23456789';
+export const SESSION_CODE_LENGTH = 6;
+
 export function makeSessionCode(rng: Rng = Math.random): string {
-  const alphabet = 'BCDFGHJKLMNPQRSTVWXZ23456789';
   let out = '';
-  for (let i = 0; i < 6; i += 1) out += alphabet[Math.floor(rng() * alphabet.length)];
+  for (let i = 0; i < SESSION_CODE_LENGTH; i += 1) {
+    out += SESSION_CODE_ALPHABET[Math.floor(rng() * SESSION_CODE_ALPHABET.length)];
+  }
   return out;
+}
+
+/**
+ * Clean up a code somebody typed or scanned.
+ *
+ * It is read off a projector by a room of teenagers and typed into a phone, so
+ * it arrives lowercased, spaced, hyphenated, or with an O where a zero should
+ * be. Everything outside the alphabet is dropped rather than rejected: making
+ * someone retype a code because they included the hyphen they can see on the
+ * screen is a bad first thirty seconds.
+ *
+ * O/0 and I/1 are not "corrected" — the alphabet has no vowels and no 0/1
+ * precisely so that the confusable pairs never appear in a real code.
+ */
+export function normaliseSessionCode(input: string): string {
+  return [...input.toUpperCase()]
+    .filter((character) => SESSION_CODE_ALPHABET.includes(character))
+    .slice(0, SESSION_CODE_LENGTH)
+    .join('');
+}
+
+/** True when this is a complete, well-formed session code. */
+export function isSessionCode(input: string): boolean {
+  return normaliseSessionCode(input).length === SESSION_CODE_LENGTH && input.trim().length > 0;
 }
 
 /* ------------------------------------------------------------------ */

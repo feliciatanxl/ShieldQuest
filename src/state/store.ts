@@ -180,7 +180,13 @@ interface Store {
   celebrate: number;
   rng: Rng;
 
-  start(opts: { handle: string; band: AgeBand; turnLimit: number }): void;
+  start(opts: {
+    handle: string;
+    band: AgeBand;
+    turnLimit: number;
+    /** The facilitator's room code, when the player was given one. */
+    sessionCode?: string;
+  }): void;
   resume(): boolean;
   abandon(): void;
 
@@ -217,8 +223,16 @@ export const useGame = create<Store>((set, get) => ({
   celebrate: 0,
   rng: makeRng(Date.now() >>> 0),
 
-  start({ handle, band, turnLimit }) {
-    const game = createGame({ handle, band, turnLimit });
+  start({ handle, band, turnLimit, sessionCode }) {
+    // An empty code means this device is playing on its own, so the engine
+    // generates one. Either way the run has exactly one code, and it is the
+    // only thing a pre/post response is ever linked by.
+    const game = createGame({
+      handle,
+      band,
+      turnLimit,
+      ...(sessionCode ? { sessionCode } : {}),
+    });
     persist(game);
     set({
       game,

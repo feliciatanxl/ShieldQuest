@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 
-import { RUN_LENGTH } from '../game/engine.ts';
+import {
+  RUN_LENGTH,
+  SESSION_CODE_LENGTH,
+  isSessionCode,
+  normaliseSessionCode,
+} from '../game/engine.ts';
 import { useGame } from '../state/store.ts';
 import { Button } from './primitives.tsx';
 import { AGE_BAND_LABEL, type AgeBand } from '../game/types.ts';
@@ -10,9 +15,13 @@ import { AGE_BAND_LABEL, type AgeBand } from '../game/types.ts';
  *
  * No account, no email, no sign-up — a participant scans a QR code and is
  * playing inside thirty seconds, which is what the proposal means by "mobile-first
- * PWA with no install". The only thing asked for is a codename, and the copy
- * says plainly that it must not be a real name. Nothing typed here leaves the
- * device.
+ * PWA with no install". The only things asked for are a codename, which the copy
+ * says plainly must not be a real name, and the room code their facilitator is
+ * showing. Nothing typed here leaves the device.
+ *
+ * The room code can also arrive in the URL as `?code=…`, which is what the
+ * projected QR carries: scanning it fills the field in, so the only thing left
+ * to do is press the button.
  */
 
 const CODENAME_FIRST = [
@@ -62,8 +71,19 @@ export default function Onboarding() {
   const resume = useGame((s) => s.resume);
   const suggestion = useMemo(randomCodename, []);
   const [handle, setHandle] = useState(suggestion);
+  // A scanned QR arrives as /play?code=KTP4RJ. Read once, on mount: re-reading
+  // it would overwrite a code the player had started correcting by hand.
+  const [code, setCode] = useState(() => {
+    try {
+      return normaliseSessionCode(new URLSearchParams(window.location.search).get('code') ?? '');
+    } catch {
+      return '';
+    }
+  });
   const [band, setBand] = useState<AgeBand>('B14_16');
   const [turns, setTurns] = useState<number>(RUN_LENGTH.SESSION);
+
+  const codeReady = isSessionCode(code);
 
   const hasSave = useMemo(() => {
     try {
@@ -123,6 +143,41 @@ export default function Onboarding() {
             Shuffle
           </Button>
         </div>
+      </section>
+
+      <section>
+        <label htmlFor="session-code" className="text-sm font-semibold">
+          Session code{' '}
+          <span className="font-normal text-[var(--sq-ink-muted)]">— if you were given one</span>
+        </label>
+        <p className="mt-0.5 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
+          Your facilitator has it on screen. It groups your answers with the rest of the room, and
+          it is the only thing linking what you answer before and after — there is no name attached
+          to it. Playing on your own? Leave it blank and we will make one.
+        </p>
+        <input
+          id="session-code"
+          value={code}
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={'·'.repeat(SESSION_CODE_LENGTH)}
+          aria-describedby="session-code-hint"
+          aria-invalid={code.length > 0 && !codeReady}
+          onChange={(event) => setCode(normaliseSessionCode(event.target.value))}
+          className="mt-2 w-full rounded-[var(--radius-control)] border bg-[var(--sq-surface)] px-3.5 py-3 font-mono text-lg font-bold uppercase tracking-[0.3em]"
+          style={{
+            borderColor: code.length > 0 && !codeReady ? 'var(--sq-risk)' : 'var(--sq-line-strong)',
+          }}
+        />
+        <p id="session-code-hint" className="mt-1.5 text-[11px] text-[var(--sq-ink-muted)]">
+          {code.length === 0
+            ? `${SESSION_CODE_LENGTH} characters. No vowels, so it can never spell anything.`
+            : codeReady
+              ? 'That looks right.'
+              : `${SESSION_CODE_LENGTH - code.length} more to go.`}
+        </p>
       </section>
 
       <section>
@@ -193,8 +248,15 @@ export default function Onboarding() {
 
       <Button
         full
-        disabled={handle.trim().length === 0}
-        onClick={() => start({ handle: handle.trim(), band, turnLimit: turns })}
+        disabled={handle.trim().length === 0 || (code.length > 0 && !codeReady)}
+        onClick={() =>
+          start({
+            handle: handle.trim(),
+            band,
+            turnLimit: turns,
+            ...(codeReady ? { sessionCode: code } : {}),
+          })
+        }
       >
         Enter the city
       </Button>

@@ -93,7 +93,16 @@ export function SessionManager() {
   const [sessionState, setSessionState] = useState<SessionState>('active');
   const [copied, setCopied] = useState(false);
 
-  const sessionCode = 'SQ-7842';
+  /*
+    The same shape the player app accepts.
+
+    This read `SQ-7842`, which the join field would have stripped to `SQ7842`
+    and then rejected — a facilitator would have read a code off this screen
+    that no participant could type in. Session codes are six characters from
+    the engine's vowel-free alphabet (see `makeSessionCode`), and the two
+    surfaces have to agree on that or the room cannot get in.
+  */
+  const sessionCode = 'KTP4RJ';
   const sessionName = 'Sec 3 Cohort A · Workshop 2';
   const venue = 'Computer Lab 2';
   const joined = 29;
@@ -191,7 +200,7 @@ export function SessionManager() {
             {copied ? (
               <span className="font-bold text-[var(--sq-safe)]">Copied to clipboard</span>
             ) : (
-              'Participants enter this code to join.'
+              'Participants type this on the ShieldQuest join screen.'
             )}
           </p>
         </Panel>
