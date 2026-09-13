@@ -410,7 +410,11 @@ have been. See "Not yet ported" below.
   (The portal shows the _aggregate_ Think–Vote–Explain signals; what is missing
   is the live multi-device question flow that would produce them.)
 - **Express + Prisma API** — v2 is currently client-only, which is correct for a
-  no-accounts PWA but does not yet support cross-device squad play.
+  no-accounts PWA but does not yet support cross-device squad play. The response
+  contract it has to keep is written down first, in
+  [`docs/api-status-codes.md`](docs/api-status-codes.md): which status code
+  means what here, why participants never see a `401`, and why an unbuilt
+  endpoint returns `501` rather than a plausible success.
 - **Playwright end-to-end tests.**
 
 ### Content
