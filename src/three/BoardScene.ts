@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
-import { HALF_SPAN, layoutAt, tokenAnchor } from '../game/geometry.ts';
+import {
+  HALF_SPAN,
+  RESTING_VIEW,
+  cameraPlacement,
+  layoutAt,
+  orbitView,
+  tokenAnchor,
+  zoomView,
+  type CameraView,
+} from '../game/geometry.ts';
 import type { BoardSpace, DistrictId } from '../game/types.ts';
 
 /**
@@ -243,6 +252,17 @@ export class BoardScene {
   private focus = new THREE.Vector3(0, 0, 0);
   private focusTarget = new THREE.Vector3(0, 0, 0);
   private cameraDistance = 15;
+
+  /*
+   * The player's view of the board, on top of the framing above.
+   *
+   * The camera still follows the token; this decides where it follows it FROM.
+   * The arithmetic lives in `game/geometry.ts` with the rest of the board's
+   * geometry, where it can be tested — including the part that matters most,
+   * that a resting view still produces the exact shot the board shipped with.
+   */
+  private view: CameraView = { ...RESTING_VIEW };
+  private viewMoved = false;
   private shake = 0;
 
   /* token movement */
@@ -515,6 +535,45 @@ export class BoardScene {
   }
 
   /* --- public API --------------------------------------------------- */
+
+  /* --- the player's view -------------------------------------------- */
+
+  /**
+   * Turn the board, in screen pixels.
+   *
+   * Applied straight to the angles with no inertia: a board that keeps
+   * drifting after the mouse stops is a board a player has to fight to aim,
+   * and under `prefers-reduced-motion` it would be movement nobody asked for.
+   * Dragging right turns the board right, which means turning the CAMERA the
+   * other way — the sign here is the difference between "grabbing the table"
+   * and "pushing the camera", and the table is what a player expects.
+   */
+  orbit(dx: number, dy: number) {
+    if (dx === 0 && dy === 0) return;
+    this.view = orbitView(this.view, dx, dy);
+    this.viewMoved = true;
+  }
+
+  /**
+   * Move the camera in or out. `steps` is a wheel delta or a pinch ratio in
+   * disguise: positive pulls back, negative moves closer.
+   */
+  zoomBy(steps: number) {
+    if (steps === 0) return;
+    this.view = zoomView(this.view, steps);
+    this.viewMoved = true;
+  }
+
+  /** Back to the framed shot. */
+  resetView() {
+    this.view = { ...RESTING_VIEW };
+    this.viewMoved = false;
+  }
+
+  /** True once the player has moved the camera off the default framing. */
+  hasMovedView(): boolean {
+    return this.viewMoved;
+  }
 
   /**
    * Put the equipped cosmetic on the piece.
@@ -970,19 +1029,8 @@ export class BoardScene {
 
     // A gentle push-in while the token is mid-hop, so movement has weight.
     const push = this.hopping ? 0.92 : 1;
-    const distance = this.cameraDistance * push;
-
-    // The camera leans towards the token rather than centring on it. A full
-    // follow-cam on a 28-space board loses the rest of the track, and a player
-    // who cannot see where they are going has no reason to care what they roll.
-    // A steeper look-down than a tabletop photograph. A shallow angle wastes
-    // most of a portrait phone on empty sky and squashes the far side of the
-    // board into an unreadable strip.
-    this.camera.position.set(
-      this.focus.x * 0.16,
-      distance * 0.86,
-      this.focus.z * 0.16 + distance * 0.5,
-    );
+    const placement = cameraPlacement(this.cameraDistance * push, this.view, this.focus);
+    this.camera.position.set(placement.x, placement.y, placement.z);
 
     if (this.shake > 0) {
       this.shake = Math.max(0, this.shake - dt * 2.2);

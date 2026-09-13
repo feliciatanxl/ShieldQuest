@@ -149,3 +149,109 @@ export function fallbackCell(index: number): { col: number; row: number } {
       return { col: edge, row: 1 + along };
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Camera placement                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * How far the player may move the view, and where it rests.
+ *
+ * The scripted shot was `(0, d * 0.86, d * 0.5)` above the look-at point: a
+ * steep look-down, because a shallow angle wastes most of a portrait phone on
+ * empty sky and squashes the far side of the board into an unreadable strip.
+ * Written as an angle and a radius it can be orbited without changing where it
+ * starts, which is what `BASE_PITCH` and `BASE_RADIUS` are for.
+ *
+ * Pitch stops at ~22 degrees rather than at the horizon: edge-on, a tile's
+ * painted face — where every space's name lives — becomes unreadable, and a
+ * control meant to let a player see the board better would be able to make it
+ * useless. The top stop is short of overhead so the board keeps its depth.
+ */
+export const BASE_PITCH = Math.atan2(0.86, 0.5);
+export const BASE_RADIUS = Math.hypot(0.86, 0.5);
+export const PITCH_MIN = 0.38;
+export const PITCH_MAX = 1.45;
+export const ZOOM_MIN = 0.5;
+export const ZOOM_MAX = 1.85;
+
+const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
+
+export interface CameraView {
+  /** Rotation around the board, in radians. */
+  yaw: number;
+  /** Added to `BASE_PITCH`, then clamped. */
+  pitchOffset: number;
+  /** Multiplies the fitted distance. Below 1 is closer. */
+  zoom: number;
+}
+
+export const RESTING_VIEW: CameraView = { yaw: 0, pitchOffset: 0, zoom: 1 };
+
+/**
+ * Where the camera goes, given the fitted distance and the player's view.
+ *
+ * Pure arithmetic with no Three.js in it, so the framing can be tested rather
+ * than eyeballed — including the part that matters most, which is that a
+ * resting view still produces the exact shot the board shipped with.
+ *
+ * `focus` is the point the follow-cam is drifting towards; the camera leans
+ * towards it rather than centring on it, because a full follow-cam on a
+ * 28-space board loses the rest of the track.
+ */
+export function cameraPlacement(
+  distance: number,
+  view: CameraView,
+  focus: { x: number; z: number },
+): { x: number; y: number; z: number } {
+  const pitch = clamp(BASE_PITCH + view.pitchOffset, PITCH_MIN, PITCH_MAX);
+
+  /*
+   * Back off as the view tilts down towards the board.
+   *
+   * `distance` is fitted for the resting pitch. Hold the radius constant and
+   * tilt low, and the near edge of the board swings towards the lens and out of
+   * frame — measured at a square viewport, the corners sat 15% outside it at
+   * the lowest tilt. The exponent is the smallest one that keeps every corner
+   * inside the frustum across the whole pitch range at portrait, square and
+   * landscape (the sweep is in the camera test); 1 would be a full correction
+   * and would shrink the board into the middle of the screen instead.
+   *
+   * It is exactly 1 at `BASE_PITCH`, so the resting shot is untouched.
+   */
+  const tilt = (Math.sin(BASE_PITCH) / Math.sin(pitch)) ** 0.3;
+  const radius = distance * clamp(view.zoom, ZOOM_MIN, ZOOM_MAX) * BASE_RADIUS * tilt;
+  const flat = Math.cos(pitch) * radius;
+  return {
+    x: focus.x * 0.16 + flat * Math.sin(view.yaw),
+    y: Math.sin(pitch) * radius,
+    z: focus.z * 0.16 + flat * Math.cos(view.yaw),
+  };
+}
+
+/** Apply a drag, in screen pixels, to a view. */
+export function orbitView(view: CameraView, dx: number, dy: number): CameraView {
+  return {
+    // Dragging right turns the board right, which means turning the CAMERA the
+    // other way. The sign here is the difference between "grabbing the table"
+    // and "pushing the camera", and the table is what a player expects.
+    yaw: view.yaw - dx * 0.006,
+    pitchOffset: clamp(
+      view.pitchOffset + dy * 0.005,
+      PITCH_MIN - BASE_PITCH,
+      PITCH_MAX - BASE_PITCH,
+    ),
+    zoom: view.zoom,
+  };
+}
+
+/**
+ * Apply a wheel notch or a pinch to a view.
+ *
+ * Multiplicative, so one notch covers the same proportion of the range whether
+ * the camera is close in or pulled right back. Linear zoom crawls when near and
+ * lurches when far.
+ */
+export function zoomView(view: CameraView, steps: number): CameraView {
+  return { ...view, zoom: clamp(view.zoom * Math.exp(steps * 0.0016), ZOOM_MIN, ZOOM_MAX) };
+}

@@ -144,6 +144,38 @@ buys the entire catalogue and asserts the achievement count is still zero.
 > are fixed here: the claim of competence is not for sale, and the purchase
 > takes the tokens.
 
+### The board can be looked at from any angle
+
+Drag to turn it, wheel or pinch to move in and out. The camera still follows the
+token; the player only decides where it follows from.
+
+Three things this had to not break:
+
+- **The DOM control layer.** Every tile is a real `<button>` positioned by
+  projecting the same geometry the meshes use, re-run every frame — so a moving
+  camera was already handled, and the buttons track the perspective for free.
+- **Tapping a tile.** The listeners sit on the whole stage rather than the
+  canvas, because the 28 buttons ring the board and a drag that started on one
+  would otherwise do nothing. A press that travels more than 8px arms a one-shot
+  capture-phase listener that swallows the click, so turning the board never
+  opens a space by accident. Below that, a tap is still a tap. The pointer is
+  captured at the same moment and not before — a captured pointer delivers its
+  click to the capturing element, which would break every tile.
+- **The framing.** The fitted distance is computed for the resting pitch, so
+  tilting low swung the near edge of the board out of frame — 15% outside it at
+  a square viewport. The camera now backs off as it tilts, by the smallest
+  exponent that keeps all eight board corners inside the frustum across the
+  whole pitch range at portrait, square and landscape. A test sweeps it.
+
+The camera math is in `game/geometry.ts` rather than in the Three.js scene,
+because it is arithmetic and arithmetic can be tested. The property worth
+pinning most is that a resting view still produces the exact shot the board
+shipped with — orbiting was added by rewriting the scripted camera as an angle
+and a radius, and the rewrite had to move nothing.
+
+Moving the camera cannot change anything the game measures. It is a picture of
+the board, never part of it.
+
 ### Joining a facilitator's session
 
 The room code is the only thing tying a participant to a session, and the only

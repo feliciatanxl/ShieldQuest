@@ -124,6 +124,15 @@ export default function HowToPlay({ onClose }: { onClose: () => void }) {
             </p>
           </Panel>
 
+          <Panel title="Looking around">
+            <p className="text-[13px] text-[var(--sq-ink-muted)]">
+              On the 3D board, drag to turn the city and scroll or pinch to zoom in. Moving the
+              camera changes nothing in the game — it is a picture of the board, and a{' '}
+              <strong className="text-[var(--sq-ink)]">Reset view</strong> button appears once you
+              have moved it. The flat board has the same 28 spaces without the angle.
+            </p>
+          </Panel>
+
           <Panel title="The spaces">
             <ul className="space-y-1.5">
               {kinds.map((kind) => (

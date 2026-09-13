@@ -2,7 +2,21 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { GATE_STIPEND, TRACK, TRACK_LENGTH, securingSpaces } from './board.ts';
-import { FALLBACK_EDGE, LAYOUT, fallbackCell } from './geometry.ts';
+import {
+  BASE_PITCH,
+  FALLBACK_EDGE,
+  HALF_SPAN,
+  LAYOUT,
+  PITCH_MAX,
+  PITCH_MIN,
+  RESTING_VIEW,
+  ZOOM_MAX,
+  ZOOM_MIN,
+  cameraPlacement,
+  fallbackCell,
+  orbitView,
+  zoomView,
+} from './geometry.ts';
 import { SCENARIO_BY_ID, SCENARIOS } from './content/scenarios.ts';
 import { GUARDIANS } from './content/guardians.ts';
 import { COSMETICS, DEFAULT_COSMETIC, equippedCosmetic } from './content/cosmetics.ts';
@@ -597,4 +611,157 @@ test('a facilitator code and a generated one are the same shape', () => {
   // only thing a pre/post response is linked by, so it cannot be rewritten.
   const joined = createGame({ handle: 'Tester', band: 'B14_16', sessionCode: 'KTP4RJ' });
   assert.equal(joined.sessionCode, 'KTP4RJ');
+});
+
+/* ------------------------------------------------------------------ */
+/* The camera                                                          */
+/* ------------------------------------------------------------------ */
+
+test('a resting view is the exact shot the board shipped with', () => {
+  // The scripted camera was `(focus.x * 0.16, d * 0.86, focus.z * 0.16 + d * 0.5)`.
+  // Orbiting was added by rewriting that as an angle and a radius, so the one
+  // thing worth pinning is that the rewrite did not move the default framing.
+  for (const distance of [12, 15, 22, 34]) {
+    for (const focus of [
+      { x: 0, z: 0 },
+      { x: 4.5, z: -3 },
+      { x: -6, z: 6 },
+    ]) {
+      const placed = cameraPlacement(distance, RESTING_VIEW, focus);
+      assert.ok(Math.abs(placed.x - focus.x * 0.16) < 1e-9);
+      assert.ok(Math.abs(placed.y - distance * 0.86) < 1e-9);
+      assert.ok(Math.abs(placed.z - (focus.z * 0.16 + distance * 0.5)) < 1e-9);
+    }
+  }
+});
+
+test('the view can be turned all the way round but never under the board', () => {
+  const rest = cameraPlacement(20, RESTING_VIEW, { x: 0, z: 0 });
+  const restRadius = Math.hypot(rest.x, rest.z);
+
+  // Turning moves the camera around the board without changing how far away it
+  // is or how high it sits — that is what makes it an orbit rather than a
+  // drift. Sampled all the way round, it really does go all the way round.
+  let view = RESTING_VIEW;
+  let sawPositiveX = false;
+  let sawNegativeX = false;
+  for (let i = 0; i < 240; i += 1) {
+    view = orbitView(view, 5, 0);
+    const placed = cameraPlacement(20, view, { x: 0, z: 0 });
+    assert.ok(Math.abs(Math.hypot(placed.x, placed.z) - restRadius) < 1e-9);
+    assert.ok(Math.abs(placed.y - rest.y) < 1e-9);
+    if (placed.x > 1) sawPositiveX = true;
+    if (placed.x < -1) sawNegativeX = true;
+  }
+  assert.ok(sawPositiveX && sawNegativeX, 'the orbit goes right around');
+
+  // Dragged hard in either direction, the camera stays above the board and
+  // short of straight down. Below the board there is nothing to see, and
+  // edge-on the tile faces — where every space's name is — stop being legible.
+  let low = RESTING_VIEW;
+  let high = RESTING_VIEW;
+  for (let i = 0; i < 400; i += 1) {
+    low = orbitView(low, 0, -40);
+    high = orbitView(high, 0, 40);
+  }
+  const lowPlaced = cameraPlacement(20, low, { x: 0, z: 0 });
+  const highPlaced = cameraPlacement(20, high, { x: 0, z: 0 });
+  assert.ok(lowPlaced.y > 0, 'never under the board');
+  assert.ok(highPlaced.y > lowPlaced.y);
+  assert.ok(Math.abs(BASE_PITCH + low.pitchOffset - PITCH_MIN) < 1e-9);
+  assert.ok(Math.abs(BASE_PITCH + high.pitchOffset - PITCH_MAX) < 1e-9);
+});
+
+test('zoom is bounded at both ends and symmetric in and out', () => {
+  let near = RESTING_VIEW;
+  let far = RESTING_VIEW;
+  for (let i = 0; i < 200; i += 1) {
+    near = zoomView(near, -120);
+    far = zoomView(far, 120);
+  }
+  assert.equal(near.zoom, ZOOM_MIN);
+  assert.equal(far.zoom, ZOOM_MAX);
+  assert.ok(
+    cameraPlacement(20, near, { x: 0, z: 0 }).y <
+      cameraPlacement(20, RESTING_VIEW, { x: 0, z: 0 }).y,
+  );
+
+  // One notch in and the same notch out returns to where it started.
+  const roundTrip = zoomView(zoomView(RESTING_VIEW, 120), -120);
+  assert.ok(Math.abs(roundTrip.zoom - 1) < 1e-9);
+});
+
+test('moving the camera cannot change anything the game measures', () => {
+  // Stated as a test because it is the promise the control makes: the 3D board
+  // is a picture of the game, never part of it. `CameraView` is three numbers
+  // that no engine function accepts, so there is no route from a drag to a
+  // stat — this asserts the shape of that, and will fail if a view ever
+  // acquires a field the engine reads.
+  assert.deepEqual(Object.keys(RESTING_VIEW).sort(), ['pitchOffset', 'yaw', 'zoom']);
+  const turned = zoomView(orbitView(RESTING_VIEW, 260, -80), -400);
+  assert.deepEqual(Object.keys(turned).sort(), ['pitchOffset', 'yaw', 'zoom']);
+});
+
+test('the board stays inside the frame at every angle a player can reach', () => {
+  // The one thing a free camera can get wrong that a scripted one cannot:
+  // leaving the board half off the screen. This projects the eight corners of
+  // the board — all four, at ground level and at tile height — through the same
+  // perspective the renderer uses, and asserts none of them leaves the frustum
+  // at any reachable pitch, on a portrait phone, a square window or a laptop.
+  const FOV = (42 * Math.PI) / 180;
+  const TILE_TOP = 0.35;
+
+  const worstCorner = (pitch: number, aspect: number) => {
+    const view = { yaw: 0, pitchOffset: pitch - BASE_PITCH, zoom: 1 };
+    const halfFov = FOV / 2;
+    const fitted = Math.min(
+      34,
+      Math.max(
+        12,
+        Math.max(
+          (HALF_SPAN * 1.24) / Math.tan(halfFov),
+          (HALF_SPAN * 1.18) / (Math.tan(halfFov) * Math.min(1, aspect)),
+        ),
+      ),
+    );
+    const camera = cameraPlacement(fitted, view, { x: 0, z: 0 });
+    // Looking at the origin, so forward is -normalise(camera) and the basis
+    // falls out of a world up of +Y.
+    const length = Math.hypot(camera.x, camera.y, camera.z);
+    const f = [-camera.x / length, -camera.y / length, -camera.z / length] as const;
+    const right = [f[2], 0, -f[0]] as const;
+    const rl = Math.hypot(right[0], right[1], right[2]);
+    const r = [right[0] / rl, right[1] / rl, right[2] / rl] as const;
+    const up = [
+      r[1] * f[2] - r[2] * f[1],
+      r[2] * f[0] - r[0] * f[2],
+      r[0] * f[1] - r[1] * f[0],
+    ] as const;
+
+    let worst = 0;
+    for (const sx of [-1, 1]) {
+      for (const sz of [-1, 1]) {
+        for (const py of [0, TILE_TOP]) {
+          const d = [sx * HALF_SPAN - camera.x, py - camera.y, sz * HALF_SPAN - camera.z] as const;
+          const z = d[0] * f[0] + d[1] * f[1] + d[2] * f[2];
+          assert.ok(z > 0, 'a corner behind the camera');
+          const x = d[0] * r[0] + d[1] * r[1] + d[2] * r[2];
+          const y = d[0] * up[0] + d[1] * up[1] + d[2] * up[2];
+          const t = Math.tan(halfFov);
+          worst = Math.max(worst, Math.abs(y / (z * t)), Math.abs(x / (z * t * aspect)));
+        }
+      }
+    }
+    return worst;
+  };
+
+  for (const aspect of [0.55, 1, 1.9]) {
+    for (let pitch = PITCH_MIN; pitch <= PITCH_MAX + 1e-9; pitch += 0.05) {
+      const worst = worstCorner(pitch, aspect);
+      assert.ok(
+        worst <= 1,
+        `board leaves frame at pitch ${pitch.toFixed(2)}, aspect ${aspect}: ${worst.toFixed(2)}`,
+      );
+    }
+  }
 });

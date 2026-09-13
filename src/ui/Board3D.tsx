@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { TRACK } from '../game/board.ts';
 import { DISTRICTS } from '../game/board.ts';
@@ -17,9 +17,11 @@ import type { DistrictId } from '../game/types.ts';
  */
 export default function Board3D({ onInspect }: { onInspect: (index: number) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<BoardScene | null>(null);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const [viewMoved, setViewMoved] = useState(false);
 
   const game = useGame((s) => s.game);
   const path = useGame((s) => s.path);
@@ -83,6 +85,137 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
     // every state change would rebuild 28 textures a turn.
   }, [arrive]);
 
+  /* --- the player's view of the board -------------------------------- */
+
+  /**
+   * Drag to turn the board, wheel or pinch to move in and out.
+   *
+   * Bound to the STAGE rather than the canvas, because the 28 tile buttons ring
+   * the whole board — bound to the canvas, a drag that happened to start on a
+   * tile would do nothing, which is most of the board's edge.
+   *
+   * That creates the one problem this has to solve: a drag that starts on a
+   * button would also fire its click on release and open a space the player was
+   * only trying to look behind. So a drag past a few pixels arms a one-shot
+   * capture-phase listener that swallows the click. Below that threshold
+   * nothing is suppressed, and a tap is still a tap.
+   */
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    /** Pixels of travel before a press stops being a tap. */
+    const DRAG_THRESHOLD = 8;
+
+    const pointers = new Map<number, { x: number; y: number }>();
+    let dragging = false;
+    let moved = 0;
+    let pinch = 0;
+
+    const spread = () => {
+      const [a, b] = [...pointers.values()];
+      return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+    };
+
+    const swallowClick = (event: MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (pointers.size === 2) pinch = spread();
+      if (pointers.size !== 1) return;
+      dragging = true;
+      moved = 0;
+      // Not captured on the stage: capturing would steal the pointer from the
+      // tile button underneath and kill the tap it is still allowed to be.
+      stage.style.cursor = 'grabbing';
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      const previous = pointers.get(event.pointerId);
+      if (!previous) return;
+      const dx = event.clientX - previous.x;
+      const dy = event.clientY - previous.y;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+      if (pointers.size >= 2) {
+        // Two fingers: pinch. The ratio is turned into the same units the
+        // wheel sends, so both paths land in `zoomBy` meaning the same thing.
+        const next = spread();
+        if (pinch > 0 && next > 0) sceneRef.current?.zoomBy((pinch - next) * 2.2);
+        pinch = next;
+        setViewMoved(true);
+        return;
+      }
+
+      if (!dragging) return;
+      const wasTap = moved <= DRAG_THRESHOLD;
+      moved += Math.abs(dx) + Math.abs(dy);
+      sceneRef.current?.orbit(dx, dy);
+
+      if (wasTap && moved > DRAG_THRESHOLD) {
+        setViewMoved(true);
+        // Capture only once this is definitely a drag. Capturing on pointerdown
+        // would be simpler and would break every tile: a captured pointer
+        // delivers its click to the capturing element, so the button under the
+        // finger would never hear it. By here the click is going to be
+        // swallowed anyway, and capture is what lets the drag continue when the
+        // mouse leaves the board.
+        try {
+          stage.setPointerCapture(event.pointerId);
+        } catch {
+          /* Pointer already gone. The drag just ends at the edge instead. */
+        }
+      }
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      pointers.delete(event.pointerId);
+      if (pointers.size < 2) pinch = 0;
+      if (pointers.size > 0) return;
+      // A few pixels of travel is the line between "aiming at a tile" and
+      // "turning the board". Below it the click goes through untouched.
+      if (dragging && moved > DRAG_THRESHOLD) {
+        window.addEventListener('click', swallowClick, { capture: true, once: true });
+        // If the release produced no click at all, the listener would sit there
+        // waiting to eat the player's next one.
+        window.setTimeout(() => window.removeEventListener('click', swallowClick, true), 0);
+      }
+      if (stage.hasPointerCapture?.(event.pointerId)) {
+        stage.releasePointerCapture(event.pointerId);
+      }
+      dragging = false;
+      moved = 0;
+      stage.style.cursor = '';
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      sceneRef.current?.zoomBy(event.deltaY);
+      setViewMoved(true);
+    };
+
+    stage.addEventListener('pointerdown', onPointerDown);
+    stage.addEventListener('pointermove', onPointerMove);
+    stage.addEventListener('pointerup', onPointerUp);
+    stage.addEventListener('pointercancel', onPointerUp);
+    stage.addEventListener('pointerleave', onPointerUp);
+    // Not passive: the whole point is to stop the page scrolling under a zoom.
+    stage.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      stage.removeEventListener('pointerdown', onPointerDown);
+      stage.removeEventListener('pointermove', onPointerMove);
+      stage.removeEventListener('pointerup', onPointerUp);
+      stage.removeEventListener('pointercancel', onPointerUp);
+      stage.removeEventListener('pointerleave', onPointerUp);
+      stage.removeEventListener('wheel', onWheel);
+      window.removeEventListener('click', swallowClick, true);
+    };
+  }, []);
+
   /* --- drive the scene from state ---------------------------------- */
 
   // The equipped cosmetic. Same source as the flat board, so a piece that is
@@ -132,8 +265,29 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
   /* --- render ------------------------------------------------------- */
 
   return (
-    <div className="sq-board-stage">
+    <div ref={stageRef} className="sq-board-stage" style={{ cursor: 'grab' }}>
       <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
+
+      {/*
+        Offered only once the view has actually been moved.
+
+        A permanent "reset" implies the board needs resetting, and a player who
+        has not touched the camera has nothing to undo. It is also the only way
+        back for a keyboard user, who cannot orbit — the camera is a picture, so
+        that is acceptable, but being stranded in somebody else's angle is not.
+      */}
+      {viewMoved ? (
+        <button
+          type="button"
+          onClick={() => {
+            sceneRef.current?.resetView();
+            setViewMoved(false);
+          }}
+          className="absolute right-3 top-3 z-10 rounded-[var(--radius-control)] border border-[var(--sq-line-strong)] bg-[var(--sq-surface)]/85 px-3 py-2 text-xs font-semibold text-[var(--sq-ink-muted)] backdrop-blur transition hover:text-[var(--sq-ink)]"
+        >
+          Reset view
+        </button>
+      ) : null}
 
       <div ref={layerRef} className="sq-tile-layer">
         <ol>
