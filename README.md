@@ -15,19 +15,22 @@ npm test         # 28 engine tests
 npm run build    # typecheck + production bundle
 ```
 
-## Two front doors
+## Three front doors
 
-| Route   | Surface     | Audience                                            | Skin          |
-| ------- | ----------- | --------------------------------------------------- | ------------- |
-| `/`     | Public site | Educators, schools, youth partners, grant assessors | Light "civic" |
-| `/play` | Player PWA  | Youths 10–24, arriving from a QR code               | Dark "game"   |
+| Route    | Surface            | Audience                                              | Skin          |
+| -------- | ------------------ | ----------------------------------------------------- | ------------- |
+| `/`      | Public site        | Educators, schools, youth partners, grant assessors   | Light "civic" |
+| `/play`  | Player PWA         | Youths 10–24, arriving from a QR code                 | Dark "game"   |
+| `/admin` | Facilitator portal | The person running the session, and content reviewers | Light "civic" |
 
-Both are lazy-loaded, so neither pays for the other: an assessor reading the
-landing page does not download the game engine or Three.js, and a participant
-scanning a QR code does not download a landing page they will never see. QR
-codes point at `/play`, which is also the installed app's `start_url`.
+All three are lazy-loaded, so none pays for the others: an assessor reading the
+landing page does not download the game engine or Three.js, a participant
+scanning a QR code does not download a landing page they will never see, and
+neither of them downloads the portal's tables and review queues (a 40KB gzipped
+chunk that only `/admin` asks for). QR codes point at `/play`, which is also the
+installed app's `start_url`.
 
-Routing is ~40 lines in `src/router.ts` rather than a library — see the header
+Routing is ~50 lines in `src/router.ts` rather than a library — see the header
 of that file for why, and for when to replace it. It does create one hosting
 requirement: **every path must serve `index.html`.** Vite's dev server does that
 by default, the service worker does it offline, and `vercel.json` does it in
@@ -118,7 +121,7 @@ borrowed from tabletop games is the rhythm of roll, move, land, play.
 
 ```
 src/
-  router.ts      Two routes, no library. `/` and `/play`.
+  router.ts      Three routes, no library. `/`, `/play` and `/admin`.
 
   game/          The rules. No React, no Three.js, no DOM.
     types.ts       Every shape in the game.
@@ -147,6 +150,15 @@ src/
     ProgrammeSections.tsx  What it is: hero, evidence, the loop, framework, missions.
     DeliverySections.tsx   What running it costs you: schools, safety, FAQ, closing.
     EnquiryDialog.tsx      Session request, composed for the visitor to send.
+
+  portal/        The facilitator portal. Light "civic" skin, no game code.
+    PortalApp.tsx        Route ⇄ section, both directions. Sign-in lives here.
+    ScenarioPortal.tsx   The shell: header, sidebar, the eight sections, drawers.
+    types.ts             The facilitator vocabulary. Content-level, never per-youth.
+    data.ts              The authored demonstration set. Simulated, and labelled so.
+    parts.tsx            Button, Modal, the portal mark.
+    portal.test.ts       8 tests. Like the engine's, they pin commitments.
+    …                    One file per panel: table, filters, queues, wizard, KPIs.
 
   styles/
     tokens.css     The ONLY @theme. Two skins, one spine.
@@ -180,6 +192,36 @@ composes the enquiry and hands it to the visitor to send — but it deliberately
 never shows a "thanks, we'll be in touch" screen, because there is no backend to
 receive a submission and a school that believes it has contacted you when it has
 not is worse than no form at all.
+
+### The facilitator portal
+
+`/admin`. Ported from v1, where it was the only implementation of a proposal
+deliverable: the Scenario Management Portal. Eight sections — Dashboard, Live
+Sessions, Scenario Library, Scenario Builder, Content Review, Youth-Created
+Missions, Insights, Resources — each with its own URL, so a reviewer can be sent
+a link to a queue rather than to a front page with instructions.
+
+Four rules hold it to the proposal, and the tests in `portal.test.ts` pin three
+of them:
+
+- **Every figure is content-level.** `safeDecisionRate` measures how clearly a
+  _scenario_ teaches, and the copy says so wherever it appears. There is no
+  per-participant record anywhere in `portal/`, and there must never be one.
+- **A youth submission can only become a DRAFT.** The strongest decision in the
+  moderation queue is "convert", which produces an unpublished draft that still
+  has to go through the same review as everything else. There is no shortcut to
+  LIVE out of that queue.
+- **The numbers say what they are.** The pilot has not run, so the KPI panel
+  marks each of the six as demonstrated, simulated or planned, and every
+  analytics panel carries a note saying the session data behind it is authored.
+- **The AI drafting assistant has no publish path.** It proposes wording to a
+  human author; it cannot write to the library.
+
+What changed in the port: the portal is client-only (v1 merged rows from the
+Express API — v2 has no server), a "local drafts" shelf that existed only to
+satisfy a v1 Playwright test is gone, and section changes now write the URL.
+State lives for the session; the Insights section has a "Reset demo storage"
+control that returns every panel to the authored set.
 
 ### Why the engine is separate
 
@@ -255,15 +297,15 @@ machine. A build that only works on some computers is worse than a service
 worker you can read. The header of that file explains the caching strategy.
 
 **v1 is archived**, not deleted — `git show v1-archive`, or `ShieldQuest V1.zip`.
-It contains the facilitator/scenario-management portal, the public institutional
-site, the Express + Prisma API and the Playwright suite, none of which have been
-ported into v2 yet. See "Not yet ported" below.
+It still contains the Express + Prisma API and the Playwright suite, which have
+not been ported into v2. The public site and the Scenario Management Portal
+have been. See "Not yet ported" below.
 
 ### Not yet ported from v1
 
-- **Scenario Management Portal** (educator moderation, AI drafting assistance
-  with no publish path, youth-created missions pipeline) — a proposal deliverable.
 - **Pre/post assessment forms** and the Think–Vote–Explain multi-device flow.
+  (The portal shows the _aggregate_ Think–Vote–Explain signals; what is missing
+  is the live multi-device question flow that would produce them.)
 - **Express + Prisma API** — v2 is currently client-only, which is correct for a
   no-accounts PWA but does not yet support cross-device squad play.
 - **Playwright end-to-end tests.**

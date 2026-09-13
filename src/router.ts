@@ -1,21 +1,23 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * A two-surface router.
+ * A three-surface router.
  *
- * ShieldQuest has two audiences and two front doors:
+ * ShieldQuest has three audiences and three front doors:
  *
- *   `/`      the public site — educators, schools, youth partners and grant
- *            assessors. Light "civic" skin.
- *   `/play`  the player app — youths aged 10–24, arriving from a QR code.
- *            Dark "game" skin.
+ *   `/`       the public site — educators, schools, youth partners and grant
+ *             assessors. Light "civic" skin.
+ *   `/play`   the player app — youths aged 10–24, arriving from a QR code.
+ *             Dark "game" skin.
+ *   `/admin`  the facilitator portal — the person running the session, plus
+ *             the content reviewers behind them. Light "civic" skin, and its
+ *             own sub-sections (`/admin/library`, `/admin/review`, …).
  *
- * That is the whole route table, so it does not get a routing library. A router
- * would be ~20KB gzipped on a product that commits to low-bandwidth access in
- * school halls, to decide between two branches. When the facilitator portal is
- * ported across from v1 and the table grows past a handful of routes, swap this
- * out — the surface it exposes (`usePath`, `navigate`, `Link`) is deliberately
- * the shape of one, so the call sites will not have to change.
+ * That is still a small enough table that it does not get a routing library. A
+ * router would be ~20KB gzipped on a product that commits to low-bandwidth
+ * access in school halls, to decide between three branches and a section name.
+ * The surface this exposes (`usePath`, `navigate`) is deliberately the shape of
+ * one, so if the table ever does grow, the call sites will not have to change.
  *
  * Note the hosting requirement this creates: every path must serve
  * `index.html`. Vite's dev server does it by default, the service worker does
@@ -78,3 +80,6 @@ export function scrollToSection(id: string) {
 
 /** True when `path` is the player app rather than the public site. */
 export const isPlayerRoute = (path: string) => path === '/play' || path.startsWith('/play/');
+
+/** True when `path` is the facilitator portal, including its sign-in page. */
+export const isPortalRoute = (path: string) => path === '/admin' || path.startsWith('/admin/');

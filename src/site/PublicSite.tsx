@@ -199,6 +199,17 @@ function SiteFooter({ onEnquiry }: { onEnquiry: () => void }) {
                   Request a session
                 </button>
               </li>
+              {/* The portal is for the person running the session, not the
+                  visitor reading this page — so it is listed here rather than
+                  in the header, findable without being sold. */}
+              <li>
+                <SiteLink
+                  to="/admin"
+                  className="text-[var(--color-navy-200)] transition hover:text-white"
+                >
+                  Facilitator portal
+                </SiteLink>
+              </li>
             </ul>
           </div>
         </div>
