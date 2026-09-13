@@ -128,11 +128,19 @@ plus 60 for a district the player's decisions secured. They are paid for taking
 part, never for taking part _well_, and never by a roll, a stipend or a
 purchase; `engine.test.ts` asserts each half of that.
 
-They buy **cosmetics and nothing else**: seven looks for the player's piece,
-every price visible, nothing sealed, nothing randomised, nothing on a timer.
-Urgency and mystery are the exact tactics half the scenarios teach players to
-recognise, so neither is allowed in the one screen that asks them to spend
-something. No item changes a roll, a stat, a scenario or a Guardian.
+They buy **cosmetics and nothing else**, and only half the catalogue is for
+sale. **Four starter pieces are free**, owned from the first second and offered
+on the way in — a player picks their colour the way they pick their codename,
+without owing anybody anything for it. The other four cost tokens and each adds
+a lit ring to a starter, which keeps the split legible: you unlock the glow, not
+permission to have a colour. A test asserts that no starter carries a ring and
+no paid piece is without one.
+
+Every price is visible, nothing is sealed, randomised or on a timer. Urgency and
+mystery are the exact tactics half the scenarios teach players to recognise, so
+neither is allowed in the one screen that asks them to spend something. No item
+changes a roll, a stat, a scenario or a Guardian — and a run cannot begin
+wearing something nobody paid for, however it was asked for.
 
 Recognition lives on the other tab and has no price on it. The eight
 **achievements** in `game/achievements.ts` are derived from the run rather than

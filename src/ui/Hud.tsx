@@ -150,11 +150,9 @@ export function DiceFace({ value }: { value: number }) {
 export function RollButton() {
   const game = useGame((s) => s.game);
   const path = useGame((s) => s.path);
-  const dice = useGame((s) => s.dice);
   const overlay = useGame((s) => s.overlay);
   const rolling = useGame((s) => s.rolling);
   const roll = useGame((s) => s.roll);
-  const tumble = useDiceTumble(rolling);
 
   if (!game) return null;
 
@@ -162,12 +160,17 @@ export function RollButton() {
   const remaining = turnsRemaining(game);
   const finished = remaining <= 0;
 
+  /*
+    No dice down here.
+
+    Both boards throw their own: the 3D scene tumbles them in the middle of the
+    city, and the flat board rolls them in its centre panel. A second, smaller
+    pair beside the button was the same roll shown twice — and being the pair
+    nearest the thumb, it was the one players watched, which is the one that is
+    not animated.
+  */
   return (
     <div className="flex items-center gap-3">
-      <div className="flex gap-2" aria-hidden="true">
-        <DiceFace value={rolling ? tumble[0] : (dice?.a ?? 1)} />
-        <DiceFace value={rolling ? tumble[1] : (dice?.b ?? 1)} />
-      </div>
       <button
         type="button"
         onClick={roll}

@@ -6,6 +6,7 @@ import {
   isSessionCode,
   normaliseSessionCode,
 } from '../game/engine.ts';
+import { DEFAULT_COSMETIC, STARTERS } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
 import { Button } from './primitives.tsx';
 import { AGE_BAND_LABEL, type AgeBand } from '../game/types.ts';
@@ -82,6 +83,7 @@ export default function Onboarding() {
   });
   const [band, setBand] = useState<AgeBand>('B14_16');
   const [turns, setTurns] = useState<number>(RUN_LENGTH.SESSION);
+  const [piece, setPiece] = useState(DEFAULT_COSMETIC.id);
 
   const codeReady = isSessionCode(code);
 
@@ -217,6 +219,49 @@ export default function Onboarding() {
       </section>
 
       <section>
+        <h2 className="text-sm font-semibold">Your piece</h2>
+        <p className="mt-0.5 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
+          This is you on the board. All four are free — the ones you unlock later with Shield Tokens
+          add a lit ring, and nothing about any of them changes how the game plays.
+        </p>
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {STARTERS.map((option) => {
+            const selected = piece === option.id;
+            return (
+              <li key={option.id}>
+                <button
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setPiece(option.id)}
+                  className="flex min-w-[104px] flex-col items-center gap-1.5 rounded-[var(--radius-card)] border px-3 py-2.5"
+                  style={{
+                    borderColor: selected ? 'var(--sq-action-text)' : 'var(--sq-line)',
+                    background: selected
+                      ? 'color-mix(in oklab, var(--sq-action) 14%, transparent)'
+                      : 'transparent',
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-8 w-8 rounded-full"
+                    style={{
+                      background: `radial-gradient(circle at 32% 28%, color-mix(in oklab, ${option.colour} 35%, white), ${option.colour} 62%, color-mix(in oklab, ${option.colour} 55%, black))`,
+                      border: '2px solid var(--sq-canvas)',
+                      boxShadow: '0 2px 6px rgb(0 0 0 / 0.45)',
+                    }}
+                  />
+                  <span className="text-[11px] font-semibold leading-tight">
+                    {selected ? '✓ ' : ''}
+                    {option.name}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section>
         <h2 className="text-sm font-semibold">How long have you got?</h2>
         <ul className="mt-2 grid grid-cols-3 gap-2">
           {RUNS.map((run) => {
@@ -254,6 +299,7 @@ export default function Onboarding() {
             handle: handle.trim(),
             band,
             turnLimit: turns,
+            piece,
             ...(codeReady ? { sessionCode: code } : {}),
           })
         }

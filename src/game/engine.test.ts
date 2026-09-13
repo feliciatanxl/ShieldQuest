@@ -19,7 +19,14 @@ import {
 } from './geometry.ts';
 import { SCENARIO_BY_ID, SCENARIOS } from './content/scenarios.ts';
 import { GUARDIANS } from './content/guardians.ts';
-import { COSMETICS, DEFAULT_COSMETIC, equippedCosmetic } from './content/cosmetics.ts';
+import {
+  COSMETICS,
+  DEFAULT_COSMETIC,
+  STARTERS,
+  UNLOCKABLES,
+  equippedCosmetic,
+  isStarter,
+} from './content/cosmetics.ts';
 import { achievementsFor, earnedCount } from './achievements.ts';
 import {
   applyCard,
@@ -764,4 +771,55 @@ test('the board stays inside the frame at every angle a player can reach', () =>
       );
     }
   }
+});
+
+test('a run can start on any starter piece, and on nothing else', () => {
+  assert.ok(STARTERS.length >= 3, 'a choice worth offering');
+  for (const starter of STARTERS) {
+    assert.equal(starter.cost, 0);
+    assert.ok(isStarter(starter.id));
+    const run = createGame({ handle: 'Tester', band: 'B14_16', piece: starter.id });
+    // The default stores as null; everything else stores its id.
+    const expected = starter.id === DEFAULT_COSMETIC.id ? null : starter.id;
+    assert.equal(run.equipped, expected);
+    assert.equal(equippedCosmetic(run.equipped).id, starter.id);
+    assert.deepEqual(run.unlocked, [], 'a starter is free, not owned');
+  }
+
+  // A run must not be able to begin wearing something nobody paid for, however
+  // it was asked for — a crafted URL, a hand-edited save, a future caller.
+  for (const paid of UNLOCKABLES) {
+    assert.ok(paid.cost > 0);
+    const run = createGame({ handle: 'Tester', band: 'B14_16', piece: paid.id });
+    assert.equal(run.equipped, null);
+    assert.equal(equippedCosmetic(run.equipped).id, DEFAULT_COSMETIC.id);
+  }
+
+  const nonsense = createGame({ handle: 'Tester', band: 'B14_16', piece: 'not-a-piece' });
+  assert.equal(nonsense.equipped, null);
+});
+
+test('choosing a free piece keeps it on, and does not fall back to amber', () => {
+  // The bug this pins: equipping keyed off the PRICE, so every free piece but
+  // the default stored as null and silently reset to amber when chosen.
+  const alternatives = STARTERS.filter((piece) => piece.id !== DEFAULT_COSMETIC.id);
+  assert.ok(alternatives.length > 0);
+  for (const starter of alternatives) {
+    const worn = equipCosmetic(newGame(), starter.id);
+    assert.equal(worn.equipped, starter.id);
+    assert.equal(equippedCosmetic(worn.equipped).id, starter.id);
+    assert.notEqual(equippedCosmetic(worn.equipped).colour, DEFAULT_COSMETIC.colour);
+  }
+});
+
+test('every unlockable is a paid ring, and no starter carries one', () => {
+  // The split has to stay legible: free is a colour, paid adds a lit ring.
+  // Without this a "free" piece could quietly acquire the thing people paid
+  // for, or a paid one could stop being different from a free one.
+  for (const starter of STARTERS) assert.equal(starter.glow, null);
+  for (const paid of UNLOCKABLES) {
+    assert.ok(paid.glow, `${paid.id} charges without adding anything`);
+    assert.ok(paid.cost > 0);
+  }
+  assert.equal(COSMETICS.length, STARTERS.length + UNLOCKABLES.length);
 });

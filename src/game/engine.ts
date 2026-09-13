@@ -6,7 +6,7 @@ import {
   TRACK_LENGTH,
   securingSpaces,
 } from './board.ts';
-import { COSMETIC_BY_ID } from './content/cosmetics.ts';
+import { COSMETIC_BY_ID, DEFAULT_COSMETIC, isStarter } from './content/cosmetics.ts';
 import { GUARDIANS, GUARDIAN_BY_ID } from './content/guardians.ts';
 import { CLUE_CARDS, SITUATION_CARDS } from './content/situations.ts';
 import { SCENARIO_BY_ID } from './content/scenarios.ts';
@@ -153,6 +153,14 @@ export function createGame(opts: {
   band: AgeBand;
   sessionCode?: string;
   turnLimit?: number;
+  /**
+   * The starter piece chosen before the run began.
+   *
+   * Only a free piece is accepted. Anything else falls back to the default —
+   * a run must not be able to begin wearing something nobody paid for, however
+   * it was asked for.
+   */
+  piece?: string;
 }): GameState {
   return {
     handle: opts.handle,
@@ -182,10 +190,16 @@ export function createGame(opts: {
     tokens: 0,
     tokenGrants: [],
     unlocked: [],
-    equipped: null,
+    equipped: startingPiece(opts.piece),
     decisions: [],
     log: [{ turn: 0, text: 'Session started. Roll to enter the city.', tone: 'neutral' }],
   };
+}
+
+/** The chosen starter, or nothing. `null` means the default piece. */
+function startingPiece(id: string | undefined): string | null {
+  if (!id || id === DEFAULT_COSMETIC.id) return null;
+  return isStarter(id) ? id : null;
 }
 
 /**
@@ -461,12 +475,15 @@ export function buyCosmetic(state: GameState, id: string): PurchaseResult {
   };
 }
 
-/** Put an owned cosmetic on the piece. The default is always owned. */
+/** Put an owned cosmetic on the piece. Every starter is owned by everyone. */
 export function equipCosmetic(state: GameState, id: string): GameState {
   const cosmetic = COSMETIC_BY_ID[id];
   if (!cosmetic) return state;
   if (cosmetic.cost > 0 && !state.unlocked.includes(id)) return state;
-  return { ...state, equipped: cosmetic.cost === 0 ? null : id };
+  // Only the DEFAULT piece stores as null. Keying this off the price instead —
+  // which it used to — silently reset every other free starter to amber the
+  // moment it was chosen.
+  return { ...state, equipped: id === DEFAULT_COSMETIC.id ? null : id };
 }
 
 /* ------------------------------------------------------------------ */
