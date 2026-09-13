@@ -70,7 +70,19 @@ export function ScenarioTable({
 
   return (
     <div className="overflow-hidden rounded-[16px] border border-line bg-surface">
-      <div className="thin-scroll max-h-[70dvh] overflow-auto">
+      {/*
+        `relative` is load-bearing, not decoration.
+
+        The rows carry visually-hidden labels, and `sr-only` is
+        `position: absolute`. A static scroll container is not a containing
+        block for absolutely-positioned descendants, so Chrome did not clip
+        them to it: each hidden label sat at its static position deep inside the
+        1,716px table and stretched the PAGE to reach it. The library scrolled
+        to 2,419px on a 1,390px document — about a screen and a half of empty
+        space under the footer. Positioning the scroller makes it their
+        containing block, and the page ends where the content does.
+      */}
+      <div className="thin-scroll relative max-h-[70dvh] overflow-auto">
         <table className="w-full min-w-[920px] border-collapse text-left">
           <caption className="sr-only">{caption}</caption>
           <thead className="sticky top-0 z-10">

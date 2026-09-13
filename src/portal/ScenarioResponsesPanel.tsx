@@ -154,7 +154,10 @@ export function ScenarioResponsesPanel({ row }: { row: AdminScenarioRow }) {
           one is authored for <strong className="font-bold text-ink">{row.targetGroup}</strong>.
         </p>
 
-        <div className="mt-4 overflow-x-auto">
+        {/* Positioned for the same reason as the scenario table's scroller: it
+            holds a `sr-only` caption, and an absolutely-positioned descendant
+            of a STATIC scroll container is not clipped by it. */}
+        <div className="relative mt-4 overflow-x-auto">
           <table className="w-full min-w-[420px] border-collapse text-[13px]">
             <caption className="sr-only">
               Safe decision rate and response count by learner band

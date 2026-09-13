@@ -313,6 +313,30 @@
   pointer-events: none;
 }
 
+/* A quieter scrollbar for the portal's dense panels: tables, review queues and
+ * the drawers. The class was used in eight places and defined in none of them —
+ * it came across from v1 with the components and did nothing until now. */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-color: var(--color-line-strong);
+  border-radius: 999px;
+}
+
 /* --- Flat fallback board ------------------------------------------------- */
 
 /* The board is square and must fit the space between the HUD and the roll
