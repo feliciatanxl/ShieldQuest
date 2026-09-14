@@ -20,7 +20,9 @@ import type { AdminSection } from './types.ts';
  * accounts), and a lock that any visitor walks past by typing `/admin` would
  * claim a protection this build does not have. It exists because the funded
  * pilot's portal will need one, and because it is the screen that explains what
- * the portal is for.
+ * the portal is for — which is why the public site now links to `/admin/login`
+ * rather than here. Both paths stay open: a facilitator with the portal
+ * bookmarked keeps landing on their dashboard.
  */
 
 /** Path segment ⇄ section. Aliases exist because both names were linked in v1. */

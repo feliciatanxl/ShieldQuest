@@ -74,6 +74,29 @@ function SiteHeader({ onEnquiry }: { onEnquiry: () => void }) {
           ))}
         </nav>
 
+        {/* The one header item that is a ROUTE rather than an in-page anchor,
+            and the only one addressed to staff rather than to the visitor
+            reading the page. The divider marks that difference; the muted
+            weight keeps it from competing with "Try it", which is still the
+            action this page is selling. It was footer-only, which is fine for
+            a facilitator who bookmarked it and useless to anyone evaluating
+            the build in one pass.
+
+            1152px, not `lg`, because that is measured rather than chosen: the
+            header row is already at capacity, and below 1152 this link pushes
+            it onto two lines — the nav labels break mid-phrase ("How it /
+            works") and the header grows from 69px to 89px. Shortening the
+            label does not recover it; the row is ~80px short, not ~10. So
+            between 1024 and 1151 the header stays as it was, and the entrance
+            is the card in "For schools" and the footer link. Below 1024 the
+            desktop nav is gone entirely and the hamburger menu carries it. */}
+        <SiteLink
+          to="/admin/login"
+          className="ml-1 hidden whitespace-nowrap border-l border-[var(--sq-line)] py-2 pl-4 text-sm font-bold text-[var(--sq-ink-muted)] transition hover:text-[var(--sq-ink)] min-[1152px]:inline-block"
+        >
+          Facilitator sign-in
+        </SiteLink>
+
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           {/* Wrapped rather than given `hidden sm:inline-flex` directly: the
               button's own base class sets `inline-flex`, and Tailwind orders
@@ -130,6 +153,18 @@ function SiteHeader({ onEnquiry }: { onEnquiry: () => void }) {
               >
                 Request a session
               </button>
+            </li>
+            {/* Below a hairline, because it is not a section of this page and
+                not for the person reading it. Present at every width: the
+                desktop header link is hidden under 1024px, and the hamburger
+                is the only place left for it there. */}
+            <li className="mt-1 border-t border-[var(--sq-line)] pt-1">
+              <SiteLink
+                to="/admin/login"
+                className="block rounded-[var(--radius-control)] px-3 py-2.5 text-left text-sm font-bold text-[var(--sq-ink-muted)] hover:bg-[var(--sq-surface-sunk)]"
+              >
+                Facilitator sign-in
+              </SiteLink>
             </li>
           </ul>
         </nav>
@@ -201,10 +236,17 @@ function SiteFooter({ onEnquiry }: { onEnquiry: () => void }) {
               </li>
               {/* The portal is for the person running the session, not the
                   visitor reading this page — so it is listed here rather than
-                  in the header, findable without being sold. */}
+                  in the header, findable without being sold.
+
+                  It points at the sign-in rather than straight at `/admin`.
+                  The dashboard drops an arrival into a dense table with no
+                  statement of what the portal is, who it is for, or that its
+                  figures are authored; the sign-in screen says all three, and
+                  lets anyone through. Linking past it meant the screen was
+                  only reachable by typing its URL. */}
               <li>
                 <SiteLink
-                  to="/admin"
+                  to="/admin/login"
                   className="text-[var(--color-navy-200)] transition hover:text-white"
                 >
                   Facilitator portal

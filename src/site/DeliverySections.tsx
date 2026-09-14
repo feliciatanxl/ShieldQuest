@@ -6,6 +6,7 @@ import {
   ClipboardList,
   EyeOff,
   HeartHandshake,
+  LogIn,
   MonitorSmartphone,
   QrCode,
   School,
@@ -14,7 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Section, SectionHeading, SiteButton } from './parts.tsx';
+import { Section, SectionHeading, SiteButton, SiteLink } from './parts.tsx';
 
 /* ------------------------------------------------------------------ */
 /* For schools                                                         */
@@ -178,6 +179,46 @@ export function ForSchools({ onEnquiry }: { onEnquiry: () => void }) {
           Request a session
           <ArrowRight className="h-4 w-4" />
         </SiteButton>
+      </div>
+
+      {/*
+        The facilitator portal, placed where the person it belongs to is
+        already reading. This section is the only part of the site addressed to
+        the adult who would run a session rather than to the organisation
+        deciding whether to book one — so it is the one place a staff entrance
+        is information rather than clutter.
+
+        Deliberately quieter than the enquiry card above it: a plain surface
+        instead of the civic wash, a text link instead of a button. Almost
+        every reader of this page wants the enquiry; a much smaller number want
+        the portal, and the ones who do are looking for it.
+      */}
+      <div className="mt-4 flex flex-col items-start justify-between gap-4 rounded-[var(--radius-card)] border border-[var(--sq-line)] p-6 sm:flex-row sm:items-center sm:gap-8">
+        <div className="flex gap-3.5">
+          <LogIn
+            className="mt-0.5 h-5 w-5 shrink-0 text-[var(--sq-action-text)]"
+            aria-hidden="true"
+          />
+          <div>
+            <h3 className="text-sm font-extrabold text-[var(--sq-ink)]">
+              Running the session yourself?
+            </h3>
+            <p className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--sq-ink-muted)]">
+              Facilitators prepare scenarios, open the room and read the group’s results in the
+              facilitator portal. Participants never sign in — they scan a code and play.
+            </p>
+          </div>
+        </div>
+        <SiteLink
+          to="/admin/login"
+          /* min-h-44 because on a phone this is a link in a card, not a line in
+             a footer, and it is the only way into the portal from this
+             section. */
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-bold text-[var(--sq-action-text)] hover:underline"
+        >
+          Facilitator sign-in
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </SiteLink>
       </div>
     </Section>
   );
