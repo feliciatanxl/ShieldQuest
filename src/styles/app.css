@@ -1322,3 +1322,26 @@
     animation: none;
   }
 }
+
+/* A work built beside this space. The same homes the 3D board builds on, so a
+   player who switches renderers finds their Quiet Corner in the same place. */
+.sq-tile-work {
+  position: absolute;
+  /* Inside the corner: the tile clips its overflow, so a badge hung off the
+     edge would be cut in half. */
+  top: 2px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: clamp(14px, 3.6cqmin, 20px);
+  height: clamp(14px, 3.6cqmin, 20px);
+  border-radius: 999px;
+  background: var(--district-colour);
+  color: var(--color-navy-950);
+  font-size: clamp(9px, 2.4cqmin, 13px);
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 0 8px color-mix(in oklab, var(--district-colour) 70%, transparent);
+  animation: sq-bump 0.42s var(--ease-bounce);
+  pointer-events: none;
+}

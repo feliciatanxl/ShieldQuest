@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { DISTRICTS, DISTRICT_ORDER } from '../game/board.ts';
+import { DISTRICTS, DISTRICT_ORDER, upgradeHost } from '../game/board.ts';
 import { nextUpgrade } from '../game/engine.ts';
 import { useGame } from '../state/store.ts';
 import { CoinIcon } from './Hud.tsx';
@@ -88,6 +88,12 @@ export default function CityWorks({ game, onClose }: { game: GameState; onClose:
                   <p className="mt-2 text-sm font-semibold">{upcoming.name}</p>
                   <p className="mt-0.5 text-xs leading-relaxed text-[var(--sq-ink-muted)]">
                     {upcoming.blurb}
+                  </p>
+                  <p className="mt-1 text-[11px] font-semibold text-[var(--sq-ink-muted)]">
+                    ⌂ Goes up beside{' '}
+                    <span className="text-[var(--sq-ink)]">
+                      {upgradeHost(districtId, game.districts[districtId].upgrades).title}
+                    </span>
                   </p>
                   <div className="mt-3 flex items-center gap-2">
                     <Button

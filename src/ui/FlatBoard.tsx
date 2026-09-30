@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { DISTRICTS, DISTRICT_ORDER, TRACK } from '../game/board.ts';
+import { DISTRICTS, DISTRICT_ORDER, TRACK, upgradeHost } from '../game/board.ts';
 import { fallbackCell, moveOrigin } from '../game/geometry.ts';
 import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
@@ -116,6 +116,17 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
   if (!game) return null;
 
   const tokenCell = fallbackCell(tokenIndex);
+
+  // Which works stand beside which space: the same homes the 3D board builds on.
+  const worksAt = new Map<number, string[]>();
+  for (const districtId of DISTRICT_ORDER) {
+    const built = game.districts[districtId].upgrades;
+    for (let tier = 0; tier < built; tier += 1) {
+      const host = upgradeHost(districtId, tier).index;
+      const name = DISTRICTS[districtId].upgrades[tier]?.name ?? 'Work';
+      worksAt.set(host, [...(worksAt.get(host) ?? []), name]);
+    }
+  }
   const look = equippedCosmetic(game.equipped);
 
   return (
@@ -128,6 +139,7 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
           // ahead of the piece while it is still walking.
           const current = tokenIndex === space.index;
           const resolved = game.resolved.includes(space.id);
+          const works = worksAt.get(space.index);
           return (
             <button
               key={space.id}
@@ -154,8 +166,14 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
               <span aria-hidden="true" className="sq-tile-short">
                 {space.short}
               </span>
+              {works ? (
+                <span aria-hidden="true" className="sq-tile-work" title={works.join(', ')}>
+                  ⌂
+                </span>
+              ) : null}
               <span className="sr-only">
                 {`Space ${space.index + 1}. ${space.title}. ${district.name}. ${space.summary}`}
+                {works ? ` Built here: ${works.join(', ')}.` : ''}
                 {current ? ' You are here.' : ''}
                 {resolved ? ' Already played.' : ''}
               </span>
@@ -203,6 +221,7 @@ export default function FlatBoard({ onInspect }: { onInspect: (index: number) =>
               building for each work bought; this is the same information in
               the space a flat board has for it, so a player who switches
               renderers can still see what their coins built. */}
+          <p className="sq-centre-note">City works</p>
           <div
             className="sq-centre-works"
             aria-label={`City works built: ${DISTRICT_ORDER.reduce(

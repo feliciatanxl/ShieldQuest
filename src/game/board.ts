@@ -451,3 +451,18 @@ export const securingSpaces = (districtId: DistrictId): BoardSpace[] =>
 
 /** Coins collected for entering a district gate. */
 export const GATE_STIPEND = 40;
+
+/**
+ * The space a district's `tier`-th work is built beside.
+ *
+ * Works belong to a district, not to a space — buying one never changes what a
+ * space does. But a building standing somewhere in the middle of the plaza
+ * cannot be traced back to anything on the track, so each work is given a home:
+ * every other side space of its district, so three works spread along the side
+ * instead of crowding one end. Both boards and the build sheet read this, so
+ * "where is my Quiet Corner?" has one answer everywhere.
+ */
+export function upgradeHost(districtId: DistrictId, tier: number): BoardSpace {
+  const side = TRACK.filter((space) => space.districtId === districtId && !space.corner);
+  return side[tier * 2 + 1] ?? side[tier] ?? side[0]!;
+}

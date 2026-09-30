@@ -5,7 +5,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-import { DISTRICTS, TRACK } from '../game/board.ts';
+import { DISTRICTS, TRACK, upgradeHost } from '../game/board.ts';
 import {
   HALF_SPAN,
   RESTING_VIEW,
@@ -322,7 +322,10 @@ function makeLandmark(districtId: DistrictId, tier: number): THREE.Group {
     roughness: 0.75,
   });
   const trim = new THREE.MeshStandardMaterial({ color: ROOF_TRIM, roughness: 0.55 });
-  const scale = 1 + tier * 0.24;
+  // Each tier a little taller than the last, but all of them small enough to
+  // stand beside ONE tile. At the old sizes a third-tier work was wider than
+  // the space it belonged to, and read as belonging to the whole plaza.
+  const scale = 0.58 + tier * 0.08;
 
   const add = (mesh: THREE.Mesh, x: number, y: number, z: number) => {
     mesh.position.set(x, y, z);
@@ -335,7 +338,7 @@ function makeLandmark(districtId: DistrictId, tier: number): THREE.Group {
   // A darker pad under every work, so it reads as standing ON the plaza rather
   // than sinking into it at this camera angle.
   const pad = new THREE.Mesh(
-    new THREE.BoxGeometry(0.98, 0.07, 0.92),
+    new THREE.BoxGeometry(0.98 * scale, 0.07, 0.92 * scale),
     new THREE.MeshStandardMaterial({
       color: colour.clone().lerp(new THREE.Color(0x000000), 0.35),
       roughness: 1,
@@ -563,7 +566,7 @@ export class BoardScene {
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     const room = new RoomEnvironment();
     this.scene.environment = pmrem.fromScene(room, 0.04).texture;
-    this.scene.environmentIntensity = 0.35;
+    this.scene.environmentIntensity = 0.22;
     room.dispose();
     pmrem.dispose();
 
@@ -576,7 +579,7 @@ export class BoardScene {
     // Transparent clear, so the room gradient behind the canvas still shows.
     pass.clearAlpha = 0;
     this.composer.addPass(pass);
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.4, 1.45);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.16, 0.3, 2.4);
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
   }
@@ -1058,18 +1061,19 @@ export class BoardScene {
       this.growing = this.growing.filter((entry) => entry.districtId !== districtId);
     }
 
-    const sideSpaces = TRACK.filter((s) => s.districtId === districtId && !s.corner);
-
     for (let i = group.children.length; i < count; i += 1) {
-      const host = sideSpaces[i * 2 + 1] ?? sideSpaces[i] ?? sideSpaces[0]!;
+      const host = upgradeHost(districtId, i);
       const layout = layoutAt(host.index);
       const landmark = makeLandmark(districtId, i);
 
+      // Right up against the inner edge of its own tile, so the building and
+      // the space it stands beside read as one thing.
       const toCentre = Math.hypot(layout.x, layout.z) || 1;
+      const inset = TILE_DEPTH * 0.5 + 0.34;
       landmark.position.set(
-        layout.x - (layout.x / toCentre) * (TILE_DEPTH * 0.62 + 0.5),
+        layout.x - (layout.x / toCentre) * inset,
         0.13,
-        layout.z - (layout.z / toCentre) * (TILE_DEPTH * 0.62 + 0.5),
+        layout.z - (layout.z / toCentre) * inset,
       );
       landmark.rotation.y = layout.rotation;
       group.add(landmark);
