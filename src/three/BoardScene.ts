@@ -1,4 +1,9 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 import { DISTRICTS, TRACK } from '../game/board.ts';
 import {
@@ -78,7 +83,14 @@ const BOARD_DROP = 0.34;
 
 export interface BoardSceneOptions {
   reducedMotion: boolean;
+  /**
+   * Bloom and reflections. Off on phones that would drop frames for them —
+   * the board is the same board without the glow.
+   */
+  effects?: boolean;
   onTokenArrived?: () => void;
+  /** The piece has touched down on one space of its move. `step` counts from 0. */
+  onHop?: (step: number) => void;
   onDiceSettled?: () => void;
   onTileClick?: (index: number) => void;
 }
@@ -400,6 +412,11 @@ function makeLandmark(districtId: DistrictId, tier: number): THREE.Group {
 
 export class BoardScene {
   private renderer: THREE.WebGLRenderer;
+  private composer: EffectComposer | null = null;
+  private bloom: UnrealBloomPass | null = null;
+  private hopStep = 0;
+  /** How hard the last throw was, 0–1. Height and spin only; never the result. */
+  private throwPower = 0.5;
   private scene = new THREE.Scene();
   private camera: THREE.PerspectiveCamera;
   private raycaster = new THREE.Raycaster();
@@ -492,6 +509,7 @@ export class BoardScene {
     this.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 120);
 
     this.buildLights();
+    if (options.effects) this.buildEffects();
     this.buildBoard();
     this.buildTiles();
     this.buildToken();
@@ -531,6 +549,36 @@ export class BoardScene {
     const rim = new THREE.PointLight(0xffd9a0, 30, 24, 2);
     rim.position.set(0, 3.2, 0);
     this.scene.add(rim);
+  }
+
+  /**
+   * The glossy pass: soft reflections on every material, and a bloom that only
+   * catches what is genuinely bright — the gold shield, the halo, landing rings.
+   *
+   * The environment is generated on the GPU from a procedural room, so it costs
+   * no download. Its intensity is kept low: the hemisphere light is still what
+   * lights the board, this only gives surfaces something to catch.
+   */
+  private buildEffects() {
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const room = new RoomEnvironment();
+    this.scene.environment = pmrem.fromScene(room, 0.04).texture;
+    this.scene.environmentIntensity = 0.35;
+    room.dispose();
+    pmrem.dispose();
+
+    const target = new THREE.WebGLRenderTarget(1, 1, {
+      type: THREE.HalfFloatType,
+      samples: 4,
+    });
+    this.composer = new EffectComposer(this.renderer, target);
+    const pass = new RenderPass(this.scene, this.camera);
+    // Transparent clear, so the room gradient behind the canvas still shows.
+    pass.clearAlpha = 0;
+    this.composer.addPass(pass);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.22, 0.4, 1.45);
+    this.composer.addPass(this.bloom);
+    this.composer.addPass(new OutputPass());
   }
 
   /**
@@ -913,6 +961,7 @@ export class BoardScene {
         return;
       }
       this.hopQueue = [...path];
+      this.hopStep = 0;
       this.beginHop();
     });
   }
@@ -933,13 +982,14 @@ export class BoardScene {
    * space it was standing on, and sometimes off the bottom of a phone screen —
    * the roll was happening, just not anywhere the player was looking.
    */
-  throwDice(a: number, b: number) {
+  throwDice(a: number, b: number, power = 0.5) {
     this.diceTarget = [a, b];
+    this.throwPower = THREE.MathUtils.clamp(power, 0, 1);
     this.dice.forEach((die, i) => {
       die.visible = true;
       die.position.set(
         (i === 0 ? -DICE_SPREAD : DICE_SPREAD) + (Math.random() - 0.5) * 0.3,
-        4.6,
+        4.6 + this.throwPower * 2.2,
         DICE_REST_Z - 0.6 + (Math.random() - 0.5) * 0.3,
       );
       die.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
@@ -1132,6 +1182,8 @@ export class BoardScene {
     const width = canvas.clientWidth || 1;
     const height = canvas.clientHeight || 1;
     this.renderer.setSize(width, height, false);
+    this.composer?.setPixelRatio(this.renderer.getPixelRatio());
+    this.composer?.setSize(width, height);
     this.camera.aspect = width / height;
 
     // Frame to whichever axis is tighter.
@@ -1170,6 +1222,8 @@ export class BoardScene {
         }
       }
     });
+    this.composer?.dispose();
+    this.scene.environment?.dispose();
     this.renderer.dispose();
   }
 
@@ -1234,7 +1288,8 @@ export class BoardScene {
       if (halo) halo.rotation.z += dt * 0.15;
     }
 
-    this.renderer.render(this.scene, this.camera);
+    if (this.composer) this.composer.render(dt);
+    else this.renderer.render(this.scene, this.camera);
   }
 
   private animateToken(dt: number, elapsed: number) {
@@ -1255,6 +1310,8 @@ export class BoardScene {
 
       if (t >= 1) {
         this.token.scale.set(1, 1, 1);
+        this.options.onHop?.(this.hopStep);
+        this.hopStep += 1;
         this.beginHop();
       }
     } else if (!this.options.reducedMotion) {
@@ -1282,7 +1339,7 @@ export class BoardScene {
     this.dice.forEach((die, i) => {
       const targetX = i === 0 ? -DICE_SPREAD : DICE_SPREAD;
       const targetZ = DICE_REST_Z;
-      const startY = 4.6;
+      const startY = 4.6 + this.throwPower * 2.2;
       const restY = DICE_SIZE / 2 + 0.06;
 
       die.position.x = THREE.MathUtils.lerp(die.position.x, targetX, 0.12);
@@ -1295,9 +1352,10 @@ export class BoardScene {
       die.position.y = THREE.MathUtils.lerp(startY, restY, fall * fall) + bounce;
 
       if (t < 0.78) {
-        die.rotation.x += dt * 14;
-        die.rotation.y += dt * 11;
-        die.rotation.z += dt * 9;
+        const spin = 0.7 + this.throwPower * 0.8;
+        die.rotation.x += dt * 14 * spin;
+        die.rotation.y += dt * 11 * spin;
+        die.rotation.z += dt * 9 * spin;
       } else {
         const target = faceUpRotation(this.diceTarget[i] ?? 1);
         die.rotation.x = THREE.MathUtils.lerp(die.rotation.x, target.x, 0.3);

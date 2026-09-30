@@ -6,6 +6,8 @@ import { moveOrigin } from '../game/geometry.ts';
 import { BoardScene } from '../three/BoardScene.ts';
 import { equippedCosmetic } from '../game/content/cosmetics.ts';
 import { useGame } from '../state/store.ts';
+import { throwPower } from './Hud.tsx';
+import { play } from './sfx.ts';
 import type { DistrictId } from '../game/types.ts';
 
 /**
@@ -47,8 +49,14 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
     syncedOnce.current = false;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Bloom and reflections cost fill rate. A phone that reports very little
+    // memory is the one that would drop frames for them, so it gets the plain
+    // board — which is the same board.
+    const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
     const scene = new BoardScene(canvas, {
       reducedMotion: reduced,
+      effects: !(memory !== undefined && memory <= 3),
+      onHop: (step) => play('hop', step),
       // The scene owns the pacing of a turn; this only says what happens at
       // each hand-off. The landing pulse and the pause after it live in the
       // scene so they stay tied to the render loop.
@@ -276,7 +284,7 @@ export default function Board3D({ onInspect }: { onInspect: (index: number) => v
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !dice || path.length === 0) return;
-    scene.throwDice(dice.a, dice.b);
+    scene.throwDice(dice.a, dice.b, throwPower.current);
   }, [dice, path.length]);
 
   // Any celebration — a Guardian met, a district secured, an upgrade built.

@@ -5,6 +5,7 @@ import { GUARDIANS, guardianArt } from '../game/content/guardians.ts';
 import { nextUpgrade, turnsRemaining } from '../game/engine.ts';
 import { useGame } from '../state/store.ts';
 import type { GameState } from '../game/types.ts';
+import { play } from './sfx.ts';
 
 /* ------------------------------------------------------------------ */
 /* Counting numbers                                                    */
@@ -288,7 +289,11 @@ export function StatBar({ game }: { game: GameState }) {
  */
 export function GuardianStrip({ game, onOpen }: { game: GameState; onOpen: () => void }) {
   return (
-    <button type="button" onClick={onOpen} className="flex w-full items-center gap-1.5">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex w-full items-center justify-between gap-1.5"
+    >
       <span className="sr-only">
         Guardians met: {game.metGuardians.length} of {GUARDIANS.length}. Open the skills panel.
       </span>
@@ -379,6 +384,88 @@ export function DiceFace({ value }: { value: number }) {
  * and settling when it settles, so what the thumb is on and what the eye is on
  * are finally the same object.
  */
+/**
+ * How hard the player threw, 0–1, read by the 3D board when it throws the dice.
+ *
+ * It changes how high they fly and how fast they spin, and nothing else: the
+ * result was decided by the engine before the dice left the hand. A charge that
+ * could influence the roll would be a skill check hidden inside a dice game.
+ */
+export const throwPower: { current: number } = { current: 0.5 };
+
+/** Milliseconds of holding for a full-power throw. */
+const FULL_CHARGE_MS = 850;
+const CHARGE_TICKS = 6;
+
+/**
+ * Tap to roll, or hold to wind up a bigger throw.
+ *
+ * The wind-up is pointer-only. A keyboard press still fires `click`, and goes
+ * straight to an ordinary throw, so nothing here is required to play.
+ */
+function useChargeThrow(onThrow: () => void, enabled: boolean) {
+  const [charging, setCharging] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+  const started = useRef(0);
+  const raf = useRef(0);
+  const ticks = useRef(0);
+  const swallowClick = useRef(false);
+
+  const level = () => Math.min(1, (performance.now() - started.current) / FULL_CHARGE_MS);
+
+  const reset = () => {
+    cancelAnimationFrame(raf.current);
+    ref.current?.style.setProperty('--charge', '0');
+    setCharging(false);
+  };
+
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+  return {
+    ref,
+    charging,
+    handlers: {
+      onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+        if (!enabled || event.button !== 0) return;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        started.current = performance.now();
+        ticks.current = 0;
+        setCharging(true);
+        const step = () => {
+          const charge = level();
+          ref.current?.style.setProperty('--charge', charge.toFixed(3));
+          const tick = Math.floor(charge * CHARGE_TICKS);
+          if (tick > ticks.current) {
+            ticks.current = tick;
+            play('charge', tick);
+          }
+          if (charge < 1) raf.current = requestAnimationFrame(step);
+        };
+        raf.current = requestAnimationFrame(step);
+      },
+      onPointerUp() {
+        if (!charging) return;
+        throwPower.current = 0.2 + level() * 0.8;
+        reset();
+        swallowClick.current = true;
+        onThrow();
+      },
+      onPointerCancel() {
+        if (charging) reset();
+      },
+      onClick() {
+        // The pointer path has already thrown; this is its trailing click.
+        if (swallowClick.current) {
+          swallowClick.current = false;
+          return;
+        }
+        throwPower.current = 0.5;
+        onThrow();
+      },
+    },
+  };
+}
+
 export function RollButton() {
   const game = useGame((s) => s.game);
   const path = useGame((s) => s.path);
@@ -388,42 +475,69 @@ export function RollButton() {
   const roll = useGame((s) => s.roll);
   const tumble = useDiceTumble(rolling);
 
+  const busy = !game || path.length > 0 || overlay.kind !== 'none';
+  const remaining = game ? turnsRemaining(game) : 0;
+  const finished = remaining <= 0;
+  const { ref, charging, handlers } = useChargeThrow(roll, !busy && !finished);
+
   if (!game) return null;
 
-  const busy = path.length > 0 || overlay.kind !== 'none';
-  const remaining = turnsRemaining(game);
-  const finished = remaining <= 0;
   const faces: [number, number] = rolling ? tumble : [dice?.a ?? 1, dice?.b ?? 1];
+  const ready = !busy && !finished;
 
   return (
     <button
+      ref={ref}
       type="button"
-      onClick={roll}
+      {...handlers}
       disabled={busy}
       data-finished={finished || undefined}
+      data-ready={(ready && !charging) || undefined}
+      data-charging={charging || undefined}
       className="sq-roll"
     >
-      <span className="sq-roll-dice" data-rolling={rolling || undefined} aria-hidden="true">
+      <span aria-hidden="true" className="sq-roll-charge" />
+      <span
+        className="sq-roll-dice"
+        data-rolling={rolling || undefined}
+        data-charging={charging || undefined}
+        aria-hidden="true"
+      >
         <DiceFace value={faces[0]} />
         <DiceFace value={faces[1]} />
       </span>
 
       <span className="min-w-0 flex-1 text-left">
         <span className="block text-xl font-extrabold leading-tight tracking-wide">
-          {finished ? 'See your results' : rolling ? 'Rolling…' : busy ? 'Playing…' : 'ROLL'}
+          {finished
+            ? 'See your results'
+            : charging
+              ? 'Let go to throw!'
+              : rolling
+                ? 'Rolling…'
+                : busy
+                  ? 'Playing…'
+                  : 'ROLL'}
         </span>
         <span className="block text-[11px] font-semibold opacity-90">
           {finished
             ? 'The run is over'
-            : dice && !rolling && !busy
-              ? `Last roll ${dice.total}${dice.isDouble ? ' · double, extra turn' : ''}`
-              : Number.isFinite(remaining)
-                ? `${remaining} turn${remaining === 1 ? '' : 's'} left`
-                : 'Open session'}
+            : charging
+              ? 'Hold longer for a bigger throw'
+              : dice && !rolling && !busy
+                ? `Last roll ${dice.total}${dice.isDouble ? ' · double, extra turn' : ''}`
+                : Number.isFinite(remaining)
+                  ? `${remaining} turn${remaining === 1 ? '' : 's'} left`
+                  : 'Open session'}
         </span>
       </span>
 
-      {!busy && !finished ? <span aria-hidden="true" className="sq-roll-sheen" /> : null}
+      {ready ? <span aria-hidden="true" className="sq-roll-sheen" /> : null}
+      {ready && !charging && !dice ? (
+        <span aria-hidden="true" className="sq-roll-hint">
+          Hold to power up
+        </span>
+      ) : null}
     </button>
   );
 }
