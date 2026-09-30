@@ -13,6 +13,14 @@ import tailwindcss from '@tailwindcss/vite';
  */
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // In production the site and the API share one origin on Railway. Locally,
+  // forward the same paths to the server in `server/` (npm run dev there).
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8787',
+      '/ws': { target: 'ws://localhost:8787', ws: true },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
