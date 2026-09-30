@@ -68,3 +68,27 @@ CREATE TABLE IF NOT EXISTS assessments (
   created_at     timestamptz NOT NULL DEFAULT now(),
   UNIQUE (participant_id, phase)
 );
+
+-- Facilitators: the adults who run sessions. These ARE accounts, unlike
+-- participants, and hold only what signing in needs: a work email, a display
+-- name, and a scrypt password hash.
+CREATE TABLE IF NOT EXISTS facilitators (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email         text NOT NULL UNIQUE,
+  display_name  text NOT NULL,
+  role          text NOT NULL DEFAULT 'facilitator' CHECK (role IN ('admin', 'facilitator')),
+  password_hash text NOT NULL,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+
+-- A signed-in browser. The cookie holds a random token; only its hash is here.
+CREATE TABLE IF NOT EXISTS facilitator_logins (
+  token_hash     text PRIMARY KEY,
+  facilitator_id uuid NOT NULL REFERENCES facilitators (id) ON DELETE CASCADE,
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  expires_at     timestamptz NOT NULL
+);
+
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS facilitator_id uuid REFERENCES facilitators (id) ON DELETE SET NULL;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS title text;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS venue text;

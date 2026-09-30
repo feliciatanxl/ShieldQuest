@@ -623,8 +623,8 @@ export function ScenarioPortal({
           <footer className="mt-10 border-t border-line pt-5">
             <p className="max-w-[92ch] text-[12px] leading-relaxed text-ink-soft">
               ShieldQuest is an interactive educational platform for Project SHIELD. It is not an
-              official Singapore Police Force platform and carries no official endorsement. All
-              figures shown are simulated.
+              official Singapore Police Force platform and carries no official endorsement. Live
+              Sessions show real counts from your rooms; every other figure is simulated.
             </p>
           </footer>
         </main>

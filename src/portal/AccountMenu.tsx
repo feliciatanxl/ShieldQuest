@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, LogOut, ShieldCheck } from 'lucide-react';
+import { ChevronDown, LogIn, LogOut, ShieldCheck } from 'lucide-react';
+
+import { navigate } from '../router.ts';
+import { signOut, useAuth } from './api.ts';
 
 /**
  * Account menu for the facilitator portal.
@@ -32,12 +35,18 @@ export function AccountMenu({ onSignOut }: { onSignOut: () => void }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Facilitator identity. Wired to a real session once auth exists; the login
-  // is currently a demonstration with no account behind it.
-  const name = 'Demo Facilitator';
-  const role = 'Session facilitator';
-  const email = 'facilitator@shieldquest.sg';
-  const initials = 'DF';
+  const auth = useAuth();
+  const me = auth.status === 'signed-in' ? auth.me : null;
+  const name = me?.displayName ?? '';
+  const role = me?.role === 'admin' ? 'Admin' : 'Session facilitator';
+  const email = me?.email ?? '';
+  const initials =
+    name
+      .split(/\s+/)
+      .map((part) => part[0] ?? '')
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || '?';
 
   useEffect(() => {
     if (!open) return;
@@ -61,6 +70,21 @@ export function AccountMenu({ onSignOut }: { onSignOut: () => void }) {
       document.removeEventListener('pointerdown', onPointer);
     };
   }, [open]);
+
+  // Nobody signed in: the portal is open for exploring, and this is the way to
+  // the one part that needs an account.
+  if (!me) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate('/admin/login')}
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-line px-3.5 text-[13px] font-bold text-ink transition hover:border-line-strong hover:bg-surface-sunk"
+      >
+        <LogIn className="h-4 w-4 text-ink-muted" aria-hidden="true" />
+        {auth.status === 'checking' ? '…' : 'Sign in'}
+      </button>
+    );
+  }
 
   return (
     <div ref={wrapRef} className="relative">
@@ -121,7 +145,7 @@ export function AccountMenu({ onSignOut }: { onSignOut: () => void }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              onSignOut();
+              void signOut().finally(onSignOut);
             }}
             className="flex min-h-[44px] w-full items-center gap-2.5 px-4 text-left text-[13px] font-bold text-ink transition hover:bg-surface-sunk"
           >

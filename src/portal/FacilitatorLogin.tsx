@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import { navigate } from '../router.ts';
+import { ApiFailure, isOffline, signIn, useAuth } from './api.ts';
 import { Button, PortalMark } from './parts.tsx';
 
 interface FacilitatorLoginProps {
@@ -41,10 +42,11 @@ interface FacilitatorLoginProps {
  * was sitting behind a password box that guards nothing.
  *
  * So the screen says what is behind the door before asking anyone to open it,
- * and it is honest about the lock: there is no account system in this build,
- * the form does not check what it is given, and `/admin` was always reachable
- * without it. Claiming otherwise on the way in would be a small lie told to the
- * people best placed to check it.
+ * and it is honest about the lock. The lock is now real — facilitator accounts
+ * live on the server, and a live room cannot be opened or watched without one
+ * — but it guards the live sessions only. The rest of the portal still opens
+ * without signing in, and the screen says so, because an evaluator locked out
+ * of the thing they came to evaluate is the failure this page exists to avoid.
  */
 
 const INSIDE = [
@@ -71,21 +73,38 @@ const INSIDE = [
 ];
 
 export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginProps) {
-  const [email, setEmail] = useState('facilitator@shieldquest.sg');
-  const [password, setPassword] = useState('demo-access');
+  const auth = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [hintOpen, setHintOpen] = useState(false);
 
-  const handleSuccess = onSuccess ?? (() => navigate('/admin'));
+  const handleSuccess = onSuccess ?? (() => navigate('/admin/sessions'));
+  const handleExplore = () => navigate('/admin');
   const handleBack = onBackToHome ?? (() => navigate('/'));
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+    try {
+      await signIn(email, password);
+      setPassword('');
       handleSuccess();
-    }, 450);
+    } catch (failure) {
+      // Same words for a wrong email and a wrong password: the server does not
+      // say which, and neither does this.
+      setError(
+        isOffline(failure)
+          ? 'The ShieldQuest server is not reachable right now. Try again in a moment.'
+          : failure instanceof ApiFailure && failure.status === 429
+            ? 'Too many attempts. Wait a few minutes and try again.'
+            : 'That email and password do not match.',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fieldClass =
@@ -148,8 +167,8 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
             </ul>
 
             <p className="mt-8 max-w-[52ch] border-t border-[var(--sq-line)] pt-5 text-[12px] leading-relaxed text-[var(--sq-ink-muted)]">
-              Every figure inside the portal is authored demonstration data, labelled as such on the
-              panel it appears on. Nothing shown was measured from a real session.
+              Live sessions show real counts from your room. Panels still running on authored
+              demonstration data say so on the panel itself.
             </p>
           </section>
 
@@ -160,24 +179,38 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
                   <Lock className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-[var(--sq-ink)]">Sign in</h2>
+                  <h2 className="text-lg font-black tracking-tight text-[var(--sq-ink)]">
+                    Sign in
+                  </h2>
                   <p className="text-[12px] text-[var(--sq-ink-muted)]">
                     For the person running a session
                   </p>
                 </div>
               </div>
 
+              {auth.status === 'signed-in' ? (
+                <div className="mt-6 rounded-[var(--radius-control)] border border-[var(--sq-safe)]/40 bg-[var(--sq-safe)]/10 p-3.5 text-[12px] leading-relaxed text-[var(--sq-ink)]">
+                  Signed in as <strong className="font-bold">{auth.me.displayName}</strong> (
+                  {auth.me.email}).{' '}
+                  <button
+                    type="button"
+                    onClick={handleSuccess}
+                    className="font-bold text-[var(--sq-action-text)] hover:underline"
+                  >
+                    Go to live sessions →
+                  </button>
+                </div>
+              ) : null}
+
               {/*
-                The demonstration notice is ABOVE the form, not a footnote under
-                the button. A visitor without credentials has to know they can
-                get in before they decide the page is a wall — and by the time
-                they have read to the bottom of a form, they have already
-                decided.
+                Running a live room needs an account; exploring the portal does
+                not. That is said ABOVE the form, so a grant assessor or a
+                visiting teacher without credentials knows there is still a way
+                in before they decide the page is a wall.
               */}
-              <p className="mt-6 rounded-[var(--radius-control)] border border-[var(--sq-earned)]/40 bg-[var(--sq-earned)]/12 p-3.5 text-[12px] leading-relaxed text-[var(--sq-ink)]">
-                <strong className="font-bold">Demonstration build — open access.</strong> This is
-                the sign-in the funded pilot will need. It checks nothing and locks nothing: the
-                details below are already filled in, and the portal is reachable without them.
+              <p className="mt-6 text-[12px] leading-relaxed text-[var(--sq-ink-muted)]">
+                Use the account your ShieldQuest admin set up for you. You need it to open a live
+                room; the rest of the portal can be explored without one.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-5 space-y-4">
@@ -235,11 +268,20 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
                       id="facilitator-signin-hint"
                       className="mt-2 rounded-[var(--radius-inset)] bg-[var(--sq-surface-sunk)] p-2.5 text-[11px] leading-relaxed text-[var(--sq-ink-muted)]"
                     >
-                      Any values are accepted — there is no account system behind this build. The
-                      pre-filled pair is there so nothing has to be invented.
+                      Accounts are created by your ShieldQuest admin — there is no self sign-up. If
+                      you have forgotten your password, ask them to set a new one.
                     </p>
                   )}
                 </div>
+
+                {error ? (
+                  <p
+                    role="alert"
+                    className="rounded-[var(--radius-inset)] border border-[var(--sq-risk)]/40 bg-[var(--sq-risk)]/10 p-2.5 text-[12px] font-semibold text-[var(--sq-ink)]"
+                  >
+                    {error}
+                  </p>
+                ) : null}
 
                 <Button type="submit" size="lg" fullWidth disabled={loading} className="mt-2">
                   {loading ? 'Signing in…' : 'Sign in'}
@@ -249,14 +291,14 @@ export function FacilitatorLogin({ onSuccess, onBackToHome }: FacilitatorLoginPr
               <div className="mt-4 border-t border-[var(--sq-line)] pt-4 text-center">
                 <button
                   type="button"
-                  onClick={handleSuccess}
+                  onClick={handleExplore}
                   className="inline-flex min-h-[36px] items-center gap-1.5 text-[12px] font-bold text-[var(--sq-action-text)] hover:underline"
                 >
-                  Skip and open the portal
+                  Explore the portal without signing in
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--sq-ink-muted)]">
-                  No account is created, and nothing typed here is sent anywhere.
+                  Everything except live sessions, with demonstration data where it is marked.
                 </p>
               </div>
             </div>

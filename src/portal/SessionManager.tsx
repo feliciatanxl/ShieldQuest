@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Copy, Pause, Play, QrCode, Square } from 'lucide-react';
+import { navigate } from '../router.ts';
+import { useAuth } from './api.ts';
+import { LiveSessions } from './LiveSessions.tsx';
 import { Button, PrototypeNotice } from './parts.tsx';
 
 /**
@@ -89,7 +92,40 @@ function PanelLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Sessions: live when a facilitator is signed in, a labelled preview when not.
+ *
+ * The preview below is the authored demonstration room this section used to
+ * be. It stays for the visitor without an account — a grant assessor, a
+ * visiting teacher — because it shows what the live room looks like mid-session
+ * better than an empty sign-in prompt would.
+ */
 export function SessionManager() {
+  const auth = useAuth();
+
+  if (auth.status === 'signed-in') return <LiveSessions me={auth.me} />;
+
+  return (
+    <div className="space-y-5">
+      <Panel className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h2 className="text-lg font-black text-[var(--sq-ink)]">Run a live session</h2>
+          <p className="mt-1 max-w-[60ch] text-xs leading-relaxed text-[var(--sq-ink-muted)]">
+            {auth.status === 'checking'
+              ? 'Checking whether you are signed in…'
+              : 'Sign in with your facilitator account to open a real room with a join code and QR. Below is a preview of a room mid-session, with demonstration figures.'}
+          </p>
+        </div>
+        <Button onClick={() => navigate('/admin/login')} disabled={auth.status === 'checking'}>
+          Sign in
+        </Button>
+      </Panel>
+      <DemoRoom />
+    </div>
+  );
+}
+
+function DemoRoom() {
   const [sessionState, setSessionState] = useState<SessionState>('active');
   const [copied, setCopied] = useState(false);
 

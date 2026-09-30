@@ -1,12 +1,11 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { env } from '../env.js';
+import { requireFacilitator, type Facilitator } from '../auth.js';
 import { query } from '../db.js';
 import {
   ApiError,
   body,
-  checkFacilitator,
   hashToken,
   makeSessionCode,
   newToken,
@@ -14,7 +13,7 @@ import {
   ok,
   rateLimit,
 } from '../http.js';
-import { toSession } from '../realtime.js';
+import { toFacilitators, toSession } from '../realtime.js';
 
 export const sessions = new Hono();
 
@@ -25,6 +24,10 @@ const CreateSession = z.object({
   ageBand: z.enum(['B10_13', 'B14_16', 'B17_24']),
   squads: z.number().int().min(1).max(12).default(6),
   leaderboard: z.boolean().default(false),
+  // Free text a facilitator types ("Sec 3 Cohort A", "Computer Lab 2"). About
+  // the room, never about a participant.
+  title: z.string().trim().max(80).optional(),
+  venue: z.string().trim().max(80).optional(),
 });
 
 // Codenames are letters and spaces. Digits are refused outright, which keeps a
@@ -56,16 +59,23 @@ const SQUAD_NAMES = [
 
 /** Open a room. Facilitator only. */
 sessions.post('/', async (c) => {
-  checkFacilitator(c, env.facilitatorKey);
+  const person = await requireFacilitator(c);
   const input = await body(c, CreateSession);
 
   // Retry on the (rare) code collision rather than failing the facilitator.
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const code = makeSessionCode();
     const created = await query<{ id: string }>(
-      `INSERT INTO sessions (code, age_band, leaderboard_enabled)
-       VALUES ($1, $2, $3) ON CONFLICT (code) DO NOTHING RETURNING id`,
-      [code, input.ageBand, input.leaderboard],
+      `INSERT INTO sessions (code, age_band, leaderboard_enabled, facilitator_id, title, venue)
+       VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (code) DO NOTHING RETURNING id`,
+      [
+        code,
+        input.ageBand,
+        input.leaderboard,
+        person?.id ?? null,
+        input.title || null,
+        input.venue || null,
+      ],
     );
     const session = created.rows[0];
     if (!session) continue;
@@ -79,6 +89,82 @@ sessions.post('/', async (c) => {
     return ok(c, { code, ageBand: input.ageBand, squads: names }, 201);
   }
   throw new ApiError(500, 'INTERNAL', 'Something went wrong.');
+});
+
+/**
+ * A facilitator's sessions, newest first. Admins, and the service key, see
+ * everyone's; a facilitator sees the rooms they opened.
+ */
+sessions.get('/', async (c) => {
+  const person = await requireFacilitator(c);
+  const everyone = !person || person.role === 'admin';
+  const found = await query(
+    `SELECT s.code, s.age_band AS "ageBand", s.status, s.title, s.venue,
+            s.created_at AS "createdAt", s.closed_at AS "closedAt",
+            (SELECT count(*)::int FROM participants p WHERE p.session_id = s.id) AS participants
+       FROM sessions s
+      WHERE ($1::boolean OR s.facilitator_id = $2)
+      ORDER BY s.created_at DESC LIMIT 30`,
+    [everyone, person?.id ?? null],
+  );
+  return ok(c, found.rows);
+});
+
+/** A session this facilitator may run: their own, or any if they are an admin. */
+async function ownedSession(code: string, person: Facilitator | null) {
+  const found = await query<{
+    id: string;
+    code: string;
+    age_band: string;
+    status: string;
+    title: string | null;
+    venue: string | null;
+    facilitator_id: string | null;
+    created_at: string;
+  }>(
+    `SELECT id, code, age_band, status, title, venue, facilitator_id, created_at
+       FROM sessions WHERE code = $1`,
+    [code.toUpperCase()],
+  );
+  const session = found.rows[0];
+  const allowed =
+    session && (!person || person.role === 'admin' || session.facilitator_id === person.id);
+  if (!session || !allowed) throw notFound();
+  return session;
+}
+
+/**
+ * Everything the live room screen needs in one read: squads, who has joined,
+ * and the vote counts for every round played so far. Counts only — the same
+ * rule as the WebSocket, no row here says who chose what.
+ */
+sessions.get('/:code/live', async (c) => {
+  const person = await requireFacilitator(c);
+  const session = await ownedSession(c.req.param('code'), person);
+  const squads = await squadsOf(session.id);
+  const rounds = await query<{
+    roundKey: string;
+    squadId: string;
+    choiceId: string;
+    count: number;
+  }>(
+    `SELECT round_key AS "roundKey", squad_id AS "squadId", choice_id AS "choiceId",
+            count(*)::int AS count
+       FROM votes WHERE session_id = $1
+      GROUP BY round_key, squad_id, choice_id
+      ORDER BY min(created_at)`,
+    [session.id],
+  );
+  return ok(c, {
+    code: session.code,
+    ageBand: session.age_band,
+    status: session.status,
+    title: session.title,
+    venue: session.venue,
+    createdAt: session.created_at,
+    squads: squads.map((squad) => ({ ...squad, full: squad.members >= SQUAD_MAX })),
+    votes: rounds.rows,
+  });
 });
 
 async function openSession(code: string) {
@@ -147,6 +233,7 @@ sessions.post('/:code/join', async (c) => {
      VALUES ($1, $2, $3, $4) RETURNING id`,
     [session.id, squad.id, input.handle, hashToken(token)],
   );
+  toFacilitators(session.id, { type: 'roster', squads: await squadsOf(session.id) });
   c.header('Location', `/api/sessions/${code}`);
   return ok(
     c,
@@ -162,11 +249,12 @@ sessions.post('/:code/join', async (c) => {
 
 /** End a room. Facilitator only. Everyone connected is told it is over. */
 sessions.delete('/:code', async (c) => {
-  checkFacilitator(c, env.facilitatorKey);
+  const person = await requireFacilitator(c);
+  const owned = await ownedSession(c.req.param('code'), person);
   const closed = await query<{ id: string }>(
     `UPDATE sessions SET status = 'closed', closed_at = now()
-      WHERE code = $1 AND status = 'open' RETURNING id`,
-    [c.req.param('code').toUpperCase()],
+      WHERE id = $1 AND status = 'open' RETURNING id`,
+    [owned.id],
   );
   const session = closed.rows[0];
   if (!session) throw notFound();
@@ -175,7 +263,7 @@ sessions.delete('/:code', async (c) => {
 });
 
 /** Scaffolded, not connected. 501 rather than a fake success — see the API doc. */
-sessions.get('/:code/leaderboard', (c) => {
-  checkFacilitator(c, env.facilitatorKey);
+sessions.get('/:code/leaderboard', async (c) => {
+  await requireFacilitator(c);
   throw new ApiError(501, 'NOT_IMPLEMENTED', 'The event leaderboard is not built yet.');
 });

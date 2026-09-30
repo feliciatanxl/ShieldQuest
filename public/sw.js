@@ -11,13 +11,17 @@
  *    proposal commits to low-bandwidth access and to sessions run in school
  *    halls and community spaces where the network drops mid-workshop. What
  *    must survive that is the whole game: every scenario, every Guardian, the
- *    board. There is no server call to lose, because there is no server.
+ *    board. The server added for facilitated sessions does not change that:
+ *    the game never needs it to play, and its responses are never cached.
  *
  * Strategy:
  *   - navigations   → network first, falling back to the cached shell.
  *     (So a deployed update is picked up, but a dead network still opens.)
  *   - hashed assets → cache first. The filename changes when the file does, so
  *     a stale hit is impossible.
+ *   - `/api/*` and `/ws` → never touched. Sign-in state and live room counts
+ *     are only correct when fresh; a cached "you are signed in" after signing
+ *     out, or last minute's vote count, would be worse than no answer.
  *   - everything else same-origin → stale-while-revalidate.
  *
  * Cross-origin requests are not touched at all: the game makes none, and a
@@ -25,7 +29,7 @@
  * project has no reason to open.
  */
 
-const VERSION = 'shieldquest-v2.0.0';
+const VERSION = 'shieldquest-v2.1.0';
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 
@@ -64,6 +68,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/') || url.pathname === '/ws') return;
 
   if (request.mode === 'navigate') {
     event.respondWith(

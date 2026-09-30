@@ -1,4 +1,4 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import type { Context } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { ZodType } from 'zod';
@@ -44,17 +44,6 @@ export async function body<T>(c: Context, schema: ZodType<T>): Promise<T> {
     throw new ApiError(400, 'INVALID_BODY', `${field} is missing or invalid.`);
   }
   return parsed.data;
-}
-
-/* --- facilitator key ---------------------------------------------- */
-
-export function checkFacilitator(c: Context, expected: string) {
-  const given = c.req.header('x-facilitator-key') ?? '';
-  const a = Buffer.from(given);
-  const b = Buffer.from(expected);
-  if (!expected || a.length !== b.length || !timingSafeEqual(a, b)) {
-    throw new ApiError(401, 'UNAUTHORIZED', 'Facilitator key missing or invalid.');
-  }
 }
 
 /* --- participant tokens -------------------------------------------- */

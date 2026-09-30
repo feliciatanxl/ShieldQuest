@@ -12,6 +12,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "migrate": "tsx --env-file-if-exists=.env src/migrate-cli.ts",
+    "create-facilitator": "tsx --env-file-if-exists=.env src/create-facilitator.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

@@ -12,6 +12,7 @@ import { env } from './env.js';
 import { ApiError } from './http.js';
 import { migrate, purgeExpired } from './migrate.js';
 import { attachRealtime } from './realtime.js';
+import { auth } from './routes/auth.js';
 import { health } from './routes/health.js';
 import { sessions } from './routes/sessions.js';
 import { votes } from './routes/votes.js';
@@ -30,6 +31,7 @@ app.use(
   cors({
     origin: env.corsOrigins,
     allowHeaders: ['Content-Type', 'X-Facilitator-Key'],
+    credentials: true,
     allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     exposeHeaders: ['Location', 'Retry-After'],
     maxAge: 600,
@@ -47,6 +49,7 @@ app.use(
 );
 
 app.route('/api/health', health);
+app.route('/api/auth', auth);
 app.route('/api/sessions', sessions);
 app.route('/api/votes', votes);
 
