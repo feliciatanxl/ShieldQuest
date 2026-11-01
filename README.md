@@ -171,6 +171,6 @@ Both members jointly own major design decisions, youth testing, pilot delivery a
 
 ## Copyright and licence
 
-Copyright © 2026 Team SecurePi (Felicia Tan and Charlisa Tan). All rights reserved.
+Copyright © 2026 Team SecurePi. All rights reserved.
 
 ShieldQuest, Project SHIELD, the S.H.I.E.L.D. Behavioural Framework, the Guardian characters, game mechanics, scenarios, artwork and source code are the property of Team SecurePi. See [LICENSE](LICENSE) for the terms.
