@@ -94,9 +94,9 @@ Youths aged roughly **10–24**, with content bands chosen by educators:
 
 | Segment | Age | Experience design | Example themes |
 |---|---|---|---|
-| Primary / early secondary | 10–13 | Simple language, visual clues, 2–3 clear choices | Stranger approaches, game scams, cyberbullying, online safety |
-| Secondary | 14–16 | Team voting, branching outcomes, social pressure | Shop theft, phishing, online scams, harassment, risky dares |
-| Post-secondary / tertiary | 17–24 | Ambiguous evidence, competing priorities, financial risk | Job scams, money-mule recruitment, digital identity, suspicious financial requests |
+| Primary / early secondary | 10‑13 | Simple language, visual clues, 2–3 clear choices | Stranger approaches, game scams, cyberbullying, online safety |
+| Secondary | 14‑16 | Team voting, branching outcomes, social pressure | Shop theft, phishing, online scams, harassment, risky dares |
+| Post-secondary / tertiary | 17‑24 | Ambiguous evidence, competing priorities, financial risk | Job scams, money-mule recruitment, digital identity, suspicious financial requests |
 
 The initial pilot prioritises secondary and post-secondary youths.
 
