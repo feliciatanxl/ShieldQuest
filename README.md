@@ -57,12 +57,12 @@ Because it teaches a process rather than a list of scam types, the framework sta
 
 | Stage | Player action | Learning function |
 |---|---|---|
-| 1. Explore | Navigate the city board (School Street, Retail District, Digi-District, Community Hub). | Places risk in familiar settings. |
-| 2. Investigate | Inspect chats, images and clues. | Spot the Risk. |
-| 3. Discuss | Think–Vote–Explain: vote privately, compare with the squad, discuss. | Surfaces peer norms and reasoning. |
-| 4. Decide | Choose a response under pressure. | Hold Before Acting. |
-| 5. Experience | See immediate **and delayed** consequences. | Makes trade-offs memorable. |
-| 6. Protect | Apply the learning in Peer Shield Mode. | Builds bystander-intervention confidence. |
+| 1.&nbsp;Explore | Navigate the city board (School Street, Retail District, Digi-District, Community Hub). | Places risk in familiar settings. |
+| 2.&nbsp;Investigate | Inspect chats, images and clues. | Spot the Risk. |
+| 3.&nbsp;Discuss | Think–Vote–Explain: vote privately, compare with the squad, discuss. | Surfaces peer norms and reasoning. |
+| 4.&nbsp;Decide | Choose a response under pressure. | Hold Before Acting. |
+| 5.&nbsp;Experience | See immediate **and delayed** consequences. | Makes trade-offs memorable. |
+| 6.&nbsp;Protect | Apply the learning in Peer Shield Mode. | Builds bystander-intervention confidence. |
 
 **Sample mission: "Easy Money".** A student is offered S$200 to receive money into their bank account and pass it on. The sender says it is legal, urgent and risk-free; a friend says "just try once". Accepting pays out immediately, then the Delayed Consequence Engine reverses the reward, drops the city's Trust Meter and flags the account. Asking for proof returns convincing but unverifiable screenshots. Rejecting, stopping contact and seeking trusted help protects the player and strengthens the VeriFox Guardian.
 
