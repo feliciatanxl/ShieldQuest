@@ -1,211 +1,287 @@
 import React, { useState } from 'react';
-import { Sparkles, Navigation, MapPin } from 'lucide-react';
+import { Sparkles, Navigation, MapPin, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface Waypoint {
+interface CityWaypoint {
   id: string;
   name: string;
   district: string;
-  x: number;
-  y: number;
+  districtId: string;
+  x: number; // percentage
+  y: number; // percentage
   threat: string;
   guardian: string;
   color: string;
+  accentColor: string;
+  atmosphere: string;
 }
 
-const waypoints: Waypoint[] = [
+const cityWaypoints: CityWaypoint[] = [
   {
     id: 'wp-school',
-    name: 'North Campus Alley',
+    name: 'Campus Quad & Clocktower',
     district: 'School Street',
-    x: 24,
+    districtId: 'school-street',
+    x: 22,
     y: 38,
-    threat: 'Group Chat Coercion',
-    guardian: 'Shieldfin',
-    color: '#1687F7',
+    threat: 'Coercive Chat Dares & Account Borrowing',
+    guardian: 'Shieldfin & Echo',
+    color: '#2563EB',
+    accentColor: '#60A5FA',
+    atmosphere: 'Red-brick arched corridors, student lockers & buzzing bus terminals',
   },
   {
     id: 'wp-retail',
-    name: 'Atrium Courier Lockers',
+    name: 'Neon Promenade & Atrium',
     district: 'Retail District',
-    x: 74,
+    districtId: 'retail-district',
+    x: 76,
     y: 32,
-    threat: 'Fast-Cash Package Drop',
+    threat: 'Unverified Part-Time Courier Gigs',
     guardian: 'VeriFox',
-    color: '#F2B94B',
+    color: '#F59E0B',
+    accentColor: '#FDE047',
+    atmosphere: 'Shimmering shopping arcades, flash parcel lockers & pop-up kiosks',
   },
   {
     id: 'wp-cyber',
-    name: 'Neon Cyber Exchange',
+    name: 'Hyper-Grid Server Plaza',
     district: 'Digi-District',
+    districtId: 'digi-district',
     x: 68,
-    y: 68,
-    threat: 'MFA Code Hijack Link',
-    guardian: 'ByteBuddy',
-    color: '#38D9E6',
+    y: 70,
+    threat: 'Tournament Link Phishing & OTP Harvests',
+    guardian: 'ByteBuddy & Cluepaw',
+    color: '#06B6D4',
+    accentColor: '#38D9E6',
+    atmosphere: 'Holographic data billboards, esports lounges & luminous fiber bridges',
   },
   {
     id: 'wp-hub',
-    name: 'Civic Amphitheatre',
+    name: 'Civic Amphitheatre & Gardens',
     district: 'Community Hub',
-    x: 32,
+    districtId: 'community-hub',
+    x: 28,
     y: 72,
-    threat: 'Bystander Hesitation',
-    guardian: 'Echo & Beacon',
-    color: '#7755DF',
+    threat: 'Bystander Hesitation & Impersonation',
+    guardian: 'Beacon & Echo',
+    color: '#8B5CF6',
+    accentColor: '#C084FC',
+    atmosphere: 'Warm terraced pavilion, corkboard notices & open community courtyard',
   },
 ];
 
 export const HeroIllustration: React.FC = () => {
-  const [activeWp, setActiveWp] = useState<Waypoint | null>(null);
+  const [activeWp, setActiveWp] = useState<CityWaypoint | null>(cityWaypoints[0]);
 
   return (
-    <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] max-w-4xl mx-auto rounded-2xl overflow-hidden border border-shield-cardBorder/80 bg-shield-navy/70 shadow-2xl shadow-shield-blue/10 backdrop-blur-sm">
-      {/* City Backdrop SVG */}
+    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] rounded-2xl overflow-hidden border border-shield-cardBorder/90 bg-gradient-to-b from-[#0E172F] via-[#0A1021] to-[#070B16] shadow-2xl shadow-shield-blue/20 backdrop-blur-md">
+      {/* Decorative Game HUD Border Frame */}
+      <div className="hud-corner hud-corner-tl" />
+      <div className="hud-corner hud-corner-tr" />
+      <div className="hud-corner hud-corner-bl" />
+      <div className="hud-corner hud-corner-br" />
+
+      {/* Atmospheric Environment Vector Artwork */}
       <svg
         className="w-full h-full object-cover select-none"
-        viewBox="0 0 1000 600"
+        viewBox="0 0 1000 680"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
         <defs>
           {/* Gradients */}
-          <linearGradient id="skyGrad" x1="500" y1="0" x2="500" y2="600" gradientUnits="userSpaceOnUse">
+          <linearGradient id="nightSky" x1="500" y1="0" x2="500" y2="680" gradientUnits="userSpaceOnUse">
             <stop stopColor="#0B132B" />
-            <stop offset="0.5" stopColor="#101B3A" />
-            <stop offset="1" stopColor="#182A4D" />
+            <stop offset="0.4" stopColor="#101C3D" />
+            <stop offset="0.75" stopColor="#12234D" />
+            <stop offset="1" stopColor="#091124" />
           </linearGradient>
 
-          <linearGradient id="gridGrad" x1="500" y1="300" x2="500" y2="600" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#1687F7" stopOpacity="0.18" />
-            <stop offset="1" stopColor="#38D9E6" stopOpacity="0.02" />
-          </linearGradient>
-
-          <linearGradient id="glowPulse" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#1687F7" />
-            <stop offset="50%" stopColor="#38D9E6" />
-            <stop offset="100%" stopColor="#7755DF" />
-          </linearGradient>
-
-          <filter id="cityGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="10" result="blur" />
+          {/* District Glow Filters */}
+          <filter id="cityGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="12" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
 
-          <filter id="trailGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+          <filter id="laserBeamFilter" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
+
+          {/* Neon quest path gradient */}
+          <linearGradient id="questFlowGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#2563EB" />
+            <stop offset="35%" stopColor="#38D9E6" />
+            <stop offset="70%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#8B5CF6" />
+          </linearGradient>
+
+          {/* Pattern for Digi-District Cyber Grid */}
+          <pattern id="cyberGridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#38D9E6" strokeWidth="0.5" strokeOpacity="0.15" />
+          </pattern>
         </defs>
 
-        {/* Sky Background */}
-        <rect width="1000" height="600" fill="url(#skyGrad)" />
+        {/* 1. Deep Sky Backdrop */}
+        <rect width="1000" height="680" fill="url(#nightSky)" />
 
-        {/* Ambient Moon / Energy Node */}
-        <circle cx="820" cy="110" r="70" fill="#38D9E6" fillOpacity="0.04" filter="url(#cityGlow)" />
-        <circle cx="820" cy="110" r="30" fill="#F7F5EF" fillOpacity="0.12" />
+        {/* 2. Atmospheric Moon & Celestial Twilight */}
+        <circle cx="840" cy="110" r="70" fill="#38D9E6" fillOpacity="0.05" filter="url(#cityGlowFilter)" />
+        <circle cx="840" cy="110" r="32" fill="#F7F5EF" fillOpacity="0.15" />
+        <circle cx="830" cy="100" r="28" fill="#101C3D" />
 
-        {/* Distant Atmospheric Grid / Stars */}
-        <g opacity="0.4">
-          <circle cx="150" cy="80" r="1.5" fill="#38D9E6" />
-          <circle cx="280" cy="130" r="1" fill="#F7F5EF" />
-          <circle cx="410" cy="70" r="1.5" fill="#F2B94B" />
-          <circle cx="630" cy="95" r="1" fill="#38D9E6" />
-          <circle cx="750" cy="150" r="1.5" fill="#F7F5EF" />
-          <circle cx="910" cy="60" r="1" fill="#7755DF" />
+        {/* Stars / Floating data particles */}
+        <g opacity="0.6">
+          <circle cx="120" cy="70" r="1.5" fill="#38D9E6" />
+          <circle cx="210" cy="110" r="1.2" fill="#FDE047" />
+          <circle cx="340" cy="50" r="1.8" fill="#F7F5EF" />
+          <circle cx="480" cy="90" r="1.5" fill="#60A5FA" />
+          <circle cx="620" cy="60" r="1.2" fill="#C084FC" />
+          <circle cx="720" cy="130" r="1.5" fill="#38D9E6" />
+          <circle cx="920" cy="80" r="2" fill="#FDE047" />
         </g>
 
-        {/* Distant Skyline Silhouette (Layer 1) */}
-        <g fill="#0D162B" opacity="0.75">
-          <rect x="50" y="240" width="70" height="360" rx="4" />
-          <rect x="140" y="210" width="85" height="390" rx="4" />
-          <rect x="240" y="270" width="60" height="330" rx="4" />
-          <rect x="320" y="190" width="110" height="410" rx="4" />
-          <rect x="450" y="250" width="95" height="350" rx="4" />
-          <rect x="560" y="170" width="120" height="430" rx="4" />
-          <rect x="700" y="230" width="85" height="370" rx="4" />
-          <rect x="800" y="200" width="100" height="400" rx="4" />
-          <rect x="915" y="260" width="75" height="340" rx="4" />
-        </g>
-
-        {/* Mid-ground Architectural Towers with illuminated windows */}
-        <g fill="#14203B" stroke="#233863" strokeWidth="1.5">
-          {/* Tower Left: School Street Campus */}
-          <rect x="90" y="260" width="130" height="340" rx="6" />
-          {/* Tower Center-Left: Civic Hub */}
-          <rect x="270" y="220" width="140" height="380" rx="6" />
-          {/* Spire */}
-          <line x1="340" y1="220" x2="340" y2="150" stroke="#38D9E6" strokeWidth="2" strokeDasharray="3 3" />
-          <circle cx="340" cy="148" r="4" fill="#38D9E6" filter="url(#trailGlow)" />
-
-          {/* Tower Center-Right: Digi-District Server Towers */}
-          <rect x="620" y="200" width="150" height="400" rx="6" />
-          <line x1="695" y1="200" x2="695" y2="120" stroke="#1687F7" strokeWidth="2" />
-          <circle cx="695" cy="118" r="5" fill="#1687F7" filter="url(#trailGlow)" />
-
-          {/* Tower Right: Retail District Gallery */}
-          <rect x="810" y="250" width="130" height="350" rx="6" />
-        </g>
-
-        {/* Architectural Window Light Patterns */}
-        <g fill="#38D9E6" opacity="0.35">
-          {/* Digi-District glowing data arrays */}
-          <rect x="645" y="240" width="20" height="8" rx="2" />
-          <rect x="680" y="240" width="20" height="8" rx="2" />
-          <rect x="715" y="240" width="20" height="8" rx="2" />
-          <rect x="645" y="270" width="40" height="8" rx="2" fill="#1687F7" />
-          <rect x="700" y="270" width="35" height="8" rx="2" />
-          <rect x="645" y="300" width="25" height="8" rx="2" />
-          <rect x="685" y="300" width="45" height="8" rx="2" />
-          <rect x="650" y="340" width="80" height="4" rx="2" fill="#7755DF" />
-        </g>
-
-        <g fill="#F2B94B" opacity="0.3">
-          {/* Retail & School warm windows */}
-          <rect x="115" y="300" width="16" height="12" rx="2" />
-          <rect x="145" y="300" width="16" height="12" rx="2" />
-          <rect x="175" y="300" width="16" height="12" rx="2" />
-          <rect x="115" y="340" width="30" height="12" rx="2" />
-          <rect x="160" y="340" width="30" height="12" rx="2" />
-
-          <rect x="835" y="290" width="25" height="10" rx="2" />
-          <rect x="875" y="290" width="35" height="10" rx="2" />
-          <rect x="835" y="320" width="40" height="10" rx="2" />
-          <rect x="890" y="320" width="20" height="10" rx="2" />
-        </g>
-
-        {/* Perspective City Board Ground Plane with Neon Transit Paths */}
-        <polygon points="0,480 1000,480 1000,600 0,600" fill="url(#gridGrad)" />
-        <line x1="0" y1="480" x2="1000" y2="480" stroke="#233863" strokeWidth="2" />
-
-        {/* The Glowing Quest Route Connecting the Districts */}
+        {/* 3. Distant Mountainous Skyline (Silhouette Layer 1) */}
         <path
-          d="M 240 380 Q 280 460 320 430 T 480 450 T 680 410 T 740 320"
-          stroke="url(#glowPulse)"
-          strokeWidth="3.5"
-          fill="none"
-          strokeDasharray="8 6"
-          filter="url(#trailGlow)"
+          d="M0 320 L60 300 L110 325 L180 280 L260 315 L320 270 L390 310 L470 260 L540 305 L630 250 L710 295 L800 240 L880 290 L950 260 L1000 285 L1000 680 L0 680 Z"
+          fill="#0A1021"
+          opacity="0.8"
         />
 
-        {/* Secondary Quest Branch */}
+        {/* 4. Layer 2: Distinct Neighbourhood Architectures */}
+
+        {/* --- SECTOR A: SCHOOL STREET (Left Architecture) --- */}
+        {/* Academic arched buildings, student library & clocktower */}
+        <g id="sector-school">
+          {/* Main campus hall */}
+          <rect x="70" y="270" width="130" height="260" rx="4" fill="#14203B" stroke="#2563EB" strokeWidth="1.5" strokeOpacity="0.5" />
+          {/* Campus clock tower */}
+          <rect x="180" y="190" width="60" height="340" rx="4" fill="#101B3A" stroke="#2563EB" strokeWidth="2" strokeOpacity="0.7" />
+          <polygon points="180,190 210,140 240,190" fill="#1E3A8A" stroke="#60A5FA" strokeWidth="1.5" />
+          {/* Clock face */}
+          <circle cx="210" cy="220" r="16" fill="#FDE047" fillOpacity="0.9" filter="url(#laserBeamFilter)" />
+          <circle cx="210" cy="220" r="14" fill="#1E293B" />
+          <circle cx="210" cy="220" r="2.5" fill="#FDE047" />
+          <line x1="210" y1="220" x2="210" y2="211" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" />
+          <line x1="210" y1="220" x2="218" y2="220" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" />
+
+          {/* School archway & warm lit classroom windows */}
+          <g fill="#FDE047" fillOpacity="0.35">
+            <rect x="85" y="300" width="18" height="14" rx="2" />
+            <rect x="115" y="300" width="18" height="14" rx="2" />
+            <rect x="145" y="300" width="18" height="14" rx="2" />
+            <rect x="85" y="340" width="18" height="14" rx="2" />
+            <rect x="115" y="340" width="18" height="14" rx="2" />
+            <rect x="145" y="340" width="18" height="14" rx="2" />
+            <rect x="85" y="380" width="78" height="40" rx="20" fillOpacity="0.15" stroke="#2563EB" strokeWidth="1.5" />
+          </g>
+          {/* Warm street lamps */}
+          <line x1="60" y1="460" x2="60" y2="420" stroke="#60A5FA" strokeWidth="2" />
+          <circle cx="60" cy="418" r="4" fill="#FDE047" filter="url(#laserBeamFilter)" />
+        </g>
+
+        {/* --- SECTOR B: RETAIL DISTRICT (Right High-Rise Shopping Atrium) --- */}
+        <g id="sector-retail">
+          {/* Grand retail towers */}
+          <rect x="730" y="220" width="140" height="340" rx="6" fill="#16223F" stroke="#F59E0B" strokeWidth="2" strokeOpacity="0.6" />
+          {/* Slanted glass roof atrium */}
+          <polygon points="710,340 850,260 880,340 710,380" fill="#F59E0B" fillOpacity="0.15" stroke="#FBBF24" strokeWidth="1.5" />
+          <rect x="850" y="180" width="85" height="380" rx="4" fill="#121D36" stroke="#F59E0B" strokeWidth="1.5" strokeOpacity="0.4" />
+
+          {/* Neon Billboard ribbons & store lights */}
+          <rect x="745" y="240" width="110" height="14" rx="2" fill="#F59E0B" fillOpacity="0.8" filter="url(#laserBeamFilter)" />
+          <rect x="745" y="240" width="110" height="14" rx="2" fill="#FDE047" />
+          <rect x="750" y="270" width="45" height="8" rx="2" fill="#EC4899" fillOpacity="0.7" />
+          <rect x="805" y="270" width="45" height="8" rx="2" fill="#38D9E6" fillOpacity="0.7" />
+
+          <g fill="#FBBF24" fillOpacity="0.4">
+            <rect x="750" y="390" width="22" height="16" rx="2" />
+            <rect x="785" y="390" width="22" height="16" rx="2" />
+            <rect x="820" y="390" width="22" height="16" rx="2" />
+            <rect x="865" y="230" width="20" height="24" rx="2" />
+            <rect x="895" y="230" width="20" height="24" rx="2" />
+          </g>
+        </g>
+
+        {/* --- SECTOR C: DIGI-DISTRICT (Center-Right High-Tech Spire) --- */}
+        <g id="sector-digi">
+          {/* Skyscraper with cyber grid */}
+          <rect x="580" y="170" width="130" height="420" rx="6" fill="#0D1A33" stroke="#06B6D4" strokeWidth="2" strokeOpacity="0.7" />
+          <rect x="585" y="175" width="120" height="240" fill="url(#cyberGridPattern)" />
+
+          {/* Antenna Spire & Optical Laser Beacon */}
+          <line x1="645" y1="170" x2="645" y2="80" stroke="#38D9E6" strokeWidth="3" />
+          <circle cx="645" cy="78" r="7" fill="#38D9E6" filter="url(#laserBeamFilter)" />
+          <circle cx="645" cy="78" r="3" fill="#FFFFFF" />
+
+          {/* Floating holographic rings */}
+          <ellipse cx="645" cy="115" rx="35" ry="8" stroke="#06B6D4" strokeWidth="1.5" strokeDasharray="6 4" strokeOpacity="0.7" />
+          <ellipse cx="645" cy="140" rx="25" ry="6" stroke="#38D9E6" strokeWidth="1.5" strokeOpacity="0.8" />
+
+          {/* Vertical Data Bus lines */}
+          <line x1="610" y1="200" x2="610" y2="400" stroke="#38D9E6" strokeWidth="1.5" strokeOpacity="0.6" strokeDasharray="8 6" />
+          <line x1="680" y1="220" x2="680" y2="420" stroke="#06B6D4" strokeWidth="1.5" strokeOpacity="0.6" strokeDasharray="12 4" />
+        </g>
+
+        {/* --- SECTOR D: COMMUNITY HUB (Center-Left Amphitheatre & Pavilion) --- */}
+        <g id="sector-hub">
+          {/* Civic amphitheatre curved tiers */}
+          <ellipse cx="360" cy="470" rx="130" ry="50" fill="#17223D" stroke="#8B5CF6" strokeWidth="2" strokeOpacity="0.6" />
+          <ellipse cx="360" cy="460" rx="95" ry="34" fill="#131B33" stroke="#A78BFA" strokeWidth="1.5" strokeOpacity="0.7" />
+          <ellipse cx="360" cy="450" rx="60" ry="20" fill="#0F172E" stroke="#C084FC" strokeWidth="1.5" />
+
+          {/* Central Civic Pavilion arch */}
+          <path d="M300 440 Q360 380 420 440" stroke="#A78BFA" strokeWidth="2.5" fill="none" />
+          <line x1="300" y1="440" x2="300" y2="480" stroke="#8B5CF6" strokeWidth="2" />
+          <line x1="420" y1="440" x2="420" y2="480" stroke="#8B5CF6" strokeWidth="2" />
+
+          {/* Warm festoon lights strung across the plaza */}
+          <path d="M260 410 Q310 435 360 415 Q410 440 460 415" stroke="#FDE047" strokeWidth="1" strokeDasharray="2 6" strokeOpacity="0.8" />
+          <circle cx="285" cy="422" r="2.5" fill="#FDE047" filter="url(#laserBeamFilter)" />
+          <circle cx="335" cy="420" r="2.5" fill="#FDE047" filter="url(#laserBeamFilter)" />
+          <circle cx="385" cy="425" r="2.5" fill="#FDE047" filter="url(#laserBeamFilter)" />
+          <circle cx="435" cy="422" r="2.5" fill="#FDE047" filter="url(#laserBeamFilter)" />
+        </g>
+
+        {/* 5. Isometric City Board Ground Plane with Neon Transit Grid */}
+        <polygon points="0,520 1000,520 1000,680 0,680" fill="url(#nightSky)" opacity="0.95" />
+        <line x1="0" y1="520" x2="1000" y2="520" stroke="#233863" strokeWidth="2" />
+
+        {/* 6. The Glowing Quest Route Connecting the Districts */}
         <path
-          d="M 320 430 Q 420 520 680 410"
+          d="M 220 380 Q 260 520 290 480 T 460 490 T 670 470 T 760 330"
+          stroke="url(#questFlowGrad)"
+          strokeWidth="4"
+          fill="none"
+          strokeLinecap="round"
+          filter="url(#laserBeamFilter)"
+          className="quest-trail-animated"
+        />
+        <path
+          d="M 220 380 Q 260 520 290 480 T 460 490 T 670 470 T 760 330"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          fill="none"
+          strokeDasharray="4 8"
+          strokeOpacity="0.8"
+        />
+
+        {/* Secondary connecting path into Digi-District */}
+        <path
+          d="M 290 480 Q 480 610 670 470"
           stroke="#38D9E6"
-          strokeWidth="2"
-          strokeOpacity="0.4"
+          strokeWidth="2.5"
           fill="none"
-          strokeDasharray="4 4"
+          strokeDasharray="6 6"
+          strokeOpacity="0.5"
         />
-
-        {/* Dynamic Light Beam at City Board Core */}
-        <line x1="500" y1="180" x2="500" y2="470" stroke="#38D9E6" strokeWidth="1" strokeOpacity="0.25" />
-        <ellipse cx="500" cy="470" rx="90" ry="24" fill="#1687F7" fillOpacity="0.1" filter="url(#cityGlow)" />
       </svg>
 
-      {/* Interactive Waypoint Nodes (Overlay) */}
+      {/* Interactive Waypoint Discovery Markers (Overlaid HTML Nodes) */}
       <div className="absolute inset-0 pointer-events-none">
-        {waypoints.map((wp) => {
+        {cityWaypoints.map((wp) => {
           const isSelected = activeWp?.id === wp.id;
           return (
             <div
@@ -217,18 +293,23 @@ export const HeroIllustration: React.FC = () => {
                 type="button"
                 onClick={() => setActiveWp(isSelected ? null : wp)}
                 onMouseEnter={() => setActiveWp(wp)}
-                className="relative group p-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan cursor-pointer transition-transform duration-200 hover:scale-110"
+                className="relative group p-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan cursor-pointer transition-transform duration-300 hover:scale-125"
                 aria-label={`Waypoint: ${wp.name} in ${wp.district}`}
               >
-                {/* Ripple ring */}
+                {/* Radar pulse ping */}
                 <span
-                  className="absolute inset-0 rounded-full animate-ping opacity-30"
+                  className="absolute inset-0 rounded-full animate-ping opacity-40"
                   style={{ backgroundColor: wp.color }}
                 />
-                {/* Core node badge */}
+                {/* Tactical waypoint circle */}
                 <span
-                  className="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/80 shadow-lg text-white"
-                  style={{ backgroundColor: wp.color }}
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300 shadow-lg text-white ${
+                    isSelected ? 'ring-4 ring-white/50 scale-110' : ''
+                  }`}
+                  style={{
+                    backgroundColor: wp.color,
+                    borderColor: wp.accentColor,
+                  }}
                 >
                   <MapPin className="w-4 h-4" />
                 </span>
@@ -238,45 +319,60 @@ export const HeroIllustration: React.FC = () => {
         })}
       </div>
 
-      {/* Active Waypoint Tooltip Card */}
+      {/* Interactive Waypoint Radar Card (Bottom Overlay) */}
       {activeWp && (
         <div
-          className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm p-4 rounded-xl bg-shield-dark/95 border border-shield-cyan/50 shadow-2xl backdrop-blur-md z-20 animate-fadeIn"
+          className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 sm:max-w-xs p-4 rounded-xl bg-shield-void/95 border border-shield-cyan/50 shadow-2xl backdrop-blur-xl z-20 animate-fadeIn"
           role="status"
         >
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-shield-cyan">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span
+              className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+              style={{
+                color: activeWp.accentColor,
+                backgroundColor: `${activeWp.color}20`,
+                borderColor: `${activeWp.color}50`,
+              }}
+            >
               {activeWp.district}
             </span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-shield-navy text-shield-gold border border-shield-cardBorder">
-              Hotspot Active
+            <span className="text-[10px] text-shield-gold bg-shield-navy px-1.5 py-0.5 rounded border border-shield-cardBorder">
+              Sector Hotspot
             </span>
           </div>
-          <h4 className="text-base font-heading font-bold text-white mb-1">{activeWp.name}</h4>
-          <p className="text-xs text-shield-muted mb-3">
-            Scenario Dilemma: <span className="text-shield-cream font-medium">{activeWp.threat}</span>
+
+          <h4 className="text-sm font-heading font-bold text-white mb-1">{activeWp.name}</h4>
+
+          <p className="text-[11px] text-shield-cream/90 leading-relaxed mb-2.5">
+            {activeWp.atmosphere}
           </p>
-          <div className="flex items-center justify-between pt-2 border-t border-shield-cardBorder/50 text-[11px]">
-            <span className="text-shield-muted">
-              Shield Guardian: <strong className="text-white">{activeWp.guardian}</strong>
-            </span>
+
+          <div className="pt-2 border-t border-shield-cardBorder/60 flex items-center justify-between text-[11px]">
+            <Link
+              to={`/world`}
+              className="inline-flex items-center gap-1 font-semibold text-shield-cyan hover:text-white transition-colors"
+            >
+              <span>Explore District</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+
             <button
               onClick={() => setActiveWp(null)}
-              className="text-shield-cyan hover:underline text-[11px] p-0.5"
+              className="text-shield-muted hover:text-white text-[10px] p-0.5"
             >
-              Dismiss
+              Close
             </button>
           </div>
         </div>
       )}
 
-      {/* Ambient Visual Caption Overlay */}
-      <div className="absolute top-4 left-4 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-lg bg-shield-dark/80 border border-shield-cardBorder/60 backdrop-blur-md text-xs text-shield-cream/90">
-        <Navigation className="w-3.5 h-3.5 text-shield-cyan" />
-        <span className="font-medium tracking-wide">City Board Simulation — Interactive Waypoints</span>
+      {/* Environmental HUD Metadata Badges */}
+      <div className="absolute top-3 left-3 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-lg bg-shield-void/85 border border-shield-cardBorder/80 backdrop-blur-md text-xs text-shield-cream">
+        <Navigation className="w-3.5 h-3.5 text-shield-cyan animate-pulse" />
+        <span className="font-mono font-semibold tracking-wide text-[11px]">CITY BOARD // SECTOR MAP</span>
       </div>
 
-      <div className="absolute top-4 right-4 pointer-events-none hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-shield-dark/80 border border-shield-cardBorder/60 backdrop-blur-md text-xs text-shield-gold">
+      <div className="absolute top-3 right-3 pointer-events-none hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-shield-void/85 border border-shield-cardBorder/80 backdrop-blur-md text-[11px] text-shield-gold">
         <Sparkles className="w-3.5 h-3.5" />
         <span>Fictional Urban Sandbox</span>
       </div>

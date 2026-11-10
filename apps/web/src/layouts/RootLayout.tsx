@@ -12,7 +12,7 @@ export const RootLayout: React.FC = () => {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-shield-dark text-shield-cream selection:bg-shield-blue/30 selection:text-shield-cyan">
+    <div className="min-h-screen flex flex-col bg-shield-void text-shield-cream selection:bg-shield-blue/30 selection:text-shield-cyan bg-hero-gradient bg-fixed">
       {/* Accessible Skip Link */}
       <a
         href="#main-content"

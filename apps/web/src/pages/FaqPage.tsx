@@ -93,34 +93,38 @@ export const FaqPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
       {/* Header */}
-      <div className="max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-semibold text-shield-cyan mb-4">
-          <HelpCircle className="w-3.5 h-3.5" />
-          <span>Frequently Asked Questions</span>
+      <div className="max-w-3xl space-y-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-shield-navy/90 border border-shield-cardBorder text-xs font-mono font-semibold text-shield-cyan shadow-sm">
+          <HelpCircle className="w-3.5 h-3.5 text-shield-cyan" />
+          <span>KNOWLEDGE BASE // FREQUENTLY ASKED QUESTIONS</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black text-white tracking-tight leading-tight">
           Answers & Safety Principles
         </h1>
-        <p className="text-lg text-shield-cream/90 leading-relaxed">
+        <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
           Find answers about ShieldQuest’s purpose, intended audience, privacy practices, and development roadmap.
         </p>
       </div>
 
       {/* Official Safety Notice Banner */}
-      <div className="p-6 rounded-2xl bg-shield-navy/60 border border-shield-cardBorder/80 flex flex-col sm:flex-row items-start gap-4">
+      <div className="p-6 sm:p-7 rounded-2xl bg-shield-void/90 border border-shield-cardBorder/80 flex flex-col sm:flex-row items-start gap-4 shadow-xl">
         <ShieldAlert className="w-6 h-6 text-shield-gold flex-shrink-0 mt-1" />
         <div className="space-y-2 text-sm text-shield-muted leading-relaxed">
-          <h3 className="text-base font-heading font-bold text-white">Emergency & Reporting Notice</h3>
-          <p>
+          <h3 className="text-base font-heading font-black text-white">Emergency & Reporting Notice</h3>
+          <p className="text-shield-cream/90">
             ShieldQuest is an educational simulation and does not monitor or handle real crime reports. If you encounter
             real-world threats, fraud, or urgent emergencies in Singapore:
           </p>
-          <div className="flex flex-wrap gap-4 pt-1 text-xs">
-            <span className="text-white font-medium">Police Emergency Hotline: 999</span>
-            <span>•</span>
-            <span className="text-white font-medium">Anti-Scam Helpline: 1800-722-6688</span>
-            <span>•</span>
-            <span className="text-white font-medium">Official Portal: scamshield.gov.sg</span>
+          <div className="flex flex-wrap gap-4 pt-2 text-xs font-mono">
+            <span className="text-white font-bold bg-shield-navy px-2.5 py-1 rounded border border-shield-cardBorder">
+              Police Hotline: 999
+            </span>
+            <span className="text-white font-bold bg-shield-navy px-2.5 py-1 rounded border border-shield-cardBorder">
+              Anti-Scam Helpline: 1800-722-6688
+            </span>
+            <span className="text-shield-cyan font-bold bg-shield-navy px-2.5 py-1 rounded border border-shield-cardBorder">
+              Official Portal: scamshield.gov.sg
+            </span>
           </div>
         </div>
       </div>
@@ -128,7 +132,7 @@ export const FaqPage: React.FC = () => {
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1" role="tablist">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1" role="tablist">
           {[
             { id: 'all', label: 'All FAQs' },
             { id: 'about', label: 'About' },
@@ -142,10 +146,10 @@ export const FaqPage: React.FC = () => {
               role="tab"
               aria-selected={selectedCategory === cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-shield-cyan ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-shield-cyan ${
                 selectedCategory === cat.id
-                  ? 'bg-shield-blue text-white'
-                  : 'bg-shield-navy/80 text-shield-muted hover:text-white border border-shield-cardBorder'
+                  ? 'bg-shield-blue text-white shadow-glow-blue font-bold border border-shield-cyan/50'
+                  : 'bg-shield-void/80 text-shield-muted hover:text-white border border-shield-cardBorder'
               }`}
             >
               {cat.label}
@@ -161,7 +165,7 @@ export const FaqPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search questions..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-shield-navy/90 border border-shield-cardBorder text-xs text-white placeholder-shield-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-shield-void/90 border border-shield-cardBorder text-xs text-white placeholder-shield-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan shadow-sm"
             aria-label="Search frequently asked questions"
           />
         </div>
@@ -176,7 +180,7 @@ export const FaqPage: React.FC = () => {
               <div
                 key={faq.id}
                 className={`game-panel border transition-all duration-200 overflow-hidden ${
-                  isOpen ? 'border-shield-cyan/50 bg-shield-slate/60' : 'border-shield-cardBorder'
+                  isOpen ? 'border-shield-cyan/50 bg-shield-surface/90 shadow-lg' : 'border-shield-cardBorder'
                 }`}
               >
                 <button
@@ -186,10 +190,10 @@ export const FaqPage: React.FC = () => {
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${faq.id}`}
                 >
-                  <span className="text-base sm:text-lg font-heading font-bold text-white">
+                  <span className="text-base sm:text-lg font-heading font-black text-white">
                     {faq.question}
                   </span>
-                  <div className="p-1 rounded-lg bg-shield-navy border border-shield-cardBorder text-shield-cyan flex-shrink-0">
+                  <div className="p-1.5 rounded-lg bg-shield-void border border-shield-cardBorder text-shield-cyan flex-shrink-0">
                     {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
                 </button>
@@ -197,7 +201,7 @@ export const FaqPage: React.FC = () => {
                 {isOpen && (
                   <div
                     id={`faq-answer-${faq.id}`}
-                    className="px-6 pb-6 text-sm sm:text-base text-shield-cream/90 leading-relaxed border-t border-shield-cardBorder/40 pt-4 animate-fadeIn"
+                    className="px-6 pb-6 text-sm sm:text-base text-shield-cream/90 leading-relaxed border-t border-shield-cardBorder/40 pt-4"
                   >
                     {faq.answer}
                   </div>

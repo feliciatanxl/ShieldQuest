@@ -33,23 +33,23 @@ export const GuardiansPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
       {/* Header */}
-      <div className="max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-semibold text-shield-gold mb-4">
-          <Shield className="w-3.5 h-3.5" />
-          <span>Protective Competencies</span>
+      <div className="max-w-3xl space-y-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-shield-navy/90 border border-shield-cardBorder text-xs font-mono font-semibold text-shield-gold shadow-sm">
+          <Shield className="w-3.5 h-3.5 text-shield-gold" />
+          <span>ROSTER // CRIME-PREVENTION DISCIPLINES</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black text-white tracking-tight leading-tight">
           Meet the Six Guardians
         </h1>
-        <p className="text-lg text-shield-cream/90 leading-relaxed">
-          Guardians represent core crime-prevention disciplines. Each Guardian embodies a specific protective instinct
-          and equips players with mental tools to navigate social coercion, digital deception, and high-pressure
+        <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
+          Guardians represent core protective competencies. Each Guardian embodies a specific protective discipline
+          and equips players with transferable habits to navigate social coercion, digital deception, and high-pressure
           dilemmas.
         </p>
       </div>
 
       {/* Educational Notice on Progression */}
-      <div className="p-5 rounded-2xl bg-shield-navy/60 border border-shield-cardBorder flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm text-shield-muted">
+      <div className="p-5 sm:p-6 rounded-2xl bg-shield-void/80 border border-shield-cardBorder/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm text-shield-muted shadow-sm">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-shield-cyan flex-shrink-0" />
           <span>
@@ -57,15 +57,15 @@ export const GuardiansPage: React.FC = () => {
             exclusively through demonstrated reasoning and safe choices—never paywalls, currencies, or random loot boxes.
           </span>
         </div>
-        <span className="text-[11px] font-mono text-shield-gold px-2.5 py-1 rounded bg-shield-slate border border-shield-cardBorder flex-shrink-0">
+        <span className="text-[11px] font-mono text-shield-gold px-3 py-1 rounded-lg bg-shield-surface border border-shield-cardBorder flex-shrink-0">
           6 of 6 Available in Preview
         </span>
       </div>
 
       {/* Filter Bar */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist" aria-label="Filter Guardians by discipline">
-        <span className="text-xs font-mono uppercase text-shield-muted mr-2 flex items-center gap-1">
-          <Filter className="w-3.5 h-3.5" /> Filter:
+        <span className="text-xs font-mono uppercase text-shield-muted mr-2 flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5 text-shield-cyan" /> Filter:
         </span>
         {disciplines.map((d) => (
           <button
@@ -74,10 +74,10 @@ export const GuardiansPage: React.FC = () => {
             role="tab"
             aria-selected={selectedDiscipline === d.id}
             onClick={() => setSelectedDiscipline(d.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
+            className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
               selectedDiscipline === d.id
-                ? 'bg-shield-blue text-white shadow-sm'
-                : 'bg-shield-navy/70 text-shield-muted hover:text-white hover:bg-shield-slate border border-shield-cardBorder'
+                ? 'bg-shield-blue text-white shadow-glow-blue font-bold border border-shield-cyan/50'
+                : 'bg-shield-void/80 text-shield-muted hover:text-white hover:bg-shield-surface border border-shield-cardBorder'
             }`}
           >
             {d.label}
@@ -93,12 +93,12 @@ export const GuardiansPage: React.FC = () => {
       </div>
 
       {/* Educational Framework Alignment */}
-      <div className="game-panel p-8 sm:p-10 border border-shield-cardBorder/80 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-semibold text-shield-cyan uppercase tracking-wider">
-          <Sparkles className="w-4 h-4" />
+      <div className="game-panel p-8 sm:p-10 border border-shield-cardBorder/80 space-y-5 shadow-2xl">
+        <div className="flex items-center gap-2 text-xs font-mono font-bold text-shield-cyan uppercase tracking-wider">
+          <Sparkles className="w-4 h-4 text-shield-gold" />
           <span>S.H.I.E.L.D. Behavioural Integration</span>
         </div>
-        <h3 className="text-2xl font-heading font-bold text-white">
+        <h3 className="text-2xl sm:text-3xl font-heading font-black text-white">
           How Guardians Reinforce Real-Life Protection
         </h3>
         <p className="text-sm text-shield-cream/90 leading-relaxed max-w-3xl">
@@ -110,14 +110,14 @@ export const GuardiansPage: React.FC = () => {
         <div className="pt-4 flex flex-wrap gap-4">
           <Link
             to="/about"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-shield-gold hover:underline"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-shield-gold hover:underline"
           >
             <span>Read about the S.H.I.E.L.D. Framework</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <Link
             to="/world"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-shield-cyan hover:underline"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-shield-cyan hover:underline"
           >
             <span>See Guardians in the City Board</span>
             <ArrowRight className="w-3.5 h-3.5" />
