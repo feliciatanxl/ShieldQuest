@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Navigation, MapPin, ArrowRight } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface CityWaypoint {
@@ -365,17 +365,6 @@ export const HeroIllustration: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Environmental HUD Metadata Badges */}
-      <div className="absolute top-3 left-3 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-lg bg-shield-void/85 border border-shield-cardBorder/80 backdrop-blur-md text-xs text-shield-cream">
-        <Navigation className="w-3.5 h-3.5 text-shield-cyan animate-pulse" />
-        <span className="font-mono font-semibold tracking-wide text-[11px]">CITY BOARD // SECTOR MAP</span>
-      </div>
-
-      <div className="absolute top-3 right-3 pointer-events-none hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-shield-void/85 border border-shield-cardBorder/80 backdrop-blur-md text-[11px] text-shield-gold">
-        <Sparkles className="w-3.5 h-3.5" />
-        <span>Fictional Urban Sandbox</span>
-      </div>
     </div>
   );
 };

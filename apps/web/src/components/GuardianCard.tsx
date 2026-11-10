@@ -1,5 +1,4 @@
 import React from 'react';
-import { Quote, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Guardian } from '@shieldquest/shared';
 
 interface GuardianCardProps {
@@ -241,42 +240,23 @@ export const GuardianCharacterPortrait: React.FC<{ guardianId: string; color: st
   }
 };
 
-export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian, isDetailed = false }) => {
+export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian }) => {
   return (
     <div
-      className="game-panel-interactive p-6 sm:p-7 flex flex-col justify-between group relative overflow-hidden transition-all duration-300"
+      className="game-panel-interactive p-6 flex flex-col justify-between group relative overflow-hidden transition-all duration-300"
       style={{
         borderTop: `4px solid ${guardian.color}`,
       }}
     >
       {/* Background ambient gradient glow */}
       <div
-        className="absolute -top-16 -right-16 w-44 h-44 rounded-full blur-3xl opacity-25 transition-opacity duration-300 group-hover:opacity-45 pointer-events-none"
+        className="absolute -top-16 -right-16 w-36 h-36 rounded-full blur-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-40 pointer-events-none"
         style={{ backgroundColor: guardian.color }}
       />
 
       <div>
-        {/* Header: Tactical Badge & Discipline Label */}
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <span
-            className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border shadow-sm"
-            style={{
-              backgroundColor: `${guardian.color}18`,
-              color: guardian.color,
-              borderColor: `${guardian.color}50`,
-            }}
-          >
-            <Sparkles className="w-3 h-3" />
-            <span>{guardian.badge}</span>
-          </span>
-
-          <span className="text-xs font-mono text-shield-muted uppercase tracking-wider">
-            {guardian.discipline}
-          </span>
-        </div>
-
         {/* Character Portrait Showcase */}
-        <div className="w-full aspect-[4/3] max-w-[200px] mx-auto my-3 relative flex items-center justify-center rounded-2xl bg-gradient-to-b from-shield-surface/60 to-shield-void/80 border border-shield-cardBorder/70 p-2 shadow-inner group-hover:scale-105 transition-transform duration-300">
+        <div className="w-full aspect-[4/3] max-w-[170px] mx-auto my-2 relative flex items-center justify-center rounded-2xl bg-gradient-to-b from-shield-surface/60 to-shield-void/80 border border-shield-cardBorder/70 p-2 shadow-inner group-hover:scale-105 transition-transform duration-300">
           <GuardianCharacterPortrait
             guardianId={guardian.id}
             color={guardian.color}
@@ -284,41 +264,27 @@ export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian, isDetailed
           />
         </div>
 
-        {/* Guardian Name & Learning Association */}
-        <div className="mb-3 text-center sm:text-left">
+        {/* Guardian Name & Associated Protective Skill */}
+        <div className="my-3 text-center sm:text-left">
           <h3 className="text-2xl font-heading font-black text-white group-hover:text-shield-cyan transition-colors">
             {guardian.name}
           </h3>
-          <p className="text-xs font-semibold text-shield-gold uppercase tracking-wider mt-0.5">
-            Discipline: {guardian.discipline}
-          </p>
+          <span
+            className="inline-block text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border mt-1"
+            style={{
+              backgroundColor: `${guardian.color}18`,
+              color: guardian.accentColor,
+              borderColor: `${guardian.color}40`,
+            }}
+          >
+            Skill: {guardian.discipline}
+          </span>
         </div>
 
-        {/* In-Game Role & Behaviour */}
-        <p className="text-xs sm:text-sm text-shield-cream/90 leading-relaxed mb-4">
+        {/* One short description */}
+        <p className="text-xs sm:text-sm text-shield-cream/90 leading-relaxed">
           {guardian.role}
         </p>
-
-        {isDetailed && (
-          <p className="text-xs text-shield-muted leading-relaxed mb-4 pt-3 border-t border-shield-cardBorder/40">
-            {guardian.description}
-          </p>
-        )}
-
-        {/* Reinforced Behaviour Box */}
-        <div className="p-3.5 rounded-xl bg-shield-navy/80 border border-shield-cardBorder/70 text-xs text-shield-cream mb-4">
-          <div className="flex items-center gap-1.5 font-semibold text-shield-gold mb-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-shield-gold" />
-            <span>Protective Habit Instilled:</span>
-          </div>
-          <p className="leading-snug text-shield-cream/90">{guardian.reinforcedBehaviour}</p>
-        </div>
-      </div>
-
-      {/* Quote / Motto */}
-      <div className="pt-3 border-t border-shield-cardBorder/50 flex items-start gap-2 text-xs italic text-shield-muted">
-        <Quote className="w-3.5 h-3.5 flex-shrink-0 text-shield-cyan mt-0.5 opacity-75" />
-        <p>"{guardian.quote}"</p>
       </div>
     </div>
   );

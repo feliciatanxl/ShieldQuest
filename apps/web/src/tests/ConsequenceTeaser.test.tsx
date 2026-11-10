@@ -9,7 +9,7 @@ describe('Delayed Consequence Teaser Component', () => {
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: /Some consequences don't appear immediately/i,
+        name: /Every Choice Has a Ripple Effect/i,
       })
     ).toBeInTheDocument();
 
