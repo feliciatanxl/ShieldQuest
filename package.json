@@ -1,0 +1,31 @@
+{
+  "name": "shieldquest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ShieldQuest — Scenario-based youth crime-prevention adventure game",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@shieldquest/web",
+    "dev:api": "npm run dev --workspace=@shieldquest/api",
+    "dev": "npm run dev --workspace=@shieldquest/web",
+    "build:shared": "npm run build --workspace=@shieldquest/shared",
+    "build:api": "npm run build --workspace=@shieldquest/api",
+    "build:web": "npm run build --workspace=@shieldquest/web",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "test:api": "npm run test --workspace=@shieldquest/api",
+    "test:web": "npm run test --workspace=@shieldquest/web",
+    "test": "npm run test:api && npm run test:web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "start:api": "npm run start --workspace=@shieldquest/api"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

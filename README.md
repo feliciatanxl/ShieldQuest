@@ -217,12 +217,144 @@ The project's planned software evolution follows six core milestones:
 
 ---
 
+## Repository Architecture
+
+ShieldQuest is organized as an npm workspaces monorepo:
+
+```
+ShieldQuest/
+├── apps/
+│   ├── web/                     # React + TypeScript + Vite + Tailwind CSS public frontend
+│   │   ├── src/
+│   │   │   ├── components/      # UI components (Navbar, Footer, HeroIllustration, DistrictMap, etc.)
+│   │   │   ├── pages/           # Public pages (Home, About, HowItWorks, Guardians, World, Faq, NotFound)
+│   │   │   ├── layouts/         # RootLayout (skip link, sticky navbar, main, footer)
+│   │   │   ├── services/        # API client with resilient bundled fallback
+│   │   │   ├── styles/          # Tailwind CSS styles and custom game design tokens
+│   │   │   └── tests/           # Component and routing tests with Vitest & RTL
+│   │   └── package.json
+│   └── api/                     # Node.js + TypeScript + Express backend service
+│       ├── src/
+│       │   ├── config/          # Environment configuration
+│       │   ├── data/            # Canonical public fixtures
+│       │   ├── middleware/      # Error handler and security policies
+│       │   ├── routes/          # Health and public API endpoints
+│       │   ├── app.ts           # Express application setup
+│       │   └── server.ts        # Server listener
+│       ├── tests/               # API endpoint tests with Vitest & Supertest
+│       └── package.json
+├── packages/
+│   └── shared/                  # Shared TypeScript types, interfaces, and constants
+│       ├── src/                 # Guardians, Districts, S.H.I.E.L.D. framework, Scenarios
+│       └── package.json
+├── docs/                        # Architectural and development documentation
+├── package.json                 # Root monorepo workspace scripts
+└── README.md
+```
+
+---
+
 ## Development Setup
 
-> [!NOTE]
-> This repository currently contains project documentation, design specifications, and architecture planning files. Application source code will be integrated during the upcoming rebuild phases.
+### Prerequisites
 
-Once code scaffolding begins, environment prerequisites and setup commands will be documented here. In the meantime, review [CONTRIBUTING.md](CONTRIBUTING.md) for workflow standards and [SECURITY.md](SECURITY.md) for planned privacy controls.
+- **Node.js:** `>= 20.0.0` (Tested on Node.js v24)
+- **npm:** `>= 10.0.0`
+
+### Installation
+
+Clone the repository and install all workspace dependencies from the root:
+
+```bash
+npm install
+```
+
+### Environment Configuration
+
+By default, the application runs out of the box with sensible development defaults. You can customize them using environment variables:
+
+#### API Service (`apps/api/.env`)
+- `PORT` — Port number for the API server (Default: `4000`)
+- `NODE_ENV` — `development` | `production` | `test` (Default: `development`)
+- `ALLOWED_ORIGINS` — Comma-separated list of allowed CORS origins (Default: `http://localhost:5173,http://localhost:3000`)
+
+#### Frontend Web (`apps/web/.env`)
+- `VITE_API_URL` — Base URL of the API server (Default: `/api` via Vite development proxy)
+
+### Development Commands
+
+Run the frontend and backend in development mode:
+
+```bash
+# Start the Vite React development server (http://localhost:5173)
+npm run dev:web
+
+# Start the Node.js + Express API server with hot reloading (http://localhost:4000)
+npm run dev:api
+```
+
+### Production Build
+
+Build all packages and applications for production:
+
+```bash
+npm run build
+```
+
+Or build individual workspaces:
+```bash
+npm run build:shared   # Compiles shared types and constants
+npm run build:api      # Compiles Express TypeScript backend into dist/
+npm run build:web      # Compiles Vite production bundle into dist/
+```
+
+### Running Tests and Quality Checks
+
+```bash
+# Run all tests across web and API
+npm run test
+
+# Run API tests only
+npm run test:api
+
+# Run Web component tests only
+npm run test:web
+
+# TypeScript strict type checking across all workspaces
+npm run typecheck
+```
+
+---
+
+## Backend API Endpoints
+
+The Phase 1 API provides typed public metadata endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Service health status, uptime, and timestamp |
+| `GET` | `/api/public/site` | Public project metadata and disclaimers |
+| `GET` | `/api/public/districts` | List of all four City Board districts |
+| `GET` | `/api/public/districts/:id` | Detailed dossier for a single district |
+| `GET` | `/api/public/guardians` | Profiles of all six protective skill Guardians |
+| `GET` | `/api/public/guardians/:id` | Profile of an individual Guardian |
+| `GET` | `/api/public/framework` | Six stages of the S.H.I.E.L.D. behavioural framework |
+| `GET` | `/api/public/teaser` | Public interactive consequence preview scenarios |
+
+---
+
+## Current Public Website Functionality (Phase 1)
+
+The public website serves as the introductory gateway to the world of ShieldQuest:
+
+- **Home (`/`):** Cinematic hero section with interactive City Board waypoints, introduction to the game, three pillars (Explore, Decide, Protect), an interactive Delayed Consequence Engine demonstration, district previews, Guardian previews, and squad play introduction.
+- **About (`/about`):** Details the youth crime-prevention problem, the limits of passive lectures, educational objectives, and an interactive breakdown of the 6-step **S.H.I.E.L.D.** framework.
+- **How It Works (`/how-it-works`):** Explains the intended 6-phase player journey and details the **Think–Vote–Explain** anonymous squad deliberation ritual.
+- **The World (`/world`):** Explores the 4 urban districts (School Street, Retail District, Digi-District, Community Hub) with an interactive dossier and an accessible list-view alternative.
+- **Guardians (`/guardians`):** Complete gallery of the six skill-based Guardians (VeriFox, Echo, Beacon, Shieldfin, Cluepaw, ByteBuddy) with discipline filtering.
+- **FAQ (`/faq`):** Searchable and filterable accordion answering core questions about target audiences, privacy policies, data minimisation, and official emergency reporting helplines.
+- **Custom 404 (`*`):** Themed recovery page with navigation back to the City Board.
+- **Accessibility:** Targeted WCAG 2.2 Level AA compliance, high contrast palettes, visible focus indicators, skip-to-content navigation, screen-reader headings, and respect for `prefers-reduced-motion`.
 
 ---
 
