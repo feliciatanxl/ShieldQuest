@@ -25,16 +25,17 @@ export function PageControls() {
   const buttonClass = 'flex h-12 w-12 items-center justify-center rounded-full border border-shield-cardBorder bg-shield-card text-shield-cream shadow-lg hover:text-shield-cyan focus-visible:ring-2 focus-visible:ring-shield-cyan';
   return (
     <div className="fixed bottom-6 right-4 sm:right-6 z-40 flex flex-col gap-3" aria-label="Page controls">
-      <button type="button" className={buttonClass} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+      <motion.button layout transition={{ type: 'spring', stiffness: 380, damping: 30 }} type="button" className={buttonClass} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
         {theme === 'dark' ? <Sun size={21} aria-hidden="true" /> : <Moon size={21} aria-hidden="true" />}
-      </button>
-      <AnimatePresence initial={false}>
+      </motion.button>
+      <AnimatePresence initial={false} mode="popLayout">
       {scrolled && <motion.div
         key="scroll-to-top"
-        initial={{ height: 0, opacity: 0, marginTop: -12, y: reduceMotion ? 0 : 16, scale: reduceMotion ? 1 : 0.85 }}
-        animate={{ height: 48, opacity: 1, marginTop: 0, y: 0, scale: 1 }}
-        exit={{ height: 0, opacity: 0, marginTop: -12, y: reduceMotion ? 0 : 12, scale: reduceMotion ? 1 : 0.9 }}
-        transition={{ duration: reduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+        layout
+        initial={{ opacity: 0, y: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.4, rotate: reduceMotion ? 0 : -90 }}
+        animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+        exit={{ opacity: 0, y: reduceMotion ? 0 : 16, scale: reduceMotion ? 1 : 0.5, transition: { duration: reduceMotion ? 0 : 0.18 } }}
+        transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 22 }}
       ><motion.button
         whileHover={reduceMotion ? undefined : { y: -3, scale: 1.06 }}
         whileTap={reduceMotion ? undefined : { scale: 0.94 }}

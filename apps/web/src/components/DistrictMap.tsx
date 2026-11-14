@@ -135,9 +135,9 @@ export const DistrictMap: React.FC = () => {
 
       {/* Main District Grid / Map */}
       {viewMode === 'interactive' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Sector Selection Grid (7 cols) */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 lg:auto-rows-fr gap-5">
             {DISTRICTS.map((district, idx) => {
               const isSelected = selectedDistrict?.id === district.id;
               const styling = districtThemes[district.id] || districtThemes['school-street'];
@@ -147,7 +147,7 @@ export const DistrictMap: React.FC = () => {
                   key={district.id}
                   type="button"
                   onClick={() => setSelectedDistrict(district)}
-                  className="relative text-left p-6 rounded-2xl border border-blue-500/40 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void shadow-glow-blue ring-2 ring-shield-cyan/60 transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group hover:border-shield-cyan"
+                  className="relative flex h-full flex-col text-left p-6 rounded-2xl border border-blue-500/40 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void shadow-glow-blue ring-2 ring-shield-cyan/60 transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group hover:border-shield-cyan"
                   aria-pressed={isSelected}
                   aria-label={`Select district: ${district.name}`}
                 >
@@ -176,7 +176,7 @@ export const DistrictMap: React.FC = () => {
                     {district.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-3 border-t border-shield-cardBorder/50">
+                  <div className="mt-auto flex flex-wrap gap-1.5 pt-3 border-t border-shield-cardBorder/50">
                     {district.skillsExplored.slice(0, 2).map((skill) => (
                       <span
                         key={skill}
