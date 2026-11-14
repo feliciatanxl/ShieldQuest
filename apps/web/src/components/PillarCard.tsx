@@ -24,7 +24,7 @@ const pillars: Pillar[] = [
     accent: '#38D9E6',
     link: '/world',
     linkText: 'Explore the City',
-    icon: <Search className="w-6 h-6 text-shield-cyan" />,
+    icon: <Search className="w-7 h-7" aria-hidden="true" />,
   },
   {
     id: 'decide',
@@ -35,7 +35,7 @@ const pillars: Pillar[] = [
     accent: '#FDE047',
     link: '/how-it-works',
     linkText: 'How Decisions Work',
-    icon: <Compass className="w-6 h-6 text-shield-gold" />,
+    icon: <Compass className="w-7 h-7" aria-hidden="true" />,
   },
   {
     id: 'protect',
@@ -46,7 +46,7 @@ const pillars: Pillar[] = [
     accent: '#60A5FA',
     link: '/guardians',
     linkText: 'Meet the Guardians',
-    icon: <ShieldAlert className="w-6 h-6 text-shield-blue" />,
+    icon: <ShieldAlert className="w-7 h-7" aria-hidden="true" />,
   },
 ];
 
@@ -72,8 +72,8 @@ export const PillarCards: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-5">
                 <div
-                  className="p-3 rounded-2xl bg-shield-navy/90 border shadow-md group-hover:scale-105 transition-transform duration-200"
-                  style={{ borderColor: `${pillar.color}50` }}
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-6 transition-transform duration-300"
+                  style={{ backgroundColor: pillar.color, boxShadow: `0 10px 24px -8px ${pillar.color}` }}
                 >
                   {pillar.icon}
                 </div>

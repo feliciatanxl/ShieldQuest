@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
               Choose Right. Protect Together.
             </p>
             <p className="text-xs text-shield-muted">
-              Developed by Team SecurePi
+              Developed by SecurePi
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export const Footer: React.FC = () => {
 
         {/* BOTTOM: Copyright & Brief Educational Notice */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-shield-muted/80">
-          <p>© 2026 Team SecurePi. All rights reserved.</p>
+          <p>© 2026 SecurePi. All rights reserved.</p>
           <p className="text-[11px] text-center sm:text-right">
             Independent educational simulation. Scenarios are strictly fictional.
           </p>

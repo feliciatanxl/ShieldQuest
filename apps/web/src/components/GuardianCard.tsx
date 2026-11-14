@@ -3,7 +3,8 @@ import { Guardian } from '@shieldquest/shared';
 
 interface GuardianCardProps {
   guardian: Guardian;
-  isDetailed?: boolean;
+  /** Position in the roster, shown as a collectible number. */
+  index?: number;
 }
 
 // Character concept portraits with expressive silhouettes, facial features, and gear
@@ -240,52 +241,43 @@ export const GuardianCharacterPortrait: React.FC<{ guardianId: string; color: st
   }
 };
 
-export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian }) => {
+export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian, index }) => {
   return (
-    <div
-      className="game-panel-interactive p-6 flex flex-col justify-between group relative overflow-hidden transition-all duration-300"
-      style={{
-        borderTop: `4px solid ${guardian.color}`,
-      }}
+    <article
+      className="game-panel-interactive h-full p-6 flex flex-col group relative overflow-hidden transition-all duration-300 motion-safe:hover:-translate-y-1"
+      style={{ borderTop: `4px solid ${guardian.color}` }}
     >
-      {/* Background ambient gradient glow */}
+      {/* Character stage */}
       <div
-        className="absolute -top-16 -right-16 w-36 h-36 rounded-full blur-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-40 pointer-events-none"
-        style={{ backgroundColor: guardian.color }}
-      />
-
-      <div>
-        {/* Character Portrait Showcase */}
-        <div className="w-full aspect-[4/3] max-w-[170px] mx-auto my-2 relative flex items-center justify-center rounded-2xl bg-gradient-to-b from-shield-surface/60 to-shield-void/80 border border-shield-cardBorder/70 p-2 shadow-inner group-hover:scale-105 transition-transform duration-300">
-          <GuardianCharacterPortrait
-            guardianId={guardian.id}
-            color={guardian.color}
-            accentColor={guardian.accentColor}
-          />
-        </div>
-
-        {/* Guardian Name & Associated Protective Skill */}
-        <div className="my-3 text-center sm:text-left">
-          <h3 className="text-2xl font-heading font-black text-shield-cream group-hover:text-shield-cyan transition-colors">
-            {guardian.name}
-          </h3>
-          <span
-            className="inline-block text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border mt-1"
-            style={{
-              backgroundColor: `${guardian.color}18`,
-              color: guardian.accentColor,
-              borderColor: `${guardian.color}40`,
-            }}
-          >
-            Skill: {guardian.discipline}
+        className="relative -mx-6 -mt-6 mb-5 flex h-48 items-end justify-center overflow-hidden"
+        style={{ background: `radial-gradient(circle at 50% 70%, ${guardian.color}55 0%, ${guardian.color}14 45%, transparent 75%)` }}
+      >
+        {index !== undefined && (
+          <span className="absolute left-4 top-3 text-xs font-mono font-bold tracking-widest text-shield-muted">
+            #{String(index).padStart(2, '0')}
           </span>
+        )}
+        <span
+          className="absolute bottom-3 h-4 w-32 rounded-full blur-md opacity-50"
+          style={{ backgroundColor: guardian.color }}
+          aria-hidden="true"
+        />
+        <div className="relative h-40 w-40 transition-transform duration-300 motion-safe:group-hover:scale-110 motion-safe:group-hover:-translate-y-1">
+          <GuardianCharacterPortrait guardianId={guardian.id} color={guardian.color} accentColor={guardian.accentColor} />
         </div>
-
-        {/* One short description */}
-        <p className="text-xs sm:text-sm text-shield-cream/90 leading-relaxed">
-          {guardian.role}
-        </p>
       </div>
-    </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-2xl font-heading font-black text-shield-cream">{guardian.name}</h3>
+        <span
+          className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border whitespace-nowrap"
+          style={{ backgroundColor: `${guardian.color}18`, color: guardian.color, borderColor: `${guardian.color}55` }}
+        >
+          {guardian.discipline}
+        </span>
+      </div>
+
+      <p className="mt-3 text-sm text-shield-cream/90 leading-relaxed">{guardian.role}</p>
+    </article>
   );
 };

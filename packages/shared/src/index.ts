@@ -72,12 +72,12 @@ export const SITE_METADATA: SiteMetadata = {
   name: 'ShieldQuest',
   tagline: 'Choose Right. Protect Together.',
   coreBrandIdea: 'Experience the consequence. Understand the pressure. Protect someone else.',
-  team: 'Team SecurePi',
+  team: 'SecurePi',
   institution: 'Nanyang Polytechnic, Singapore',
   status: 'In Active Development',
   phase: 'Phase 1: Public Web Preview',
   disclaimer:
-    'ShieldQuest is an independent student educational project developed by Team SecurePi from Nanyang Polytechnic. It is not an official product or service of the Singapore Police Force (SPF), the National Crime Prevention Council (NCPC), the National Youth Council (NYC), or any government agency. All scenarios, organizations, web domains, and phone numbers featured are strictly fictional.',
+    'ShieldQuest is an independent student educational project developed by SecurePi from Nanyang Polytechnic. It is not an official product or service of the Singapore Police Force (SPF), the National Crime Prevention Council (NCPC), the National Youth Council (NYC), or any government agency. All scenarios, organizations, web domains, and phone numbers featured are strictly fictional.',
 };
 
 export const GUARDIANS: Guardian[] = [
@@ -184,15 +184,15 @@ export const DISTRICTS: District[] = [
   {
     id: 'retail-district',
     name: 'Retail District',
-    theme: 'E-commerce bargains, fake job offers, fast-cash courier tasks, unauthorised resale',
-    skillsExplored: ['Verification', 'Financial caution', 'Merchant authenticity', 'Scam recognition'],
+    theme: 'Initial pilot focus: shop-theft prevention, store dares, speaking up and seeking help',
+    skillsExplored: ['Spotting risk', 'Resisting dares', 'Redirecting peers', 'Seeking help'],
     visualConcept: 'Bustling covered arcades, neon storefronts, transit escalators, digital ad billboards',
     description:
-      'A bustling commercial corridor packed with high-end shops, pop-up kiosks, and side-hustle posters that tempt young shoppers with "easy pocket money".',
+      'A busy corridor of shops and kiosks where a friend’s dare to pocket something quickly turns into a real decision.',
     coordinates: { x: 74, y: 34 },
     sampleScenarioPreview:
-      'An online advertisement offers $120 to collect a sealed package from a retail locker with no questions asked.',
-    keyThreats: ['Mule courier requests', 'Fake escrow payments', 'Unregistered part-time work traps'],
+      'A friend dares the group to slip a snack into a bag while the store assistant is busy.',
+    keyThreats: ['Shop-theft dares', 'Group pressure', 'Bystander silence'],
   },
   {
     id: 'digi-district',
@@ -226,55 +226,49 @@ export const SHIELD_FRAMEWORK: ShieldStep[] = [
   {
     letter: 'S',
     title: 'Spot the Risk',
-    headline: 'Recognise early anomalies and warning signals',
-    description:
-      'Notice subtle red flags: unexpected urgency, mismatched sender details, artificial scarcity, or requests that feel out of character.',
-    example: 'An urgent chat notification demands an immediate password reset via an unfamiliar shortened link.',
+    headline: 'Notice objective observations and clues',
+    description: 'Pick out what is actually happening: who is there, what they are doing and which details stand out.',
+    example: 'Noticing a friend glance at the store camera while holding an unpaid item.',
     guardianPair: 'Cluepaw & VeriFox',
   },
   {
     letter: 'H',
     title: 'Hold Before Acting',
-    headline: 'Interrupt the artificial pressure clock',
-    description:
-      'Manipulators rely on panic, excitement, or FOMO to trigger reflex actions. Pausing gives your critical reasoning time to catch up.',
-    example: 'Taking a 60-second breathing pause instead of immediately tapping a countdown promo button.',
+    headline: 'Choose a safe immediate boundary',
+    description: 'Pause and set a clear, safe boundary or refusal in the moment instead of going along with it.',
+    example: 'Saying “I’m not taking anything, I’ll wait outside” when a dare starts.',
     guardianPair: 'Shieldfin',
   },
   {
     letter: 'I',
     title: 'Identify the Influence',
-    headline: 'Deconstruct the psychological levers at play',
-    description:
-      'Dissect the tactic: Is it social proof ("Everyone in the group did it"), authority intimidation, or a friendly dare?',
-    example: 'Recognising that a classmate is using group loyalty to pressure you into lending your banking app.',
+    headline: 'Recognise pressure and risk context',
+    description: 'Identify the peer pressure, influence and situational factors pushing someone towards a risky choice.',
+    example: 'Recognising that “everyone does it” is group pressure, not a reason.',
     guardianPair: 'Echo & Cluepaw',
   },
   {
     letter: 'E',
-    title: 'Evaluate the Consequences',
-    headline: 'Look past the short-term perk to delayed reality',
-    description:
-      'Immediate rewards often disguise long-term liabilities. Ask: What happens in 24 hours, next week, or when an investigation begins?',
-    example: 'A $50 "easy transfer fee" today means police inquiries, bank blacklisting, and compromised trust tomorrow.',
+    title: 'Evaluate Consequences',
+    headline: 'Compare options and likely outcomes',
+    description: 'Compare the available options and weigh their likely immediate and delayed consequences.',
+    example: 'Weighing a moment of approval against being caught and losing trust.',
     guardianPair: 'ByteBuddy',
   },
   {
     letter: 'L',
     title: 'Lead the Right Choice',
-    headline: 'Commit to a principled, safe, and lawful response',
-    description:
-      'Execute a clear refusal or defensive boundary for yourself without escalating interpersonal drama.',
-    example: 'Calmly declining to share an OTP: "I keep my account codes private, let’s check the official support portal instead."',
+    headline: 'Redirect a peer respectfully',
+    description: 'Construct a respectful message that redirects a peer away from the risky choice.',
+    example: '“Put it back, it’s not worth it. Let’s go get food instead.”',
     guardianPair: 'Shieldfin & VeriFox',
   },
   {
     letter: 'D',
     title: 'Defend Your Community',
-    headline: 'Step in safely and protect peers through positive bystander action',
-    description:
-      'Safeguarding is a team sport. Support vulnerable friends, redirect them away from risk, and alert trusted adult mentors or reporting helplines.',
-    example: 'Gently pulling a friend aside when someone is coaching them into opening a mule bank account.',
+    headline: 'Seek appropriate help with the facts',
+    description: 'Seek help from an appropriate adult and communicate factual observations.',
+    example: 'Telling store staff or a teacher exactly what you saw, without guessing.',
     guardianPair: 'Beacon & Echo',
   },
 ];

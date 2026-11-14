@@ -66,8 +66,13 @@ const districtThemes: Record<
   },
 };
 
+/** The initial educational pilot runs in this district; the others are long-term previews. */
+const PILOT_DISTRICT_ID = 'retail-district';
+
 export const DistrictMap: React.FC = () => {
-  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(DISTRICTS[0]);
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
+    DISTRICTS.find((d) => d.id === PILOT_DISTRICT_ID) ?? DISTRICTS[0]
+  );
   const [viewMode, setViewMode] = useState<'interactive' | 'list'>('interactive');
 
   return (
@@ -80,10 +85,10 @@ export const DistrictMap: React.FC = () => {
           </div>
           <div>
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-shield-cream block">
-              City Board Sectors (4 Active Zones)
+              Four Districts
             </span>
             <span className="text-[11px] text-shield-muted">
-              Select any district to inspect its environmental threats and learning focus
+              Select a district to preview it
             </span>
           </div>
         </div>
@@ -147,21 +152,39 @@ export const DistrictMap: React.FC = () => {
                   key={district.id}
                   type="button"
                   onClick={() => setSelectedDistrict(district)}
-                  className="relative flex h-full flex-col text-left p-6 rounded-2xl border border-blue-500/40 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void shadow-glow-blue ring-2 ring-shield-cyan/60 transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group hover:border-shield-cyan"
+                  className={`relative flex h-full flex-col text-left p-6 rounded-2xl border-2 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group motion-safe:hover:-translate-y-1 ${
+                    isSelected ? 'shadow-xl' : 'border-shield-cardBorder hover:border-shield-cyan/50'
+                  }`}
+                  style={isSelected ? { borderColor: styling.accent, boxShadow: `0 0 28px -8px ${styling.accent}` } : undefined}
                   aria-pressed={isSelected}
                   aria-label={`Select district: ${district.name}`}
                 >
+                  {/* District motif glow */}
+                  <span
+                    className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full blur-2xl transition-opacity duration-300 pointer-events-none"
+                    style={{ backgroundColor: styling.accent, opacity: isSelected ? 0.3 : 0.1 }}
+                    aria-hidden="true"
+                  />
                   {/* Sector Header */}
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between gap-2 mb-4">
                     <div
                       className="p-3 rounded-2xl bg-shield-void border shadow-md group-hover:scale-110 transition-transform duration-300"
                       style={{ borderColor: `${styling.accent}50` }}
                     >
                       {districtIcons[district.id]}
                     </div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-shield-muted px-2 py-0.5 rounded bg-shield-void border border-shield-cardBorder">
-                      {isSelected ? 'Selected · ' : ''}Sector 0{idx + 1}
-                    </span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-shield-muted px-2 py-0.5 rounded bg-shield-void border border-shield-cardBorder">
+                        Sector 0{idx + 1}
+                      </span>
+                      {district.id === PILOT_DISTRICT_ID ? (
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-shield-gold text-shield-void">
+                          Pilot focus
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-shield-muted">Future preview</span>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="text-xl font-heading font-black text-shield-cream mb-1 group-hover:text-shield-cyan transition-colors">
@@ -203,11 +226,11 @@ export const DistrictMap: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-shield-cyan" />
                     <span className="text-xs font-mono font-bold uppercase tracking-wider text-shield-cyan">
-                      Sector Dossier
+                      District Dossier
                     </span>
                   </div>
                   <span className="text-[11px] font-mono text-shield-gold bg-shield-void px-2.5 py-0.5 rounded border border-shield-cardBorder">
-                    Active Hotspot
+                    {selectedDistrict.id === PILOT_DISTRICT_ID ? 'Pilot focus' : 'Future preview'}
                   </span>
                 </div>
 
@@ -242,7 +265,7 @@ export const DistrictMap: React.FC = () => {
                 {/* Key Skills */}
                 <div className="mb-5 space-y-2">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-shield-muted block">
-                    Core Competencies Tested
+                    Skills Explored
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {selectedDistrict.skillsExplored.map((skill) => (
@@ -261,7 +284,7 @@ export const DistrictMap: React.FC = () => {
                 <div className="p-4 rounded-xl bg-gradient-to-r from-shield-navy to-shield-surface border border-shield-blue/40 space-y-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-shield-gold">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Sample Dilemma Teaser</span>
+                    <span>Sample Dilemma</span>
                   </div>
                   <p className="text-xs text-shield-cream/90 leading-relaxed italic">
                     "{selectedDistrict.sampleScenarioPreview}"
@@ -290,7 +313,14 @@ export const DistrictMap: React.FC = () => {
                     {districtIcons[district.id]}
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-black text-shield-cream">{district.name}</h3>
+                    <h3 className="text-xl font-heading font-black text-shield-cream">
+                      {district.name}
+                      {district.id === PILOT_DISTRICT_ID && (
+                        <span className="ml-2 align-middle text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-shield-gold text-shield-void">
+                          Pilot focus
+                        </span>
+                      )}
+                    </h3>
                     <p className="text-xs text-shield-gold font-medium">Theme: {district.theme}</p>
                   </div>
                 </div>

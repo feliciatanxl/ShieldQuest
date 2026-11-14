@@ -24,7 +24,7 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-20 md:space-y-28 pb-20 overflow-hidden">
+    <div className="space-y-16 md:space-y-24 pb-16 overflow-hidden">
       {/* Section 1 — Hero */}
       <section className="relative pt-6 sm:pt-10 lg:pt-12" aria-labelledby="hero-title">
         {/* Soft background ambient glow */}
@@ -82,7 +82,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Section 2 — Explore, Decide, Protect */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20" aria-labelledby="pillars-title">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16" aria-labelledby="pillars-title">
         <div className="text-center max-w-xl mx-auto mb-10">
           <h2 id="pillars-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
             How ShieldQuest Works
@@ -104,7 +104,7 @@ export const HomePage: React.FC = () => {
             Discover the World
           </h2>
           <p className="text-sm text-shield-muted mt-2">
-            Explore diverse city districts and meet the Guardians who guide your journey.
+            Explore the districts and meet the Guardians who join your journey.
           </p>
         </div>
 
@@ -122,20 +122,30 @@ export const HomePage: React.FC = () => {
               </h3>
 
               <p className="text-sm text-shield-cream/90 mb-6">
-                From School Street to Digi-District, navigate realistic spaces where youths encounter everyday digital and social choices.
+                A Singapore-inspired city to explore. The pilot starts in the Retail District.
               </p>
 
-              {/* District Pills */}
+              {/* District markers */}
               <div className="grid grid-cols-2 gap-2.5 mb-8">
-                {miniDistricts.map((d) => (
-                  <div
-                    key={d.name}
-                    className="p-3 rounded-xl bg-shield-void/80 border border-shield-cardBorder text-xs text-shield-cream font-medium flex items-center gap-2"
-                  >
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                    <span>{d.name}</span>
-                  </div>
-                ))}
+                {miniDistricts.map((d) => {
+                  const isPilot = d.name === 'Retail District';
+                  return (
+                    <div
+                      key={d.name}
+                      className={`p-3 rounded-xl bg-shield-void/80 border text-xs text-shield-cream font-medium flex items-center gap-2 ${
+                        isPilot ? 'border-shield-gold/60' : 'border-shield-cardBorder'
+                      }`}
+                    >
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{ color: d.color }} aria-hidden="true" />
+                      <span className="truncate">{d.name}</span>
+                      {isPilot && (
+                        <span className="ml-auto text-[9px] font-mono font-bold uppercase rounded bg-shield-gold px-1.5 py-0.5 text-shield-void">
+                          Pilot
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -161,7 +171,7 @@ export const HomePage: React.FC = () => {
               </h3>
 
               <p className="text-sm text-shield-cream/90 mb-6">
-                Unlock transferable protective instincts—from verification to peer protection—through demonstrated reasoning.
+                Companions you plan to unlock as your S.H.I.E.L.D. skills grow.
               </p>
 
               {/* Mini Guardian Lineup */}
@@ -202,7 +212,7 @@ export const HomePage: React.FC = () => {
             </h2>
 
             <p className="text-base sm:text-lg text-shield-cream/90">
-              A new kind of learning adventure is taking shape.
+              A cooperative 3D crime-prevention adventure is taking shape.
             </p>
 
             <div className="pt-3">

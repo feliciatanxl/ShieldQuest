@@ -33,7 +33,7 @@ describe('DistrictMap Component', () => {
     await user.click(listViewBtn);
 
     expect(screen.queryByText(/Sector 01/i)).not.toBeInTheDocument(); // Map badge is replaced by list layout
-    expect(screen.getByText(/A bustling commercial corridor packed with high-end shops/i)).toBeInTheDocument();
+    expect(screen.getByText(/A busy corridor of shops and kiosks/i)).toBeInTheDocument();
 
     const mapViewBtn = screen.getByRole('button', { name: /Interactive Map View/i });
     await user.click(mapViewBtn);

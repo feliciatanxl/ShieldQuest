@@ -36,14 +36,22 @@ export const ConsequenceTeaser: React.FC = () => {
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-semibold text-shield-cyan mb-3">
             <Clock className="w-3.5 h-3.5" />
-            <span>Delayed Consequence Engine</span>
+            <span>The Ripple Effect · Story Preview</span>
           </div>
           <h2 id="consequence-heading" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight mb-3">
             Every Choice Has a Ripple Effect.
           </h2>
           <p className="text-base sm:text-lg text-shield-cream/90">
-            The easiest choice now isn't always the safest later.
+            Your choices can affect what happens later.
           </p>
+          {/* Story-path motif: one choice, two branches */}
+          <svg viewBox="0 0 160 28" className="mx-auto mt-4 h-7 w-40" aria-hidden="true">
+            <circle cx="10" cy="14" r="5" fill="#F2B94B" />
+            <path d="M15 14 H60 C80 14 80 5 100 5 H145" stroke="#38D9E6" strokeWidth="2" fill="none" strokeDasharray="4 3" />
+            <path d="M60 14 C80 14 80 23 100 23 H145" stroke="#7755DF" strokeWidth="2" fill="none" strokeDasharray="4 3" />
+            <circle cx="150" cy="5" r="4" fill="#38D9E6" />
+            <circle cx="150" cy="23" r="4" fill="#7755DF" />
+          </svg>
         </div>
 
         {/* Visual Dilemma Frame */}
@@ -108,7 +116,7 @@ export const ConsequenceTeaser: React.FC = () => {
                       >
                         Option {isOptionA ? 'A' : 'B'}
                       </span>
-                      <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-transparent'}`}>
+                      <span className={`text-xs font-bold ${isSelected ? 'text-shield-cream' : 'text-transparent'}`}>
                         ✓
                       </span>
                     </div>

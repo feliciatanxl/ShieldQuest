@@ -37,11 +37,11 @@ const cityWaypoints: CityWaypoint[] = [
     districtId: 'retail-district',
     x: 76,
     y: 32,
-    threat: 'Unverified Part-Time Courier Gigs',
+    threat: 'A friend’s shop-theft dare at the kiosk',
     guardian: 'VeriFox',
     color: '#F59E0B',
     accentColor: '#FDE047',
-    atmosphere: 'Shimmering shopping arcades, flash parcel lockers & pop-up kiosks',
+    atmosphere: 'Covered arcades, busy kiosks and a choice your squad has to make',
   },
   {
     id: 'wp-cyber',
@@ -72,7 +72,8 @@ const cityWaypoints: CityWaypoint[] = [
 ];
 
 export const HeroIllustration: React.FC = () => {
-  const [activeWp, setActiveWp] = useState<CityWaypoint | null>(cityWaypoints[0]);
+  // Open on the Retail District: it is the initial pilot focus.
+  const [activeWp, setActiveWp] = useState<CityWaypoint | null>(cityWaypoints[1]);
 
   return (
     <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] rounded-2xl overflow-hidden border border-shield-cardBorder/90 bg-gradient-to-b from-shield-card via-shield-dark to-shield-void shadow-2xl shadow-shield-blue/20 backdrop-blur-md">
@@ -81,6 +82,27 @@ export const HeroIllustration: React.FC = () => {
       <div className="hud-corner hud-corner-tr" />
       <div className="hud-corner hud-corner-bl" />
       <div className="hud-corner hud-corner-br" />
+
+      {/* Game HUD overlays: squad slots, concept label, ripple timeline */}
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex items-center gap-2 rounded-full bg-[#0B132B]/80 border border-white/10 px-2.5 py-1.5 backdrop-blur" aria-hidden="true">
+        <div className="flex -space-x-1.5">
+          {['#06B6D4', '#F59E0B', '#8B5CF6', '#10B981'].map((c) => (
+            <span key={c} className="h-5 w-5 rounded-full border-2 border-[#0B132B]" style={{ backgroundColor: c }} />
+          ))}
+          <span className="h-5 w-5 rounded-full border-2 border-dashed border-white/40 bg-[#0B132B]" />
+        </div>
+        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-white/90">Squad 4/5</span>
+      </div>
+      <span className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 rounded-full bg-[#0B132B]/80 border border-white/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-white/70 backdrop-blur">
+        Concept preview
+      </span>
+      <div className="hidden sm:flex absolute top-14 left-4 z-10 items-center gap-1.5 rounded-xl bg-[#0B132B]/80 border border-white/10 px-3 py-2 backdrop-blur" aria-hidden="true">
+        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FDE047]">Choice</span>
+        <span className="h-px w-4 bg-white/40" />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-white/80">Now</span>
+        <span className="h-px w-4 bg-white/40" />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#38D9E6]">Later</span>
+      </div>
 
       {/* Atmospheric Environment Vector Artwork */}
       <svg
@@ -337,11 +359,14 @@ export const HeroIllustration: React.FC = () => {
               {activeWp.district}
             </span>
             <span className="text-[10px] text-shield-gold bg-shield-navy px-1.5 py-0.5 rounded border border-shield-cardBorder">
-              Sector Hotspot
+              {activeWp.districtId === 'retail-district' ? 'Pilot mission' : 'Future district'}
             </span>
           </div>
 
           <h4 className="text-sm font-heading font-bold text-shield-cream mb-1">{activeWp.name}</h4>
+          {activeWp.districtId === 'retail-district' && (
+            <p className="text-[11px] font-semibold text-shield-gold mb-1">Mission: {activeWp.threat}</p>
+          )}
 
           <p className="text-[11px] text-shield-cream/90 leading-relaxed mb-2.5">
             {activeWp.atmosphere}

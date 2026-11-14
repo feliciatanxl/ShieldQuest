@@ -123,7 +123,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="pt-6 border-t border-shield-cardBorder/60 text-xs text-shield-muted">
-            <p>ShieldQuest · Developed by Team SecurePi</p>
+            <p>ShieldQuest · Developed by SecurePi</p>
           </div>
         </div>
       )}
