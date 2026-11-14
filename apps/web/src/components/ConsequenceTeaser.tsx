@@ -38,7 +38,7 @@ export const ConsequenceTeaser: React.FC = () => {
             <Clock className="w-3.5 h-3.5" />
             <span>Delayed Consequence Engine</span>
           </div>
-          <h2 id="consequence-heading" className="text-3xl sm:text-4xl font-heading font-black text-white tracking-tight mb-3">
+          <h2 id="consequence-heading" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight mb-3">
             Every Choice Has a Ripple Effect.
           </h2>
           <p className="text-base sm:text-lg text-shield-cream/90">
@@ -49,12 +49,12 @@ export const ConsequenceTeaser: React.FC = () => {
         {/* Visual Dilemma Frame */}
         <div className="game-panel p-6 sm:p-8 lg:p-9 border border-shield-cyan/30 shadow-2xl space-y-8">
           {/* Incoming Message Card */}
-          <div className="rounded-2xl bg-gradient-to-b from-[#131E38] to-[#0A1021] border border-shield-cardBorder/90 p-5 sm:p-6 shadow-lg">
+          <div className="rounded-2xl bg-gradient-to-b from-shield-card to-shield-dark border border-shield-cardBorder/90 p-5 sm:p-6 shadow-lg">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-shield-cardBorder/60 text-xs text-shield-muted">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-shield-cyan" />
                 <span className="font-mono text-xs text-shield-cream font-medium">
-                  Incoming Message from <strong className="text-white">{scenario.sender}</strong>
+                  Incoming Message from <strong className="text-shield-cream">{scenario.sender}</strong>
                 </span>
               </div>
               <span className="text-[11px] font-mono text-rose-400 bg-rose-950/40 px-2 py-0.5 rounded border border-rose-500/30">
@@ -113,7 +113,7 @@ export const ConsequenceTeaser: React.FC = () => {
                       </span>
                     </div>
 
-                    <p className="text-sm sm:text-base font-semibold text-white leading-snug">
+                    <p className="text-sm sm:text-base font-semibold text-shield-cream leading-snug">
                       {choice.text}
                     </p>
                   </button>
@@ -128,7 +128,7 @@ export const ConsequenceTeaser: React.FC = () => {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-shield-gold" />
-                  <h3 className="text-base sm:text-lg font-heading font-black text-white">
+                  <h3 className="text-base sm:text-lg font-heading font-black text-shield-cream">
                     Timeline Simulation Result
                   </h3>
                 </div>
@@ -136,7 +136,7 @@ export const ConsequenceTeaser: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-shield-navy hover:bg-shield-slate border border-shield-cardBorder text-xs font-semibold text-shield-cream hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-shield-cyan"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-shield-navy hover:bg-shield-slate border border-shield-cardBorder text-xs font-semibold text-shield-cream hover:text-shield-cream transition-colors focus-visible:ring-2 focus-visible:ring-shield-cyan"
                   aria-label="Reset Decision"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-shield-cyan" />
@@ -187,7 +187,7 @@ export const ConsequenceTeaser: React.FC = () => {
               {/* Takeaway */}
               <div className="p-4 sm:p-5 rounded-2xl bg-shield-surface/80 border border-shield-cardBorder/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm">
                 <div className="text-shield-cream/90 leading-relaxed">
-                  <strong className="text-white block sm:inline mr-1">Key Takeaway:</strong>
+                  <strong className="text-shield-cream block sm:inline mr-1">Key Takeaway:</strong>
                   {selectedChoice.learningTakeaway}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-shield-gold bg-shield-navy px-3 py-1.5 rounded-xl border border-shield-cardBorder flex-shrink-0">

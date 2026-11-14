@@ -79,7 +79,7 @@ export const DistrictMap: React.FC = () => {
             <Compass className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-shield-cream block">
               City Board Sectors (4 Active Zones)
             </span>
             <span className="text-[11px] text-shield-muted">
@@ -97,7 +97,7 @@ export const DistrictMap: React.FC = () => {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'interactive'
                   ? 'bg-shield-slate text-shield-cyan shadow-sm border border-shield-cardBorder'
-                  : 'text-shield-muted hover:text-white'
+                  : 'text-shield-muted hover:text-shield-cream'
               }`}
               aria-label="Interactive Map View"
             >
@@ -110,7 +110,7 @@ export const DistrictMap: React.FC = () => {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'list'
                   ? 'bg-shield-slate text-shield-cyan shadow-sm border border-shield-cardBorder'
-                  : 'text-shield-muted hover:text-white'
+                  : 'text-shield-muted hover:text-shield-cream'
               }`}
               aria-label="Accessible List View"
             >
@@ -123,7 +123,7 @@ export const DistrictMap: React.FC = () => {
             <button
               type="button"
               onClick={() => setSelectedDistrict(null)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-shield-navy hover:bg-shield-slate border border-shield-cardBorder text-xs text-shield-muted hover:text-white transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-shield-navy hover:bg-shield-slate border border-shield-cardBorder text-xs text-shield-muted hover:text-shield-cream transition-colors"
               aria-label="Clear selection"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -147,11 +147,7 @@ export const DistrictMap: React.FC = () => {
                   key={district.id}
                   type="button"
                   onClick={() => setSelectedDistrict(district)}
-                  className={`relative text-left p-6 rounded-2xl border transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan overflow-hidden group ${
-                    isSelected
-                      ? `bg-gradient-to-br ${styling.gradient} ${styling.border} ${styling.glow} ring-2 ring-shield-cyan/60 scale-[1.02]`
-                      : 'bg-gradient-to-br from-shield-navy/80 to-shield-void/90 border-shield-cardBorder/80 hover:border-shield-cyan/40 hover:bg-shield-navy'
-                  }`}
+                  className="relative text-left p-6 rounded-2xl border border-blue-500/40 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void shadow-glow-blue ring-2 ring-shield-cyan/60 transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group hover:border-shield-cyan"
                   aria-pressed={isSelected}
                   aria-label={`Select district: ${district.name}`}
                 >
@@ -164,11 +160,11 @@ export const DistrictMap: React.FC = () => {
                       {districtIcons[district.id]}
                     </div>
                     <span className="text-[10px] font-mono uppercase tracking-wider text-shield-muted px-2 py-0.5 rounded bg-shield-void border border-shield-cardBorder">
-                      Sector 0{idx + 1}
+                      {isSelected ? 'Selected · ' : ''}Sector 0{idx + 1}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-heading font-black text-white mb-1 group-hover:text-shield-cyan transition-colors">
+                  <h3 className="text-xl font-heading font-black text-shield-cream mb-1 group-hover:text-shield-cyan transition-colors">
                     {district.name}
                   </h3>
 
@@ -220,7 +216,7 @@ export const DistrictMap: React.FC = () => {
                     {districtIcons[selectedDistrict.id]}
                   </div>
                   <div>
-                    <h4 className="text-2xl font-heading font-black text-white">
+                    <h4 className="text-2xl font-heading font-black text-shield-cream">
                       {selectedDistrict.name}
                     </h4>
                     <span className="text-xs font-semibold text-shield-gold">
@@ -294,7 +290,7 @@ export const DistrictMap: React.FC = () => {
                     {districtIcons[district.id]}
                   </div>
                   <div>
-                    <h3 className="text-xl font-heading font-black text-white">{district.name}</h3>
+                    <h3 className="text-xl font-heading font-black text-shield-cream">{district.name}</h3>
                     <p className="text-xs text-shield-gold font-medium">Theme: {district.theme}</p>
                   </div>
                 </div>

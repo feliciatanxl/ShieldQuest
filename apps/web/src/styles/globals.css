@@ -128,3 +128,56 @@
     scroll-behavior: auto !important;
   }
 }
+
+:root {--shield-void: 7 11 22;
+--shield-dark: 10 15 29;
+--shield-navy: 16 27 58;
+--shield-slate: 22 34 63;
+--shield-card: 20 32 59;
+--shield-surface: 24 39 71;
+--shield-cardBorder: 35 56 99;
+--shield-blue: 22 135 247;
+--shield-cyan: 56 217 230;
+--shield-violet: 119 85 223;
+--shield-gold: 242 185 75;
+--shield-amber: 245 158 11;
+--shield-emerald: 16 185 129;
+--shield-rose: 244 63 94;
+--shield-cream: 247 245 239;
+--shield-muted: 142 155 181;
+--shield-subtle: 75 85 99;}
+:root[data-theme="light"] {color-scheme:light;--shield-void: 243 246 252;
+--shield-dark: 234 240 250;
+--shield-navy: 220 230 245;
+--shield-slate: 227 235 247;
+--shield-card: 255 255 255;
+--shield-surface: 238 243 250;
+--shield-cardBorder: 187 203 225;
+--shield-cream: 21 36 65;
+--shield-muted: 82 98 123;
+--shield-cyan: 8 119 131;
+--shield-blue: 18 101 186;
+--shield-gold: 147 98 0;
+--shield-violet: 103 64 198;}
+body {background-color:rgb(var(--shield-void));color:rgb(var(--shield-cream));}
+[data-theme="light"] .game-panel,[data-theme="light"] .game-panel-interactive,[data-theme="light"] .hud-box {background:linear-gradient(145deg,#fff,#e8eff9);border-color:#bbcbe1;}
+@media(prefers-reduced-motion:reduce){html.scroll-smooth{scroll-behavior:auto}}
+
+/* Light surfaces throughout the application, including translucent layers. */
+:root[data-theme="light"] {
+  --shield-void: 255 255 255;
+  --shield-dark: 248 250 252;
+  --shield-navy: 240 244 249;
+  --shield-slate: 232 238 246;
+  --shield-surface: 245 248 252;
+  --shield-amber: 161 87 0;
+  --shield-emerald: 4 120 87;
+  --shield-rose: 190 18 60;
+}
+[data-theme="light"] .bg-hero-gradient { background-image: none; }
+[data-theme="light"] .game-panel,
+[data-theme="light"] .game-panel-interactive,
+[data-theme="light"] .hud-box {
+  background: white;
+  box-shadow: 0 12px 32px -16px rgb(52 72 103 / 0.18);
+}

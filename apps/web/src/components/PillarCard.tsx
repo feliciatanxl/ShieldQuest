@@ -82,7 +82,7 @@ export const PillarCards: React.FC = () => {
                 </span>
               </div>
 
-              <h3 className="text-2xl font-heading font-black text-white tracking-tight mb-2 group-hover:text-shield-cyan transition-colors">
+              <h3 className="text-2xl font-heading font-black text-shield-cream tracking-tight mb-2 group-hover:text-shield-cyan transition-colors">
                 {pillar.title}
               </h3>
 
@@ -93,7 +93,7 @@ export const PillarCards: React.FC = () => {
 
             <Link
               to={pillar.link}
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-shield-cyan hover:text-white transition-colors group-hover:translate-x-1 duration-200 pt-4 border-t border-shield-cardBorder/40"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-shield-cyan hover:text-shield-cream transition-colors group-hover:translate-x-1 duration-200 pt-4 border-t border-shield-cardBorder/40"
             >
               <span>{pillar.linkText}</span>
               <ArrowRight className="w-3.5 h-3.5" />

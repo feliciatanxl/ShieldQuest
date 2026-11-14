@@ -75,7 +75,7 @@ export const HeroIllustration: React.FC = () => {
   const [activeWp, setActiveWp] = useState<CityWaypoint | null>(cityWaypoints[0]);
 
   return (
-    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] rounded-2xl overflow-hidden border border-shield-cardBorder/90 bg-gradient-to-b from-[#0E172F] via-[#0A1021] to-[#070B16] shadow-2xl shadow-shield-blue/20 backdrop-blur-md">
+    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] rounded-2xl overflow-hidden border border-shield-cardBorder/90 bg-gradient-to-b from-shield-card via-shield-dark to-shield-void shadow-2xl shadow-shield-blue/20 backdrop-blur-md">
       {/* Decorative Game HUD Border Frame */}
       <div className="hud-corner hud-corner-tl" />
       <div className="hud-corner hud-corner-tr" />
@@ -341,7 +341,7 @@ export const HeroIllustration: React.FC = () => {
             </span>
           </div>
 
-          <h4 className="text-sm font-heading font-bold text-white mb-1">{activeWp.name}</h4>
+          <h4 className="text-sm font-heading font-bold text-shield-cream mb-1">{activeWp.name}</h4>
 
           <p className="text-[11px] text-shield-cream/90 leading-relaxed mb-2.5">
             {activeWp.atmosphere}
@@ -350,7 +350,7 @@ export const HeroIllustration: React.FC = () => {
           <div className="pt-2 border-t border-shield-cardBorder/60 flex items-center justify-between text-[11px]">
             <Link
               to={`/world`}
-              className="inline-flex items-center gap-1 font-semibold text-shield-cyan hover:text-white transition-colors"
+              className="inline-flex items-center gap-1 font-semibold text-shield-cyan hover:text-shield-cream transition-colors"
             >
               <span>Explore District</span>
               <ArrowRight className="w-3 h-3" />
@@ -358,7 +358,7 @@ export const HeroIllustration: React.FC = () => {
 
             <button
               onClick={() => setActiveWp(null)}
-              className="text-shield-muted hover:text-white text-[10px] p-0.5"
+              className="text-shield-muted hover:text-shield-cream text-[10px] p-0.5"
             >
               Close
             </button>

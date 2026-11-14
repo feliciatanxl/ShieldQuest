@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-heading font-black tracking-tight text-white flex items-center">
+              <span className="text-xl font-heading font-black tracking-tight text-shield-cream flex items-center">
                 SHIELD<span className="text-shield-cyan">QUEST</span>
               </span>
               <span className="text-[10px] font-mono uppercase tracking-wider text-shield-gold/90 font-medium">
@@ -71,8 +71,8 @@ export const Navbar: React.FC = () => {
                 className={({ isActive }) =>
                   `px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
                     isActive
-                      ? 'text-white bg-shield-surface border border-shield-cyan/50 font-semibold'
-                      : 'text-shield-muted hover:text-white hover:bg-shield-navy/60'
+                      ? 'text-shield-cream bg-shield-surface border border-shield-cyan/50 font-semibold'
+                      : 'text-shield-muted hover:text-shield-cream hover:bg-shield-navy/60'
                   }`
                 }
               >
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-xl text-shield-muted hover:text-white hover:bg-shield-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan"
+              className="inline-flex items-center justify-center p-2 rounded-xl text-shield-muted hover:text-shield-cream hover:bg-shield-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan"
               aria-controls="mobile-menu"
               aria-expanded={mobileMenuOpen}
               aria-label={mobileMenuOpen ? 'Close main menu' : 'Open main menu'}
@@ -112,7 +112,7 @@ export const Navbar: React.FC = () => {
                   `flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-colors ${
                     isActive
                       ? 'bg-shield-blue/20 text-shield-cyan border border-shield-blue/50 font-bold'
-                      : 'text-shield-cream/90 hover:bg-shield-navy/70 hover:text-white'
+                      : 'text-shield-cream/90 hover:bg-shield-navy/70 hover:text-shield-cream'
                   }`
                 }
               >

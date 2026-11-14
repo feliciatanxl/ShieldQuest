@@ -38,7 +38,7 @@ export const SquadPreview: React.FC = () => {
             <span>Squad Mode // Peer Shield Protocol</span>
           </div>
 
-          <h3 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+          <h3 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
             Better choices. <span className="bg-gradient-to-r from-shield-gold via-shield-cyan to-shield-blue bg-clip-text text-transparent">Stronger together.</span>
           </h3>
 
@@ -57,7 +57,7 @@ export const SquadPreview: React.FC = () => {
           <div className="p-4 rounded-xl bg-shield-void/80 border border-shield-cardBorder/80 flex items-center gap-3">
             <UserCheck className="w-5 h-5 text-shield-cyan flex-shrink-0" />
             <p className="text-xs text-shield-cream/90">
-              <strong className="text-white">Peer Shield Bystander Principle:</strong> Standing up for a friend means
+              <strong className="text-shield-cream">Peer Shield Bystander Principle:</strong> Standing up for a friend means
               providing a supportive exit when social pressure starts building.
             </p>
           </div>
@@ -121,7 +121,7 @@ export const SquadPreview: React.FC = () => {
                       <span className="text-xs font-mono font-bold text-shield-cyan uppercase">
                         Phase 0{s.step}
                       </span>
-                      <h4 className="text-base font-heading font-bold text-white">{s.title}</h4>
+                      <h4 className="text-base font-heading font-bold text-shield-cream">{s.title}</h4>
                     </div>
                     <p className="text-xs sm:text-sm text-shield-muted leading-relaxed">{s.desc}</p>
                   </div>

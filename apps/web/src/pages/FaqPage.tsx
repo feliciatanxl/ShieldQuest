@@ -72,7 +72,7 @@ export const FaqPage: React.FC = () => {
           <HelpCircle className="w-3.5 h-3.5" />
           <span>FREQUENTLY ASKED QUESTIONS</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
           Answers & Safety Principles
         </h1>
         <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
@@ -84,7 +84,7 @@ export const FaqPage: React.FC = () => {
       <div className="p-5 sm:p-6 rounded-2xl bg-shield-void/90 border border-shield-cardBorder flex flex-col sm:flex-row items-start gap-4">
         <ShieldAlert className="w-5 h-5 text-shield-gold flex-shrink-0 mt-0.5" />
         <div className="space-y-1.5 text-xs sm:text-sm text-shield-muted leading-relaxed">
-          <strong className="text-white block">Emergency & Reporting Notice</strong>
+          <strong className="text-shield-cream block">Emergency & Reporting Notice</strong>
           <p>
             ShieldQuest is an educational simulation. For real-world emergencies or scams in Singapore, contact the Police at 999, the Anti-Scam Helpline at 1800-722-6688, or visit scamshield.gov.sg.
           </p>
@@ -109,7 +109,7 @@ export const FaqPage: React.FC = () => {
                 aria-expanded={isOpen}
                 aria-controls={`faq-answer-${faq.id}`}
               >
-                <span className="text-base sm:text-lg font-heading font-bold text-white">
+                <span className="text-base sm:text-lg font-heading font-bold text-shield-cream">
                   {faq.question}
                 </span>
                 <div className="p-1 rounded-lg bg-shield-void border border-shield-cardBorder text-shield-cyan flex-shrink-0">

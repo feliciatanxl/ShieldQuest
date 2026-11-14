@@ -12,7 +12,7 @@ export const WorldPage: React.FC = () => {
           <Compass className="w-3.5 h-3.5 text-shield-cyan" />
           <span>CITY BOARD</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
           Explore the Fictional City Board
         </h1>
         <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">

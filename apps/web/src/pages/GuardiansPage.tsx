@@ -38,7 +38,7 @@ export const GuardiansPage: React.FC = () => {
           <Shield className="w-3.5 h-3.5" />
           <span>GUARDIAN ROSTER</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
           Meet the Six Guardians
         </h1>
         <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
@@ -58,7 +58,7 @@ export const GuardiansPage: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
               selectedDiscipline === d.id
                 ? 'bg-shield-blue text-white shadow-glow-blue font-bold border border-shield-cyan/50'
-                : 'bg-shield-void/80 text-shield-muted hover:text-white hover:bg-shield-surface border border-shield-cardBorder'
+                : 'bg-shield-void/80 text-shield-muted hover:text-shield-cream hover:bg-shield-surface border border-shield-cardBorder'
             }`}
           >
             {d.label}

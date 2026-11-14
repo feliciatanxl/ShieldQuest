@@ -104,7 +104,7 @@ export const HowItWorksPage: React.FC = () => {
           <Sparkles className="w-3.5 h-3.5" />
           <span>GAMEPLAY WALKTHROUGH</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
           How ShieldQuest Works
         </h1>
         <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
@@ -115,7 +115,7 @@ export const HowItWorksPage: React.FC = () => {
       {/* 6-Step Player Journey */}
       <section className="space-y-6" aria-labelledby="journey-heading">
         <div className="flex items-center justify-between border-b border-shield-cardBorder/60 pb-3">
-          <h2 id="journey-heading" className="text-2xl sm:text-3xl font-heading font-black text-white tracking-tight">
+          <h2 id="journey-heading" className="text-2xl sm:text-3xl font-heading font-black text-shield-cream tracking-tight">
             The 6-Step Player Journey
           </h2>
           <span className="text-xs font-mono text-shield-gold">
@@ -136,8 +136,8 @@ export const HowItWorksPage: React.FC = () => {
                 onClick={() => setActiveStepIdx(idx)}
                 className={`p-3 rounded-xl border text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
                   isSelected
-                    ? 'bg-shield-surface border-shield-cyan text-white shadow-sm ring-1 ring-shield-cyan'
-                    : 'bg-shield-void/70 border-shield-cardBorder text-shield-muted hover:text-white hover:bg-shield-navy'
+                    ? 'bg-shield-surface border-shield-cyan text-shield-cream shadow-sm ring-1 ring-shield-cyan'
+                    : 'bg-shield-void/70 border-shield-cardBorder text-shield-muted hover:text-shield-cream hover:bg-shield-navy'
                 }`}
               >
                 <div className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1" style={{ color: stage.color }}>
@@ -162,7 +162,7 @@ export const HowItWorksPage: React.FC = () => {
               <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: currentStage.color }}>
                 Step 0{currentStage.step} // {currentStage.cue}
               </span>
-              <h3 className="text-2xl font-heading font-black text-white">{currentStage.name}</h3>
+              <h3 className="text-2xl font-heading font-black text-shield-cream">{currentStage.name}</h3>
               <p className="text-sm text-shield-cream/90 max-w-xl leading-relaxed">
                 {currentStage.summary}
               </p>
@@ -173,7 +173,7 @@ export const HowItWorksPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveStepIdx((prev) => (prev > 0 ? prev - 1 : gameStages.length - 1))}
-              className="px-3 py-1.5 rounded-lg bg-shield-navy border border-shield-cardBorder text-xs font-mono text-shield-muted hover:text-white"
+              className="px-3 py-1.5 rounded-lg bg-shield-navy border border-shield-cardBorder text-xs font-mono text-shield-muted hover:text-shield-cream"
               aria-label="Previous Stage"
             >
               ← Prev
@@ -193,7 +193,7 @@ export const HowItWorksPage: React.FC = () => {
       {/* Think-Vote-Explain Compact Section */}
       <section className="game-panel p-6 sm:p-8 border border-shield-cardBorder/80 space-y-6" aria-labelledby="tve-heading">
         <div>
-          <h2 id="tve-heading" className="text-2xl sm:text-3xl font-heading font-black text-white tracking-tight">
+          <h2 id="tve-heading" className="text-2xl sm:text-3xl font-heading font-black text-shield-cream tracking-tight">
             The Think–Vote–Explain Ritual
           </h2>
           <p className="text-sm text-shield-muted mt-1">
@@ -210,7 +210,7 @@ export const HowItWorksPage: React.FC = () => {
                 </div>
                 <span className="text-xs font-mono font-bold text-shield-muted">0{idx + 1}</span>
               </div>
-              <h3 className="text-base font-heading font-bold text-white">{item.name}</h3>
+              <h3 className="text-base font-heading font-bold text-shield-cream">{item.name}</h3>
               <p className="text-xs text-shield-cream/80 leading-relaxed">{item.desc}</p>
             </div>
           ))}
@@ -221,14 +221,14 @@ export const HowItWorksPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-shield-cardBorder/60">
         <Link
           to="/world"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-shield-cyan hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-shield-cyan hover:text-shield-cream transition-colors"
         >
           <span>Explore the City Board</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
         <Link
           to="/guardians"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-shield-gold hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-shield-gold hover:text-shield-cream transition-colors"
         >
           <span>Meet the Six Guardians</span>
           <ArrowRight className="w-4 h-4" />

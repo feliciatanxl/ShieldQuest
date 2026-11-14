@@ -13,7 +13,7 @@ export const NotFoundPage: React.FC = () => {
         <span className="text-xs font-mono font-bold uppercase tracking-widest text-shield-cyan bg-shield-void px-3 py-1 rounded-full border border-shield-cardBorder">
           ERROR 404 // SECTOR UNCHARTED
         </span>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight">
           Lost on the City Board?
         </h1>
         <p className="text-base sm:text-lg text-shield-muted max-w-lg mx-auto leading-relaxed">

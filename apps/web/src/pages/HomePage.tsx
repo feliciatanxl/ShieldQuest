@@ -41,7 +41,7 @@ export const HomePage: React.FC = () => {
 
               <h1
                 id="hero-title"
-                className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black tracking-tight text-white leading-[1.08]"
+                className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black tracking-tight text-shield-cream leading-[1.08]"
               >
                 Every Choice{' '}
                 <span className="bg-gradient-to-r from-shield-cyan via-shield-blue to-shield-violet bg-clip-text text-transparent">
@@ -84,7 +84,7 @@ export const HomePage: React.FC = () => {
       {/* Section 2 — Explore, Decide, Protect */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="pillars-title">
         <div className="text-center max-w-xl mx-auto mb-10">
-          <h2 id="pillars-title" className="text-3xl sm:text-4xl font-heading font-black text-white tracking-tight">
+          <h2 id="pillars-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
             How ShieldQuest Works
           </h2>
           <p className="text-sm text-shield-muted mt-2">
@@ -100,7 +100,7 @@ export const HomePage: React.FC = () => {
       {/* Section 4 — Discover the World */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="discover-title">
         <div className="text-center max-w-xl mx-auto mb-10">
-          <h2 id="discover-title" className="text-3xl sm:text-4xl font-heading font-black text-white tracking-tight">
+          <h2 id="discover-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
             Discover the World
           </h2>
           <p className="text-sm text-shield-muted mt-2">
@@ -117,7 +117,7 @@ export const HomePage: React.FC = () => {
                 <span>The City Board</span>
               </div>
 
-              <h3 className="text-2xl font-heading font-black text-white mb-2 group-hover:text-shield-cyan transition-colors">
+              <h3 className="text-2xl font-heading font-black text-shield-cream mb-2 group-hover:text-shield-cyan transition-colors">
                 Four districts. Different challenges.
               </h3>
 
@@ -130,7 +130,7 @@ export const HomePage: React.FC = () => {
                 {miniDistricts.map((d) => (
                   <div
                     key={d.name}
-                    className="p-3 rounded-xl bg-shield-void/80 border border-shield-cardBorder text-xs text-white font-medium flex items-center gap-2"
+                    className="p-3 rounded-xl bg-shield-void/80 border border-shield-cardBorder text-xs text-shield-cream font-medium flex items-center gap-2"
                   >
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
                     <span>{d.name}</span>
@@ -141,7 +141,7 @@ export const HomePage: React.FC = () => {
 
             <Link
               to="/world"
-              className="inline-flex items-center gap-2 text-sm font-heading font-bold text-shield-cyan hover:text-white transition-colors group-hover:translate-x-1 duration-200"
+              className="inline-flex items-center gap-2 text-sm font-heading font-bold text-shield-cyan hover:text-shield-cream transition-colors group-hover:translate-x-1 duration-200"
             >
               <span>Explore the City</span>
               <ArrowRight className="w-4 h-4" />
@@ -156,7 +156,7 @@ export const HomePage: React.FC = () => {
                 <span>Skill Guardians</span>
               </div>
 
-              <h3 className="text-2xl font-heading font-black text-white mb-2 group-hover:text-shield-gold transition-colors">
+              <h3 className="text-2xl font-heading font-black text-shield-cream mb-2 group-hover:text-shield-gold transition-colors">
                 Meet your six Guardians.
               </h3>
 
@@ -184,7 +184,7 @@ export const HomePage: React.FC = () => {
 
             <Link
               to="/guardians"
-              className="inline-flex items-center gap-2 text-sm font-heading font-bold text-shield-gold hover:text-white transition-colors group-hover:translate-x-1 duration-200"
+              className="inline-flex items-center gap-2 text-sm font-heading font-bold text-shield-gold hover:text-shield-cream transition-colors group-hover:translate-x-1 duration-200"
             >
               <span>Meet the Guardians</span>
               <ArrowRight className="w-4 h-4" />
@@ -197,7 +197,7 @@ export const HomePage: React.FC = () => {
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" aria-labelledby="closing-cta-title">
         <div className="game-panel p-8 sm:p-12 border border-shield-blue/50 relative overflow-hidden bg-gradient-to-b from-shield-navy via-shield-void to-shield-void shadow-2xl">
           <div className="relative z-10 max-w-xl mx-auto space-y-4">
-            <h2 id="closing-cta-title" className="text-3xl sm:text-4xl font-heading font-black text-white tracking-tight">
+            <h2 id="closing-cta-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
               Your Next Choice Matters.
             </h2>
 

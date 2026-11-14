@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
+import { PageControls } from '../components/PageControls';
 import { Footer } from '../components/Footer';
 
 export const RootLayout: React.FC = () => {
@@ -28,6 +29,7 @@ export const RootLayout: React.FC = () => {
       </main>
 
       <Footer />
+      <PageControls />
     </div>
   );
 };

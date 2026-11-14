@@ -57,7 +57,7 @@ export const AboutPage: React.FC = () => {
           <Shield className="w-3.5 h-3.5" />
           <span>ABOUT SHIELDQUEST</span>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-heading font-black text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-heading font-black text-shield-cream tracking-tight leading-tight">
           Empowering Youths to Make Safer Choices Together
         </h1>
         <p className="text-base sm:text-lg text-shield-cream/90 leading-relaxed">
@@ -73,7 +73,7 @@ export const AboutPage: React.FC = () => {
           <Sparkles className="w-4 h-4" />
           <span>THE CHALLENGE</span>
         </div>
-        <h2 id="why-heading" className="text-2xl sm:text-3xl font-heading font-black text-white tracking-tight">
+        <h2 id="why-heading" className="text-2xl sm:text-3xl font-heading font-black text-shield-cream tracking-tight">
           Why Experience Matters
         </h2>
         <p className="text-sm text-shield-cream/90 leading-relaxed">
@@ -106,7 +106,7 @@ export const AboutPage: React.FC = () => {
       {/* 3. Six S.H.I.E.L.D. Learning Skills */}
       <section className="space-y-6" aria-labelledby="framework-heading">
         <div>
-          <h2 id="framework-heading" className="text-2xl sm:text-3xl font-heading font-black text-white tracking-tight">
+          <h2 id="framework-heading" className="text-2xl sm:text-3xl font-heading font-black text-shield-cream tracking-tight">
             The S.H.I.E.L.D. Framework
           </h2>
           <p className="text-sm text-shield-muted mt-1">
@@ -127,7 +127,7 @@ export const AboutPage: React.FC = () => {
                 >
                   {skill.letter}
                 </span>
-                <h3 className="text-base font-heading font-bold text-white">{skill.name}</h3>
+                <h3 className="text-base font-heading font-bold text-shield-cream">{skill.name}</h3>
               </div>
               <p className="text-xs text-shield-cream/80 leading-relaxed">{skill.summary}</p>
             </div>
@@ -138,7 +138,7 @@ export const AboutPage: React.FC = () => {
       {/* 4. One CTA & Brief Disclaimer */}
       <div className="p-8 rounded-2xl bg-gradient-to-r from-shield-navy to-shield-surface border border-shield-blue/40 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center sm:text-left">
-          <h3 className="text-xl font-heading font-black text-white">
+          <h3 className="text-xl font-heading font-black text-shield-cream">
             See the framework in action
           </h3>
           <p className="text-xs text-shield-muted">

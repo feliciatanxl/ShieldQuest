@@ -266,7 +266,7 @@ export const GuardianCard: React.FC<GuardianCardProps> = ({ guardian }) => {
 
         {/* Guardian Name & Associated Protective Skill */}
         <div className="my-3 text-center sm:text-left">
-          <h3 className="text-2xl font-heading font-black text-white group-hover:text-shield-cyan transition-colors">
+          <h3 className="text-2xl font-heading font-black text-shield-cream group-hover:text-shield-cyan transition-colors">
             {guardian.name}
           </h3>
           <span
