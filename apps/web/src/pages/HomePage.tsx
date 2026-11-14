@@ -59,7 +59,7 @@ export const HomePage: React.FC = () => {
                   to="/world"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-shield-blue hover:bg-shield-blue/90 text-white font-heading font-bold text-base shadow-glow-blue transition-all duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan"
                 >
-                  <Compass className="w-5 h-5 text-shield-cyan" />
+                  <Compass className="w-5 h-5 text-white" />
                   <span>Explore the World</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -82,7 +82,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Section 2 — Explore, Decide, Protect */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="pillars-title">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20" aria-labelledby="pillars-title">
         <div className="text-center max-w-xl mx-auto mb-10">
           <h2 id="pillars-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
             How ShieldQuest Works

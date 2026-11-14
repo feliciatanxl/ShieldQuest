@@ -181,3 +181,9 @@ body {background-color:rgb(var(--shield-void));color:rgb(var(--shield-cream));}
   background: white;
   box-shadow: 0 12px 32px -16px rgb(52 72 103 / 0.18);
 }
+
+/* Pale accent shades are tuned for dark mode; deepen them on light surfaces. */
+[data-theme="light"] .text-blue-300,[data-theme="light"] .text-blue-400 { color: #1d4ed8; }
+[data-theme="light"] .text-amber-300,[data-theme="light"] .text-amber-400 { color: #92400e; }
+[data-theme="light"] .text-cyan-300,[data-theme="light"] .text-cyan-400 { color: #0e7490; }
+[data-theme="light"] .text-purple-300,[data-theme="light"] .text-purple-400 { color: #6d28d9; }
