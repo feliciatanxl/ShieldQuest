@@ -349,7 +349,7 @@ export const HeroIllustration: React.FC = () => {
         >
           <div className="flex items-center justify-between gap-2 mb-2">
             <span
-              className="text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+              className="hero-district-pill text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
               style={{
                 color: activeWp.accentColor,
                 backgroundColor: `${activeWp.color}20`,

@@ -191,3 +191,5 @@ body {background-color:rgb(var(--shield-void));color:rgb(var(--shield-cream));}
 [data-theme="light"] .text-emerald-300,[data-theme="light"] .text-emerald-400 { color: #047857; }
 [data-theme="light"] [class*="bg-rose-950"] { background-color: rgb(255 228 230 / 0.7); }
 [data-theme="light"] [class*="bg-emerald-950"] { background-color: rgb(209 250 229 / 0.7); }
+/* District accent pills use pale tints made for dark backgrounds; darken them on light. */
+[data-theme="light"] .hero-district-pill { filter: brightness(0.55) saturate(1.4); }
