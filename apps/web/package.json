@@ -15,6 +15,7 @@
     "@shieldquest/shared": "*",
     "framer-motion": "^12.4.0",
     "lucide-react": "^0.475.0",
+    "phaser": "^4.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0",
