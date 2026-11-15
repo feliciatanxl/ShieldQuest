@@ -195,7 +195,7 @@ export const DistrictMap: React.FC = () => {
                     {district.theme}
                   </p>
 
-                  <p className="text-xs text-shield-muted line-clamp-2 mb-4 leading-relaxed">
+                  <p className="text-xs text-shield-muted mb-4 leading-relaxed">
                     {district.description}
                   </p>
 
@@ -218,7 +218,7 @@ export const DistrictMap: React.FC = () => {
           <div className="lg:col-span-5">
             {selectedDistrict ? (
               <div
-                className="game-panel p-6 sm:p-8 border border-shield-cyan/40 sticky top-28 shadow-2xl animate-fadeIn"
+                className="game-panel p-6 sm:p-8 border border-shield-cyan/40 lg:h-full lg:flex lg:flex-col lg:justify-between shadow-2xl animate-fadeIn"
                 role="region"
                 aria-label={`Details for ${selectedDistrict.name}`}
               >

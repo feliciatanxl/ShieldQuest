@@ -188,7 +188,7 @@ export const DISTRICTS: District[] = [
     skillsExplored: ['Spotting risk', 'Resisting dares', 'Redirecting peers', 'Seeking help'],
     visualConcept: 'Bustling covered arcades, neon storefronts, transit escalators, digital ad billboards',
     description:
-      'A busy corridor of shops and kiosks where a friend’s dare to pocket something quickly turns into a real decision.',
+      'A busy corridor of shops and kiosks where a friend’s dare to pocket something quickly turns into a real decision about honesty and consequences.',
     coordinates: { x: 74, y: 34 },
     sampleScenarioPreview:
       'A friend dares the group to slip a snack into a bag while the store assistant is busy.',
