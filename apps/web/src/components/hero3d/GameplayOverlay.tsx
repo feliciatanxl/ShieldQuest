@@ -53,7 +53,7 @@ export const GameplayOverlay: React.FC<GameplayOverlayProps> = ({ phase, playing
 
       {/* Top-right: squad + honesty label */}
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex flex-col items-end gap-1.5">
-        <div className={`flex items-center gap-2 rounded-lg px-2.5 py-1 ${glass}`}>
+        <div className={`hidden sm:flex items-center gap-2 rounded-lg px-2.5 py-1 ${glass}`}>
           <div className="flex -space-x-1" aria-hidden="true">
             {['#2563EB', '#F97316', '#8B5CF6', '#10B981'].map((c) => (
               <span key={c} className="h-3 w-3 rounded-full border border-[#0B132B]" style={{ backgroundColor: c }} />

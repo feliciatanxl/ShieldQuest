@@ -40,7 +40,7 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-shield-void/90 border-b border-shield-cardBorder/60 transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 sm:h-20">
+        <div className="flex items-center justify-between h-[72px] sm:h-20">
           {/* Logo & Brand Wordmark */}
           <NavLink
             to="/"
@@ -101,7 +101,8 @@ export const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div
           id="mobile-menu"
-          className="md:hidden fixed inset-x-0 top-18 bottom-0 bg-shield-void/98 backdrop-blur-2xl border-t border-shield-cardBorder/70 p-6 flex flex-col justify-between overflow-y-auto"
+          // absolute, not fixed: the header's backdrop-filter makes it the containing block for fixed children
+          className="md:hidden absolute inset-x-0 top-full h-[calc(100dvh-100%)] bg-shield-void/95 backdrop-blur-2xl border-t border-shield-cardBorder/70 p-6 flex flex-col justify-between overflow-y-auto"
         >
           <div className="space-y-1.5">
             {navItems.map((item) => (

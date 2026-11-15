@@ -7,8 +7,6 @@ const GameplayHeroScene = lazy(() => import('./GameplayHeroScene'));
 function canRender3D(): boolean {
   if (typeof window === 'undefined' || !window.matchMedia) return false;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  // Small screens get the lightweight illustrated fallback.
-  if (!window.matchMedia('(min-width: 768px)').matches) return false;
   try {
     const c = document.createElement('canvas');
     return !!(c.getContext('webgl2') || c.getContext('webgl'));
@@ -48,7 +46,7 @@ export const GameplayHero: React.FC = () => {
     <SceneBoundary fallback={<HeroIllustration />}>
       {/* Gradient hairline frame + soft glow ties the preview to the site's cyan/blue/violet accents. */}
     <div className="relative rounded-2xl p-px bg-gradient-to-br from-shield-cyan/70 via-shield-blue/30 to-shield-violet/70 shadow-[0_20px_60px_-15px_rgba(22,135,247,0.45),0_0_40px_-10px_rgba(119,85,223,0.35)]">
-      <div className="relative w-full aspect-[16/10] lg:aspect-[16/11] rounded-[15px] overflow-hidden bg-shield-void">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/11] rounded-[15px] overflow-hidden bg-shield-void">
         <Suspense fallback={<Placeholder />}>
           <GameplayHeroScene />
         </Suspense>
