@@ -13,12 +13,12 @@ describe('GuardiansPage Component', () => {
       );
     });
 
-    expect(screen.getByRole('heading', { name: 'VeriFox' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Echo' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Beacon' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Shieldfin' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Cluepaw' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'ByteBuddy' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'VeriFox', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Echo', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Beacon', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Shieldfin', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Cluepaw', level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'ByteBuddy', level: 3 })).toBeInTheDocument();
   });
 
   it('shows each Guardian discipline without filter tabs', async () => {

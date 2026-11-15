@@ -4,16 +4,19 @@ import { Compass, ArrowRight, Shield, Sparkles, MapPin } from 'lucide-react';
 import { GameplayHero } from '../components/hero3d/GameplayHero';
 import { PillarCards } from '../components/PillarCard';
 import { ConsequenceTeaser } from '../components/ConsequenceTeaser';
-import { GuardianCharacterPortrait } from '../components/GuardianCard';
+import { GuardianIcon } from '../world/flat/GuardianIcon';
+import { guardianById, type GuardianId } from '../world/v2Shared';
+import { SHIELD_FRAMEWORK } from '@shieldquest/shared';
 
 export const HomePage: React.FC = () => {
-  const miniGuardians = [
-    { id: 'verifox', name: 'VeriFox', color: '#F59E0B', accent: '#FDE047' },
-    { id: 'echo', name: 'Echo', color: '#8B5CF6', accent: '#A78BFA' },
-    { id: 'beacon', name: 'Beacon', color: '#06B6D4', accent: '#38D9E6' },
-    { id: 'shieldfin', name: 'Shieldfin', color: '#2563EB', accent: '#60A5FA' },
-    { id: 'cluepaw', name: 'Cluepaw', color: '#10B981', accent: '#34D399' },
-    { id: 'bytebuddy', name: 'ByteBuddy', color: '#EC4899', accent: '#F472B6' },
+  // Original V2 origami Guardians in S.H.I.E.L.D. order.
+  const miniGuardians: { id: GuardianId; letter: string }[] = [
+    { id: 'cluepaw', letter: 'S' },
+    { id: 'echo', letter: 'H' },
+    { id: 'verifox', letter: 'I' },
+    { id: 'bytebuddy', letter: 'E' },
+    { id: 'beacon', letter: 'L' },
+    { id: 'shieldfin', letter: 'D' },
   ];
 
   const miniDistricts = [
@@ -174,22 +177,41 @@ export const HomePage: React.FC = () => {
                 Companions you plan to unlock as your S.H.I.E.L.D. skills grow.
               </p>
 
-              {/* Mini Guardian Lineup */}
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-8">
-                {miniGuardians.map((g) => (
-                  <div
-                    key={g.id}
-                    className="p-2 rounded-xl bg-shield-void/80 border border-shield-cardBorder text-center group-hover:scale-105 transition-transform"
-                  >
-                    <div className="w-10 h-10 mx-auto">
-                      <GuardianCharacterPortrait guardianId={g.id} color={g.color} accentColor={g.accent} />
-                    </div>
-                    <span className="text-[10px] font-mono text-shield-cream block mt-1 truncate">
-                      {g.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {/* Guardian lineup: original V2 origami art, one per S.H.I.E.L.D. skill */}
+              <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-8">
+                {miniGuardians.map((g) => {
+                  const art = guardianById(g.id);
+                  const step = SHIELD_FRAMEWORK.find((s) => s.letter === g.letter)!;
+                  return (
+                    <li
+                      key={g.id}
+                      className="relative flex items-center gap-2.5 rounded-xl border p-2.5 overflow-hidden transition-transform duration-200 hover:-translate-y-0.5"
+                      style={{
+                        borderColor: `${art.color}40`,
+                        background: `linear-gradient(135deg, ${art.color}1f, transparent 70%)`,
+                      }}
+                    >
+                      <div className="relative shrink-0">
+                        <GuardianIcon guardian={g.id} level={1} size={44} />
+                        <span
+                          className="absolute -bottom-1 -right-1 grid place-items-center h-5 w-5 rounded-md text-[11px] font-heading font-black text-shield-void shadow"
+                          style={{ backgroundColor: art.color }}
+                          aria-hidden="true"
+                        >
+                          {g.letter}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-heading font-bold text-shield-cream truncate">{art.name}</p>
+                        <p className="text-[10px] font-mono uppercase tracking-wide text-shield-muted leading-tight">
+                          <span className="sr-only">{g.letter}: </span>
+                          {step.title}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
 
             <Link
@@ -204,7 +226,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Section 5 — Final CTA */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" aria-labelledby="closing-cta-title">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 text-center" aria-labelledby="closing-cta-title">
         <div className="game-panel p-8 sm:p-12 border border-shield-blue/50 relative overflow-hidden bg-gradient-to-b from-shield-navy via-shield-void to-shield-void shadow-2xl">
           <div className="relative z-10 max-w-xl mx-auto space-y-4">
             <h2 id="closing-cta-title" className="text-3xl sm:text-4xl font-heading font-black text-shield-cream tracking-tight">
