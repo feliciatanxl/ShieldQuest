@@ -47,6 +47,9 @@ export const BlockyCharacter: React.FC<BlockyCharacterProps> = ({ model, timeRef
     // so every character ends up exactly the same size.
     const head = s.getObjectByName('head') ?? null;
     const box = new THREE.Box3();
+    // Measure at unit scale: <primitive scale> writes onto this same cached scene, so a re-run
+    // (hot reload, remount) would otherwise measure the already-scaled model and compound the size.
+    s.scale.set(1, 1, 1);
     s.updateMatrixWorld(true);
     s.traverse((o) => {
       if (!(o as THREE.Mesh).isMesh) return;
