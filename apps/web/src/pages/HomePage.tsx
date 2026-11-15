@@ -114,7 +114,7 @@ export const HomePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Card 1: City Board Teaser */}
           <div className="game-panel-interactive p-8 flex flex-col justify-between group relative overflow-hidden">
-            <div>
+            <div className="flex-1 flex flex-col">
               <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-shield-cyan mb-3">
                 <MapPin className="w-4 h-4 text-shield-cyan" />
                 <span>The City Board</span>
@@ -129,13 +129,13 @@ export const HomePage: React.FC = () => {
               </p>
 
               {/* District markers */}
-              <div className="grid grid-cols-2 gap-2.5 mb-8">
+              <div className="flex-1 grid grid-cols-2 auto-rows-fr gap-3 mb-8">
                 {miniDistricts.map((d) => {
                   const isPilot = d.name === 'Retail District';
                   return (
                     <div
                       key={d.name}
-                      className={`p-3 rounded-xl bg-shield-void/80 border text-xs text-shield-cream font-medium flex items-center gap-2 ${
+                      className={`p-4 rounded-xl bg-shield-void/80 border text-sm text-shield-cream font-medium flex items-center gap-2 ${
                         isPilot ? 'border-shield-gold/60' : 'border-shield-cardBorder'
                       }`}
                     >
