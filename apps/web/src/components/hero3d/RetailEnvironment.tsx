@@ -1,7 +1,19 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { ease } from './timeline';
+import { KenneyProp } from './KenneyProp';
+
+// Background skyline from Kenney City Kit (Commercial): [model, x, z, height, rotY]
+const SKYLINE: [string, number, number, number, number][] = [
+  ['building-skyscraper-a', -14, -9, 13, 0],
+  ['building-b', -9.5, -7.5, 8, Math.PI / 2],
+  ['building-skyscraper-c', -4.5, -10, 16, 0],
+  ['building-g', 0.5, -7.5, 9, Math.PI],
+  ['building-skyscraper-e', 5.5, -9.5, 14, Math.PI / 2],
+  ['building-b', 10, -8, 8.5, 0],
+  ['building-skyscraper-a', 15, -10, 12, Math.PI],
+];
 
 /** Canvas-drawn neon sign texture: avoids shipping a font-rendering library. */
 function useSignTexture(text: string, accent: string) {
@@ -140,48 +152,6 @@ const Shop: React.FC<ShopProps> = ({ x, width, name, wall, accent, interior, goo
   );
 };
 
-const Planter: React.FC<{ position: [number, number, number] }> = ({ position }) => (
-  <group position={position}>
-    <mesh position-y={0.3} castShadow receiveShadow>
-      <boxGeometry args={[0.8, 0.6, 0.8]} />
-      <meshStandardMaterial color="#334155" roughness={0.6} />
-    </mesh>
-    <mesh position-y={0.62}>
-      <boxGeometry args={[0.84, 0.05, 0.84]} />
-      <meshStandardMaterial color="#64748B" />
-    </mesh>
-    <mesh position-y={1.05} castShadow>
-      <icosahedronGeometry args={[0.45, 1]} />
-      <meshStandardMaterial color="#059669" roughness={0.8} flatShading />
-    </mesh>
-    <mesh position={[0.18, 1.4, 0.05]} castShadow>
-      <icosahedronGeometry args={[0.3, 1]} />
-      <meshStandardMaterial color="#10B981" roughness={0.8} flatShading />
-    </mesh>
-  </group>
-);
-
-const Bench: React.FC<{ position: [number, number, number]; rotY?: number }> = ({ position, rotY = 0 }) => (
-  <group position={position} rotation-y={rotY}>
-    {[0, 0.13, 0.26].map((sz) => (
-      <mesh key={sz} position={[0, 0.44, sz - 0.13]} castShadow receiveShadow>
-        <boxGeometry args={[1.5, 0.05, 0.1]} />
-        <meshStandardMaterial color="#B45309" roughness={0.7} />
-      </mesh>
-    ))}
-    <mesh position={[0, 0.72, -0.2]} castShadow>
-      <boxGeometry args={[1.5, 0.3, 0.05]} />
-      <meshStandardMaterial color="#B45309" roughness={0.7} />
-    </mesh>
-    {[-0.65, 0.65].map((lx) => (
-      <mesh key={lx} position={[lx, 0.3, -0.03]}>
-        <boxGeometry args={[0.06, 0.6, 0.42]} />
-        <meshStandardMaterial color="#0F172A" metalness={0.7} roughness={0.3} />
-      </mesh>
-    ))}
-  </group>
-);
-
 const LampPost: React.FC<{ position: [number, number, number] }> = ({ position }) => (
   <group position={position}>
     <mesh position-y={1.6} castShadow>
@@ -267,37 +237,6 @@ const Bollard: React.FC<{ x: number; z: number }> = ({ x, z }) => (
   </group>
 );
 
-/** Distant towers with lit windows give the promenade depth beyond the fog. */
-const Skyline: React.FC = () => {
-  const towers = useMemo(
-    () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        x: -16 + i * 2.5 + ((i * 7) % 3) * 0.4,
-        h: 7 + ((i * 5) % 7) * 1.6,
-        w: 1.6 + ((i * 3) % 4) * 0.3,
-        z: -9 - ((i * 11) % 4),
-        lit: i % 3 === 0 ? '#38D9E6' : i % 3 === 1 ? '#8B5CF6' : '#2563EB',
-      })),
-    [],
-  );
-  return (
-    <group>
-      {towers.map((t) => (
-        <group key={t.x} position={[t.x, t.h / 2, t.z]}>
-          <mesh>
-            <boxGeometry args={[t.w, t.h, 1.5]} />
-            <meshStandardMaterial color="#141B3D" roughness={1} />
-          </mesh>
-          <mesh position={[0, t.h / 2 - 0.4, 0.76]}>
-            <planeGeometry args={[t.w * 0.8, 0.08]} />
-            <meshBasicMaterial color={t.lit} toneMapped={false} />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-};
-
 /** Mission hotspot: cyan beacon, light column and pulsing ring by the Mini Mart door. */
 export const ClueMarker: React.FC<{ timeRef: React.MutableRefObject<number> }> = ({ timeRef }) => {
   const group = useRef<THREE.Group>(null);
@@ -305,7 +244,7 @@ export const ClueMarker: React.FC<{ timeRef: React.MutableRefObject<number> }> =
   const ring = useRef<THREE.Mesh>(null);
   useFrame(() => {
     const t = timeRef.current;
-    const show = ease(t, 4.6, 5.6) * (1 - ease(t, 16.8, 17.6));
+    const show = ease(t, 4.6, 5.6) * (1 - ease(t, 17.4, 18.2));
     group.current!.scale.setScalar(Math.max(show, 0.0001));
     gem.current!.position.y = 2.0 + Math.sin(t * 2.5) * 0.12;
     gem.current!.rotation.y = t * 1.5;
@@ -395,16 +334,48 @@ export const RetailEnvironment: React.FC = () => {
       <Shop x={9.6} width={4.6} name="BUBBLE TEA" wall="#3F2A14" accent="#FBBF24" interior="#FEF9C3" goods={['#FDE68A', '#A16207', '#F9A8D4']} />
 
       <VendingMachine position={[-2.05, 0, -1.2]} />
-      <Planter position={[3.6, 0, -0.2]} />
-      <Planter position={[-6.9, 0, -0.1]} />
+      <Suspense fallback={null}>
+        <KenneyProp src="furniture/pottedPlant.glb" height={1.5} position={[3.6, 0, -0.2]} />
+        <KenneyProp src="furniture/pottedPlant.glb" height={1.5} position={[-6.9, 0, -0.1]} rotY={1.2} />
+        <KenneyProp src="furniture/bench.glb" height={0.95} position={[-5.3, 0, 1.1]} rotY={0.15} />
+        <KenneyProp src="furniture/trashcan.glb" height={0.9} position={[-3.0, 0, -0.35]} />
+        <KenneyProp src="furniture/trashcan.glb" height={0.9} position={[7.4, 0, 0.4]} />
+        {SKYLINE.map(([m, x, z, h, r], i) => (
+          <KenneyProp key={i} src={`city/${m}.glb`} height={h} position={[x, 0, z]} rotY={r} shadows={false} />
+        ))}
+      </Suspense>
       <Kiosk position={[6.3, 0, 4.2]} rotY={-0.35} />
-      <Bench position={[-5.3, 0, 1.1]} rotY={0.15} />
       <LampPost position={[-7.6, 0, 3.6]} />
       <LampPost position={[3.6, 0, 6.5]} />
       {[-3.2, -1.6, 1.8, 3.4].map((bx) => (
         <Bollard key={bx} x={bx * 2.6} z={7.5} />
       ))}
-      <Skyline />
+    </group>
+  );
+};
+
+/** Ripple beat: rings spread outward from the decision point across the promenade. */
+export const RippleWave: React.FC<{ timeRef: React.MutableRefObject<number>; origin: [number, number] }> = ({ timeRef, origin }) => {
+  const rings = useRef<THREE.Mesh[]>([]);
+  useFrame(() => {
+    const t = timeRef.current;
+    rings.current.forEach((r, i) => {
+      const k = (t - 17.5 - i * 0.55) / 2.4;
+      const on = k > 0 && k < 1;
+      r.visible = on;
+      if (!on) return;
+      r.scale.setScalar(0.5 + k * 9);
+      (r.material as THREE.MeshBasicMaterial).opacity = 0.55 * (1 - k);
+    });
+  });
+  return (
+    <group position={[origin[0], 0.02, origin[1]]}>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} ref={(m) => { if (m) rings.current[i] = m; }} rotation-x={-Math.PI / 2} visible={false}>
+          <ringGeometry args={[0.92, 1, 64]} />
+          <meshBasicMaterial color={i === 1 ? '#A78BFA' : '#38D9E6'} transparent depthWrite={false} toneMapped={false} />
+        </mesh>
+      ))}
     </group>
   );
 };

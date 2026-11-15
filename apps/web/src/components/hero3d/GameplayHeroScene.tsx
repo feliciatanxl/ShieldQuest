@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { RetailEnvironment, ClueMarker } from './RetailEnvironment';
-import { PlayerAvatar, type AvatarPose } from './PlayerAvatar';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { RetailEnvironment, ClueMarker, RippleWave } from './RetailEnvironment';
+import { BlockyCharacter, type AvatarPose } from './BlockyCharacter';
 import { GameplayOverlay } from './GameplayOverlay';
 import { LOOP_SECONDS, getPhase, ease, lerp, type Phase } from './timeline';
 
@@ -20,6 +21,8 @@ const playerPose = (t: number): AvatarPose => {
     // face the Mini Mart while walking, then turn to the friend
     rotY: lerp(2.53, 1.3, ease(t, 9.2, 10.2)),
     walking: 1 - ease(t, 5.4, 6.2),
+    // glance back at the shop door while weighing the choice
+    look: -0.45 * ease(t, 14.2, 15) * (1 - ease(t, 16.6, 17.4)),
   };
 };
 
@@ -30,6 +33,8 @@ const npcPose = (t: number): AvatarPose => {
     z: lerp(NPC_START.z, NPC_END.z, k),
     rotY: lerp(-2.2, -1.75, ease(t, 10.6, 11.4)),
     walking: ease(t, 8.4, 8.8) * (1 - ease(t, 10.6, 11.1)),
+    // talks with one hand while asking the favour
+    gesture: ease(t, 11, 11.6) * (1 - ease(t, 13.4, 14.2)),
   };
 };
 
@@ -61,18 +66,25 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
     // Scene 1-2: over-the-shoulder follow.
     camPos.set(p.x + 1.2, 3.7, p.z + 7.2);
     camLook.set(p.x + 1.2, 1.7, p.z - 2);
-    // Scene 3: frame player + friend.
-    const kNpc = ease(t, 9, 10.6);
-    tmp.set((p.x + n.x) / 2 + 0.3, 2.9, 6.4);
+    const mx = (p.x + n.x) / 2;
+    // Scene 3: low, angled two-shot with the Mini Mart behind them.
+    const kNpc = ease(t, 9, 11);
+    tmp.set(mx + 1.5, 2.1, 4.8);
     camPos.lerp(tmp, kNpc);
-    tmp.set((p.x + n.x) / 2, 0.9, 0.2);
+    tmp.set(mx - 0.2, 0.9, -0.6);
     camLook.lerp(tmp, kNpc);
-    // Scene 4: pull back to reveal the moment.
-    const kDecide = ease(t, 14, 15.6);
-    tmp.set(0.3, 3.6, 7.4);
+    // Scene 4: slow push-in over the player's shoulder while they weigh it up.
+    const kDecide = ease(t, 13.5, 16.5);
+    tmp.set(mx - 0.7, 2.3, 4.9);
     camPos.lerp(tmp, kDecide);
-    tmp.set(0.3, 1.0, -0.4);
+    tmp.set(mx + 0.4, 0.95, -0.5);
     camLook.lerp(tmp, kDecide);
+    // Ripple: crane up to show the whole promenade the choice will touch.
+    const kRipple = ease(t, 17.5, 20);
+    tmp.set(0.3, 5.6, 9.2);
+    camPos.lerp(tmp, kRipple);
+    tmp.set(0.2, 0.4, 0);
+    camLook.lerp(tmp, kRipple);
 
     // Subtle handheld drift keeps the shot feeling alive.
     camPos.x += Math.sin(t * 0.45) * 0.12;
@@ -89,8 +101,34 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
   return null;
 };
 
+/** Image-based lighting from a 1K CC0 Poly Haven HDR: real reflections on glass and metal. */
+const EnvironmentLighting: React.FC = () => {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    let cancelled = false;
+    let env: THREE.Texture | null = null;
+    const pmrem = new THREE.PMREMGenerator(gl);
+    new RGBELoader().load(`${import.meta.env.BASE_URL}models/shanghai_bund_1k.hdr`, (hdr) => {
+      if (!cancelled) {
+        env = pmrem.fromEquirectangular(hdr).texture;
+        scene.environment = env;
+        scene.environmentIntensity = 0.45;
+      }
+      hdr.dispose();
+      pmrem.dispose();
+    });
+    return () => {
+      cancelled = true;
+      scene.environment = null;
+      env?.dispose();
+    };
+  }, [gl, scene]);
+  return null;
+};
+
 const World: React.FC<{ timeRef: React.MutableRefObject<number> }> = React.memo(({ timeRef }) => (
   <>
+    <EnvironmentLighting />
     <color attach="background" args={['#161F48']} />
     <fog attach="fog" args={['#161F48', 13, 30]} />
     <hemisphereLight args={['#C7D2FE', '#2E1065', 0.9]} />
@@ -103,20 +141,27 @@ const World: React.FC<{ timeRef: React.MutableRefObject<number> }> = React.memo(
       intensity={1.5}
       color="#FFEDD5"
       castShadow
-      shadow-mapSize={[1024, 1024]}
+      shadow-mapSize={[2048, 2048]}
+      shadow-radius={4}
       shadow-camera-left={-9}
       shadow-camera-right={9}
       shadow-camera-top={9}
       shadow-camera-bottom={-9}
       shadow-bias={-0.0008}
     />
-    <pointLight position={[0, 2.6, 0.4]} color="#F2B94B" intensity={6} distance={6} />
+    {/* warm Mini Mart interior spill onto the pavement */}
+    <pointLight position={[0, 2.6, 0.4]} color="#FDBA74" intensity={7} distance={7} />
+    <pointLight position={[0, 1.8, -1.6]} color="#FFEDD5" intensity={4} distance={4} />
     <RetailEnvironment />
     <ClueMarker timeRef={timeRef} />
-    <PlayerAvatar timeRef={timeRef} pose={playerPose} hoodie="#2563EB" pants="#1E293B" hair="#111827" backpack="#38D9E6" />
-    <PlayerAvatar timeRef={timeRef} pose={npcPose} hoodie="#F97316" pants="#334155" hair="#7C2D12" skin="#C68B59" backpack="#7C3AED" offset={0.7} />
-    <PlayerAvatar timeRef={timeRef} pose={squadA} hoodie="#8B5CF6" pants="#1E293B" hair="#1F2937" skin="#F1C27D" offset={1.3} />
-    <PlayerAvatar timeRef={timeRef} pose={squadB} hoodie="#10B981" pants="#0F172A" hair="#451A03" skin="#8D5524" offset={2.1} />
+    <RippleWave timeRef={timeRef} origin={[PLAYER_END.x + 0.8, PLAYER_END.z + 0.2]} />
+    {/* characters stream in after the environment so the scene never sits blank */}
+    <Suspense fallback={null}>
+      <BlockyCharacter model="f" timeRef={timeRef} pose={playerPose} />
+      <BlockyCharacter model="k" timeRef={timeRef} pose={npcPose} />
+      <BlockyCharacter model="e" timeRef={timeRef} pose={squadA} />
+      <BlockyCharacter model="c" timeRef={timeRef} pose={squadB} />
+    </Suspense>
   </>
 ));
 World.displayName = 'World';
@@ -148,7 +193,7 @@ const GameplayHeroScene: React.FC = () => {
     <div ref={wrapper} className="absolute inset-0">
       <Canvas
         className={`transition-opacity duration-700 ${phase === 'reset' ? 'opacity-30' : 'opacity-100'}`}
-        shadows
+        shadows="soft"
         dpr={[1, 1.5]}
         frameloop={visible && playing ? 'always' : 'never'}
         camera={{ fov: 42, near: 0.1, far: 60, position: [-3, 2.5, 9] }}

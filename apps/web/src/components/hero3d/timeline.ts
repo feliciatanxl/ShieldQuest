@@ -1,14 +1,15 @@
-/** Deterministic 18-second gameplay concept loop shared by the 3D scene and the HUD. */
-export const LOOP_SECONDS = 18;
+/** Deterministic 21-second gameplay concept loop shared by the 3D scene and the HUD. */
+export const LOOP_SECONDS = 21;
 
-export type Phase = 'explore' | 'discover' | 'npc' | 'decide' | 'reset';
+export type Phase = 'explore' | 'discover' | 'npc' | 'decide' | 'ripple' | 'reset';
 
 export const PHASES: { id: Phase; start: number }[] = [
   { id: 'explore', start: 0 },
   { id: 'discover', start: 5 },
   { id: 'npc', start: 9 },
-  { id: 'decide', start: 14 },
-  { id: 'reset', start: 17.2 },
+  { id: 'decide', start: 13.5 },
+  { id: 'ripple', start: 17.5 },
+  { id: 'reset', start: 20.2 },
 ];
 
 export function getPhase(t: number): Phase {

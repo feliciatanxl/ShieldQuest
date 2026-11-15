@@ -445,3 +445,5 @@ pnpm-debug.log*
 !packages/**
 packages/*/dist/
 *.tsbuildinfo
+assets-src/
+.claude/
