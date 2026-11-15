@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, ArrowRight, Shield, Sparkles, MapPin } from 'lucide-react';
-import { GameplayHero } from '../components/hero3d/GameplayHero';
+// 3D hero kept in components/hero3d as a backup; homepage now previews the 2D neighbourhood.
+import { NeighbourhoodHero } from '../components/NeighbourhoodHero';
 import { PillarCards } from '../components/PillarCard';
 import { ConsequenceTeaser } from '../components/ConsequenceTeaser';
 import { GuardianIcon } from '../world/flat/GuardianIcon';
@@ -76,9 +77,9 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: 3D gameplay concept preview (static illustration fallback) */}
+            {/* Right: live 2D neighbourhood preview (static image fallback) */}
             <div className="lg:col-span-6 relative">
-              <GameplayHero />
+              <NeighbourhoodHero />
             </div>
           </div>
         </div>

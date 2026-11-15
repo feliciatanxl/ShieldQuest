@@ -1,133 +1,167 @@
-import React, { useEffect, useRef } from 'react';
-import Phaser from 'phaser';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Bug, Maximize2, Minimize2, Shield } from 'lucide-react';
+import type Phaser from 'phaser';
+import type { PlaygroundMode } from '../game/games';
+import type { DebugInfo, PlaygroundScene } from '../game/m01';
 
-const IDLE = '/game/characters/v3/characters/male/';
-const ANIM = '/game/characters/v3/animations/';
-// Sheet rows match these directions; idle PNG names use front/back.
-const DIRS = ['down', 'up', 'left', 'right'] as const;
-type Dir = (typeof DIRS)[number];
-const IDLE_POSE: Record<Dir, string> = { down: 'front', up: 'back', left: 'left', right: 'right' };
-const GAITS = {
-  walk: { frames: 6, fps: 8, speed: 130 },
-  run: { frames: 8, fps: 12, speed: 220 },
-} as const;
-const SCALE = 2; // integer scale keeps pixels crisp
+const MODES: { id: PlaygroundMode; label: string; hint: string }[] = [
+  { id: 'sandbox', label: 'Character Sandbox', hint: 'Animation and movement on a 32px grid' },
+  { id: 'neighbourhood', label: 'Singapore Neighbourhood', hint: 'Explore the Tiled map with collisions' },
+  { id: 'missions', label: 'NPC & Missions', hint: 'Dialogue, interaction and trigger areas shown' },
+];
+const CONTROLS: [string, string][] = [
+  ['W A S D', 'Move'], ['Arrow keys', 'Move'], ['Shift', 'Run'], ['E', 'Interact'], ['Esc', 'Close dialogue'],
+];
 
-export class CharacterScene extends Phaser.Scene {
-  player!: Phaser.GameObjects.Sprite;
-  keys!: Record<string, Phaser.Input.Keyboard.Key>;
-  facing: Dir = 'down';
+type Games = typeof import('../game/games');
 
-  constructor() {
-    super('character-test');
-  }
-
-  preload() {
-    for (const d of DIRS) this.load.image(`M01_idle_${d}`, `${IDLE}M01_${IDLE_POSE[d]}.png`);
-    for (const g of Object.keys(GAITS)) this.load.spritesheet(`M01_${g}`, `${ANIM}M01_${g}.png`, { frameWidth: 64, frameHeight: 96 });
-  }
-
-  create() {
-    const { width, height } = this.scale;
-    for (const [g, { frames, fps }] of Object.entries(GAITS)) {
-      DIRS.forEach((d, row) => {
-        const key = `M01_${g}_${d}`;
-        if (this.anims.exists(key)) return; // anims are game-global; never register twice
-        this.anims.create({ key, frames: this.anims.generateFrameNumbers(`M01_${g}`, { start: row * frames, end: row * frames + frames - 1 }), frameRate: fps, repeat: -1 });
-      });
-    }
-    // origin at the feet: idle PNGs and sheet frames share a 64x96 cell and baseline, so swaps don't jump
-    this.player = this.add.sprite(width / 2, height / 2, 'M01_idle_down').setOrigin(0.5, 1).setScale(SCALE);
-    this.keys = this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,SHIFT') as Record<string, Phaser.Input.Keyboard.Key>;
-    if (this.sys.game.device.input.touch) this.createTouchControls();
-  }
-
-  // ---- touch: floating joystick on the left half, hold-to-run button bottom-right
-  joy = new Phaser.Math.Vector2(); // -1..1 per axis
-  joyId: number | null = null;
-  runId: number | null = null;
-  joyBase!: Phaser.GameObjects.Arc;
-  joyKnob!: Phaser.GameObjects.Arc;
-  runBtn!: Phaser.GameObjects.Arc;
-
-  createTouchControls() {
-    const { width, height } = this.scale;
-    const R = 70;
-    this.input.addPointer(2); // joystick + run at the same time
-    const home = { x: 140, y: height - 140 };
-    this.joyBase = this.add.circle(home.x, home.y, R, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.5).setDepth(10);
-    this.joyKnob = this.add.circle(home.x, home.y, 32, 0xffffff, 0.6).setDepth(11);
-    this.runBtn = this.add.circle(width - 130, height - 130, 60, 0x42b8aa, 0.55).setStrokeStyle(3, 0xffffff, 0.7).setDepth(10);
-    this.add.text(this.runBtn.x, this.runBtn.y, 'RUN', { fontFamily: 'monospace', fontSize: '28px', color: '#ffffff' }).setOrigin(0.5).setDepth(11);
-
-    const overRun = (p: Phaser.Input.Pointer) => Phaser.Math.Distance.Between(p.x, p.y, this.runBtn.x, this.runBtn.y) <= 75;
-    this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      if (overRun(p)) { this.runId = p.id; this.runBtn.setFillStyle(0x42b8aa, 0.9); }
-      else if (p.x < width / 2 && this.joyId === null) { this.joyId = p.id; this.joyBase.setPosition(p.x, p.y); this.joyKnob.setPosition(p.x, p.y); }
-    });
-    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-      if (p.id !== this.joyId) return;
-      const v = new Phaser.Math.Vector2(p.x - this.joyBase.x, p.y - this.joyBase.y).limit(R);
-      this.joyKnob.setPosition(this.joyBase.x + v.x, this.joyBase.y + v.y);
-      this.joy.set(v.x / R, v.y / R);
-    });
-    const release = (p: Phaser.Input.Pointer) => {
-      if (p.id === this.runId) { this.runId = null; this.runBtn.setFillStyle(0x42b8aa, 0.55); }
-      if (p.id === this.joyId) { this.joyId = null; this.joy.set(0, 0); this.joyBase.setPosition(home.x, home.y); this.joyKnob.setPosition(home.x, home.y); }
-    };
-    this.input.on('pointerup', release);
-    this.input.on('pointerupoutside', release);
-  }
-
-  update(_t: number, delta: number) {
-    const k = this.keys;
-    let x = (k.D.isDown || k.RIGHT.isDown ? 1 : 0) - (k.A.isDown || k.LEFT.isDown ? 1 : 0);
-    let y = (k.S.isDown || k.DOWN.isDown ? 1 : 0) - (k.W.isDown || k.UP.isDown ? 1 : 0);
-    if (!x && !y && this.joy.length() > 0.25) ({ x, y } = this.joy); // dead zone stops jitter at rest
-    const p = this.player;
-
-    if (!x && !y) {
-      p.anims.stop();
-      p.setTexture(`M01_idle_${this.facing}`);
-      return;
-    }
-
-    // dominant axis picks the sprite; horizontal wins exact diagonals
-    this.facing = Math.abs(x) >= Math.abs(y) ? (x > 0 ? 'right' : 'left') : y > 0 ? 'down' : 'up';
-    const gait = k.SHIFT.isDown || this.runId !== null ? 'run' : 'walk';
-    // normalised so diagonals aren't faster; delta keeps speed frame-rate independent
-    const v = new Phaser.Math.Vector2(x, y).normalize().scale((GAITS[gait].speed * delta) / 1000);
-    const halfW = p.displayWidth / 2;
-    p.x = Phaser.Math.Clamp(p.x + v.x, halfW, this.scale.width - halfW);
-    p.y = Phaser.Math.Clamp(p.y + v.y, p.displayHeight, this.scale.height);
-    p.anims.play(`M01_${gait}_${this.facing}`, true); // true = keep playing if already on this anim
-  }
-}
-
+/** Central 2D gameplay playground. All gameplay testing lives on this one route. */
 export const CharacterTestPage: React.FC = () => {
   const host = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const game = useRef<Phaser.Game | null>(null);
+  const lib = useRef<Games | null>(null);
+  const [mode, setMode] = useState<PlaygroundMode>('neighbourhood');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [hitboxes, setHitboxes] = useState(false);
+  const [info, setInfo] = useState<(DebugInfo & { fps: number }) | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
+  // Create exactly one Phaser game for the page lifetime; destroy it on unmount.
   useEffect(() => {
-    const game = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: host.current!,
-      width: 960,
-      height: 540,
-      pixelArt: true,
-      backgroundColor: '#7fb069',
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      scene: CharacterScene,
-    });
-    (window as unknown as { __game?: Phaser.Game }).__game = game; // dev-only test hook
-    return () => game.destroy(true); // StrictMode remount: old canvas removed, no duplicates
+    let cancelled = false;
+    import('../game/games').then((g) => {
+      if (cancelled || !host.current) return;
+      lib.current = g;
+      const instance = g.createPlayground(host.current, mode);
+      instance.events.on('scene-ready', () => setLoading(false));
+      game.current = instance;
+      (window as unknown as { __game?: Phaser.Game }).__game = instance; // dev-only test hook
+    }).catch((e: unknown) => setError(String(e)));
+    return () => { cancelled = true; game.current?.destroy(true); game.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mode changes are handled below without recreating the game
   }, []);
 
+  const choose = (m: PlaygroundMode) => {
+    if (m === mode) return;
+    setMode(m);
+    if (game.current && lib.current) { setLoading(true); lib.current.switchMode(game.current, m); }
+  };
+
+  const activeScene = () => game.current?.scene.getScenes(true)[0] as PlaygroundScene | undefined;
+
+  // Hitbox toggle applies to the current scene and is re-applied after a mode switch.
+  useEffect(() => { if (!loading) activeScene()?.setDebug(hitboxes || mode === 'missions'); }, [hitboxes, loading, mode]);
+
+  // Poll live stats only while the panel is open.
+  useEffect(() => {
+    if (!debugOpen) return;
+    const id = window.setInterval(() => {
+      const s = activeScene();
+      if (s?.debugInfo && game.current) setInfo({ ...s.debugInfo(), fps: Math.round(game.current.loop.actualFps) });
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [debugOpen]);
+
+  useEffect(() => {
+    const onChange = () => setFullscreen(document.fullscreenElement === frame.current);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+  const toggleFullscreen = () => (document.fullscreenElement ? document.exitFullscreen() : frame.current?.requestFullscreen())?.catch(() => {});
+
   return (
-    <div style={{ padding: 16 }}>
-      <h1>M01 character test</h1>
-      <p>Move with WASD or arrow keys. Hold Shift to run. On touch: drag on the left side to move, hold RUN.</p>
-      {/* touch-action none: drags steer the joystick instead of scrolling the page */}
-      <div ref={host} style={{ width: '100%', maxWidth: 960, aspectRatio: '16 / 9', margin: '0 auto', touchAction: 'none', userSelect: 'none' }} />
+    <div className="min-h-screen bg-shield-void text-shield-cream">
+      <header className="border-b border-shield-cardBorder bg-shield-dark/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <Link to="/" className="flex items-center gap-3 rounded-xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan" aria-label="ShieldQuest Home">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-shield-blue to-shield-cyan p-0.5">
+              <span className="flex h-full w-full items-center justify-center rounded-[10px] bg-shield-void"><Shield className="h-4 w-4 text-shield-cyan" /></span>
+            </span>
+            <span className="font-heading text-lg font-black tracking-tight">SHIELD<span className="text-shield-cyan">QUEST</span></span>
+          </Link>
+          <Link to="/" className="inline-flex items-center gap-2 rounded-lg border border-shield-cardBorder px-3 py-2 text-sm font-medium text-shield-muted transition-colors hover:border-shield-cyan/50 hover:text-shield-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan">
+            <ArrowLeft className="h-4 w-4" /> <span>Back to Home</span>
+          </Link>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-8">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-wider text-shield-gold">Dev · /dev/character-test</p>
+          <h1 className="mt-1 font-heading text-3xl font-black tracking-tight sm:text-4xl">Gameplay Playground</h1>
+          <p className="mt-1 text-shield-muted">Explore, interact and test the world of ShieldQuest</p>
+        </div>
+
+        {/* Mode switcher */}
+        <div role="tablist" aria-label="Testing mode" className="grid grid-cols-1 gap-2 rounded-2xl border border-shield-cardBorder bg-shield-navy/60 p-1.5 sm:grid-cols-3">
+          {MODES.map((m) => (
+            <button key={m.id} role="tab" aria-selected={mode === m.id} onClick={() => choose(m.id)}
+              className={`rounded-xl px-4 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${mode === m.id ? 'bg-shield-blue text-white shadow-glow-blue' : 'text-shield-muted hover:bg-shield-slate/60 hover:text-shield-cream'}`}>
+              <span className="block font-heading text-sm font-bold">{m.label}</span>
+              <span className={`block text-xs ${mode === m.id ? 'text-white/80' : 'text-shield-subtle'}`}>{m.hint}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Game viewport */}
+        <div ref={frame} className={`relative overflow-hidden border border-shield-cardBorder bg-[#0b1324] shadow-[0_20px_60px_-20px_rgba(22,135,247,0.35)] ${fullscreen ? 'flex items-center justify-center' : 'rounded-2xl'}`}>
+          {/* touch-action none: drags steer the joystick instead of scrolling the page */}
+          <div ref={host} className={`mx-auto w-full select-none ${fullscreen ? 'h-full' : 'aspect-video'}`} style={{ touchAction: 'none' }} />
+          {(loading || error) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#0b1324]/90">
+              <p className={`font-mono text-sm ${error ? 'text-shield-rose' : 'animate-pulse text-shield-cyan'}`}>{error ? `Could not start the game: ${error}` : 'Loading world…'}</p>
+            </div>
+          )}
+          <button onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            className="absolute right-3 top-3 rounded-lg border border-white/15 bg-black/40 p-2 text-white/80 backdrop-blur transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan">
+            {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
+          {/* Controls */}
+          <section className="rounded-2xl border border-shield-cardBorder bg-shield-navy/60 p-4" aria-labelledby="controls-title">
+            <h2 id="controls-title" className="font-heading text-sm font-bold uppercase tracking-wider text-shield-muted">Controls</h2>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              {CONTROLS.map(([k, a]) => (
+                <React.Fragment key={k + a}>
+                  <dt><kbd className="rounded-md border border-shield-cardBorder bg-shield-dark px-2 py-0.5 font-mono text-xs text-shield-cyan">{k}</kbd></dt>
+                  <dd className="text-shield-cream/90">{a}</dd>
+                </React.Fragment>
+              ))}
+            </dl>
+            <p className="mt-3 text-xs text-shield-subtle">On touch screens: drag the left side to move, hold RUN, tap E to interact.</p>
+          </section>
+
+          {/* Developer info */}
+          <section className="rounded-2xl border border-shield-cardBorder bg-shield-navy/60 p-4" aria-labelledby="dev-title">
+            <div className="flex items-center justify-between gap-2">
+              <h2 id="dev-title" className="font-heading text-sm font-bold uppercase tracking-wider text-shield-muted">Developer info</h2>
+              <button onClick={() => setDebugOpen((o) => !o)} aria-expanded={debugOpen}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-shield-cardBorder px-2.5 py-1 text-xs text-shield-muted hover:text-shield-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan">
+                <Bug className="h-3.5 w-3.5" /> {debugOpen ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {debugOpen && (
+              <div className="mt-3 space-y-3">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-xs sm:grid-cols-3">
+                  {([['Mode', info?.mode], ['Position', info ? `${info.x}, ${info.y}` : '–'], ['Facing', info?.facing], ['State', info?.gait], ['Area', info?.zone ?? '–'], ['FPS', info?.fps]] as const).map(([k, v]) => (
+                    <div key={k}><dt className="text-shield-subtle">{k}</dt><dd className="truncate text-shield-cream">{v ?? '–'}</dd></div>
+                  ))}
+                </dl>
+                <label className="flex items-center gap-2 text-sm text-shield-cream/90">
+                  <input type="checkbox" checked={hitboxes || mode === 'missions'} disabled={mode === 'missions'} onChange={(e) => setHitboxes(e.target.checked)} className="accent-shield-cyan" />
+                  Show collisions and trigger areas {mode === 'missions' && <span className="text-xs text-shield-subtle">(always on in this mode)</span>}
+                </label>
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
     </div>
   );
 };
