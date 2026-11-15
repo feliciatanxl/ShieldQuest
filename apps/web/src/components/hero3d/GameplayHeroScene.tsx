@@ -66,18 +66,26 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
     // Scene 1-2: over-the-shoulder follow.
     camPos.set(p.x + 1.2, 3.7, p.z + 7.2);
     camLook.set(p.x + 1.2, 1.7, p.z - 2);
+    // Two-shot camera sits on the perpendicular bisector between the pair, so both are the
+    // same distance away and read the same size (no perspective "big one / small one").
     const mx = (p.x + n.x) / 2;
-    // Scene 3: low, angled two-shot with the Mini Mart behind them.
+    const mz = (p.z + n.z) / 2;
+    const dx = n.x - p.x;
+    const dz = n.z - p.z;
+    const len = Math.hypot(dx, dz) || 1;
+    const px = -dz / len; // perpendicular pointing towards the street (+z)
+    const pz = dx / len;
+    // Scene 3: two-shot with the Mini Mart behind them.
     const kNpc = ease(t, 9, 11);
-    tmp.set(mx + 1.5, 2.1, 4.8);
+    tmp.set(mx + px * 5.2, 2.0, mz + pz * 5.2);
     camPos.lerp(tmp, kNpc);
-    tmp.set(mx - 0.2, 0.9, -0.6);
+    tmp.set(mx, 1.0, mz);
     camLook.lerp(tmp, kNpc);
-    // Scene 4: slow push-in over the player's shoulder while they weigh it up.
+    // Scene 4: slow push-in on the same axis while they weigh it up.
     const kDecide = ease(t, 13.5, 16.5);
-    tmp.set(mx - 0.7, 2.3, 4.9);
+    tmp.set(mx + px * 4.3, 2.1, mz + pz * 4.3);
     camPos.lerp(tmp, kDecide);
-    tmp.set(mx + 0.4, 0.95, -0.5);
+    tmp.set(mx, 1.05, mz);
     camLook.lerp(tmp, kDecide);
     // Ripple: crane up to show the whole promenade the choice will touch.
     const kRipple = ease(t, 17.5, 20);
