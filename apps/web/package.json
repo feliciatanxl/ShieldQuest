@@ -11,12 +11,14 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.17.10",
     "@shieldquest/shared": "*",
     "framer-motion": "^12.4.0",
     "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -24,6 +26,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "jsdom": "^26.0.0",

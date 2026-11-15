@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, ArrowRight, Shield, Sparkles, MapPin } from 'lucide-react';
-import { HeroIllustration } from '../components/HeroIllustration';
+import { GameplayHero } from '../components/hero3d/GameplayHero';
 import { PillarCards } from '../components/PillarCard';
 import { ConsequenceTeaser } from '../components/ConsequenceTeaser';
 import { GuardianCharacterPortrait } from '../components/GuardianCard';
@@ -73,9 +73,9 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: City Artwork */}
+            {/* Right: 3D gameplay concept preview (static illustration fallback) */}
             <div className="lg:col-span-6 relative">
-              <HeroIllustration />
+              <GameplayHero />
             </div>
           </div>
         </div>
