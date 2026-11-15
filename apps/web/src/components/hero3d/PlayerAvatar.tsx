@@ -22,9 +22,9 @@ interface PlayerAvatarProps {
   offset?: number;
 }
 
-const flat = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: 0.8, flatShading: true });
+const mat = (color: string, roughness = 0.65) => new THREE.MeshStandardMaterial({ color, roughness });
 
-/** Stylised low-poly articulated character: hoodie, backpack, swinging limbs. */
+/** Stylised articulated character: rounded hoodie, backpack, sneakers, swinging limbs. */
 export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
   timeRef,
   pose,
@@ -45,13 +45,15 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
 
   const m = useMemo(
     () => ({
-      hoodie: flat(hoodie),
-      pants: flat(pants),
-      hair: flat(hair),
-      skin: flat(skin),
-      shoe: flat('#F1F5F9'),
-      pack: flat(backpack ?? '#1E293B'),
+      hoodie: mat(hoodie),
+      pants: mat(pants, 0.8),
+      hair: mat(hair, 0.5),
+      skin: mat(skin, 0.55),
+      shoe: mat('#F8FAFC', 0.4),
+      pack: mat(backpack ?? '#1E293B', 0.5),
       eye: new THREE.MeshBasicMaterial({ color: '#0F172A' }),
+      sole: mat('#1E293B', 0.9),
+      trim: new THREE.MeshBasicMaterial({ color: '#E0F2FE' }),
     }),
     [hoodie, pants, hair, skin, backpack],
   );
@@ -79,72 +81,94 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
   return (
     <group ref={root}>
       {/* soft contact shadow */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.01}>
-        <circleGeometry args={[0.32, 16]} />
-        <meshBasicMaterial color="#020617" transparent opacity={0.35} />
+      <mesh rotation-x={-Math.PI / 2} position-y={0.012}>
+        <circleGeometry args={[0.34, 24]} />
+        <meshBasicMaterial color="#020617" transparent opacity={0.4} depthWrite={false} />
       </mesh>
       <group ref={body}>
         {/* legs pivot at hips */}
         {[
-          [legL, -0.11],
-          [legR, 0.11],
+          [legL, -0.1],
+          [legR, 0.1],
         ].map(([ref, x]) => (
-          <group key={x as number} ref={ref as React.RefObject<THREE.Group>} position={[x as number, 0.62, 0]}>
-            <mesh position-y={-0.28} material={m.pants} castShadow>
-              <boxGeometry args={[0.17, 0.5, 0.18]} />
+          <group key={x as number} ref={ref as React.RefObject<THREE.Group>} position={[x as number, 0.64, 0]}>
+            <mesh position-y={-0.27} material={m.pants} castShadow>
+              <capsuleGeometry args={[0.085, 0.36, 4, 10]} />
             </mesh>
-            <mesh position={[0, -0.57, 0.04]} material={m.shoe} castShadow>
-              <boxGeometry args={[0.19, 0.1, 0.27]} />
+            {/* sneaker */}
+            <mesh position={[0, -0.58, 0.05]} rotation-x={Math.PI / 2} material={m.shoe} castShadow>
+              <capsuleGeometry args={[0.075, 0.14, 4, 8]} />
+            </mesh>
+            <mesh position={[0, -0.63, 0.05]} material={m.sole}>
+              <boxGeometry args={[0.15, 0.03, 0.29]} />
             </mesh>
           </group>
         ))}
         {/* hoodie torso */}
-        <mesh position-y={0.92} material={m.hoodie} castShadow>
-          <boxGeometry args={[0.48, 0.6, 0.3]} />
+        <mesh position-y={0.95} scale={[1.15, 1, 0.78]} material={m.hoodie} castShadow>
+          <capsuleGeometry args={[0.2, 0.3, 6, 14]} />
         </mesh>
-        {/* front pocket */}
-        <mesh position={[0, 0.78, 0.155]} material={m.pants}>
-          <boxGeometry args={[0.3, 0.12, 0.01]} />
+        {/* kangaroo pocket + drawstrings */}
+        <mesh position={[0, 0.8, 0.16]} material={m.pants}>
+          <boxGeometry args={[0.26, 0.1, 0.02]} />
         </mesh>
-        {/* backpack */}
-        <mesh position={[0, 0.95, -0.24]} material={m.pack} castShadow>
-          <boxGeometry args={[0.38, 0.46, 0.18]} />
+        {[-0.05, 0.05].map((dx) => (
+          <mesh key={dx} position={[dx, 1.07, 0.165]} material={m.trim}>
+            <boxGeometry args={[0.015, 0.12, 0.01]} />
+          </mesh>
+        ))}
+        {/* backpack with straps */}
+        <mesh position={[0, 0.98, -0.22]} material={m.pack} castShadow>
+          <capsuleGeometry args={[0.15, 0.2, 4, 10]} />
         </mesh>
-        <mesh position={[0, 0.85, -0.335]} material={m.hoodie}>
-          <boxGeometry args={[0.26, 0.16, 0.02]} />
+        <mesh position={[0, 0.86, -0.36]} material={m.pack}>
+          <boxGeometry args={[0.2, 0.14, 0.05]} />
         </mesh>
+        {[-0.13, 0.13].map((sx) => (
+          <mesh key={sx} position={[sx, 1.02, 0.155]} material={m.sole}>
+            <boxGeometry args={[0.04, 0.34, 0.02]} />
+          </mesh>
+        ))}
         {/* arms pivot at shoulders */}
         {[
-          [armL, -0.31],
-          [armR, 0.31],
+          [armL, -0.29],
+          [armR, 0.29],
         ].map(([ref, x]) => (
-          <group key={x as number} ref={ref as React.RefObject<THREE.Group>} position={[x as number, 1.16, 0]}>
-            <mesh position-y={-0.24} material={m.hoodie} castShadow>
-              <boxGeometry args={[0.14, 0.46, 0.15]} />
+          <group key={x as number} ref={ref as React.RefObject<THREE.Group>} position={[x as number, 1.17, 0]}>
+            <mesh position-y={-0.22} material={m.hoodie} castShadow>
+              <capsuleGeometry args={[0.07, 0.32, 4, 10]} />
             </mesh>
-            <mesh position-y={-0.52} material={m.skin}>
-              <boxGeometry args={[0.11, 0.11, 0.11]} />
+            <mesh position-y={-0.48} material={m.skin}>
+              <sphereGeometry args={[0.065, 10, 8]} />
             </mesh>
           </group>
         ))}
-        {/* hood collar */}
-        <mesh position={[0, 1.24, -0.06]} material={m.hoodie}>
-          <boxGeometry args={[0.4, 0.12, 0.26]} />
+        {/* hood resting behind the neck */}
+        <mesh position={[0, 1.24, -0.07]} rotation-x={Math.PI / 2.4} material={m.hoodie}>
+          <torusGeometry args={[0.13, 0.06, 8, 16]} />
         </mesh>
         {/* head */}
         <group ref={head} position-y={1.5}>
           <mesh material={m.skin} castShadow>
-            <icosahedronGeometry args={[0.24, 1]} />
+            <sphereGeometry args={[0.23, 20, 16]} />
           </mesh>
-          <mesh position={[0, 0.1, -0.03]} material={m.hair}>
-            <sphereGeometry args={[0.26, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <mesh position={[0, 0.05, -0.02]} scale={[1.06, 0.9, 1.06]} material={m.hair}>
+            <sphereGeometry args={[0.24, 20, 12, 0, Math.PI * 2, 0, Math.PI / 1.9]} />
           </mesh>
-          <mesh position={[-0.08, 0.02, 0.215]} material={m.eye}>
-            <boxGeometry args={[0.04, 0.06, 0.02]} />
+          {/* fringe */}
+          <mesh position={[0.04, 0.13, 0.17]} rotation={[0.5, 0, -0.2]} material={m.hair}>
+            <boxGeometry args={[0.24, 0.06, 0.12]} />
           </mesh>
-          <mesh position={[0.08, 0.02, 0.215]} material={m.eye}>
-            <boxGeometry args={[0.04, 0.06, 0.02]} />
-          </mesh>
+          {[-0.075, 0.075].map((ex) => (
+            <mesh key={ex} position={[ex, 0.01, 0.215]} material={m.eye}>
+              <sphereGeometry args={[0.025, 8, 6]} />
+            </mesh>
+          ))}
+          {[-0.235, 0.235].map((ex) => (
+            <mesh key={ex} position={[ex, -0.01, 0]} material={m.skin}>
+              <sphereGeometry args={[0.045, 8, 6]} />
+            </mesh>
+          ))}
         </group>
       </group>
     </group>

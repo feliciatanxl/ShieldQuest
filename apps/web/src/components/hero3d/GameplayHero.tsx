@@ -34,10 +34,19 @@ export const GameplayHero: React.FC = () => {
   if (!use3D) return <HeroIllustration />;
 
   return (
-    <div className="relative w-full aspect-[16/10] lg:aspect-[16/11] rounded-2xl overflow-hidden border border-shield-cardBorder/90 bg-shield-void shadow-2xl shadow-shield-blue/20">
-      <Suspense fallback={<Placeholder />}>
-        <GameplayHeroScene />
-      </Suspense>
+    // Gradient hairline frame + soft glow ties the preview to the site's cyan/blue/violet accents.
+    <div className="relative rounded-2xl p-px bg-gradient-to-br from-shield-cyan/70 via-shield-blue/30 to-shield-violet/70 shadow-[0_20px_60px_-15px_rgba(22,135,247,0.45),0_0_40px_-10px_rgba(119,85,223,0.35)]">
+      <div className="relative w-full aspect-[16/10] lg:aspect-[16/11] rounded-[15px] overflow-hidden bg-shield-void">
+        <Suspense fallback={<Placeholder />}>
+          <GameplayHeroScene />
+        </Suspense>
+        {/* cinematic vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(5,8,22,0.55)_100%)]" />
+        <div className="hud-corner hud-corner-tl" />
+        <div className="hud-corner hud-corner-tr" />
+        <div className="hud-corner hud-corner-bl" />
+        <div className="hud-corner hud-corner-br" />
+      </div>
     </div>
   );
 };

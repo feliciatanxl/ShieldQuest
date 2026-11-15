@@ -59,13 +59,13 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
     const p = playerPose(t);
     const n = npcPose(t);
     // Scene 1-2: over-the-shoulder follow.
-    camPos.set(p.x + 1.2, 3.3, p.z + 6);
-    camLook.set(p.x + 1.2, 1.2, p.z - 2);
+    camPos.set(p.x + 1.2, 3.7, p.z + 7.2);
+    camLook.set(p.x + 1.2, 1.7, p.z - 2);
     // Scene 3: frame player + friend.
     const kNpc = ease(t, 9, 10.6);
-    tmp.set((p.x + n.x) / 2 + 0.3, 2.6, 5.4);
+    tmp.set((p.x + n.x) / 2 + 0.3, 2.9, 6.4);
     camPos.lerp(tmp, kNpc);
-    tmp.set((p.x + n.x) / 2, 1.1, 0.2);
+    tmp.set((p.x + n.x) / 2, 0.9, 0.2);
     camLook.lerp(tmp, kNpc);
     // Scene 4: pull back to reveal the moment.
     const kDecide = ease(t, 14, 15.6);
@@ -74,6 +74,9 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
     tmp.set(0.3, 1.0, -0.4);
     camLook.lerp(tmp, kDecide);
 
+    // Subtle handheld drift keeps the shot feeling alive.
+    camPos.x += Math.sin(t * 0.45) * 0.12;
+    camPos.y += Math.sin(t * 0.7) * 0.05;
     camera.position.copy(camPos);
     camera.lookAt(camLook);
 
@@ -88,13 +91,17 @@ const Director: React.FC<DirectorProps> = ({ timeRef, playing, onPhase }) => {
 
 const World: React.FC<{ timeRef: React.MutableRefObject<number> }> = React.memo(({ timeRef }) => (
   <>
-    <color attach="background" args={['#1A2550']} />
-    <fog attach="fog" args={['#1A2550', 12, 26]} />
-    <hemisphereLight args={['#C7D2FE', '#312E81', 1.1]} />
+    <color attach="background" args={['#161F48']} />
+    <fog attach="fog" args={['#161F48', 13, 30]} />
+    <hemisphereLight args={['#C7D2FE', '#2E1065', 0.9]} />
+    {/* cool rim light from behind the shops separates characters from the backdrop */}
+    <directionalLight position={[-6, 6, -8]} intensity={0.9} color="#818CF8" />
+    <pointLight position={[-4.7, 2.4, -0.4]} color="#F472B6" intensity={5} distance={5} />
+    <pointLight position={[4.8, 2.4, -0.4]} color="#38D9E6" intensity={5} distance={5} />
     <directionalLight
-      position={[4, 9, 6]}
-      intensity={1.6}
-      color="#FFF7ED"
+      position={[5, 10, 7]}
+      intensity={1.5}
+      color="#FFEDD5"
       castShadow
       shadow-mapSize={[1024, 1024]}
       shadow-camera-left={-9}
