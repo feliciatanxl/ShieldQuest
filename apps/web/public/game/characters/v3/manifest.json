@@ -1,0 +1,55 @@
+{
+  "canvas": [
+    64,
+    96
+  ],
+  "baseline": 91,
+  "poses": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "characters": [
+    {
+      "id": "F01",
+      "name": "Polytechnic student",
+      "gender": "female"
+    },
+    {
+      "id": "F04",
+      "name": "Malay young adult",
+      "gender": "female"
+    },
+    {
+      "id": "M01",
+      "name": "Polytechnic student",
+      "gender": "male"
+    }
+  ],
+  "spritesheet": {
+    "file": "working-files/anchor_3x4_64x96.png",
+    "columns": [
+      "front",
+      "back",
+      "left",
+      "right"
+    ],
+    "rows": [
+      "F01",
+      "F04",
+      "M01"
+    ],
+    "cell": [
+      64,
+      96
+    ]
+  },
+  "previews": [
+    "anchor_lineup.png",
+    "direction_sheet.png",
+    "hdb_neighbourhood_mockup.png"
+  ],
+  "styleGuide": "style-guide/pixel_style_guide.png",
+  "note": "Original pixel characters. Directional sprites are separately composed; no smoothing or horizontal flip."
+}

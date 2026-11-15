@@ -1,0 +1,83 @@
+{
+  "canvas": [
+    64,
+    96
+  ],
+  "baseline": 91,
+  "poses": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "characters": [
+    {
+      "id": "F01",
+      "name": "Polytechnic student",
+      "gender": "female"
+    },
+    {
+      "id": "F02",
+      "name": "Secondary student",
+      "gender": "female"
+    },
+    {
+      "id": "F03",
+      "name": "Young working adult",
+      "gender": "female"
+    },
+    {
+      "id": "F04",
+      "name": "Neighbourhood auntie",
+      "gender": "female"
+    },
+    {
+      "id": "M01",
+      "name": "Polytechnic student",
+      "gender": "male"
+    },
+    {
+      "id": "M02",
+      "name": "Secondary student",
+      "gender": "male"
+    },
+    {
+      "id": "M03",
+      "name": "Delivery rider",
+      "gender": "male"
+    },
+    {
+      "id": "M04",
+      "name": "Neighbourhood uncle",
+      "gender": "male"
+    }
+  ],
+  "spritesheet": {
+    "file": "spritesheets/shieldquest_8x4_64x96.png",
+    "columns": [
+      "front",
+      "back",
+      "left",
+      "right"
+    ],
+    "rows": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "M01",
+      "M02",
+      "M03",
+      "M04"
+    ],
+    "cell": [
+      64,
+      96
+    ]
+  },
+  "previews": [
+    "character_selection.png",
+    "direction_comparison.png",
+    "hdb_neighbourhood_mockup.png"
+  ]
+}

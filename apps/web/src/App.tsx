@@ -8,6 +8,7 @@ import { GuardiansPage } from './pages/GuardiansPage';
 import { WorldPage } from './pages/WorldPage';
 import { FaqPage } from './pages/FaqPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+const CharacterTestPage = React.lazy(() => import('./pages/CharacterTestPage').then((m) => ({ default: m.CharacterTestPage })));
 
 export const App: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
           <Route path="guardians" element={<GuardiansPage />} />
           <Route path="world" element={<WorldPage />} />
           <Route path="faq" element={<FaqPage />} />
+          <Route path="dev/character-test" element={<React.Suspense fallback={null}><CharacterTestPage /></React.Suspense>} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

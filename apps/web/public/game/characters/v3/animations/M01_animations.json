@@ -1,0 +1,29 @@
+{
+  "character": "M01",
+  "frame": [
+    64,
+    96
+  ],
+  "baseline": 91,
+  "spacing": 0,
+  "margin": 0,
+  "rows": [
+    "down (front)",
+    "up (back)",
+    "left",
+    "right"
+  ],
+  "sheets": {
+    "walk": {
+      "file": "M01_walk.png",
+      "frames": 6,
+      "fps": 8
+    },
+    "run": {
+      "file": "M01_run.png",
+      "frames": 8,
+      "fps": 12
+    }
+  },
+  "idle": "characters/male/M01_{front,back,left,right}.png (unchanged)"
+}

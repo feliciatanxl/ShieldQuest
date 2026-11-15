@@ -1,0 +1,109 @@
+{
+  "canvas": [
+    64,
+    96
+  ],
+  "baseline": 91,
+  "poses": [
+    "front",
+    "back",
+    "left",
+    "right"
+  ],
+  "characters": [
+    {
+      "id": "F01",
+      "name": "Polytechnic student",
+      "gender": "female"
+    },
+    {
+      "id": "F02",
+      "name": "Secondary student",
+      "gender": "female"
+    },
+    {
+      "id": "F03",
+      "name": "Young working adult",
+      "gender": "female"
+    },
+    {
+      "id": "F04",
+      "name": "Malay young adult",
+      "gender": "female"
+    },
+    {
+      "id": "F05",
+      "name": "Neighbourhood auntie",
+      "gender": "female"
+    },
+    {
+      "id": "F06",
+      "name": "Artsy uni student",
+      "gender": "female"
+    },
+    {
+      "id": "M01",
+      "name": "Polytechnic student",
+      "gender": "male"
+    },
+    {
+      "id": "M02",
+      "name": "Secondary student",
+      "gender": "male"
+    },
+    {
+      "id": "M03",
+      "name": "Delivery rider",
+      "gender": "male"
+    },
+    {
+      "id": "M04",
+      "name": "Young office worker",
+      "gender": "male"
+    },
+    {
+      "id": "M05",
+      "name": "Indian young adult",
+      "gender": "male"
+    },
+    {
+      "id": "M06",
+      "name": "Neighbourhood uncle",
+      "gender": "male"
+    }
+  ],
+  "spritesheet": {
+    "file": "working-files/shieldquest_12x4_64x96.png",
+    "columns": [
+      "front",
+      "back",
+      "left",
+      "right"
+    ],
+    "rows": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06"
+    ],
+    "cell": [
+      64,
+      96
+    ]
+  },
+  "previews": [
+    "character_lineup.png",
+    "direction_sheet.png",
+    "hdb_neighbourhood_mockup.png"
+  ],
+  "styleGuide": "style-guide/pixel_style_guide.png",
+  "note": "Original pixel characters. Directional sprites are separately composed; no smoothing or horizontal flip."
+}
