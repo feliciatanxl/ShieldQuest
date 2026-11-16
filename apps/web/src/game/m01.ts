@@ -5,10 +5,10 @@ export const GAME_ROOT = '/game/';
 export const DIRS = ['down', 'up', 'left', 'right'] as const;
 export type Dir = (typeof DIRS)[number];
 export type Gait = 'idle' | 'walk' | 'run';
-// shortcut: sheets only have idle rotations, so walking is a bob; add walk anims when walk sheets exist
+// Characters without a Walk.png just bob while moving.
 export const GAITS = {
-  walk: { speed: 130, bobMs: 140 },
-  run: { speed: 220, bobMs: 90 },
+  walk: { speed: 130, bobMs: 140, fps: 8 },
+  run: { speed: 220, bobMs: 90, fps: 13 }, // shortcut: run reuses the walk frames faster; add Run.png when exported
 } as const;
 
 // Character sheets: one 512x64 row of 8 idle rotations (S, SE, E, NE, N, NW, W, SW), see each folder's JSON.
@@ -26,10 +26,20 @@ export const FRAME: Record<Dir, number> = { down: 0, right: 2, up: 4, left: 6 };
 /** Sheets are 64px cells; this makes them read like the old 96px-tall sprites next to HDB storeys. */
 export const CHAR_SCALE = 1.6;
 const FEET_Y = 0.94; // feet sit ~4px above the bottom of the 64px cell
+/** Walk.png: 6 frames x 4 rows (down, up, left, right) of 64px cells, built from the exported walk GIFs. */
+const HAS_WALK: CharacterId[] = ['poly'];
 export const charUrl = (id: CharacterId) => `${GAME_ROOT}characters/${CHARACTERS[id]}/Create_an_original_highl-Idle.png`;
 
 export function preloadM01(scene: Phaser.Scene) {
   for (const id of Object.keys(CHARACTERS) as CharacterId[]) scene.load.spritesheet(`char_${id}`, charUrl(id), { frameWidth: 64, frameHeight: 64 });
+  for (const id of HAS_WALK) scene.load.spritesheet(`walk_${id}`, `${GAME_ROOT}characters/${CHARACTERS[id]}/Walk.png`, { frameWidth: 64, frameHeight: 64 });
+}
+
+function walkAnims(scene: Phaser.Scene, sheet: string) {
+  for (const [g, { fps }] of Object.entries(GAITS)) DIRS.forEach((d, row) => {
+    const key = `${sheet}_${g}_${d}`;
+    if (!scene.anims.exists(key)) scene.anims.create({ key, frames: scene.anims.generateFrameNumbers(sheet, { start: row * 6, end: row * 6 + 5 }), frameRate: fps, repeat: -1 });
+  });
 }
 
 
@@ -38,9 +48,17 @@ export function facingFrom(x: number, y: number): Dir {
   return Math.abs(x) >= Math.abs(y) ? (x > 0 ? 'right' : 'left') : y > 0 ? 'down' : 'up';
 }
 
-/** No walk frames yet: face the right way and bob a little while moving. */
+/** Plays the walk cycle when the character has one; otherwise faces the right way and bobs. */
 export function animateM01(sprite: Phaser.GameObjects.Sprite, facing: Dir, gait: Gait) {
-  sprite.setFrame(FRAME[facing]);
+  const id: string = sprite.getData('char') ?? sprite.setData('char', sprite.texture.key.slice(5)).getData('char');
+  const walk = `walk_${id}`;
+  if (gait !== 'idle' && sprite.scene.textures.exists(walk)) {
+    walkAnims(sprite.scene, walk);
+    sprite.setOrigin(0.5, FEET_Y).anims.play(`${walk}_${gait}_${facing}`, true);
+    return;
+  }
+  sprite.anims.stop();
+  sprite.setTexture(`char_${id}`, FRAME[facing]);
   const bob = gait === 'idle' ? 0 : Math.abs(Math.sin(sprite.scene.time.now / GAITS[gait].bobMs)) * 2;
   sprite.setOrigin(0.5, FEET_Y + bob / 64);
 }
