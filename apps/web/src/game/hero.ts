@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { animateM01, Dir, facingFrom, GAITS, preloadM01, registerM01Anims } from './m01';
+import { animateM01, CHAR_SCALE, Dir, facingFrom, FRAME, GAITS, PLAYER, preloadM01 } from './m01';
 import { buildNeighbourhood, Npc, Panel, preloadNeighbourhood } from './neighbourhood';
 
 export const HERO_VIEW = { width: 960, height: 600 };
@@ -33,7 +33,6 @@ export class HeroScene extends Phaser.Scene {
 
   create() {
     const world = buildNeighbourhood(this);
-    registerM01Anims(this);
     const mei = world.npcs.find((n) => n.speaker.includes('Mei')) ?? world.npcs[0];
     const pathY = mei.y - 64; // pavement row just above Auntie Mei
     this.start = [mei.x - 520, pathY];
@@ -42,7 +41,7 @@ export class HeroScene extends Phaser.Scene {
       { say: true, wait: 2600 }, { choose: true, wait: 3600 }, { ripple: true, wait: RIPPLE_MS + 600 },
       { to: [mei.x - 64, pathY] }, { to: [mei.x + 420, pathY] }, { fade: true, wait: 700 },
     ];
-    this.player = this.add.sprite(...this.start, 'M01_idle_right').setOrigin(0.5, 1);
+    this.player = this.add.sprite(...this.start, `char_${PLAYER}`, FRAME.right).setScale(CHAR_SCALE);
     this.add.ellipse(0, 0, 40, 10, 0x1d2b2a, 0.22).setName('shadow');
 
     // drifting cloud shadows: cheap ambient motion
@@ -136,7 +135,7 @@ export class HeroScene extends Phaser.Scene {
 
     if (step.to) {
       const [tx, ty] = step.to, dx = tx - p.x, dy = ty - p.y, dist = Math.hypot(dx, dy), d = (GAITS.walk.speed * delta) / 1000;
-      this.panel.hide(); this.caption.hide(); // dialogue ends when M01 walks on
+      this.panel.hide(); this.caption.hide(); // dialogue ends when the player walks on
       this.alert.setVisible(this.i === 1); // bubble while approaching
       if (dist <= d) { p.setPosition(tx, ty); return this.next(time); }
       this.facing = facingFrom(dx, dy);

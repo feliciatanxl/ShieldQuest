@@ -1,41 +1,46 @@
 import Phaser from 'phaser';
 
-// The one M01 implementation: assets, animations, input and movement shared by every scene.
+// The one player implementation: assets, facing, input and movement shared by every scene.
 export const GAME_ROOT = '/game/';
 export const DIRS = ['down', 'up', 'left', 'right'] as const;
 export type Dir = (typeof DIRS)[number];
 export type Gait = 'idle' | 'walk' | 'run';
-const IDLE_POSE: Record<Dir, string> = { down: 'front', up: 'back', left: 'left', right: 'right' };
+// shortcut: sheets only have idle rotations, so walking is a bob; add walk anims when walk sheets exist
 export const GAITS = {
-  walk: { frames: 6, fps: 8, speed: 130 },
-  run: { frames: 8, fps: 12, speed: 220 },
+  walk: { speed: 130, bobMs: 140 },
+  run: { speed: 220, bobMs: 90 },
 } as const;
 
+// Character sheets: one 512x64 row of 8 idle rotations (S, SE, E, NE, N, NW, W, SW), see each folder's JSON.
+export const CHARACTERS = {
+  student: 'Indian Singaporean male student approximately 18–23 years old',
+  worker: 'Chinese Singaporean female young working adult approximately 22–28 years old',
+  poly: 'Singaporean female polytechnic student approximately 18–20 years old',
+  rider: 'Malay Singaporean male delivery rider approximately 20–35 years old',
+} as const;
+export type CharacterId = keyof typeof CHARACTERS;
+export const PLAYER: CharacterId = 'student';
+export const FRAME: Record<Dir, number> = { down: 0, right: 2, up: 4, left: 6 };
+/** Sheets are 64px cells; this makes them read like the old 96px-tall sprites next to HDB storeys. */
+export const CHAR_SCALE = 1.6;
+const FEET_Y = 0.94; // feet sit ~4px above the bottom of the 64px cell
+export const charUrl = (id: CharacterId) => `${GAME_ROOT}characters/${CHARACTERS[id]}/Create_an_original_highl-Idle.png`;
+
 export function preloadM01(scene: Phaser.Scene) {
-  for (const d of DIRS) scene.load.image(`M01_idle_${d}`, `${GAME_ROOT}characters/v3/characters/male/M01_${IDLE_POSE[d]}.png`);
-  for (const g of Object.keys(GAITS)) scene.load.spritesheet(`M01_${g}`, `${GAME_ROOT}characters/v3/animations/M01_${g}.png`, { frameWidth: 64, frameHeight: 96 });
+  for (const id of Object.keys(CHARACTERS) as CharacterId[]) scene.load.spritesheet(`char_${id}`, charUrl(id), { frameWidth: 64, frameHeight: 64 });
 }
 
-export function registerM01Anims(scene: Phaser.Scene) {
-  for (const [g, { frames, fps }] of Object.entries(GAITS)) {
-    DIRS.forEach((d, row) => {
-      const key = `M01_${g}_${d}`;
-      if (scene.anims.exists(key)) return; // anims are game-global; never register twice
-      scene.anims.create({ key, frames: scene.anims.generateFrameNumbers(`M01_${g}`, { start: row * frames, end: row * frames + frames - 1 }), frameRate: fps, repeat: -1 });
-    });
-  }
-}
 
 /** Dominant axis picks the sprite; horizontal wins exact diagonals. */
 export function facingFrom(x: number, y: number): Dir {
   return Math.abs(x) >= Math.abs(y) ? (x > 0 ? 'right' : 'left') : y > 0 ? 'down' : 'up';
 }
 
+/** No walk frames yet: face the right way and bob a little while moving. */
 export function animateM01(sprite: Phaser.GameObjects.Sprite, facing: Dir, gait: Gait) {
-  if (gait === 'idle') {
-    sprite.anims.stop();
-    sprite.setTexture(`M01_idle_${facing}`);
-  } else sprite.anims.play(`M01_${gait}_${facing}`, true); // true = keep playing if already on it
+  sprite.setFrame(FRAME[facing]);
+  const bob = gait === 'idle' ? 0 : Math.abs(Math.sin(sprite.scene.time.now / GAITS[gait].bobMs)) * 2;
+  sprite.setOrigin(0.5, FEET_Y + bob / 64);
 }
 
 /** Keyboard + optional touch overlay (floating joystick, RUN and E buttons on touch devices). */
@@ -104,17 +109,15 @@ export class PlayerInput {
   }
 }
 
-/** Arcade-physics M01: feet-anchored sprite with a small foot hitbox. */
+/** Arcade-physics player: feet-anchored sprite with a small foot hitbox. */
 export class Player {
   sprite: Phaser.Physics.Arcade.Sprite;
   facing: Dir = 'down';
   gait: Gait = 'idle';
 
   constructor(scene: Phaser.Scene, x: number, y: number, scale = 1) {
-    registerM01Anims(scene);
-    // origin at the feet: idle PNGs and sheet frames share a 64x96 cell and baseline, so swaps don't jump
-    this.sprite = scene.physics.add.sprite(x, y, 'M01_idle_down').setOrigin(0.5, 1).setScale(scale);
-    this.sprite.body!.setSize(18, 11).setOffset(23, 82);
+    this.sprite = scene.physics.add.sprite(x, y, `char_${PLAYER}`, FRAME.down).setOrigin(0.5, FEET_Y).setScale(scale * CHAR_SCALE);
+    this.sprite.body!.setSize(18, 8).setOffset(23, 52);
     this.sprite.setCollideWorldBounds(true);
   }
 
@@ -141,4 +144,22 @@ export interface DebugInfo { mode: string; x: number; y: number; facing: Dir; ga
 export interface PlaygroundScene extends Phaser.Scene {
   debugInfo(): DebugInfo;
   setDebug(on: boolean): void;
+}
+
+/** Ambient neighbour that walks back and forth between a and b, pausing at each end. */
+export function addWanderer(scene: Phaser.Scene, id: CharacterId, a: [number, number], b: [number, number], scale = CHAR_SCALE) {
+  const s = scene.add.sprite(a[0], a[1], `char_${id}`, FRAME.down).setScale(scale);
+  const shadow = scene.add.ellipse(a[0], a[1], 40, 10, 0x1d2b2a, 0.22);
+  scene.tweens.add({ targets: s, x: b[0], y: b[1], duration: (Math.hypot(b[0] - a[0], b[1] - a[1]) / GAITS.walk.speed) * 1000, yoyo: true, hold: 1200, repeatDelay: 1200, repeat: -1 });
+  let px = s.x, py = s.y, facing: Dir = 'down';
+  const tick = () => {
+    const dx = s.x - px, dy = s.y - py;
+    if (dx || dy) facing = facingFrom(dx, dy);
+    animateM01(s, facing, dx || dy ? 'walk' : 'idle');
+    s.setDepth(s.y); shadow.setPosition(s.x, s.y - 2).setDepth(s.y - 1);
+    px = s.x; py = s.y;
+  };
+  scene.events.on('update', tick);
+  scene.events.once('shutdown', () => scene.events.off('update', tick));
+  return s;
 }

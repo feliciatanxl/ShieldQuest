@@ -1,18 +1,15 @@
 import Phaser from 'phaser';
-import { GAME_ROOT } from './m01';
+import { addWanderer, CHAR_SCALE, CharacterId, GAME_ROOT } from './m01';
 
-// Tiled map is authored at 32px tiles; drawn at 2x so M01 (64x96) reads at a believable scale
+// Tiled map is authored at 32px tiles; drawn at 2x so characters reads at a believable scale
 // next to HDB storeys and the void deck. All Tiled object coordinates are multiplied by this.
 export const WORLD_SCALE = 2;
 export const MAP_KEY = 'neighbourhood';
 type Prop = { name: string; value: unknown };
 const prop = (o: Phaser.Types.Tilemaps.TiledObject, name: string) => (o.properties as Prop[] | undefined)?.find((p) => p.name === name)?.value;
 
-// NPC sprite ids in the map -> actual files (M06 only exists in v2).
-const NPC_SPRITES: Record<string, string> = {
-  F04: 'characters/v3/characters/female/F04_front.png',
-  M06: 'characters/v2/characters/male/M06_front.png',
-};
+// NPC sprite ids in the Tiled map -> character sheets (loaded by preloadM01).
+const NPC_SPRITES: Record<string, CharacterId> = { F04: 'worker', M06: 'rider' };
 
 export interface Npc { name: string; speaker: string; line: string; x: number; y: number; sprite?: Phaser.GameObjects.Image }
 export interface Zone { name: string; id: string; rect: Phaser.Geom.Rectangle }
@@ -21,7 +18,6 @@ export interface World { map: Phaser.Tilemaps.Tilemap; width: number; height: nu
 export function preloadNeighbourhood(scene: Phaser.Scene) {
   scene.load.tilemapTiledJSON(MAP_KEY, `${GAME_ROOT}maps/singapore-neighbourhood.tmj`);
   scene.load.image('neighbourhood-tiles', `${GAME_ROOT}tilesets/neighbourhood-tiles.png`);
-  for (const [id, path] of Object.entries(NPC_SPRITES)) scene.load.image(`npc_${id}`, GAME_ROOT + path);
 }
 
 /** Draws tile layers and reads Gameplay Objects. Throws with a clear message if the map is malformed. */
@@ -43,13 +39,18 @@ export function buildNeighbourhood(scene: Phaser.Scene): World {
     const raw = String(prop(o, 'dialogue') ?? o.name);
     const m = raw.match(/^([^:]{1,30}):\s*(.*)$/); // "Uncle Rahim: Welcome!" -> speaker + line
     const npc: Npc = { name: o.name, speaker: m ? m[1] : o.name, line: m ? m[2] : raw, x: (o.x ?? 0) * S, y: (o.y ?? 0) * S };
-    const key = `npc_${String(prop(o, 'sprite'))}`;
-    if (scene.textures.exists(key)) {
-      npc.sprite = scene.add.image(npc.x, npc.y, key).setOrigin(0.5, 1).setDepth(npc.y);
+    const id = NPC_SPRITES[String(prop(o, 'sprite'))];
+    if (id && scene.textures.exists(`char_${id}`)) {
+      npc.sprite = scene.add.image(npc.x, npc.y, `char_${id}`, 0).setOrigin(0.5, 0.94).setScale(CHAR_SCALE).setDepth(npc.y);
       scene.add.ellipse(npc.x, npc.y - 2, 40, 10, 0x1d2b2a, 0.22).setDepth(npc.y - 1);
     } else console.warn(`[neighbourhood] NPC "${o.name}" has no sprite asset for "${String(prop(o, 'sprite'))}"`);
     return npc;
   });
+
+  // every non-player character also strolls the open walkways (map coords x WORLD_SCALE)
+  addWanderer(scene, 'poly', [200 * S, 465 * S], [650 * S, 465 * S]);
+  addWanderer(scene, 'worker', [1000 * S, 660 * S], [625 * S, 660 * S]);
+  addWanderer(scene, 'rider', [400 * S, 760 * S], [1000 * S, 760 * S]);
 
   return {
     map, width: map.widthInPixels * S, height: map.heightInPixels * S,

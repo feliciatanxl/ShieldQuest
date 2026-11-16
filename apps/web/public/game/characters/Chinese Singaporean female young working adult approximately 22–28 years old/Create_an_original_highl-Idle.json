@@ -1,0 +1,45 @@
+{
+  "character": {
+    "id": "9c3abf01-80a8-4576-8a6a-9681dc366d10",
+    "name": "Idle",
+    "prompt": "Create an original, highly polished 2D pixel-art character for ShieldQuest, a cozy Singaporean urban life-simulation adventure game.\n\nCHARACTER: Chinese Singaporean female young working adult, approximately 22\u201328 years old.\n\nART DIRECTION:\n- Cozy modern life-simulator aesthetic with the warmth and charm of a premium indie life-sim game, entirely original.\n- Detailed handcrafted pixel art, polished and readable.\n- Slightly stylized but natural human proportions.\n- Soft shading, clean selective outlines, harmonious colours.\n- Friendly, modern, mature-cute appearance.\n\nAPPEARANCE:\n- Fair to light-medium skin tone.\n- Shoulder-length dark brown or black hair, neat and modern.\n- Smart-casual blouse in a soft neutral or pastel tone.\n- Wide-leg trousers or a neat skirt.\n- Comfortable flats or sneakers.\n- Tote bag or compact handbag.\n- Friendly, approachable expression.\n\nSINGAPOREAN IDENTITY:\n- Everyday modern Singapore office / young adult style.\n- Urban, practical, warm-weather appropriate fashion.\n- Natural and recognisable, not exaggerated or stereotypical.\n\nSPRITE REQUIREMENTS:\n- Full-body standing character, transparent background.\n- Orthogonal low top-down perspective.\n- Consistent proportions across all directions.\n- No background, no text, no fantasy elements, no weapons.\n\nFINAL QUALITY TARGET:\nA polished, attractive Singaporean life-sim character suitable for a cozy neighbourhood game.",
+    "size": {
+      "width": 64,
+      "height": 64
+    },
+    "directions": 8,
+    "view": "low top-down"
+  },
+  "spritesheet": {
+    "path": "Create_an_original_highl-Idle.png",
+    "cell_size": {
+      "width": 64,
+      "height": 64
+    },
+    "sheet_size": {
+      "width": 512,
+      "height": 64
+    },
+    "columns": 8,
+    "pivot": "cell-center",
+    "rows": [
+      {
+        "row": 0,
+        "type": "rotations",
+        "frame_count": 8,
+        "directions": [
+          "south",
+          "south-east",
+          "east",
+          "north-east",
+          "north",
+          "north-west",
+          "west",
+          "south-west"
+        ]
+      }
+    ]
+  },
+  "export_version": "1.0",
+  "export_date": "2026-11-16T11:46:34.941450+00:00"
+}

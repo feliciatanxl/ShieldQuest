@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DebugInfo, Player, PlayerInput, PlaygroundScene, preloadM01 } from './m01';
+import { addWanderer, CHAR_SCALE, DebugInfo, Player, PlayerInput, PlaygroundScene, preloadM01 } from './m01';
 import { buildNeighbourhood, Npc, Panel, preloadNeighbourhood, World, Zone } from './neighbourhood';
 
 export const VIEW = { width: 960, height: 540 };
@@ -26,6 +26,10 @@ export class SandboxScene extends Phaser.Scene implements PlaygroundScene {
     for (let y = 0; y <= height; y += 32) g.lineBetween(0, y, width, y);
     this.physics.world.setBounds(0, 0, width, height);
     this.player = new Player(this, width / 2, height / 2 + 96, 2);
+    // the other characters walk laps so every sheet can be checked side by side
+    addWanderer(this, 'worker', [96, 160], [width - 96, 160], 2 * CHAR_SCALE);
+    addWanderer(this, 'poly', [width - 96, 420], [96, 420], 2 * CHAR_SCALE);
+    addWanderer(this, 'rider', [120, 120], [120, height - 40], 2 * CHAR_SCALE);
     this.input2 = new PlayerInput(this);
     this.game.events.emit('scene-ready', 'sandbox');
   }

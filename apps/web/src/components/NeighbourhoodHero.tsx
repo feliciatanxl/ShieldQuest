@@ -35,8 +35,9 @@ export const NeighbourhoodHero: React.FC = () => {
         <div className={`absolute inset-0 transition-opacity duration-700 ${live ? 'opacity-0' : 'opacity-100'}`} aria-hidden={live}>
           <img src="/game/tilesets/neighbourhood-map-fallback.png" alt="Pixel-art Singapore HDB neighbourhood with a void deck, minimart, sheltered walkway and trees"
             className="absolute max-w-none" style={{ ...pixel, width: '266.67%', left: '-106.67%', top: '-133.3%' }} />
-          <img src="/game/characters/v3/characters/male/M01_right.png" alt="" className="absolute -translate-x-1/2 -translate-y-full" style={{ ...pixel, left: '36.7%', top: '64%', width: '6.67%' }} />
-          <img src="/game/characters/v3/characters/female/F04_front.png" alt="" className="absolute -translate-x-1/2 -translate-y-full" style={{ ...pixel, left: '43.3%', top: '64%', width: '6.67%' }} />
+          {/* frames from the 8-direction idle sheets: 2 = east, 0 = south */}
+          <div className="absolute -translate-x-1/2 -translate-y-full aspect-square" style={{ ...pixel, left: '36.7%', top: '66%', width: '7%', backgroundImage: "url('/game/characters/Indian Singaporean male student approximately 18–23 years old/Create_an_original_highl-Idle.png')", backgroundSize: '800% 100%', backgroundPosition: '28.57% 0' }} />
+          <div className="absolute -translate-x-1/2 -translate-y-full aspect-square" style={{ ...pixel, left: '43.3%', top: '66%', width: '7%', backgroundImage: "url('/game/characters/Chinese Singaporean female young working adult approximately 22–28 years old/Create_an_original_highl-Idle.png')", backgroundSize: '800% 100%', backgroundPosition: '0.00% 0' }} />
         </div>
         <div ref={host} className={`absolute inset-0 transition-opacity duration-700 ${live ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true" />
         <span className="pointer-events-none absolute left-3 top-3 rounded-full border border-white/15 bg-black/40 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-white/85 backdrop-blur">
