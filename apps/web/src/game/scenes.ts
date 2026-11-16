@@ -30,6 +30,8 @@ export class SandboxScene extends Phaser.Scene implements PlaygroundScene {
     addWanderer(this, 'worker', [96, 160], [width - 96, 160], 2 * CHAR_SCALE);
     addWanderer(this, 'poly', [width - 96, 420], [96, 420], 2 * CHAR_SCALE);
     addWanderer(this, 'rider', [120, 120], [120, height - 40], 2 * CHAR_SCALE);
+    addWanderer(this, 'cafe', [width - 120, height - 40], [width - 120, 120], 2 * CHAR_SCALE);
+    addWanderer(this, 'hijab', [width / 2 - 200, height - 30], [width / 2 + 200, height - 30], 2 * CHAR_SCALE);
     this.input2 = new PlayerInput(this);
     this.game.events.emit('scene-ready', 'sandbox');
   }

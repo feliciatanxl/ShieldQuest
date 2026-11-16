@@ -17,6 +17,8 @@ export const CHARACTERS = {
   worker: 'Chinese Singaporean female young working adult approximately 22–28 years old',
   poly: 'Singaporean female polytechnic student approximately 18–20 years old',
   rider: 'Malay Singaporean male delivery rider approximately 20–35 years old',
+  cafe: 'Eurasian Singaporean female café staff member approximately 20–30 years old',
+  hijab: 'Malay Singaporean female young adult wearing a hijab approximately 18–28 years old',
 } as const;
 export type CharacterId = keyof typeof CHARACTERS;
 export const PLAYER: CharacterId = 'student';

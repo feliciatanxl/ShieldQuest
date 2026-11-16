@@ -51,6 +51,8 @@ export function buildNeighbourhood(scene: Phaser.Scene): World {
   addWanderer(scene, 'poly', [200 * S, 465 * S], [650 * S, 465 * S]);
   addWanderer(scene, 'worker', [1000 * S, 660 * S], [625 * S, 660 * S]);
   addWanderer(scene, 'rider', [400 * S, 760 * S], [1000 * S, 760 * S]);
+  addWanderer(scene, 'cafe', [1250 * S, 430 * S], [880 * S, 430 * S]);
+  addWanderer(scene, 'hijab', [700 * S, 900 * S], [150 * S, 900 * S]);
 
   return {
     map, width: map.widthInPixels * S, height: map.heightInPixels * S,
