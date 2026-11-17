@@ -45,7 +45,7 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-16 md:space-y-24 pb-8 overflow-hidden">
+    <div className="pb-8 overflow-hidden">
       {/* Section 1 — Hero */}
       <section className="relative pt-10 sm:pt-14 lg:pt-16 pb-24 sm:pb-32" aria-labelledby="hero-title">
         <PixelCloud className="w-40 top-6 left-[8%] motion-safe:animate-bob" />
@@ -97,7 +97,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Section 2 — Explore, Decide, Protect */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="pillars-title">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24" aria-labelledby="pillars-title">
         <SectionHeading
           id="pillars-title"
           kicker="Your journey"
@@ -111,7 +111,7 @@ export const HomePage: React.FC = () => {
       <ConsequenceTeaser />
 
       {/* Section 4 — Discover the World */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="discover-title">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-16 md:pb-24" aria-labelledby="discover-title">
         <SectionHeading
           id="discover-title"
           kicker="The map"
@@ -221,7 +221,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Section 5 — Final CTA: dusk over the estate */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center" aria-labelledby="closing-cta-title">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center" aria-labelledby="closing-cta-title">
         <div className="relative overflow-hidden rounded-[20px] border-[3px] border-shield-cream/85 px-6 pt-12 pb-28 sm:px-12 sm:pt-16 sm:pb-36 bg-gradient-to-b from-[#2a3f6b] via-[#5a5f93] to-[#e7a283] shadow-cozy">
           {/* Pixel stars */}
           <div aria-hidden="true" className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_1px_1px,#fff9ef_1px,transparent_0)] bg-[length:46px_38px] [mask-image:linear-gradient(#000,transparent_55%)]" />

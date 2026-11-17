@@ -27,7 +27,7 @@ export const ConsequenceTeaser: React.FC = () => {
   };
 
   return (
-    <section className="py-12 md:py-20 relative overflow-hidden" aria-labelledby="consequence-heading">
+    <section className="py-16 md:py-24 relative overflow-hidden" aria-labelledby="consequence-heading">
       {/* Background ambient lighting */}
       <div aria-hidden="true" className="absolute inset-x-0 inset-y-6 bg-shield-dark/70 [clip-path:polygon(0_3%,100%_0,100%_97%,0_100%)] pointer-events-none" />
 
