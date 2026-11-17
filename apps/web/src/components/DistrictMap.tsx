@@ -1,3 +1,4 @@
+import { DistrictScene, IdleSprite, SPRITES } from './sg/Scenery';
 import React, { useState } from 'react';
 import {
   GraduationCap,
@@ -152,23 +153,30 @@ export const DistrictMap: React.FC = () => {
                   key={district.id}
                   type="button"
                   onClick={() => setSelectedDistrict(district)}
-                  className={`relative flex h-full flex-col text-left p-6 rounded-2xl border-2 bg-gradient-to-br from-shield-surface via-shield-navy to-shield-void transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-shield-cyan overflow-hidden group motion-safe:hover:-translate-y-1 ${
-                    isSelected ? 'shadow-xl' : 'border-shield-cardBorder hover:border-shield-cyan/50'
+                  className={`relative flex h-full flex-col text-left p-6 rounded-2xl border-2 bg-shield-card transition-all duration-300 overflow-hidden group motion-safe:hover:-translate-y-1 ${
+                    isSelected ? '-translate-y-1' : 'border-shield-cardBorder hover:border-shield-gold/60'
                   }`}
-                  style={isSelected ? { borderColor: styling.accent, boxShadow: `0 0 28px -8px ${styling.accent}` } : undefined}
+                  style={isSelected ? { borderColor: styling.accent, boxShadow: `0 6px 0 0 ${styling.accent}88` } : { boxShadow: '0 3px 0 0 rgb(var(--shield-cardBorder))' }}
                   aria-pressed={isSelected}
                   aria-label={`Select district: ${district.name}`}
                 >
-                  {/* District motif glow */}
-                  <span
-                    className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full blur-2xl transition-opacity duration-300 pointer-events-none"
-                    style={{ backgroundColor: styling.accent, opacity: isSelected ? 0.3 : 0.1 }}
-                    aria-hidden="true"
-                  />
+                  {/* Neighbourhood thumbnail: future districts are drawn desaturated so only the pilot reads as "open" */}
+                  <div className="relative -mx-6 -mt-6 mb-5 h-28 border-b-4 overflow-hidden" style={{ borderColor: styling.accent }}>
+                    <DistrictScene
+                      id={district.id}
+                      className={`h-full w-full transition-transform duration-500 motion-safe:group-hover:scale-105 ${district.id === PILOT_DISTRICT_ID ? '' : 'grayscale-[55%] opacity-80'}`}
+                    />
+                    {district.id === PILOT_DISTRICT_ID && (
+                      <>
+                        <IdleSprite folder={SPRITES.cafe} frame={0} className="absolute bottom-0 left-[30%] w-12" />
+                        <IdleSprite folder={SPRITES.poly} frame={2} className="absolute bottom-0 left-[58%] w-12" />
+                      </>
+                    )}
+                  </div>
                   {/* Sector Header */}
                   <div className="flex items-start justify-between gap-2 mb-4">
                     <div
-                      className="p-3 rounded-2xl bg-shield-void border shadow-md group-hover:scale-110 transition-transform duration-300"
+                      className="p-3 rounded-xl bg-shield-surface border-2 shadow-[0_3px_0_0_rgb(var(--shield-cardBorder))] motion-safe:group-hover:-translate-y-0.5 transition-transform duration-300"
                       style={{ borderColor: `${styling.accent}50` }}
                     >
                       {districtIcons[district.id]}
@@ -178,7 +186,7 @@ export const DistrictMap: React.FC = () => {
                         Sector 0{idx + 1}
                       </span>
                       {district.id === PILOT_DISTRICT_ID ? (
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-shield-gold text-shield-void">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E8B75D] text-[#17233D]">
                           Pilot focus
                         </span>
                       ) : (
@@ -218,7 +226,7 @@ export const DistrictMap: React.FC = () => {
           <div className="lg:col-span-5">
             {selectedDistrict ? (
               <div
-                className="game-panel p-6 sm:p-8 border border-shield-cyan/40 lg:h-full lg:flex lg:flex-col lg:justify-between shadow-2xl animate-fadeIn"
+                className="notice-board p-3 sm:p-4 lg:h-full animate-fadeIn"><div className="notice-paper p-5 sm:p-6 lg:h-full lg:flex lg:flex-col lg:justify-between"
                 role="region"
                 aria-label={`Details for ${selectedDistrict.name}`}
               >
@@ -234,6 +242,7 @@ export const DistrictMap: React.FC = () => {
                   </span>
                 </div>
 
+                <DistrictScene id={selectedDistrict.id} className={`mb-5 block h-24 w-full rounded-xl border-2 border-shield-cardBorder ${selectedDistrict.id === PILOT_DISTRICT_ID ? "" : "grayscale-[55%]"}`} />
                 <div className="flex items-center gap-3.5 mb-5">
                   <div className="p-3.5 rounded-2xl bg-shield-void border border-shield-cardBorder shadow-md">
                     {districtIcons[selectedDistrict.id]}
@@ -281,7 +290,7 @@ export const DistrictMap: React.FC = () => {
                 </div>
 
                 {/* Sample Dilemma Teaser */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-shield-navy to-shield-surface border border-shield-blue/40 space-y-1.5">
+                <div className="dialogue-panel p-4 space-y-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-shield-gold">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Sample Dilemma</span>
@@ -290,7 +299,7 @@ export const DistrictMap: React.FC = () => {
                     "{selectedDistrict.sampleScenarioPreview}"
                   </p>
                 </div>
-              </div>
+              </div></div>
             ) : (
               <div className="game-panel p-8 text-center text-shield-muted">
                 <Compass className="w-8 h-8 text-shield-cyan/50 mx-auto mb-3" />
@@ -316,7 +325,7 @@ export const DistrictMap: React.FC = () => {
                     <h3 className="text-xl font-heading font-black text-shield-cream">
                       {district.name}
                       {district.id === PILOT_DISTRICT_ID && (
-                        <span className="ml-2 align-middle text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-shield-gold text-shield-void">
+                        <span className="ml-2 align-middle text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#E8B75D] text-[#17233D]">
                           Pilot focus
                         </span>
                       )}

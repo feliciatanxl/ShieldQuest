@@ -20,8 +20,8 @@ const pillars: Pillar[] = [
     step: '01',
     title: 'EXPLORE',
     tagline: 'Spot the clues others might miss.',
-    color: '#06B6D4',
-    accent: '#38D9E6',
+    color: '#159A9C',
+    accent: '#4FC1B9',
     link: '/world',
     linkText: 'Explore the City',
     icon: <Search className="w-7 h-7" aria-hidden="true" />,
@@ -31,8 +31,8 @@ const pillars: Pillar[] = [
     step: '02',
     title: 'DECIDE',
     tagline: 'Make your choice. See what follows.',
-    color: '#F59E0B',
-    accent: '#FDE047',
+    color: '#E0A24A',
+    accent: '#E8B75D',
     link: '/how-it-works',
     linkText: 'How Decisions Work',
     icon: <Compass className="w-7 h-7" aria-hidden="true" />,
@@ -42,8 +42,8 @@ const pillars: Pillar[] = [
     step: '03',
     title: 'PROTECT',
     tagline: 'Learn to protect yourself and others.',
-    color: '#2563EB',
-    accent: '#60A5FA',
+    color: '#4E9BD6',
+    accent: '#6FB7E8',
     link: '/guardians',
     linkText: 'Meet the Guardians',
     icon: <ShieldAlert className="w-7 h-7" aria-hidden="true" />,
@@ -53,54 +53,49 @@ const pillars: Pillar[] = [
 export const PillarCards: React.FC = () => {
   return (
     <div className="relative">
-      {/* Connected Adventure Trail (Desktop visual connector) */}
-      <div className="hidden lg:block absolute top-1/2 left-12 right-12 h-0.5 -translate-y-8 bg-gradient-to-r from-cyan-500/30 via-amber-500/30 to-blue-500/30 pointer-events-none border-t border-dashed border-white/20" />
+      {/* Dotted footpath linking the three chapter markers (desktop) */}
+      <div
+        aria-hidden="true"
+        className="hidden lg:block absolute top-5 left-[16%] right-[16%] h-5 rounded-sm bg-[var(--sg-pave)] border-y-2 border-[var(--sg-pave2)] bg-[linear-gradient(90deg,transparent_23%,#f5f5f0_23%_24.5%,transparent_24.5%_26%,#f5f5f0_26%_27.5%,transparent_27.5%_29%,#f5f5f0_29%_30.5%,transparent_30.5%_69.5%,#f5f5f0_69.5%_71%,transparent_71%_72.5%,#f5f5f0_72.5%_74%,transparent_74%_75.5%,#f5f5f0_75.5%_77%,transparent_77%)]"
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
-        {pillars.map((pillar) => (
-          <div
-            key={pillar.id}
-            className="game-panel-interactive p-7 sm:p-8 flex flex-col justify-between group relative overflow-hidden transition-all duration-300"
-            style={{ borderTop: `4px solid ${pillar.color}` }}
-          >
-            {/* Ambient Background Gradient Corner */}
+      <ol className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-8 relative z-10">
+        {pillars.map((pillar, i) => (
+          <li key={pillar.id} className="flex flex-col items-center motion-safe:animate-fadeIn" style={{ animationDelay: `${i * 90}ms` }}>
+            {/* Chapter marker */}
             <div
-              className="absolute -top-12 -right-12 w-36 h-36 rounded-full blur-3xl opacity-20 group-hover:opacity-35 transition-opacity pointer-events-none"
+              className="pixel-frame z-10 grid h-14 w-14 place-items-center text-white transition-transform duration-300 motion-safe:hover:-translate-y-1"
               style={{ backgroundColor: pillar.color }}
-            />
+            >
+              {pillar.icon}
+            </div>
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-[5px] border-2 border-white bg-[#1f6b4a] px-2 py-0.5 font-pixel text-[11px] tracking-widest text-white shadow-[0_2px_0_0_rgb(0_0_0/0.25)]">CHAPTER {pillar.step}</span>
 
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-6 transition-transform duration-300"
-                  style={{ backgroundColor: pillar.color, boxShadow: `0 10px 24px -8px ${pillar.color}` }}
-                >
-                  {pillar.icon}
-                </div>
-                <span className="text-xs font-mono font-bold tracking-widest text-shield-muted">
-                  STEP {pillar.step}
-                </span>
+            <div
+              className="game-panel-interactive mt-4 w-full p-6 sm:p-7 flex flex-col justify-between flex-1 group text-center overflow-hidden"
+            >
+              {/* Coloured awning stripe, like a shopfront */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-3 rounded-t-[15px]"
+                style={{ background: `repeating-linear-gradient(90deg, ${pillar.color} 0 18px, ${pillar.accent} 18px 36px)` }}
+              />
+              <div className="pt-2">
+                <h3 className="text-2xl font-heading font-bold text-shield-cream tracking-wide mb-2">{pillar.title}</h3>
+                <p className="text-base text-shield-cream/85 leading-snug font-medium mb-6">{pillar.tagline}</p>
               </div>
 
-              <h3 className="text-2xl font-heading font-black text-shield-cream tracking-tight mb-2 group-hover:text-shield-cyan transition-colors">
-                {pillar.title}
-              </h3>
-
-              <p className="text-base text-shield-cream/90 leading-snug font-medium mb-6">
-                {pillar.tagline}
-              </p>
+              <Link
+                to={pillar.link}
+                className="inline-flex items-center justify-center gap-2 text-sm font-heading font-semibold text-shield-blue hover:text-shield-cream transition-colors pt-4 border-t-2 border-dashed border-shield-cardBorder/70"
+              >
+                <span>{pillar.linkText}</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
-
-            <Link
-              to={pillar.link}
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-shield-cyan hover:text-shield-cream transition-colors group-hover:translate-x-1 duration-200 pt-4 border-t border-shield-cardBorder/40"
-            >
-              <span>{pillar.linkText}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 };

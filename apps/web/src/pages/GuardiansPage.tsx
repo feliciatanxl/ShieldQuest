@@ -1,3 +1,4 @@
+import { EstateSkyline } from '../components/sg/Scenery';
 import React, { Suspense, lazy, useRef, useState } from 'react';
 import { Shield, ArrowRight, RotateCcw, Play, Layers, Hand } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -59,8 +60,8 @@ export const GuardiansPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
       {/* Header */}
-      <div className="max-w-3xl space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-mono font-semibold text-shield-gold">
+      <div className="page-intro max-w-3xl space-y-3">
+        <div className="quest-tag">
           <Shield className="w-3.5 h-3.5" />
           <span>GUARDIAN COMPANIONS</span>
         </div>
@@ -83,12 +84,15 @@ export const GuardiansPage: React.FC = () => {
                 type="button"
                 onClick={() => select(g.id)}
                 aria-pressed={active}
-                className={`w-full h-full flex flex-col items-center gap-1 rounded-2xl border-2 p-3 text-center transition-all bg-gradient-to-b from-shield-surface to-shield-void focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
-                  active ? 'shadow-xl' : 'border-shield-cardBorder hover:border-shield-cyan/50'
+                className={`relative w-full h-full flex flex-col items-center gap-1 rounded-2xl border-2 px-3 pt-5 pb-3 text-center overflow-hidden transition-all duration-200 bg-shield-card motion-safe:hover:-translate-y-1 ${
+                  active ? '-translate-y-1' : 'border-shield-cardBorder hover:border-shield-gold/70'
                 }`}
-                style={active ? { borderColor: g.color, boxShadow: `0 0 24px -8px ${g.color}` } : undefined}
+                style={active ? { borderColor: g.color, boxShadow: `0 5px 0 0 ${g.color}88` } : { boxShadow: '0 3px 0 0 rgb(var(--shield-cardBorder))' }}
               >
-                <GuardianIcon guardian={g.id} level={1} size={56} />
+                <span aria-hidden="true" className="absolute inset-x-0 top-0 h-2" style={{ backgroundColor: g.color }} />
+                <span className={`rounded-full p-1 ${active ? "motion-safe:animate-bob" : ""}`} style={{ background: `radial-gradient(circle, ${g.color}33, transparent 70%)` }}>
+                  <GuardianIcon guardian={g.id} level={1} size={56} />
+                </span>
                 <h3 className="text-sm font-heading font-black text-shield-cream">{g.name}</h3>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-shield-muted">
                   {s.letter} · {s.title}
@@ -101,8 +105,9 @@ export const GuardiansPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* 3D viewer */}
-        <div className="lg:col-span-7 flex flex-col rounded-2xl border border-shield-cardBorder bg-gradient-to-b from-shield-card via-shield-dark to-shield-void overflow-hidden">
-          <div className="relative aspect-square sm:aspect-[4/3]">
+        <div className="lg:col-span-7 flex flex-col rounded-[18px] border-[3px] border-shield-cream/85 bg-shield-card overflow-hidden shadow-cozy">
+          <div className="relative aspect-square sm:aspect-[4/3] bg-[radial-gradient(circle_at_50%_60%,rgb(var(--shield-gold)/0.16),transparent_65%)] bg-shield-surface">
+            <EstateSkyline className="sg-glow absolute inset-x-0 bottom-0 h-1/3 w-full opacity-40" />
             <Suspense
               fallback={
                 <div className="absolute inset-0 grid place-items-center text-[10px] font-mono uppercase tracking-wider text-shield-muted">
@@ -139,7 +144,7 @@ export const GuardiansPage: React.FC = () => {
                   aria-pressed={!folded && bond === i + 1}
                   className={`h-8 w-8 rounded-lg border text-xs font-heading font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan ${
                     !folded && bond === i + 1
-                      ? 'bg-shield-cyan text-shield-void border-shield-cyan'
+                      ? 'bg-shield-blue text-white border-shield-blue'
                       : 'bg-shield-navy/80 border-shield-cardBorder text-shield-cream hover:bg-shield-slate'
                   }`}
                 >
@@ -151,7 +156,7 @@ export const GuardiansPage: React.FC = () => {
         </div>
 
         {/* Details */}
-        <section className="lg:col-span-5 game-panel p-6 sm:p-8 space-y-6" aria-labelledby="guardian-detail-title">
+        <section className="lg:col-span-5 game-panel p-6 sm:p-8 flex flex-col justify-between gap-6" aria-labelledby="guardian-detail-title">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-wider" style={{ color: art.color }}>
               {art.creature}
@@ -161,10 +166,10 @@ export const GuardiansPage: React.FC = () => {
             </h2>
           </div>
 
-          <div className="rounded-xl border border-shield-cardBorder bg-shield-void/60 p-4 space-y-2">
+          <div className="dialogue-panel p-4 space-y-2">
             <div className="flex items-center gap-3">
               <span
-                className="grid place-items-center h-10 w-10 rounded-xl font-heading font-black text-lg text-shield-void"
+                className="pixel-frame grid place-items-center h-10 w-10 font-pixel text-lg text-[#17233D]"
                 style={{ backgroundColor: art.color }}
               >
                 {step.letter}
@@ -195,13 +200,13 @@ export const GuardiansPage: React.FC = () => {
       </div>
 
       {/* Bottom Link */}
-      <div className="p-6 rounded-2xl bg-shield-void/80 border border-shield-cardBorder flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="dialogue-panel p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-shield-cream/90 text-center sm:text-left">
           Guardian unlocks are a planned progression feature and are still in development.
         </p>
         <Link
           to="/world"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-shield-navy hover:bg-shield-slate border border-shield-cardBorder text-shield-cyan text-xs font-heading font-bold transition-all hover:scale-105 flex-shrink-0"
+          className="btn-ghost text-sm flex-shrink-0"
         >
           <span>Explore the City Board</span>
           <ArrowRight className="w-3.5 h-3.5" />

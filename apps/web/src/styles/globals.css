@@ -2,121 +2,254 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    color-scheme: dark;
-  }
+/* ─────────────────────────────────────────────────────────────
+   ShieldQuest cozy 2D design tokens.
+   Dark = dusk over the estate (deep navy, warm lamps). Light = warm cream afternoon.
+   Token names are legacy (cream = main text colour, void = page background).
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+  --shield-void: 22 33 58;
+  --shield-dark: 27 39 66;
+  --shield-navy: 34 49 80;
+  --shield-slate: 42 59 94;
+  --shield-card: 32 46 76;
+  --shield-surface: 40 56 90;
+  --shield-cardBorder: 63 83 121;
+  --shield-blue: 26 160 158;
+  --shield-cyan: 122 214 198;
+  --shield-violet: 190 172 236;
+  --shield-gold: 232 183 93;
+  --shield-amber: 240 172 92;
+  --shield-emerald: 169 205 160;
+  --shield-rose: 240 138 128;
+  --shield-cream: 255 249 239;
+  --shield-muted: 186 192 210;
+  --shield-subtle: 112 122 146;
+  --shield-peach: 243 182 154;
+  --shield-sky: 111 183 232;
+  --shield-shadow: 6 10 22;
+  --sq-backdrop:
+    radial-gradient(60rem 28rem at 85% -6rem, rgb(232 183 93 / 0.10), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 10rem, rgb(111 183 232 / 0.10), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgb(255 249 239 / 0.045) 1px, transparent 0) 0 0 / 22px 22px;
+}
 
+:root[data-theme='light'] {
+  color-scheme: light;
+  --shield-void: 255 249 239;
+  --shield-dark: 245 240 230;
+  --shield-navy: 240 232 216;
+  --shield-slate: 232 223 205;
+  --shield-card: 255 253 248;
+  --shield-surface: 250 244 233;
+  --shield-cardBorder: 226 211 186;
+  --shield-blue: 14 128 130;
+  --shield-cyan: 12 112 114;
+  --shield-violet: 104 78 176;
+  --shield-gold: 150 98 14;
+  --shield-amber: 161 87 0;
+  --shield-emerald: 58 118 66;
+  --shield-rose: 186 56 66;
+  --shield-cream: 23 35 61;
+  --shield-muted: 86 94 114;
+  --shield-subtle: 150 146 140;
+  --shield-peach: 222 132 98;
+  --shield-sky: 52 130 190;
+  --shield-shadow: 120 92 50;
+  --sq-backdrop:
+    radial-gradient(60rem 28rem at 85% -6rem, rgb(243 182 154 / 0.28), transparent 70%),
+    radial-gradient(50rem 30rem at -10% 10rem, rgb(169 197 160 / 0.28), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgb(23 35 61 / 0.06) 1px, transparent 0) 0 0 / 22px 22px;
+}
+
+@layer base {
   body {
-    background-color: #070B16;
-    color: #F7F5EF;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: rgb(var(--shield-void));
+    color: rgb(var(--shield-cream));
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    letter-spacing: -0.01em;
   }
 
-  /* High contrast accessible focus styles */
+  /* Pixel face is only for short labels: keep it crisp and slightly spaced. */
+  .font-mono, .font-pixel {
+    letter-spacing: 0.04em;
+    -webkit-font-smoothing: none;
+  }
+
   :focus-visible {
-    outline: 2px solid #38D9E6;
+    outline: 2px solid rgb(var(--shield-gold));
     outline-offset: 3px;
   }
 }
 
 @layer components {
-  /* Game Panel with subtle tactical corner notches & layered depth */
-  .game-panel {
-    background: linear-gradient(145deg, rgba(22, 37, 72, 0.85) 0%, rgba(14, 23, 46, 0.95) 100%);
-    border: 1px solid rgba(56, 217, 230, 0.2);
-    backdrop-filter: blur(14px);
-    border-radius: 1.25rem;
-    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.65);
+  /* Cozy card: warm surface, hairline border, tactile bottom lip. */
+  .game-panel,
+  .game-panel-interactive,
+  .hud-box {
     position: relative;
+    background: rgb(var(--shield-card));
+    border: 1px solid rgb(var(--shield-cardBorder) / 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 3px 0 0 rgb(var(--shield-cardBorder) / 0.7), 0 18px 34px -22px rgb(var(--shield-shadow) / 0.6);
   }
 
   .game-panel-interactive {
-    background: linear-gradient(145deg, rgba(22, 37, 72, 0.85) 0%, rgba(14, 23, 46, 0.95) 100%);
-    border: 1px solid rgba(56, 217, 230, 0.2);
-    backdrop-filter: blur(14px);
-    border-radius: 1.25rem;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
   }
 
   .game-panel-interactive:hover {
-    border-color: rgba(56, 217, 230, 0.5);
+    border-color: rgb(var(--shield-gold) / 0.7);
     transform: translateY(-3px);
-    box-shadow: 0 20px 40px -12px rgba(22, 135, 247, 0.35);
+    box-shadow: 0 6px 0 0 rgb(var(--shield-gold) / 0.45), 0 22px 40px -22px rgb(var(--shield-shadow) / 0.7);
   }
 
-  /* Tactical Card Frame with Corner Accents */
-  .hud-box {
-    position: relative;
-    background: linear-gradient(160deg, rgba(16, 27, 58, 0.9) 0%, rgba(11, 18, 36, 0.95) 100%);
-    border: 1px solid rgba(35, 56, 99, 0.8);
-  }
-
+  /* Legacy HUD corners become tiny gold pixel studs. */
   .hud-corner {
     position: absolute;
-    width: 8px;
-    height: 8px;
-    border-color: #38D9E6;
+    width: 6px;
+    height: 6px;
+    background: rgb(var(--shield-gold));
+    pointer-events: none;
+  }
+  .hud-corner-tl { top: 6px; left: 6px; }
+  .hud-corner-tr { top: 6px; right: 6px; }
+  .hud-corner-bl { bottom: 6px; left: 6px; }
+  .hud-corner-br { bottom: 6px; right: 6px; }
+
+  /* Stepped pixel outline (notched corners) for featured frames. --px-c sets the colour. */
+  .pixel-frame {
+    --px-c: rgb(var(--shield-cream) / 0.9);
+    --px: 4px;
+    position: relative;
+    box-shadow:
+      0 calc(var(--px) * -1) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(var(--px) * -1) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c),
+      0 calc(var(--px) * 3) 0 0 rgb(var(--shield-shadow) / 0.25);
+  }
+
+  /* Small pixel tag used for quest labels, chapter numbers and location markers. */
+  .quest-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.2rem 0.6rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--shield-gold));
+    background: rgb(var(--shield-gold) / 0.12);
+    border: 1px solid rgb(var(--shield-gold) / 0.35);
+    border-radius: 0.375rem;
+  }
+
+  /* Section kicker sitting above section headings. */
+  .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(var(--shield-blue));
+  }
+  .section-kicker::before,
+  .section-kicker::after {
+    content: '';
+    width: 1.5rem;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 8px);
+  }
+
+  /* Dotted pixel divider. */
+  .pixel-divider {
+    height: 4px;
+    background: repeating-linear-gradient(90deg, rgb(var(--shield-cardBorder)) 0 4px, transparent 4px 10px);
+  }
+
+  /* Buttons with a pressable bottom lip. */
+  .btn-quest,
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 0.85rem;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s;
+  }
+  .btn-quest {
+    color: #fff;
+    background: rgb(var(--shield-blue));
+    box-shadow: 0 4px 0 0 rgb(var(--shield-shadow) / 0.45), 0 14px 24px -14px rgb(var(--shield-blue) / 0.9);
+  }
+  .btn-ghost {
+    color: rgb(var(--shield-cream));
+    background: rgb(var(--shield-card));
+    border: 1px solid rgb(var(--shield-cardBorder));
+    box-shadow: 0 4px 0 0 rgb(var(--shield-cardBorder));
+  }
+  .btn-quest:hover, .btn-ghost:hover { transform: translateY(-2px); }
+  .btn-quest:hover { box-shadow: 0 6px 0 0 rgb(var(--shield-shadow) / 0.45), 0 18px 28px -14px rgb(var(--shield-blue) / 0.9); }
+  .btn-ghost:hover { box-shadow: 0 6px 0 0 rgb(var(--shield-gold) / 0.6); border-color: rgb(var(--shield-gold) / 0.7); }
+  .btn-quest:active, .btn-ghost:active { transform: translateY(3px); box-shadow: 0 1px 0 0 rgb(var(--shield-shadow) / 0.45); }
+
+  /* Dialogue box: speech-bubble panel used for in-world callouts. */
+  .dialogue-panel {
+    position: relative;
+    background: rgb(var(--shield-card));
+    border: 2px solid rgb(var(--shield-cream) / 0.85);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 0 0 rgb(var(--shield-shadow) / 0.3);
+  }
+
+  /* Page intro band shared by all inner pages (applied to the page's first section). */
+  .page-intro {
+    position: relative;
+    isolation: isolate;
+  }
+  .page-intro::before {
+    content: '';
+    position: absolute;
+    inset: -2rem 0 auto;
+    height: calc(100% + 4rem);
+    z-index: -1;
+    background:
+      linear-gradient(180deg, transparent 55%, rgb(var(--shield-void)) 100%),
+      radial-gradient(30rem 14rem at 50% 0, rgb(var(--shield-gold) / 0.12), transparent 70%);
     pointer-events: none;
   }
 
-  .hud-corner-tl {
-    top: -1px;
-    left: -1px;
-    border-top: 2px solid #38D9E6;
-    border-left: 2px solid #38D9E6;
-  }
-
-  .hud-corner-tr {
-    top: -1px;
-    right: -1px;
-    border-top: 2px solid #38D9E6;
-    border-right: 2px solid #38D9E6;
-  }
-
-  .hud-corner-bl {
-    bottom: -1px;
-    left: -1px;
-    border-bottom: 2px solid #38D9E6;
-    border-left: 2px solid #38D9E6;
-  }
-
-  .hud-corner-br {
-    bottom: -1px;
-    right: -1px;
-    border-bottom: 2px solid #38D9E6;
-    border-right: 2px solid #38D9E6;
-  }
-
-  /* Glowing Quest Trail animation */
+  /* Glowing Quest Trail animation (used by DistrictMap) */
   @keyframes questPulse {
-    0% {
-      stroke-dashoffset: 100;
-      opacity: 0.7;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      stroke-dashoffset: 0;
-      opacity: 0.7;
-    }
+    0% { stroke-dashoffset: 100; opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 0.7; }
   }
+  .quest-trail-animated { animation: questPulse 12s linear infinite; }
 
-  .quest-trail-animated {
-    animation: questPulse 12s linear infinite;
-  }
+  .badge-glow { box-shadow: 0 0 0 3px rgb(var(--shield-gold) / 0.25); }
+}
 
-  .badge-glow {
-    box-shadow: 0 0 16px rgba(56, 217, 230, 0.35);
-  }
+/* Gradient headline text: swap neon blue/violet for a warm sunset sweep. */
+.bg-clip-text.from-shield-cyan,
+.bg-clip-text.from-shield-blue {
+  background-image: linear-gradient(90deg, rgb(var(--shield-blue)), rgb(var(--shield-gold)) 60%, rgb(var(--shield-peach)));
 }
 
 /* Reduced motion preference */
@@ -127,69 +260,105 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-:root {--shield-void: 7 11 22;
---shield-dark: 10 15 29;
---shield-navy: 16 27 58;
---shield-slate: 22 34 63;
---shield-card: 20 32 59;
---shield-surface: 24 39 71;
---shield-cardBorder: 35 56 99;
---shield-blue: 22 135 247;
---shield-cyan: 56 217 230;
---shield-violet: 119 85 223;
---shield-gold: 242 185 75;
---shield-amber: 245 158 11;
---shield-emerald: 16 185 129;
---shield-rose: 244 63 94;
---shield-cream: 247 245 239;
---shield-muted: 142 155 181;
---shield-subtle: 75 85 99;}
-:root[data-theme="light"] {color-scheme:light;--shield-void: 243 246 252;
---shield-dark: 234 240 250;
---shield-navy: 220 230 245;
---shield-slate: 227 235 247;
---shield-card: 255 255 255;
---shield-surface: 238 243 250;
---shield-cardBorder: 187 203 225;
---shield-cream: 21 36 65;
---shield-muted: 82 98 123;
---shield-cyan: 8 119 131;
---shield-blue: 18 101 186;
---shield-gold: 147 98 0;
---shield-violet: 103 64 198;}
-body {background-color:rgb(var(--shield-void));color:rgb(var(--shield-cream));}
-[data-theme="light"] .game-panel,[data-theme="light"] .game-panel-interactive,[data-theme="light"] .hud-box {background:linear-gradient(145deg,#fff,#e8eff9);border-color:#bbcbe1;}
-@media(prefers-reduced-motion:reduce){html.scroll-smooth{scroll-behavior:auto}}
-
-/* Light surfaces throughout the application, including translucent layers. */
-:root[data-theme="light"] {
-  --shield-void: 255 255 255;
-  --shield-dark: 248 250 252;
-  --shield-navy: 240 244 249;
-  --shield-slate: 232 238 246;
-  --shield-surface: 245 248 252;
-  --shield-amber: 161 87 0;
-  --shield-emerald: 4 120 87;
-  --shield-rose: 190 18 60;
-}
-[data-theme="light"] .bg-hero-gradient { background-image: none; }
-[data-theme="light"] .game-panel,
-[data-theme="light"] .game-panel-interactive,
-[data-theme="light"] .hud-box {
-  background: white;
-  box-shadow: 0 12px 32px -16px rgb(52 72 103 / 0.18);
+  html.scroll-smooth { scroll-behavior: auto; }
 }
 
 /* Pale accent shades are tuned for dark mode; deepen them on light surfaces. */
-[data-theme="light"] .text-blue-300,[data-theme="light"] .text-blue-400 { color: #1d4ed8; }
-[data-theme="light"] .text-amber-300,[data-theme="light"] .text-amber-400 { color: #92400e; }
-[data-theme="light"] .text-cyan-300,[data-theme="light"] .text-cyan-400 { color: #0e7490; }
-[data-theme="light"] .text-purple-300,[data-theme="light"] .text-purple-400 { color: #6d28d9; }
-[data-theme="light"] .text-rose-300,[data-theme="light"] .text-rose-400 { color: #be123c; }
-[data-theme="light"] .text-emerald-300,[data-theme="light"] .text-emerald-400 { color: #047857; }
-[data-theme="light"] [class*="bg-rose-950"] { background-color: rgb(255 228 230 / 0.7); }
-[data-theme="light"] [class*="bg-emerald-950"] { background-color: rgb(209 250 229 / 0.7); }
-/* District accent pills use pale tints made for dark backgrounds; darken them on light. */
-[data-theme="light"] .hero-district-pill { filter: brightness(0.55) saturate(1.4); }
+[data-theme='light'] .text-blue-300, [data-theme='light'] .text-blue-400 { color: #1d5f99; }
+[data-theme='light'] .text-amber-300, [data-theme='light'] .text-amber-400 { color: #92400e; }
+[data-theme='light'] .text-cyan-300, [data-theme='light'] .text-cyan-400 { color: #0e7072; }
+[data-theme='light'] .text-purple-300, [data-theme='light'] .text-purple-400 { color: #5b3fa8; }
+[data-theme='light'] .text-rose-300, [data-theme='light'] .text-rose-400 { color: #ae2f3c; }
+[data-theme='light'] .text-emerald-300, [data-theme='light'] .text-emerald-400 { color: #3a7642; }
+[data-theme='light'] [class*='bg-rose-950'] { background-color: rgb(255 228 226 / 0.75); }
+[data-theme='light'] [class*='bg-emerald-950'] { background-color: rgb(222 240 214 / 0.75); }
+[data-theme='light'] .hero-district-pill { filter: brightness(0.55) saturate(1.4); }
+
+/* Page backdrop: warm glows + faint pixel dot grid. */
+.sq-backdrop {
+  background: var(--sq-backdrop), rgb(var(--shield-void));
+  background-attachment: fixed;
+}
+
+/* ── Singapore scenery palette (components/sg/Scenery.tsx) ──
+   Dark = estate evening: navy blocks, warm lit windows, glowing lamps.
+   Light = tropical afternoon: cream blocks, pastel trims, lush greens. */
+:root {
+  --sg-sky: #2a3f6b; --sg-cloud: #3c5384;
+  --sg-wall: #3a4d78; --sg-wall2: #2e3f66; --sg-shade: #1e2b48; --sg-sign: #1f6b4a;
+  --sg-trim: #4f8f8a; --sg-trim2: #a56d5c; --sg-trim3: #7a6aa8;
+  --sg-window: #26365a; --sg-lit: #f3c86b;
+  --sg-leaf: #4f8a5e; --sg-leaf2: #33644a; --sg-leaf3: #6fae6a; --sg-flower: #e889a8; --sg-trunk: #5a4636;
+  --sg-pole: #8a96b0; --sg-lamp: #ffd98a;
+  --sg-pave: #34466d; --sg-pave2: #2a3a5c; --sg-road: #1c2843; --sg-roadline: #e8b75d;
+}
+:root[data-theme='light'] {
+  --sg-sky: #cfe8f5; --sg-cloud: #ffffff;
+  --sg-wall: #f6ecd9; --sg-wall2: #e5d4b4; --sg-shade: #cdbb9a; --sg-sign: #1f6b4a;
+  --sg-trim: #6fb3a6; --sg-trim2: #e59a7c; --sg-trim3: #a594d8;
+  --sg-window: #8fbad0; --sg-lit: #f3d38a;
+  --sg-leaf: #74b45e; --sg-leaf2: #4f9150; --sg-leaf3: #9cd07a; --sg-flower: #e5679a; --sg-trunk: #8a6646;
+  --sg-pole: #6c7488; --sg-lamp: #e8e2d0;
+  --sg-pave: #e3d6bf; --sg-pave2: #d2c2a5; --sg-road: #8e939c; --sg-roadline: #f5f1e6;
+}
+
+/* Lamp + lit windows get a soft evening glow in dark mode only. */
+:root:not([data-theme='light']) .sg-glow { filter: drop-shadow(0 0 6px rgb(243 200 107 / 0.25)); }
+
+/* MRT-style line stripe under the header: four "lines" with a station-dot pattern. */
+.transit-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, #159a9c 0 25%, #e0a24a 25% 50%, #4e9bd6 50% 75%, #9a86d6 75% 100%);
+}
+
+/* Notice-board card: cork-ish surface with pinned paper. */
+.notice-board {
+  background:
+    radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.08) 1px, transparent 0) 0 0 / 6px 6px,
+    #c79a62;
+  border: 4px solid #8a5f36;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 0 0 rgb(var(--shield-shadow) / 0.35);
+}
+.notice-paper {
+  position: relative;
+  background: #fffaf0;
+  color: #17233d;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 0 0 rgb(0 0 0 / 0.15);
+}
+.notice-paper::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 9999px;
+  background: #e05252;
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.3);
+}
+
+/* Shopfront card: striped awning header. Set --awning on the element. */
+.shopfront {
+  --awning: rgb(var(--shield-blue));
+  position: relative;
+  padding-top: 1.25rem;
+}
+.shopfront::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 14px;
+  border-radius: 15px 15px 0 0;
+  background: repeating-linear-gradient(90deg, var(--awning) 0 16px, #fffaf0 16px 32px);
+  -webkit-mask: radial-gradient(circle 8px at 8px 14px, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+          mask: radial-gradient(circle 8px at 8px 14px, transparent 98%, #000) 0 0 / 16px 100% repeat-x;
+}
+/* Paper is always light, so re-scope the text/surface tokens to their light values inside it. */
+.notice-paper {
+  --shield-cream: 23 35 61; --shield-muted: 86 94 114; --shield-card: 255 253 248; --shield-surface: 250 244 233;
+  --shield-void: 255 249 239; --shield-cardBorder: 226 211 186; --shield-cyan: 12 112 114; --shield-blue: 14 128 130;
+  --shield-gold: 150 98 14; --shield-navy: 240 232 216;
+}

@@ -51,8 +51,8 @@ export const HowItWorksPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-14">
       {/* Header */}
-      <div className="max-w-3xl space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-mono font-semibold text-shield-cyan">
+      <div className="page-intro max-w-3xl space-y-3">
+        <div className="quest-tag">
           <Sparkles className="w-3.5 h-3.5" />
           <span>GAMEPLAY WALKTHROUGH</span>
         </div>
@@ -70,14 +70,14 @@ export const HowItWorksPage: React.FC = () => {
           <h2 id="journey-heading" className="text-2xl sm:text-3xl font-heading font-black text-shield-cream tracking-tight">
             The 6-Step Player Journey
           </h2>
-          <span className="text-xs font-mono text-shield-gold whitespace-nowrap">Stage {activeStepIdx + 1} of 6</span>
+          <span className="quest-tag whitespace-nowrap">Stage {activeStepIdx + 1} of 6</span>
         </div>
 
         {/* Quest track */}
         <div className="relative">
-          <div className="hidden sm:block absolute left-[8.33%] right-[8.33%] top-6 h-1 rounded-full bg-shield-cardBorder/60" aria-hidden="true" />
+          <div className="hidden sm:block absolute left-[8.33%] right-[8.33%] top-6 h-1 bg-[repeating-linear-gradient(90deg,rgb(var(--shield-cardBorder))_0_6px,transparent_6px_12px)]" aria-hidden="true" />
           <div
-            className="hidden sm:block absolute left-[8.33%] top-6 h-1 rounded-full bg-gradient-to-r from-shield-cyan to-shield-blue transition-all duration-500"
+            className="hidden sm:block absolute left-[8.33%] top-6 h-1 bg-[repeating-linear-gradient(90deg,rgb(var(--shield-gold))_0_6px,transparent_6px_12px)] transition-all duration-500"
             style={{ width: `${(activeStepIdx / (gameStages.length - 1)) * 83.33}%` }}
             aria-hidden="true"
           />
@@ -104,7 +104,7 @@ export const HowItWorksPage: React.FC = () => {
                     style={{
                       borderColor: isSelected || isDone ? stage.color : undefined,
                       backgroundColor: isSelected || isDone ? stage.color : undefined,
-                      boxShadow: isSelected ? `0 0 22px -4px ${stage.color}` : undefined,
+                      boxShadow: isSelected ? `0 4px 0 0 ${stage.color}66` : undefined,
                     }}
                   >
                     {isDone ? <Check className="w-5 h-5" aria-hidden="true" /> : <Icon className="w-5 h-5" aria-hidden="true" />}
@@ -123,17 +123,17 @@ export const HowItWorksPage: React.FC = () => {
           id="stage-panel"
           role="tabpanel"
           aria-labelledby={`stage-tab-${activeStepIdx}`}
-          className="game-panel relative overflow-hidden p-6 sm:p-8"
+          className="dialogue-panel relative overflow-hidden p-6 sm:p-8"
           style={{ borderColor: `${currentStage.color}66` }}
         >
           <div
-            className="absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl opacity-25 pointer-events-none transition-colors duration-500"
+            className="absolute inset-x-0 top-0 h-2 pointer-events-none transition-colors duration-500"
             style={{ backgroundColor: currentStage.color }}
             aria-hidden="true"
           />
           <div key={activeStepIdx} className="relative flex flex-col md:flex-row md:items-center gap-6 animate-fadeIn">
             <div
-              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
+              className="pixel-frame flex h-20 w-20 flex-shrink-0 items-center justify-center text-white"
               style={{ backgroundColor: currentStage.color }}
             >
               <StageIcon className="w-10 h-10" aria-hidden="true" />
@@ -178,10 +178,10 @@ export const HowItWorksPage: React.FC = () => {
 
         <ol className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {tveSteps.map(({ name, desc, icon: Icon, color }, idx) => (
-            <li key={name} className="relative game-panel p-6 text-center space-y-3" style={{ borderTop: `4px solid ${color}` }}>
+            <li key={name} className="relative game-panel shopfront p-6 !pt-9 text-center space-y-3" style={{ ["--awning" as string]: color }}>
               <span
-                className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{ backgroundColor: color, boxShadow: `0 0 24px -6px ${color}` }}
+                className="pixel-frame mx-auto flex h-14 w-14 items-center justify-center text-white"
+                style={{ backgroundColor: color }}
               >
                 <Icon className="w-7 h-7" aria-hidden="true" />
               </span>

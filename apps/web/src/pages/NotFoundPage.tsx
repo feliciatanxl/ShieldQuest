@@ -24,7 +24,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-shield-blue hover:bg-shield-blue/90 text-white font-heading font-bold text-sm shadow-glow-blue transition-all hover:scale-105"
+          className="btn-quest"
         >
           <Home className="w-4 h-4" />
           <span>Return to Headquarters</span>

@@ -62,9 +62,9 @@ export const FaqPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+      <div className="page-intro flex flex-col sm:flex-row sm:items-center gap-6">
         <div className="flex-1 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-mono font-semibold text-shield-cyan">
+          <div className="quest-tag">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>FREQUENTLY ASKED QUESTIONS</span>
           </div>
@@ -76,15 +76,15 @@ export const FaqPage: React.FC = () => {
           </p>
         </div>
         <div className="hidden sm:flex relative h-28 w-28 flex-shrink-0 items-center justify-center" aria-hidden="true">
-          <span className="absolute inset-0 rounded-3xl bg-gradient-to-br from-shield-cyan/30 to-shield-violet/30 blur-xl" />
-          <span className="relative flex h-24 w-24 rotate-6 items-center justify-center rounded-3xl bg-gradient-to-br from-shield-blue to-shield-violet text-white shadow-glow-blue">
+          <span className="absolute inset-2 translate-x-2 translate-y-2 rounded-lg bg-shield-gold/30" />
+          <span className="pixel-frame relative flex h-24 w-24 rotate-3 items-center justify-center bg-shield-blue text-white motion-safe:animate-bob">
             <HelpCircle className="w-12 h-12 -rotate-6" />
           </span>
         </div>
       </div>
 
       {/* Emergency Notice Banner */}
-      <div className="p-5 sm:p-6 rounded-2xl border border-shield-gold/40 bg-shield-gold/10 flex items-start gap-4" role="note">
+      <div className="notice-board p-3 sm:p-4" role="note"><div className="notice-paper p-5 sm:p-6 flex items-start gap-4">
         <span className="p-2 rounded-xl bg-shield-gold/20 text-shield-gold flex-shrink-0">
           <ShieldAlert className="w-5 h-5" aria-hidden="true" />
         </span>
@@ -95,7 +95,7 @@ export const FaqPage: React.FC = () => {
             999. For scams, call the Anti-Scam Helpline at 1800-722-6688.
           </p>
         </div>
-      </div>
+      </div></div>
 
       {/* Accordion */}
       <div className="space-y-3" role="region" aria-label="FAQ Accordion">
@@ -105,7 +105,7 @@ export const FaqPage: React.FC = () => {
             <div
               key={faq.id}
               className={`game-panel overflow-hidden border transition-all duration-200 ${
-                isOpen ? 'border-shield-cyan/60 shadow-glow-cyan' : 'border-shield-cardBorder hover:border-shield-cyan/40'
+                isOpen ? '!border-shield-gold/80 !shadow-[0_4px_0_0_rgb(var(--shield-gold)/0.5)]' : 'hover:border-shield-gold/50'
               }`}
             >
               <h2>
@@ -117,8 +117,8 @@ export const FaqPage: React.FC = () => {
                   aria-controls={`faq-answer-${faq.id}`}
                 >
                   <span
-                    className={`hidden sm:flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg font-mono text-xs font-bold transition-colors ${
-                      isOpen ? 'bg-shield-cyan text-shield-void' : 'bg-shield-void border border-shield-cardBorder text-shield-muted'
+                    className={`hidden sm:flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md font-pixel text-xs transition-colors ${
+                      isOpen ? 'bg-[#E8B75D] text-[#17233D]' : 'bg-shield-surface border border-shield-cardBorder text-shield-muted'
                     }`}
                     aria-hidden="true"
                   >
@@ -126,7 +126,7 @@ export const FaqPage: React.FC = () => {
                   </span>
                   <span className="flex-1 text-base sm:text-lg font-heading font-bold text-shield-cream">{faq.question}</span>
                   <ChevronDown
-                    className={`w-5 h-5 flex-shrink-0 text-shield-cyan transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 flex-shrink-0 text-shield-blue transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     aria-hidden="true"
                   />
                 </button>
@@ -135,7 +135,7 @@ export const FaqPage: React.FC = () => {
               {isOpen && (
                 <div
                   id={`faq-answer-${faq.id}`}
-                  className="px-5 sm:px-6 sm:pl-[4.5rem] pb-5 text-sm sm:text-base text-shield-cream/90 leading-relaxed animate-fadeIn"
+                  className="mx-5 sm:mx-6 sm:ml-[4.5rem] mb-5 pt-1 border-t-2 border-dashed border-shield-cardBorder/70 text-sm sm:text-base text-shield-cream/90 leading-[1.75rem] bg-[linear-gradient(transparent_calc(1.75rem-1px),rgb(var(--shield-cardBorder)/0.35)_1.75rem)] bg-[length:100%_1.75rem] animate-fadeIn"
                 >
                   {faq.answer}
                 </div>

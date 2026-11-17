@@ -29,12 +29,12 @@ export const ConsequenceTeaser: React.FC = () => {
   return (
     <section className="py-12 md:py-20 relative overflow-hidden" aria-labelledby="consequence-heading">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-r from-shield-blue/15 via-shield-cyan/10 to-transparent rounded-full blur-[140px] pointer-events-none" />
+      <div aria-hidden="true" className="absolute inset-x-0 inset-y-6 bg-shield-dark/70 [clip-path:polygon(0_3%,100%_0,100%_97%,0_100%)] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-shield-navy border border-shield-cardBorder text-xs font-semibold text-shield-cyan mb-3">
+          <div className="quest-tag mb-3">
             <Clock className="w-3.5 h-3.5" />
             <span>The Ripple Effect · Story Preview</span>
           </div>
@@ -57,11 +57,11 @@ export const ConsequenceTeaser: React.FC = () => {
         {/* Visual Dilemma Frame */}
         <div className="game-panel p-6 sm:p-8 lg:p-9 border border-shield-cyan/30 shadow-2xl space-y-8">
           {/* Incoming Message Card */}
-          <div className="rounded-2xl bg-gradient-to-b from-shield-card to-shield-dark border border-shield-cardBorder/90 p-5 sm:p-6 shadow-lg">
+          <div className="game-panel p-5 sm:p-6">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-shield-cardBorder/60 text-xs text-shield-muted">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-shield-cyan" />
-                <span className="font-mono text-xs text-shield-cream font-medium">
+                <span className="text-xs text-shield-cream font-medium">
                   Incoming Message from <strong className="text-shield-cream">{scenario.sender}</strong>
                 </span>
               </div>
@@ -70,7 +70,7 @@ export const ConsequenceTeaser: React.FC = () => {
               </span>
             </div>
 
-            <p className="font-mono text-sm sm:text-base leading-relaxed text-shield-cream p-3.5 rounded-xl bg-shield-void/80 border border-shield-cardBorder/70">
+            <p className="dialogue-panel text-sm sm:text-base leading-relaxed text-shield-cream p-4">
               "{scenario.incomingMessage}"
             </p>
           </div>

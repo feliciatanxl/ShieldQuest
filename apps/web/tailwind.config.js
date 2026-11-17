@@ -5,6 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Token names kept from the original theme so every page picks up the cozy palette.
         shield: {
           void: 'rgb(var(--shield-void) / <alpha-value>)',
           dark: 'rgb(var(--shield-dark) / <alpha-value>)',
@@ -23,16 +24,18 @@ export default {
           cream: 'rgb(var(--shield-cream) / <alpha-value>)',
           muted: 'rgb(var(--shield-muted) / <alpha-value>)',
           subtle: 'rgb(var(--shield-subtle) / <alpha-value>)',
+          peach: 'rgb(var(--shield-peach) / <alpha-value>)',
+          sky: 'rgb(var(--shield-sky) / <alpha-value>)',
         },
         district: {
-          school: '#2563EB',
-          schoolLight: '#60A5FA',
-          retail: '#F59E0B',
-          retailLight: '#FBBF24',
-          digi: '#06B6D4',
-          digiLight: '#38D9E6',
-          community: '#8B5CF6',
-          communityLight: '#A78BFA',
+          school: '#4E9BD6',
+          schoolLight: '#6FB7E8',
+          retail: '#E0A24A',
+          retailLight: '#E8B75D',
+          digi: '#159A9C',
+          digiLight: '#4FC1B9',
+          community: '#9A86D6',
+          communityLight: '#B9A6E5',
         },
       },
       keyframes: {
@@ -40,29 +43,40 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(6px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        bob: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
+        drift: {
+          '0%': { transform: 'translateX(-10%)' },
+          '100%': { transform: 'translateX(110%)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
+        bob: 'bob 2.8s ease-in-out infinite',
+        drift: 'drift 60s linear infinite',
       },
       fontFamily: {
-        heading: ['Outfit', 'system-ui', 'sans-serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Fredoka', 'Nunito', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        // Pixel face for small quest labels / markers only; the old mono labels map here.
+        mono: ['"Pixelify Sans"', 'ui-monospace', 'monospace'],
+        pixel: ['"Pixelify Sans"', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        'glow-blue': '0 0 25px -5px rgba(22, 135, 247, 0.45)',
-        'glow-cyan': '0 0 25px -5px rgba(56, 217, 230, 0.45)',
-        'glow-violet': '0 0 25px -5px rgba(119, 85, 223, 0.45)',
-        'glow-gold': '0 0 25px -5px rgba(242, 185, 75, 0.45)',
-        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.45)',
-        'glow-card': '0 12px 35px -10px rgba(0, 0, 0, 0.65)',
+        // Old "glow" names now give a soft drop + tactile bottom lip instead of neon.
+        'glow-blue': '0 4px 0 0 rgb(var(--shield-blue) / 0.45), 0 12px 24px -12px rgb(var(--shield-blue) / 0.6)',
+        'glow-cyan': '0 4px 0 0 rgb(var(--shield-cyan) / 0.35), 0 12px 24px -12px rgb(var(--shield-cyan) / 0.5)',
+        'glow-violet': '0 4px 0 0 rgb(var(--shield-violet) / 0.35), 0 12px 24px -12px rgb(var(--shield-violet) / 0.5)',
+        'glow-gold': '0 4px 0 0 rgb(var(--shield-gold) / 0.4), 0 12px 24px -12px rgb(var(--shield-gold) / 0.5)',
+        'glow-emerald': '0 4px 0 0 rgb(var(--shield-emerald) / 0.35), 0 12px 24px -12px rgb(var(--shield-emerald) / 0.5)',
+        'glow-card': '0 3px 0 0 rgb(var(--shield-cardBorder) / 0.9), 0 18px 34px -20px rgb(var(--shield-shadow) / 0.55)',
+        cozy: '0 3px 0 0 rgb(var(--shield-cardBorder) / 0.9), 0 18px 34px -20px rgb(var(--shield-shadow) / 0.55)',
       },
       backgroundImage: {
-        'grid-pattern':
-          'radial-gradient(circle at 1px 1px, rgba(56, 217, 230, 0.08) 1px, transparent 0)',
-        'hex-pattern':
-          'radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0)',
-        'hero-gradient':
-          'radial-gradient(circle at 75% 25%, rgba(22, 135, 247, 0.18) 0%, rgba(119, 85, 223, 0.12) 35%, transparent 70%)',
+        'grid-pattern': 'radial-gradient(circle at 1px 1px, rgb(var(--shield-cardBorder) / 0.35) 1px, transparent 0)',
+        'hex-pattern': 'radial-gradient(circle at 1px 1px, rgb(var(--shield-cardBorder) / 0.3) 1px, transparent 0)',
       },
     },
   },
