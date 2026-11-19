@@ -447,3 +447,6 @@ packages/*/dist/
 *.tsbuildinfo
 assets-src/
 .claude/
+
+# Unity Web build output (produced by ShieldQuest/Build Web; large, regenerate or upload separately)
+apps/web/public/unity/

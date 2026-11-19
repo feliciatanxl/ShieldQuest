@@ -1,0 +1,6 @@
+{
+    "name": "ShieldQuest.Editor",
+    "rootNamespace": "ShieldQuest.EditorTools",
+    "references": ["ShieldQuest.Runtime"],
+    "includePlatforms": ["Editor"]
+}

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { isUnityMission, type ReturnLocation } from '@shieldquest/shared';
 import { addWanderer, CHAR_SCALE, DebugInfo, Player, PlayerInput, PlaygroundScene, preloadM01 } from './m01';
 import { buildNeighbourhood, Npc, Panel, preloadNeighbourhood, World, Zone } from './neighbourhood';
 
@@ -114,10 +115,25 @@ export class NeighbourhoodScene extends Phaser.Scene implements PlaygroundScene 
     if (this.toast.visible && time > this.toastUntil) this.toast.hide();
 
     if (this.input2.interactPressed() && time - this.lastInteract > 250) {
+      if (!this.near && this.zone && isUnityMission(this.zone.id)) {
+        // Hand off to Unity: React pauses this game, so Phaser and Unity never drive the player at once.
+        const s = this.player.sprite;
+        const returnTo: ReturnLocation = { scene: 'neighbourhood', x: Math.round(s.x), y: Math.round(s.y), facing: this.player.facing };
+        this.lastInteract = time;
+        this.game.events.emit('enter-mission', { missionId: this.zone.id, returnTo });
+        return;
+      }
       if (this.near) this.dialogue.show(this.near.speaker.toUpperCase(), this.near.line, 'E / Esc  close');
       else if (this.zone) this.dialogue.show(`MISSION · ${this.zone.name.toUpperCase()}`, MISSION_BRIEFS[this.zone.id] ?? 'Mission details coming soon.', 'E / Esc  close');
       if (this.dialogue.visible) { this.toast.hide(); this.lastInteract = time; }
     }
+  }
+
+  /** Puts the player back where they left for a Unity mission. */
+  returnFrom(loc: ReturnLocation) {
+    (this.player.sprite.body as Phaser.Physics.Arcade.Body).reset(loc.x, loc.y); // moves sprite and body together
+    this.player.facing = loc.facing;
+    this.zone = undefined; // re-entering the zone shows the toast again
   }
 
   debugInfo(): DebugInfo {
