@@ -24,3 +24,7 @@ Tests~/CoreTests/obj/
 *.slnx
 # Unity needs .meta files (asset GUIDs); root .gitignore ignores *.meta
 !*.meta
+# Unity package manifest; root .gitignore drops **/Packages/* (NuGet rule)
+!/Packages/
+!/Packages/manifest.json
+!/Packages/packages-lock.json
