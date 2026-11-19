@@ -5,6 +5,9 @@ import { BrandMark } from '../components/Navbar';
 import type Phaser from 'phaser';
 import type { PlaygroundMode } from '../game/games';
 import type { DebugInfo, PlaygroundScene } from '../game/m01';
+import type { GameHandoff, MissionExit, ReturnLocation, UnityMissionId } from '@shieldquest/shared';
+import { UnityMission } from '../components/UnityMission';
+import { ensureSession, loadHandoff, saveMissionExit, storeHandoff, type PlayerSession } from '../services/gameSession';
 
 const MODES: { id: PlaygroundMode; label: string; hint: string }[] = [
   { id: 'sandbox', label: 'Character Sandbox', hint: 'Animation and movement on a 32px grid' },
@@ -30,6 +33,36 @@ export const CharacterTestPage: React.FC = () => {
   const [hitboxes, setHitboxes] = useState(false);
   const [info, setInfo] = useState<(DebugInfo & { fps: number }) | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [mission, setMission] = useState<GameHandoff | null>(null);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
+  const session = useRef<PlayerSession | null>(null);
+
+  const neighbourhood = () => game.current?.scene.getScene('neighbourhood') as (PlaygroundScene & { returnFrom?: (l: ReturnLocation) => void }) | undefined;
+  /** Only one engine runs: Phaser's loop and keyboard capture stop while Unity has the player. */
+  const setPhaserActive = (on: boolean) => {
+    const g = game.current;
+    if (!g) return;
+    if (g.input.keyboard) g.input.keyboard.enabled = on;
+    if (on) g.resume(); else g.pause();
+  };
+
+  const startMission = async (missionId: UnityMissionId, returnTo: ReturnLocation) => {
+    setPhaserActive(false);
+    const s = (session.current ??= await ensureSession());
+    const h: GameHandoff = { v: 1, sessionId: s.sessionId, avatar: { characterId: 'student' }, engine: 'unity', missionId, checkpoint: 'start', completedObjectives: [], returnTo };
+    storeHandoff(h);
+    setMission(h);
+  };
+
+  const endMission = (exit: MissionExit) => {
+    const h = mission;
+    setMission(null);
+    storeHandoff(null);
+    setPhaserActive(true);
+    if (h) neighbourhood()?.returnFrom?.(h.returnTo);
+    if (session.current) saveMissionExit(session.current, exit).then((s) => { session.current = s; setSaveNote(null); })
+      .catch((e: unknown) => setSaveNote(`Progress not saved: ${e instanceof Error ? e.message : String(e)}`));
+  };
 
   // Create exactly one Phaser game for the page lifetime; destroy it on unmount.
   useEffect(() => {
@@ -38,16 +71,22 @@ export const CharacterTestPage: React.FC = () => {
       if (cancelled || !host.current) return;
       lib.current = g;
       const instance = g.createPlayground(host.current, mode);
-      instance.events.on('scene-ready', () => setLoading(false));
+      instance.events.on('scene-ready', (key: string) => {
+        setLoading(false);
+        // a reload mid-mission returns the player to where they entered
+        const pending = loadHandoff();
+        if (key === 'neighbourhood' && pending) { neighbourhood()?.returnFrom?.(pending.returnTo); storeHandoff(null); }
+      });
+      instance.events.on('enter-mission', (e: { missionId: UnityMissionId; returnTo: ReturnLocation }) => { void startMission(e.missionId, e.returnTo); });
       game.current = instance;
-      (window as unknown as { __game?: Phaser.Game }).__game = instance; // dev-only test hook
+      if (import.meta.env.DEV) (window as unknown as { __game?: Phaser.Game }).__game = instance; // dev-only test hook
     }).catch((e: unknown) => setError(String(e)));
     return () => { cancelled = true; game.current?.destroy(true); game.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mode changes are handled below without recreating the game
   }, []);
 
   const choose = (m: PlaygroundMode) => {
-    if (m === mode) return;
+    if (m === mode || mission) return;
     setMode(m);
     if (game.current && lib.current) { setLoading(true); lib.current.switchMode(game.current, m); }
   };
@@ -115,6 +154,7 @@ export const CharacterTestPage: React.FC = () => {
               <p className={`font-mono text-sm ${error ? 'text-shield-rose' : 'animate-pulse text-shield-cyan'}`}>{error ? `Could not start the game: ${error}` : 'Loading world…'}</p>
             </div>
           )}
+          {mission && <UnityMission handoff={mission} onExit={endMission} />}
           <button onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
             className="absolute right-3 top-3 rounded-lg border border-white/15 bg-black/40 p-2 text-white/80 backdrop-blur transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shield-cyan">
             {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -133,6 +173,7 @@ export const CharacterTestPage: React.FC = () => {
                 </React.Fragment>
               ))}
             </dl>
+            {saveNote && <p role="status" className="mt-3 text-xs text-shield-rose">{saveNote}</p>}
             <p className="mt-3 text-xs text-shield-subtle">On touch screens: drag the left side to move, hold RUN, tap E to interact.</p>
           </section>
 

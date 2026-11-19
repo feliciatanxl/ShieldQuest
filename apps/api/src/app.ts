@@ -5,8 +5,10 @@ import { config } from './config/index.js';
 import { healthRouter } from './routes/health.js';
 import { publicRouter } from './routes/public.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { sessionsRouter } from './routes/sessions.js';
+import { createMemoryStore, SessionStore } from './data/sessionStore.js';
 
-export function createApp(): Application {
+export function createApp(store: SessionStore = createMemoryStore()): Application {
   const app = express();
 
   app.use(
@@ -26,16 +28,18 @@ export function createApp(): Application {
         }
         return callback(new Error('Blocked by CORS policy'));
       },
-      credentials: true,
-      methods: ['GET', 'HEAD', 'OPTIONS'],
+      credentials: false, // bearer tokens, no cookies
+      methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
 
-  app.use(express.json());
+  app.use(express.json({ limit: '16kb' }));
 
   // Mount API routes
   app.use('/api/health', healthRouter);
   app.use('/api/public', publicRouter);
+  app.use('/api/sessions', sessionsRouter(store));
 
   // 404 handler for API routes
   app.use('/api/*', (_req, res) => {

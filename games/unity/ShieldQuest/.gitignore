@@ -1,0 +1,26 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.unityproj
+.vs/
+.vscode/
+.idea/
+crashlytics-buildid.txt
+# engine-free test harness (root .gitignore ignores *~)
+!Tests~/
+Tests~/CoreTests/bin/
+Tests~/CoreTests/obj/
+!Tests~/CoreTests/CoreTests.csproj
+*.slnx
+# Unity needs .meta files (asset GUIDs); root .gitignore ignores *.meta
+!*.meta

@@ -318,3 +318,4 @@ export const TEASER_SCENARIOS: TeaserScenario[] = [
     ],
   },
 ];
+export * from './gameState.js';

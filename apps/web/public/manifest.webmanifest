@@ -1,0 +1,12 @@
+{
+  "name": "ShieldQuest",
+  "short_name": "ShieldQuest",
+  "description": "Scenario-based youth crime-prevention adventure game.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1324",
+  "theme_color": "#0b1324",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
