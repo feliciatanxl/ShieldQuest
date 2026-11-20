@@ -1,0 +1,83 @@
+import { categories, categoryKeys, type Avatar } from './avatar'
+import { neighbourhood } from '../game/maps'
+import { SHOP_SIZE, type Location } from '../game/locations'
+import { newInvestigation, validInvestigation, type Investigation } from './investigation'
+import { readSpotResult } from './spotTheRisk'
+import { readHoldResult } from './holdBeforeActing'
+import { readInfluenceResult } from './identifyTheInfluence'
+import { readConsequencesResult } from './evaluateConsequences'
+import { readLeadResult } from './leadTheRightChoice'
+import { readDefendResult } from './defendYourCommunity'
+import type { ShieldProgress } from './shield'
+
+export type Point = { x: number; y: number }
+export type Save = {
+  version: 3
+  avatar: Avatar
+  scene: Location
+  investigation: Investigation
+  shield: ShieldProgress
+  position: Point
+  walked: number
+  tutorial: 'active' | 'done' | 'skipped'
+  coins: number
+  reducedMotion: boolean
+}
+
+export const SAVE_KEY = 'shieldquest.phase1'
+export const WALK_GOAL = 3
+export const START = { x: 10.6, y: 10.55 }
+
+export function newSave(avatar: Avatar): Save {
+  return { version: 3, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {},
+    position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
+}
+
+export function readSave(): Save | null {
+  try {
+    const data: (Partial<Omit<Save, 'version'>> & { version?: number }) | null =
+      JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null')
+    if (!data || (data.version !== 1 && data.version !== 2 && data.version !== 3) || !data.avatar || !data.position) return null
+    const { avatar, position, walked, coins, tutorial, reducedMotion } = data
+    if (!categoryKeys.every(key => Number.isInteger(avatar[key]) && avatar[key] >= 0 && avatar[key] < categories[key].options.length)) return null
+    const scene = data.version === 1 ? 'Neighbourhood' : data.scene
+    if (scene !== 'Neighbourhood' && scene !== 'Minimart') return null
+    const investigation = data.version === 1 ? newInvestigation() : data.investigation
+    if (!validInvestigation(investigation)) return null
+    const size = scene === 'Minimart' ? SHOP_SIZE : neighbourhood.size
+    if (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
+        position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y) return null
+    if (typeof walked !== 'number' || !Number.isFinite(walked) || walked < 0 || walked > WALK_GOAL) return null
+    if (typeof coins !== 'number' || !Number.isSafeInteger(coins) || coins < 0) return null
+    if (tutorial !== 'active' && tutorial !== 'done' && tutorial !== 'skipped') return null
+    if (typeof reducedMotion !== 'boolean') return null
+    const shield: ShieldProgress = {}
+    if (data.version === 3) {
+      const spot = readSpotResult(data.shield?.S)
+      const hold = readHoldResult(data.shield?.H)
+      const influence = readInfluenceResult(data.shield?.I)
+      const consequences = readConsequencesResult(data.shield?.E)
+      const lead = readLeadResult(data.shield?.L)
+      const defend = readDefendResult(data.shield?.D)
+      if (spot) shield.S = spot
+      if (hold) shield.H = hold
+      if (influence) shield.I = influence
+      if (consequences) shield.E = consequences
+      if (lead) shield.L = lead
+      if (defend) shield.D = defend
+    }
+    return { version: 3, avatar, scene, investigation, shield,
+      position, walked, tutorial, coins, reducedMotion }
+  } catch {
+    return null
+  }
+}
+
+export function writeSave(save: Save): boolean {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(save))
+    return true
+  } catch {
+    return false
+  }
+}

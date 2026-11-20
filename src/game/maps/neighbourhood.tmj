@@ -1,0 +1,1257 @@
+{
+ "type": "map",
+ "version": "1.10",
+ "orientation": "isometric",
+ "renderorder": "right-down",
+ "infinite": false,
+ "width": 25,
+ "height": 23,
+ "tilewidth": 64,
+ "tileheight": 32,
+ "nextlayerid": 3,
+ "nextobjectid": 70,
+ "layers": [
+  {
+   "id": 1,
+   "name": "Ground",
+   "type": "tilelayer",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "width": 25,
+   "height": 23,
+   "data": [1,3,2,4,3,2,4,3,1,4,3,1,4,2,1,4,2,1,7,2,1,3,6,1,3,
+1,3,4,1,2,3,1,2,3,4,2,3,4,1,2,4,1,2,7,1,2,3,8,1,3,
+2,2,2,2,2,1,1,1,1,1,1,4,4,4,4,4,3,3,7,3,3,3,6,2,2,
+3,2,4,2,1,3,2,4,3,1,3,2,4,3,1,4,2,1,7,1,4,2,5,3,2,
+4,1,2,3,4,1,2,3,4,1,2,3,1,2,3,4,1,2,7,4,1,2,7,4,1,
+1,1,8,8,7,7,7,6,6,6,5,5,5,8,8,8,7,7,7,10,10,10,5,1,1,
+2,4,6,5,7,5,7,6,8,6,8,7,5,7,5,8,6,8,6,9,11,9,7,2,4,
+3,3,8,5,6,7,8,5,6,6,7,8,5,6,7,8,5,5,6,11,12,9,6,3,3,
+3,3,6,6,5,13,16,16,15,15,14,14,13,13,16,16,15,7,6,10,9,9,8,3,3,
+4,2,5,7,5,15,13,15,13,15,13,15,13,15,14,16,14,8,6,12,10,12,6,4,2,
+1,2,7,7,8,13,13,14,15,15,16,13,14,14,15,16,16,5,6,10,11,12,5,1,2,
+2,1,13,16,15,15,14,5,5,8,7,6,6,5,8,8,7,6,6,9,12,11,7,2,1,
+3,1,15,13,15,13,14,8,6,8,6,8,6,8,6,8,6,7,5,11,9,11,5,3,1,
+4,4,13,13,14,14,15,7,8,5,5,6,6,7,7,8,8,5,5,10,10,11,7,4,4,
+5,8,7,6,5,8,7,7,6,5,8,7,6,5,5,8,7,6,5,12,11,10,6,5,8,
+10,11,9,11,9,10,12,10,11,9,11,9,10,12,10,12,9,11,9,11,12,10,12,10,11,
+10,11,11,11,12,12,9,9,9,10,10,10,11,11,11,12,12,12,9,9,9,10,10,10,11,
+11,10,9,12,11,10,9,12,11,10,9,12,11,10,9,12,11,10,9,11,10,9,12,11,10,
+8,6,7,5,6,8,6,7,5,6,8,5,7,5,6,8,5,7,8,10,11,9,7,8,6,
+1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,8,4,1,1,5,1,1,
+2,1,3,2,1,4,3,1,4,3,2,1,3,2,1,4,2,1,8,3,2,4,7,2,1,
+3,4,2,3,4,2,3,1,2,3,1,2,3,1,2,4,1,2,8,1,3,4,5,3,4,
+4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,8,4,4,4,8,4,4]
+  },
+  {
+   "id": 2,
+   "name": "Scenery and hotspots",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 1,
+     "name": "Block 101",
+     "type": "block",
+     "x": 19.2,
+     "y": 83.2,
+     "width": 192,
+     "height": 105.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "number",
+       "type": "string",
+       "value": "101"
+      },
+      {
+       "name": "accent",
+       "type": "string",
+       "value": "#a87d8c"
+      },
+      {
+       "name": "floors",
+       "type": "int",
+       "value": 5
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "Block 102",
+     "type": "block",
+     "x": 252.8,
+     "y": 25.6,
+     "width": 217.6,
+     "height": 112,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "number",
+       "type": "string",
+       "value": "102"
+      },
+      {
+       "name": "accent",
+       "type": "string",
+       "value": "#779d9c"
+      },
+      {
+       "name": "floors",
+       "type": "int",
+       "value": 6
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "Block 103",
+     "type": "block",
+     "x": 489.6,
+     "y": 38.4,
+     "width": 180.8,
+     "height": 124.8,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "number",
+       "type": "string",
+       "value": "103"
+      },
+      {
+       "name": "accent",
+       "type": "string",
+       "value": "#c58b79"
+      },
+      {
+       "name": "floors",
+       "type": "int",
+       "value": 5
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "Kopi Corner",
+     "type": "kopi",
+     "x": 188.8,
+     "y": 176,
+     "width": 134.4,
+     "height": 116.8,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 5,
+     "name": "Sunshine Minimart",
+     "type": "shop",
+     "x": 368,
+     "y": 179.2,
+     "width": 169.6,
+     "height": 113.6,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 6,
+     "name": "Covered walkway",
+     "type": "shelter",
+     "x": 73.6,
+     "y": 275.2,
+     "width": 102.4,
+     "height": 30.4,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 7,
+     "name": "Bus stop",
+     "type": "bus",
+     "x": 444.8,
+     "y": 429.76,
+     "width": 107.2,
+     "height": 29.12,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 8,
+     "name": "Bus stop bench",
+     "type": "collision",
+     "x": 452.8,
+     "y": 429.76,
+     "width": 41.6,
+     "height": 20.48,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 9,
+     "name": "Walkway bench",
+     "type": "collision",
+     "x": 82.56,
+     "y": 275.2,
+     "width": 41.92,
+     "height": 20.8,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 10,
+     "name": "Playground",
+     "type": "play",
+     "x": 99.2,
+     "y": 368,
+     "width": 107.2,
+     "height": 65.6,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 11,
+     "name": "Bicycle stand",
+     "type": "bikes",
+     "x": 543.04,
+     "y": 281.6,
+     "width": 16.96,
+     "height": 49.92,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 12,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 70.4,
+     "y": 211.2,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 13,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 280,
+     "y": 315.52,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 14,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 478.4,
+     "y": 319.36,
+     "width": 60.8,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 15,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 364.8,
+     "y": 420.8,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 16,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 198.4,
+     "y": 389.76,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 17,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 660.16,
+     "y": 335.04,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 18,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 72,
+     "y": 451.2,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 19,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 521.92,
+     "y": 650.88,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 20,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 144,
+     "y": 630.4,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 21,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 739.2,
+     "y": 608,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 22,
+     "name": "Estate planter",
+     "type": "planter",
+     "x": 262.4,
+     "y": 630.4,
+     "width": 36.16,
+     "height": 18.56,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 23,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 22.4,
+     "y": 230.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 23.04,
+     "y": 355.2,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 57.6,
+     "y": 423.04,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 84.8,
+     "y": 361.6,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 153.6,
+     "y": 211.2,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 134.4,
+     "y": 338.56,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 246.4,
+     "y": 376,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 227.2,
+     "y": 440,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 267.2,
+     "y": 413.76,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 336.64,
+     "y": 407.68,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 409.6,
+     "y": 440,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 539.2,
+     "y": 336,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 550.4,
+     "y": 204.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 36,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 713.6,
+     "y": 147.2,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 761.6,
+     "y": 220.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 38,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 704,
+     "y": 332.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 39,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 768,
+     "y": 412.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 582.4,
+     "y": 161.6,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 41,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 54.4,
+     "y": 614.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 42,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 112,
+     "y": 665.6,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 43,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 201.6,
+     "y": 652.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 44,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 307.2,
+     "y": 620.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 45,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 409.6,
+     "y": 649.6,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 46,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 560,
+     "y": 662.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 47,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 665.6,
+     "y": 646.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 48,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 748.8,
+     "y": 684.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 49,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 326.4,
+     "y": 704,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 25.6,
+     "y": 688,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 44.8,
+     "y": 38.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 236.8,
+     "y": 38.4,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 476.8,
+     "y": 32,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 54,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 723.2,
+     "y": 60.8,
+     "width": 21.44,
+     "height": 21.44,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": 55,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 134.4,
+     "y": 319.36,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 56,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 341.44,
+     "y": 317.44,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 57,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 496,
+     "y": 360,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 58,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 304,
+     "y": 451.2,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 59,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 64,
+     "y": 598.4,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 60,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 556.8,
+     "y": 467.2,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 61,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 675.2,
+     "y": 393.6,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 62,
+     "name": "Street light",
+     "type": "lamp",
+     "x": 611.2,
+     "y": 601.6,
+     "width": 3.52,
+     "height": 3.52,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 63,
+     "name": "Park bench",
+     "type": "bench",
+     "x": 301.44,
+     "y": 371.84,
+     "width": 38.4,
+     "height": 16,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 64,
+     "name": "Park bench",
+     "type": "bench",
+     "x": 388.8,
+     "y": 416.64,
+     "width": 38.4,
+     "height": 16,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 65,
+     "name": "Park bench",
+     "type": "bench",
+     "x": 217.6,
+     "y": 371.84,
+     "width": 38.4,
+     "height": 16,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 66,
+     "name": "Park bench",
+     "type": "bench",
+     "x": 704,
+     "y": 368,
+     "width": 38.4,
+     "height": 16,
+     "visible": true,
+     "rotation": 0
+    },
+    {
+     "id": 67,
+     "name": "Auntie May",
+     "type": "may",
+     "x": 295.36,
+     "y": 326.72,
+     "width": 0,
+     "height": 0,
+     "visible": true,
+     "rotation": 0,
+     "point": true
+    },
+    {
+     "id": 68,
+     "name": "Amir",
+     "type": "amir",
+     "x": 396.8,
+     "y": 382.4,
+     "width": 0,
+     "height": 0,
+     "visible": true,
+     "rotation": 0,
+     "point": true
+    }
+   ]
+  }
+ ],
+ "tilesets": [
+  {
+   "firstgid": 1,
+   "name": "ShieldQuest ground",
+   "tilewidth": 64,
+   "tileheight": 32,
+   "tilecount": 16,
+   "columns": 4,
+   "image": "ground.png",
+   "imagewidth": 256,
+   "imageheight": 128
+  }
+ ]
+}

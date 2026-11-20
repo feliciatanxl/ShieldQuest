@@ -13,8 +13,68 @@ Developed by **Team SecurePi** from **Nanyang Polytechnic**, ShieldQuest transfo
 
 ---
 
+## Run the Phase 1 prototype
+
+Use Node.js 22 or newer and run these commands from the checkout.
+
+```sh
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite. Create an avatar and explore Sunshine Estate with WASD or the arrow keys. Hold Shift to run and press E to interact. On touch layouts, drag the bottom-left joystick to walk. Push past the dashed ring to run, or release to stop. The bottom-right action button appears when you can talk, inspect an object, or enter or leave a location.
+
+The prototype saves your avatar, position, settings, and tutorial progress in this browser. The wardrobe, pocket guide, and area map are available from the in-game HUD. To build and verify the app, run `npm run typecheck` and `npm run build`.
+
+Open `src/game/maps/neighbourhood.tmj` in Tiled to edit the 64×32 isometric ground and scenery footprints. Phaser draws the original scenery from the map's object types.
+
+## Explore Sunshine Minimart
+
+Find the teal minimart beside Kopi Corner. Approach its door and press E or select **Enter Sunshine Minimart**. Inside, look for gold floor markers to inspect five clues, check the **Evidence board** from your Pack, and speak to Jun and the cashier. Follow the green mat to the **Leave Sunshine Minimart** prompt to return to the estate.
+
+Continue restores your saved location, clues, and response to Jun. Existing Phase 1 and Phase 2 saves migrate automatically.
+
+## Spot the Risk
+
+Inspect all five minimart clues, then select **Begin Spot the Risk** from the objective card or Evidence Board. Each of the five clue cards pairs one verified observation with one assumption so the challenge measures both missed facts and false alarms. A pass requires identifying at least four of the five verified cues and classifying at most one assumption as verified. The total correct count covers all ten classifications. The response to Jun, XP, and coins are independent of the competency result.
+
+Submit once to complete S and unlock **Hold Before Acting**. The saved result is available to review after continuing from the title screen.
+
+## Hold Before Acting
+
+After submitting Spot the Risk, select **Begin Hold Before Acting** in the objective card. Select an immediate response to Jun, review it, and confirm. Only declining calmly and suggesting normal shopping meets the safe boundary criterion. Any submitted response completes H and unlocks **Identify the Influence**. The H record is independent of the S score and the story response to Jun. Existing saves with only an S result can continue into H.
+
+## Identify the Influence
+
+Select **Begin Identify the Influence** after submitting H. Identify the pressure tactic and requested role in Jun’s words, then review and confirm both answers. A pass requires both parts to be correct. Any submission completes I and advances the objective to **Evaluate Consequences**. The save stores both answers and each part’s correctness in a separate I record. Existing saves with an H result can continue into I.
+
+The challenges use immediate feedback by default. Set `VITE_SHIELD_FEEDBACK=after-post-test` at build time to delay detailed review. H and I show neutral receipts in this mode. A future post-test flow can release the review. Browser-local results and bundled answer keys are suitable for practice rather than controlled assessment.
+
+## Evaluate Consequences
+
+Submit Identify the Influence, then select **Begin Evaluate Consequences**. Open each slot and choose from the shuffled immediate or later consequences. Each card can be assigned only once in its category. Selecting an assigned card moves it into an empty slot or swaps it with the card already there.
+
+A chain is correct when both links match. The proposed threshold is at least two of three correct chains. With one-use matching, two correct chains force the last chain to be correct too. The result also records the number of correct links out of six. The version and threshold live in `CONSEQUENCE_RULE`. Earlier completed E results retain their original rules and remain reviewable. E stays independent of previous assessments and Jun’s story choice. Any submission advances to **Lead the Right Choice**. Delayed feedback shows only a submission receipt.
+
+## Lead the Right Choice
+
+After submitting Evaluate Consequences, select **Begin Lead the Right Choice**. Pick an opening, a constructive alternative, and a positive next action for Jun. The speech bubble updates as you choose. Review your message, change any fragment if needed, then confirm.
+
+Each criterion earns one point. The default pass threshold is all three criteria, configured in `LEAD_RULE`. Every completed submission advances to **Defend Your Community**. L saves separately from prior results and Jun’s story decision. Delayed feedback shows a neutral receipt.
+
+## Defend Your Community
+
+After submitting Lead the Right Choice, select **Begin Defend Your Community**. Choose who to approach, what to communicate, and what to do next. The Help Channel Builder previews your plan as you make choices. You can revise it before confirming.
+
+The help channel, objective communication, and safe follow-up each earn one point. The default pass threshold is 3 of 3, configured in `DEFEND_RULE`. The save records D separately and keeps submitted plans read-only. Delayed feedback shows a neutral receipt. Submitting all six challenges marks the framework challenges complete and advances the objective to **Continue the Story** regardless of individual scores.
+
+The monorepo setup and API descriptions below refer to earlier repository history.
+
+---
+
 ## Contents
 
+- [Run the Phase 1 prototype](#run-the-phase-1-prototype)
 - [Project Overview](#project-overview)
 - [The Problem](#the-problem)
 - [Core USP](#core-usp)
