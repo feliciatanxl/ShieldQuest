@@ -1,6 +1,0 @@
-{
-    "name": "ShieldQuest.Runtime",
-    "rootNamespace": "ShieldQuest",
-    "references": ["Unity.InputSystem"],
-    "autoReferenced": true
-}
