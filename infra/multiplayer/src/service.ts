@@ -129,7 +129,8 @@ export class LobbyService {
 
     if (prior) {
       if (prior.signature !== signature) return replyError('REQUEST_REUSED', 'This request identifier was already used.')
-      const latest = member && current?.status === 'STARTING' ? await this.finishStart(current.code) : member && current ? current : null
+      const latest = member && current?.status === 'STARTING'
+        ? await this.finishStart(current.code) ?? current : member && current ? current : null
       if (latest?.status === 'IN_GAME' && previous?.status === 'STARTING') await this.broadcast('GAME_STARTED', latest)
       await this.reply(connectionId, 'ROOM_UPDATED', latest, requestId)
       return true

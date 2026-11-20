@@ -3,7 +3,7 @@ import { App, CfnOutput, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib'
 import { CfnStage, WebSocketApi } from 'aws-cdk-lib/aws-apigatewayv2'
 import { WebSocketLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations'
 import { AttributeType, BillingMode, Table, TableEncryption } from 'aws-cdk-lib/aws-dynamodb'
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam'
+import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { Runtime } from 'aws-cdk-lib/aws-lambda'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
@@ -28,20 +28,27 @@ const table = new Table(stack, 'LobbyTable', {
 })
 
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url))
-const makeHandler = (handler: 'connect' | 'disconnect' | 'message') => new NodejsFunction(stack, handler, {
-  entry: here('./handlers.ts'), handler, runtime: Runtime.NODEJS_22_X,
-  projectRoot: here('../../../'), depsLockFilePath: here('../package-lock.json'),
-  bundling: { externalModules: [], minify: true, target: 'node22' },
-  environment: { ROOM_TABLE: table.tableName, ...(handler === 'connect' && { ALLOWED_ORIGINS: origins.join(',') }) },
-  logGroup: logs(handler + 'Logs'), timeout: Duration.seconds(12),
-  memorySize: 256,
-})
+const makeHandler = (handler: 'connect' | 'disconnect' | 'message') => {
+  const logGroup = logs(handler + 'Logs')
+  const role = new Role(stack, handler + 'Role', { assumedBy: new ServicePrincipal('lambda.amazonaws.com') })
+  logGroup.grantWrite(role)
+  return new NodejsFunction(stack, handler, {
+    entry: here('./handlers.ts'), handler, runtime: Runtime.NODEJS_22_X,
+    projectRoot: here('../../../'), depsLockFilePath: here('../package-lock.json'),
+    bundling: { externalModules: [], minify: true, target: 'node22' },
+    environment: { ROOM_TABLE: table.tableName, ...(handler === 'connect' && { ALLOWED_ORIGINS: origins.join(',') }) },
+    role, logGroup, timeout: Duration.seconds(12), memorySize: 256,
+  })
+}
 const connect = makeHandler('connect')
 const disconnect = makeHandler('disconnect')
 const message = makeHandler('message')
 const policy = (target: NodejsFunction, actions: string[], prefixes: string[]) => target.addToRolePolicy(new PolicyStatement({
   actions: actions.map(action => 'dynamodb:' + action), resources: [table.tableArn],
-  conditions: { 'ForAllValues:StringLike': { 'dynamodb:LeadingKeys': prefixes } },
+  conditions: {
+    Null: { 'dynamodb:LeadingKeys': 'false' },
+    'ForAllValues:StringLike': { 'dynamodb:LeadingKeys': prefixes },
+  },
 }))
 policy(connect, ['UpdateItem'], ['RATE#IP#*'])
 policy(message, ['UpdateItem'], ['RATE#MSG#*'])

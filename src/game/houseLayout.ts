@@ -28,7 +28,7 @@ export const houseObjects = [
   { id: 'house-study-shelf', type: 'shelf', ...inspect(6.70, 1.36), name: 'Study Bookshelf', description: 'The book spines display symbols and numbers.', puzzleId: 'cipher' },
   { id: 'house-drawer', type: 'drawer', ...inspect(8.2, 2.42, .70), name: 'Desk Drawer', description: 'A three-digit lock protects the case documents.' },
   { id: 'house-timeline', type: 'table', ...inspect(8.94, 3.57), name: 'Study Timeline', description: 'A work surface is set aside for arranging the four incident events.', puzzleId: 'timeline' },
-  { id: 'house-board', type: 'board', ...inspect(9.64, .62, .75), name: 'Study Evidence Board', description: 'Pin claims to the board and link them to the records that let you verify them.', puzzleId: 'board' },
+  { id: 'house-board', type: 'board', ...inspect(9.64, .62, .75), name: 'Study Evidence Board', description: 'Review what the shop records actually show.', puzzleId: 'board' },
   { id: 'house-files', type: 'cabinet', ...inspect(10.95, 2.99), name: 'Filing Cabinet', description: 'The stock-transfer record is filed here.', pickup: { label: 'Take Transaction Record', objectId: 'house-files' } },
   { id: 'house-safe', type: 'safe', ...inspect(10.72, 1.65), name: 'Study Safe', description: 'The final evidence file is inside a safe with a four-digit keypad.', puzzleId: 'study-safe' },
   { id: 'house-cabinet', type: 'cabinet', ...inspect(1.62, 6.94), name: 'Kitchen Cabinet', description: 'A shop receipt sits on a shelf.', pickup: { label: 'Take Shop Receipt', objectId: 'house-cabinet' } },

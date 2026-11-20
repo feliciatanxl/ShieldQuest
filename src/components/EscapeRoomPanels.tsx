@@ -1,19 +1,18 @@
 import { Archive, BookOpen, Clock, DoorClosed, FileText, Image, Lock, Package, ScanLine, Table2, Pin, Check } from 'lucide-react'
 import type { HouseObject } from '../game/houseLayout'
 import { escapeSummary, puzzleState, type EscapeAction, type EscapeRoomProgress } from '../state/escapeRoom'
-import { categories, housePickups, items, levelTitle, puzzles, type ItemId, type PuzzleId } from '../state/missingEvidence'
-import { CaseDocuments, EvidenceBoardPuzzle, HouseSequence, PuzzleHints } from './HousePuzzles'
+import { categories, housePickups, items, levelTitle, puzzles, safeCode, safeDigits, type ItemId, type PuzzleId } from '../state/missingEvidence'
+import { CaseDocuments, EvidenceBoardReview, HouseSequence, PuzzleHints } from './HousePuzzles'
 import { NumericKeypad } from './NumericKeypad'
 import { Button, Modal } from './ui'
 
 const objectIcons = { shelf: BookOpen, painting: Image, drawer: Archive, clock: Clock, cabinet: Package, safe: ScanLine, door: DoorClosed, table: Table2, board: Pin }
 const categoryIcons = { Evidence: Archive, 'Physical Items': Package, Documents: FileText }
-const missingClues: Record<PuzzleId, string> = {
+const missingClues: Record<Exclude<PuzzleId, 'study-safe'>, string> = {
   letter: 'Find all three pieces in the living room.',
   cipher: 'Reconstruct the letter first.',
   timeline: 'Gather the four timestamped records and the drawer’s partial reference.',
   board: 'Complete the incident timeline to recover the evidence reference.',
-  'study-safe': 'Complete the evidence board to recover the safe code worksheet.',
 }
 const puzzleRewards = {
   letter: ['letter'],
@@ -23,14 +22,34 @@ const puzzleRewards = {
   'study-safe': ['final-evidence', 'house-key'],
 } as const satisfies Record<PuzzleId, readonly ItemId[]>
 
-export function HouseEntry({ onPlay, onClose, onReview }: { onPlay: () => void; onClose: () => void; onReview?: () => void }) {
+function safeNextStep(progress: EscapeRoomProgress) {
+  if (puzzleState(progress, 'letter') === 'locked') return 'Find the three letter fragments at the living room coffee table, bookshelf, and painting.'
+  if (puzzleState(progress, 'letter') !== 'completed') return 'Arrange the three fragments at the Old Bookshelf, Coffee Table, or Wall Painting and select Check Order.'
+  if (puzzleState(progress, 'cipher') !== 'completed') return 'Use the reconstructed letter to solve the Study Bookshelf cipher.'
+  if (!progress.drawerUnlocked) return 'Use the selected spine numbers to unlock the Desk Drawer and collect its records.'
+  if (puzzleState(progress, 'timeline') === 'locked') {
+    const sources = [
+      ['shop-receipt', 'shop receipt from the Kitchen Cabinet'],
+      ['clock-observation', 'clock observation from the Wall Clock'],
+      ['transaction-record', 'transaction record from the Filing Cabinet'],
+    ] as const
+    const missing = sources.filter(([id]) => !progress.inventory.includes(id)).map(([, label]) => label)
+    if (missing.length) return 'Still needed: ' + missing.join('; ') + '.'
+  }
+  if (puzzleState(progress, 'timeline') !== 'completed') return 'Arrange the four events at the Study Timeline and select Check Order.'
+  return 'Read the Study Evidence Board and select Finish Evidence Review. This adds the safe code worksheet and enables the keypad.'
+}
+
+export function HouseEntry({ onPlay, onClose, onReview, onMultiplayer }: {
+  onPlay: () => void; onClose: () => void; onReview?: () => void; onMultiplayer?: (mode: 'create' | 'join') => void
+}) {
   return <Modal title="The Mysterious House" eyebrow="ESCAPE ROOM ADVENTURE · LEVEL 1" onClose={onClose}>
     <h3>{levelTitle}</h3>
     <p>The neighbourhood has set up a supervised mystery game. In the fictional case, a compass is missing from a shop shelf. Reconstruct what happened, recover the final evidence file, and use the key to leave.</p>
     <div className="house-entry-actions">
       <Button className="primary" onClick={onReview ?? onPlay}>{onReview ? 'View Completion' : 'Play Solo'}</Button>
-      <Button className="secondary" disabled>Create Multiplayer Room · Coming Soon</Button>
-      <Button className="secondary" disabled>Join Multiplayer Room · Coming Soon</Button>
+      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('create')}>Create Multiplayer Room{!onMultiplayer && ' · Coming Soon'}</Button>
+      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('join')}>Join Multiplayer Room{!onMultiplayer && ' · Coming Soon'}</Button>
       <Button className="secondary" onClick={onClose}>Back</Button>
     </div>
   </Modal>
@@ -41,20 +60,27 @@ function PuzzleDesk({ id, progress, onAction }: {
 }) {
   const state = puzzleState(progress, id)
   return <>
-    {state === 'locked' && <p className="house-lock"><Lock size={16} aria-hidden="true" />{missingClues[id]}</p>}
+    {state === 'locked' && (id === 'study-safe' ? <>
+      <p className="house-lock"><Lock size={16} aria-hidden="true" />Keypad locked · Safe code worksheet needed</p>
+      <p><strong>Next step</strong> · {safeNextStep(progress)}</p>
+    </> : <p className="house-lock"><Lock size={16} aria-hidden="true" />{missingClues[id]}</p>)}
     {state === 'completed' && <>
       <p className="house-success" role="status"><Check size={17} aria-hidden="true" />
         {id === 'study-safe' ? 'Safe unlocked. Key and final evidence added.' : puzzles[id].title + ' solved. New evidence added.'}</p>
       <CaseDocuments ids={puzzleRewards[id]} />
     </>}
-    {state === 'available' && (id === 'board' ? <EvidenceBoardPuzzle onAction={onAction} />
+    {state === 'available' && (id === 'board' ? <EvidenceBoardReview onAction={onAction} />
       : id === 'study-safe' ? <>
         <h3>The Final Safe</h3>
+        <div className="house-safe-code">
+          <p>Enter <strong>{safeCode}</strong> on the keypad.</p>
+          <ol>{safeDigits.map(({ clue, digit }) => <li key={clue}><strong>{digit}</strong> · {clue}</li>)}</ol>
+        </div>
         <details className="house-reference"><summary>Review Safe Clues</summary>
-          <CaseDocuments ids={['safe-instructions', 'letter', 'cipher-rubbing', 'timeline-reference', 'witness-note']} />
+          <CaseDocuments ids={['letter', 'cipher-rubbing', 'timeline-reference', 'witness-note']} />
         </details>
         <NumericKeypad digits={4} onSubmitCode={code =>
-          onAction({ type: 'SUBMIT_SAFE_CODE', code }) ? 'Safe unlocked.' : 'The safe is still locked. Check each digit against the worksheet.'} />
+          onAction({ type: 'SUBMIT_SAFE_CODE', code }) ? 'Safe unlocked.' : `The safe is still locked. Clear the keypad and enter ${safeCode}.`} />
       </> : <HouseSequence id={id} onAction={onAction} />)}
     <PuzzleHints id={id} progress={progress} onAction={onAction} />
   </>

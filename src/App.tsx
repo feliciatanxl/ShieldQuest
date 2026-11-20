@@ -9,6 +9,8 @@ import { GameHUD } from './components/GameHUD'
 import { HoldBeforeActingChallenge } from './components/HoldBeforeActingChallenge'
 import { IdentifyTheInfluenceChallenge } from './components/IdentifyTheInfluenceChallenge'
 import { LeadTheRightChoiceChallenge } from './components/LeadTheRightChoiceChallenge'
+import { MultiplayerLobby } from './components/MultiplayerLobby'
+import { lobbyEndpoint } from './multiplayer/endpoint'
 import { DialogueBox, GamePanel, type GamePanelView } from './components/GamePanels'
 import { MainMenu } from './components/MainMenu'
 import { QuickMenu } from './components/QuickMenu'
@@ -39,6 +41,7 @@ type Overlay =
   | { type: 'dialogue'; id: ResidentId }
   | { type: 'clue'; id: ClueId }
   | { type: 'house-entry' }
+  | { type: 'house-lobby'; mode: 'create' | 'join' }
   | { type: 'house-inspect'; object: HouseObject }
   | { type: 'house-inventory'; fromMenu?: boolean; fromCompletion?: boolean }
   | { type: 'house-complete' }
@@ -57,6 +60,8 @@ export default function App() {
   const [nearby, setNearby] = useState<Hotspot | null>(null)
   const [transitioning, setTransitioning] = useState(false)
   const bridge = useMemo(() => new GameBridge(), [])
+  const multiplayer = useMemo(lobbyEndpoint, [])
+  const closeLobby = useCallback(() => setOverlay({ type: 'house-entry' }), [])
   const move = useCallback((direction: Point) => bridge.emit('direction', direction), [bridge])
 
   function persist(next: Save) {
@@ -278,7 +283,7 @@ export default function App() {
       REVEAL_HINT: action.type === 'REVEAL_HINT' && object.puzzleId === action.puzzleId,
       SUBMIT_SEQUENCE: action.type === 'SUBMIT_SEQUENCE' && object.puzzleId === action.puzzleId,
       UNLOCK_DRAWER: object.type === 'drawer',
-      LINK_EVIDENCE: object.puzzleId === 'board',
+      REVIEW_EVIDENCE: object.puzzleId === 'board',
       SUBMIT_SAFE_CODE: object.puzzleId === 'study-safe',
       UNLOCK_EXIT: object.type === 'door',
     }[action.type]
@@ -307,7 +312,10 @@ export default function App() {
       onMove={move} onPanel={openPanel}
       onTutorial={tutorial => update({ tutorial })} onOpenAssessment={openAssessment} />
     {overlay?.type === 'house-entry' && <HouseEntry onPlay={() => travelHouse('House')} onClose={() => setOverlay(null)}
+      onMultiplayer={multiplayer ? mode => setOverlay({ type: 'house-lobby', mode }) : undefined}
       onReview={save.escapeRoom.completedAt ? () => setOverlay({ type: 'house-complete' }) : undefined} />}
+    {overlay?.type === 'house-lobby' && multiplayer &&
+      <MultiplayerLobby mode={overlay.mode} endpoint={multiplayer} avatar={save.avatar} onClose={closeLobby} />}
     {overlay?.type === 'house-inspect' && <HouseInspection object={overlay.object} progress={save.escapeRoom}
       onAction={applyHouseAction} onClose={() => setOverlay(null)} />}
     {overlay?.type === 'house-inventory' && <HouseInventory progress={save.escapeRoom}

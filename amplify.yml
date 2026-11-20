@@ -3,18 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
-        # package.json "engines" requires Node >= 20
-        - nvm use 20 || nvm install 20
+        - nvm use 22 || nvm install 22
         - npm ci
     build:
       commands:
-        # Frontend only: the web app imports the compiled shared package, so build it first.
-        # The Express API (apps/api) is not deployed by Amplify static hosting.
-        - npm run build:shared
-        - npm run build:web
+        - npm run build
   artifacts:
     # Vite's default outDir, relative to the repo root where these commands run
-    baseDirectory: apps/web/dist
+    baseDirectory: dist
     files:
       - '**/*'
   cache:

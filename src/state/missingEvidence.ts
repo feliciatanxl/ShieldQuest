@@ -16,7 +16,7 @@ export const items = {
   'clock-observation': { name: 'Clock observation · 14:11', category: 'Evidence', description: '14:11 — A training observer recorded a visitor with a canvas tote by the entrance. The observer did not see the visitor handle the compass.' },
   'transaction-record': { name: 'Transaction record · 14:22', category: 'Documents', description: '14:22 — The clerk retrieved a stock-transfer record authorising the boxed compass to move to the seasonal display. The clerk had yet to verify its location.' },
   'timeline-reference': { name: 'Evidence reference SQ-01', category: 'Evidence', description: 'Chronology verified. Review the sources on the evidence board. For later, retain the minute shown on the third event’s document.' },
-  'safe-instructions': { name: 'Safe code worksheet', category: 'Documents', description: 'Read one digit from each stage in this order: lit windows in the reconstructed letter, Moon spine number in the cipher rubbing, ones digit of the third event’s minute, number of cards filed as Verified observations on the evidence board.' },
+  'safe-instructions': { name: 'Safe code worksheet', category: 'Documents', description: 'The worksheet lists the four digits in order. Open the Study Safe to see them above the keypad.' },
   'house-key': { name: 'House Exit Key', category: 'Physical Items', description: 'The supervised challenge key. Use it at the front door to finish the level.' },
   'final-evidence': { name: 'Final evidence file', category: 'Evidence', description: 'A stock check found the boxed compass on the seasonal display, as the authorised transfer recorded. The visitor’s presence by the entrance never established that they took it. Report what the sources show and name what remains uncertain.' },
 } as const
@@ -36,12 +36,13 @@ export const housePickups = {
 export type PickupId = keyof typeof housePickups
 export const letterOrder = ['letter-opening', 'letter-middle', 'letter-end'] as const
 
+const moonBook = { id: 'moon', label: 'Moon', digit: 7, symbol: '☾' } as const
 export const books = [
   { id: 'shell', label: 'Shell', digit: 8, symbol: '◈' },
   { id: 'key', label: 'Key', digit: 4, symbol: '⚿' },
   { id: 'sun', label: 'Sun', digit: 5, symbol: '☀' },
   { id: 'leaf', label: 'Leaf', digit: 3, symbol: '❧' },
-  { id: 'moon', label: 'Moon', digit: 7, symbol: '☾' },
+  moonBook,
 ] as const
 
 export const bookOrder = ['leaf', 'moon', 'key'] as const
@@ -60,26 +61,21 @@ export const evidenceBins = {
   conclusion: 'Evidence-supported conclusions',
 } as const
 
-export const evidenceSources = {
-  observer: 'Clock observation',
-  witness: 'Witness note and clock observation',
-  transfer: 'Transaction record',
-  dossier: 'Incident report, clock observation, and transaction record',
-  receipt: 'Shop receipt and transaction record',
-} as const
-
 export const evidenceCards = [
-  { id: 'theft', text: 'The visitor must have stolen the compass.', bin: 'assumption', source: 'witness' },
-  { id: 'authorised', text: 'A record authorises moving the compass to the seasonal display.', bin: 'observation', source: 'transfer' },
-  { id: 'insufficient', text: 'These records do not establish that the visitor stole anything. The authorised move is a reason to check the display.', bin: 'conclusion', source: 'dossier' },
-  { id: 'tote', text: 'An observer recorded a visitor with a tote near the entrance.', bin: 'observation', source: 'observer' },
-  { id: 'labels', text: 'Buying display labels proves the label buyer took the compass.', bin: 'assumption', source: 'receipt' },
+  { id: 'theft', text: 'The visitor must have stolen the compass.', bin: 'assumption' },
+  { id: 'authorised', text: 'A record authorises moving the compass to the seasonal display.', bin: 'observation' },
+  { id: 'insufficient', text: 'These records do not establish that the visitor stole anything. The authorised move is a reason to check the display.', bin: 'conclusion' },
+  { id: 'tote', text: 'An observer recorded a visitor with a tote near the entrance.', bin: 'observation' },
+  { id: 'labels', text: 'Buying display labels proves the label buyer took the compass.', bin: 'assumption' },
 ] as const
 
-export const safeCode = [
-  2, books.find(book => book.id === 'moon')?.digit,
-  timeline[2].time.slice(-1), evidenceCards.filter(card => card.bin === 'observation').length,
-].join('')
+export const safeDigits = [
+  { clue: 'Lit windows in the painting', digit: 2 },
+  { clue: 'Number on the Moon book', digit: moonBook.digit },
+  { clue: `Last digit of the third event’s time (${timeline[2].time})`, digit: timeline[2].time.slice(-1) },
+  { clue: 'Verified observations on the board', digit: evidenceCards.filter(card => card.bin === 'observation').length },
+] as const
+export const safeCode = safeDigits.map(({ digit }) => digit).join('')
 
 export const puzzleIds = ['letter', 'cipher', 'timeline', 'board', 'study-safe'] as const
 export type PuzzleId = typeof puzzleIds[number]
@@ -99,7 +95,7 @@ export const puzzles = {
   },
   board: {
     title: 'The Evidence Board', required: ['timeline-reference'],
-    hints: ['Use the source labels to find what was recorded, what was inferred, and what can reasonably be concluded.', 'Presence by the entrance and a recorded authorisation are observations. Presence and a purchase of labels don’t prove removal.', 'File the tote and transfer cards as observations, the theft and label-buyer claims as assumptions, and the cautious cross-source statement as the supported conclusion. Link each to the source that lets you check it.'],
+    hints: ['Read the three sections on the board.', 'The records give you two verified observations.', 'Select Finish Evidence Review to get the safe code worksheet.'],
   },
   'study-safe': {
     title: 'The Final Safe', required: ['safe-instructions'],

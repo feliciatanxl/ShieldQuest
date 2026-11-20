@@ -1,4 +1,5 @@
 import { heartbeatMs, protocolVersion, record, type Intent, type Request, type RoomView, type ServerEvent, type SessionCredential } from './protocol'
+import { nextRoom } from './state'
 
 type Connection = 'connecting' | 'online' | 'reconnecting'
 export type LobbyState = {
@@ -12,15 +13,6 @@ export type LobbyState = {
 const roomEvents = new Set(['ROOM_CREATED', 'PLAYER_JOINED', 'PLAYER_LEFT', 'PLAYER_READY_CHANGED',
   'PLAYER_CONNECTION_CHANGED', 'ROOM_UPDATED', 'GAME_STARTED', 'ROOM_CLOSED', 'SESSION', 'ERROR'])
 const request = (intent: Intent): Request => ({ ...intent, v: protocolVersion, requestId: crypto.randomUUID() })
-
-export function nextRoom(previous: RoomView | null, event: ServerEvent, authoritativeReply: boolean) {
-  if (event.type === 'ERROR') return previous
-  const { room } = event
-  if (!room) return authoritativeReply ? null : previous
-  if (room.id !== event.roomId || room.version !== event.stateVersion || !Array.isArray(room.players)) return previous
-  if (!previous || previous.id !== room.id) return authoritativeReply ? room : previous
-  return room.version > previous.version ? room : previous
-}
 
 export class LobbyClient {
   private state: LobbyState = { connection: 'connecting', room: null }

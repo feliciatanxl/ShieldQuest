@@ -25,26 +25,30 @@ function lobby(event: GatewayEvent) {
   })
 }
 
-export async function connect(event: GatewayEvent) {
-  const origin = Object.entries(event.headers ?? {}).find(([name]) => name.toLowerCase() === 'origin')?.[1]
-  const ip = event.requestContext.identity?.sourceIp
-  return { statusCode: ip && await lobby(event).allowConnect(origin, ip, allowedOrigins) ? 200 : 403 }
-}
-
-export async function disconnect(event: GatewayEvent) {
-  await lobby(event).disconnect(event.requestContext.connectionId)
-  return { statusCode: 200 }
-}
-
-export async function message(event: GatewayEvent) {
-  const body = event.isBase64Encoded ? '' : event.body ?? ''
-  try {
-    await lobby(event).message(event.requestContext.connectionId, body)
-    return { statusCode: 200 }
-  } catch (error) {
-    if (error instanceof Error && error.name === 'GoneException') return { statusCode: 200 }
-    // Avoid logging the event body, room code, display name or resume credential.
-    console.error('Lobby request failed', { name: error instanceof Error ? error.name : 'Unknown' })
-    return { statusCode: 500 }
+export function gatewayHandlers(serviceFor: (event: GatewayEvent) => LobbyService, origins: ReadonlySet<string>) {
+  return {
+    async connect(event: GatewayEvent) {
+      const origin = Object.entries(event.headers ?? {}).find(([name]) => name.toLowerCase() === 'origin')?.[1]
+      const ip = event.requestContext.identity?.sourceIp
+      return { statusCode: ip && await serviceFor(event).allowConnect(origin, ip, origins) ? 200 : 403 }
+    },
+    async disconnect(event: GatewayEvent) {
+      await serviceFor(event).disconnect(event.requestContext.connectionId)
+      return { statusCode: 200 }
+    },
+    async message(event: GatewayEvent) {
+      const body = event.isBase64Encoded ? '' : event.body ?? ''
+      try {
+        await serviceFor(event).message(event.requestContext.connectionId, body)
+        return { statusCode: 200 }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'GoneException') return { statusCode: 200 }
+        // Avoid logging the event body, room code, display name or resume credential.
+        console.error('Lobby request failed', { name: error instanceof Error ? error.name : 'Unknown' })
+        return { statusCode: 500 }
+      }
+    },
   }
 }
+
+export const { connect, disconnect, message } = gatewayHandlers(lobby, allowedOrigins)

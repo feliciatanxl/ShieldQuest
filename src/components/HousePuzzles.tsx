@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Pin } from 'lucide-react'
-import { books, evidenceBins, evidenceCards, evidenceSources, items, letterOrder, puzzles, timeline, type ItemId, type PuzzleId } from '../state/missingEvidence'
-import type { EscapeAction, EscapeRoomProgress, EvidenceLink, SequencePuzzle } from '../state/escapeRoom'
+import { books, evidenceBins, evidenceCards, items, letterOrder, puzzles, timeline, type ItemId, type PuzzleId } from '../state/missingEvidence'
+import type { EscapeAction, EscapeRoomProgress, SequencePuzzle } from '../state/escapeRoom'
 import { Button } from './ui'
 
 export function CaseDocuments({ ids }: { ids: readonly ItemId[] }) {
@@ -81,37 +81,18 @@ export function HouseSequence({ id, onAction }: { id: SequencePuzzle; onAction: 
   </section>
 }
 
-export function EvidenceBoardPuzzle({ onAction }: { onAction: (action: EscapeAction) => boolean }) {
-  const [links, setLinks] = useState<Partial<Record<string, EvidenceLink>>>({})
-  const [feedback, setFeedback] = useState('')
-  function link(id: string, field: keyof EvidenceLink, value: string) {
-    setLinks(previous => ({ ...previous, [id]: { bin: '', source: '', ...previous[id], [field]: value } }))
-    setFeedback('')
-  }
+export function EvidenceBoardReview({ onAction }: { onAction: (action: EscapeAction) => boolean }) {
   return <section className="house-puzzle">
     <h3>{puzzles.board.title}</h3>
-    <p>File each claim and connect it to the record or group of records you would use to check it.</p>
     <details className="house-reference"><summary>Review Case Records</summary>
       <CaseDocuments ids={['incident-report', ...timeline.map(event => event.source)]} />
     </details>
     <div className="house-pinboard">
-      {evidenceCards.map((card, index) => <fieldset key={card.id}>
-        <legend>Claim {index + 1}</legend>
-        <p><Pin size={16} aria-hidden="true" />{card.text}</p>
-        <label>File under<select value={links[card.id]?.bin ?? ''} onChange={event => link(card.id, 'bin', event.target.value)}>
-          <option value="">Choose a category</option>
-          {Object.entries(evidenceBins).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-        </select></label>
-        <label>Link to records<select value={links[card.id]?.source ?? ''} onChange={event => link(card.id, 'source', event.target.value)}>
-          <option value="">Choose records</option>
-          {Object.entries(evidenceSources).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-        </select></label>
-      </fieldset>)}
+      {Object.entries(evidenceBins).map(([bin, label]) => <section key={bin}>
+        <h4><Pin size={16} aria-hidden="true" />{label}</h4>
+        <ul>{evidenceCards.filter(card => card.bin === bin).map(card => <li key={card.id}>{card.text}</li>)}</ul>
+      </section>)}
     </div>
-    <Button className="primary" disabled={!evidenceCards.every(card => links[card.id]?.bin && links[card.id]?.source)}
-      onClick={() => {
-        if (!onAction({ type: 'LINK_EVIDENCE', links })) setFeedback('Some claims or source links need another look. Review the records and revise the board.')
-      }}>Check Evidence Board</Button>
-    {feedback && <p role="status">{feedback}</p>}
+    <Button className="primary" onClick={() => onAction({ type: 'REVIEW_EVIDENCE' })}>Finish Evidence Review</Button>
   </section>
 }

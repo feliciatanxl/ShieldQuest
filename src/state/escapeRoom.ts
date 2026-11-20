@@ -1,6 +1,6 @@
 import type { Point } from './saveGame'
 import {
-  bookOrder, drawerCode, evidenceCards, housePickups, items, letterOrder, puzzleIds, puzzles, safeCode, timeline,
+  bookOrder, drawerCode, housePickups, items, letterOrder, puzzleIds, puzzles, safeCode, timeline,
   type ItemId, type PickupId, type PuzzleId,
 } from './missingEvidence'
 
@@ -25,12 +25,11 @@ export function newEscapeRoom(): EscapeRoomProgress {
 }
 
 export type SequencePuzzle = 'letter' | 'cipher' | 'timeline'
-export type EvidenceLink = { bin: string; source: string }
 export type EscapeAction =
   | { type: 'COLLECT_ITEM'; objectId: PickupId }
   | { type: 'SUBMIT_SEQUENCE'; puzzleId: SequencePuzzle; order: readonly string[] }
   | { type: 'UNLOCK_DRAWER'; code: string }
-  | { type: 'LINK_EVIDENCE'; links: Partial<Record<string, EvidenceLink>> }
+  | { type: 'REVIEW_EVIDENCE' }
   | { type: 'SUBMIT_SAFE_CODE'; code: string }
   | { type: 'UNLOCK_EXIT'; at: string }
   | { type: 'REVEAL_HINT'; puzzleId: PuzzleId }
@@ -77,9 +76,8 @@ export function applyEscapeAction(progress: EscapeRoomProgress, action: EscapeAc
     case 'UNLOCK_DRAWER':
       if (progress.drawerUnlocked || progress.puzzleStates.cipher !== 'completed' || action.code !== drawerCode) return progress
       return award({ ...progress, drawerUnlocked: true }, drawerItems)
-    case 'LINK_EVIDENCE':
-      if (puzzleState(progress, 'board') !== 'available' ||
-          !evidenceCards.every(card => action.links?.[card.id]?.bin === card.bin && action.links[card.id]?.source === card.source)) return progress
+    case 'REVIEW_EVIDENCE':
+      if (puzzleState(progress, 'board') !== 'available') return progress
       return finishPuzzle(progress, 'board')
     case 'SUBMIT_SAFE_CODE':
       if (puzzleState(progress, 'study-safe') !== 'available' || action.code !== safeCode) return progress

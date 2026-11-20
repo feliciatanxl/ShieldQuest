@@ -78,9 +78,11 @@ The six origami SVGs and challenge pairings come from Team SecurePi’s ShieldQu
 
 Visit **The Mysterious House** on the east side of Sunshine Estate and choose **Play Solo**. Explore the living room, study, kitchen and entrance hall. Inspect gold floor markers with **E** or the touch prompt and reopen your finds from **House Inventory**.
 
-**The Missing Evidence** is a supervised fictional mystery. Reconstruct the letter, decipher the study bookshelf, unlock the drawer, order the incident timeline, and link claims to their sources on the evidence board. Use the resulting worksheet to open the safe, read the final evidence file, and unlock the front door. Each puzzle offers up to three optional hints.
+**The Missing Evidence** is a supervised fictional mystery. Reconstruct the letter, decipher the study bookshelf, unlock the drawer, and order the incident timeline. Finish reviewing the evidence board, then follow the code shown above the keypad to open the safe and recover the exit key. Each stage offers up to three optional hints.
 
-House progress and completion are saved in the browser. The completion screen provides evidence review, replay, and return to the neighbourhood. The quick menu also lets players leave an unfinished run and resume later. Multiplayer and later levels are planned.
+House progress and completion are saved in the browser. The completion screen provides evidence review, replay, and return to the neighbourhood. The quick menu also lets players leave an unfinished run and resume later.
+
+When the WebSocket endpoint is configured, two players can create or join a private room at the house entrance. The multiplayer session screen confirms a shared start while co-op gameplay is in development. See the [multiplayer guide](infra/multiplayer/README.md) for local testing and AWS deployment.
 
 The monorepo setup and API descriptions below refer to earlier repository history.
 
