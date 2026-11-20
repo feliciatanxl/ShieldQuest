@@ -66,7 +66,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
       const requested = data?.position ?? this.launch.position
       const spawn = canStand(requested, this.world.size, this.world.collisions) ? requested : this.fallback
       this.player = new Actor(this, 'player', this.launch.avatar, spawn)
-      if (this.location === 'Neighbourhood') this.cameraFocus = this.add.zone(0, 0, 1, 1)
+      if (this.location !== 'Minimart') this.cameraFocus = this.add.zone(0, 0, 1, 1)
       this.moveCamera()
       const keys = this.input.keyboard
       if (keys) {
@@ -85,6 +85,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
           else keys?.enableGlobalCapture()
         }),
         bridge.on('action', () => this.interact()),
+        bridge.on('houseTravel', ({ target, position }) => {
+          if ((target === 'House' && (this.location === 'Neighbourhood' || this.location === 'House')) ||
+              (target === 'Neighbourhood' && this.location === 'House')) this.changeLocation(target, position)
+        }),
         bridge.on('direction', direction => { this.touch = this.locked || this.transitioning ? { x: 0, y: 0 } : direction }),
         bridge.on('motion', motion => {
           this.launch.reducedMotion = motion
@@ -141,10 +145,14 @@ export abstract class ExplorationScene extends Phaser.Scene {
       const zoom = Math.max(width / 1180, height / 730) * 1.12
       camera.setZoom(zoom).centerOn(35, 295)
     } else if (this.cameraFocus) {
-      camera.setZoom(Phaser.Math.Clamp(Math.min(width / 920, height / 600), .87, 1.52))
-      camera.centerOn(this.cameraFocus.x, this.cameraFocus.y)
-      this.follow()
+      this.focusCamera(Phaser.Math.Clamp(Math.min(width / 920, height / 600), .87, 1.52))
     }
+  }
+
+  protected focusCamera(zoom: number) {
+    if (!this.cameraFocus) return
+    this.cameras.main.setZoom(zoom).centerOn(this.cameraFocus.x, this.cameraFocus.y)
+    this.follow()
   }
 
   update(_time: number, delta: number) {
@@ -209,7 +217,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
     if (this.locked || this.transitioning || !this.nearby) return
     if (this.travelled) this.checkpoint()
     const { id } = this.nearby
-    if (id === 'enter' || id === 'exit') this.changeLocation(id === 'enter' ? 'Minimart' : 'Neighbourhood')
+    if (id === 'enter') this.changeLocation('Minimart', SHOP_SPAWN)
+    else if (id === 'exit') this.changeLocation('Neighbourhood', SHOP_DOOR)
     else this.launch.bridge.emit('interact', id)
   }
 
@@ -219,14 +228,17 @@ export abstract class ExplorationScene extends Phaser.Scene {
     this.updateProximity()
   }
 
-  private changeLocation(target: Location) {
+  private changeLocation(target: Location, position: Point) {
+    if (this.transitioning) return
     const { bridge, reducedMotion } = this.launch
-    const position = target === 'Minimart' ? SHOP_SPAWN : SHOP_DOOR
     this.transitioning = true
     this.touch = { x: 0, y: 0 }
     bridge.emit('proximity', null)
     bridge.emit('transition', true)
-    const change = () => this.scene.start(target, { position })
+    const change = () => {
+      if (target === this.location) this.scene.restart({ position })
+      else this.scene.start(target, { position })
+    }
     if (reducedMotion) change()
     else {
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, change)

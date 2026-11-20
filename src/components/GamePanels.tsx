@@ -2,10 +2,13 @@ import { useLayoutEffect, useRef } from 'react'
 import { Backpack, Check, ClipboardList, CloudSun, MapPin } from 'lucide-react'
 import type { ResidentId } from '../game/events'
 import { groundColors, neighbourhood } from '../game/maps'
-import { SHOP_SIZE } from '../game/locations'
+import { HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
+import { houseFurniture, houseRooms, houseWalls } from '../game/houseLayout'
 import { shopFixtures } from '../game/minimartLayout'
 import { choiceIds, responses, type JunChoice } from '../state/investigation'
 import type { Save } from '../state/saveGame'
+import type { GuardianId } from '../state/guardians'
+import { GuardianCollection } from './GuardianCollection'
 import { CharacterCustomizer } from './CharacterCustomizer'
 import { currentObjective, objectiveDetails, type GameTool } from './GameHUD'
 import { AvatarSprite } from './AvatarSprite'
@@ -39,8 +42,9 @@ export function DialogueBox({ id, choice, onChoice, onClose }: {
 function AreaMap({ save }: { save: Save }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const inside = save.scene === 'Minimart'
-  const map = inside ? null : neighbourhood
-  const size = map?.size ?? SHOP_SIZE
+  const house = save.scene === 'House'
+  const map = inside || house ? null : neighbourhood
+  const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
   const tileWidth = Math.floor(250 / size.x)
   const width = tileWidth * size.x
   const height = tileWidth * size.y
@@ -55,12 +59,25 @@ function AreaMap({ save }: { save: Save }) {
     })
     for (const item of map?.props ?? []) {
       if (!item.w || !item.d) continue
-      ctx.fillStyle = item.kind === 'shop' ? '#299c91' : item.kind === 'tree' ? '#54806b' : '#62566f'
+      ctx.fillStyle = item.kind === 'shop' ? '#299c91' : item.kind === 'house' ? '#995e72' : item.kind === 'tree' ? '#54806b' : '#62566f'
       ctx.fillRect(item.x * tileWidth, item.y * tileWidth, item.w * tileWidth, item.d * tileWidth)
     }
     if (inside) {
       ctx.fillStyle = '#8b6e6a'
       for (const fixture of shopFixtures) {
+        ctx.fillRect(fixture.x * tileWidth, fixture.y * tileWidth, fixture.w * tileWidth, fixture.d * tileWidth)
+      }
+    }
+    if (house) {
+      for (const room of houseRooms) {
+        ctx.fillStyle = room.colors[0]
+        ctx.fillRect(room.x * tileWidth, room.y * tileWidth, room.w * tileWidth, room.d * tileWidth)
+        ctx.fillStyle = '#26364c'
+        ctx.font = '11px sans-serif'
+        ctx.fillText(room.name, room.x * tileWidth + 8, room.y * tileWidth + 15)
+      }
+      ctx.fillStyle = '#8b6e6a'
+      for (const fixture of [...houseWalls, ...houseFurniture]) {
         ctx.fillRect(fixture.x * tileWidth, fixture.y * tileWidth, fixture.w * tileWidth, fixture.d * tileWidth)
       }
     }
@@ -72,31 +89,35 @@ function AreaMap({ save }: { save: Save }) {
     ctx.strokeStyle = '#26364c'
     ctx.lineWidth = 2
     ctx.stroke()
-  }, [map, inside, size.x, width, height, tileWidth, save.position])
+  }, [map, inside, house, width, height, tileWidth, save.position])
   return <div className="map-content">
-    <p><MapPin size={17} /> {inside ? 'Sunshine Minimart' : 'Sunshine Estate'}</p>
+    <p><MapPin size={17} /> {house ? 'The Mysterious House' : inside ? 'Sunshine Minimart' : 'Sunshine Estate'}</p>
     <canvas ref={ref} width={width} height={height} aria-label="Area map with your location marked by a white dot" role="img" />
-    <div className="map-legend"><span><i /> You are here</span>{!inside && <span><i className="shop-key" /> Minimart</span>}</div>
+    <div className="map-legend"><span><i /> You are here</span>{map && <>
+      <span><i className="shop-key" /> Minimart</span><span><i className="house-key" /> Mysterious House</span>
+    </>}</div>
   </div>
 }
 
-export type GamePanelView = GameTool | 'missions' | 'controls' | 'restart'
+export type GamePanelView = GameTool | 'missions' | 'controls' | 'restart' | 'guardians'
 
-export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoard }: {
+export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoard, onCollectGuardian }: {
   panel: GamePanelView; save: Save; onClose: () => void; onUpdate: (changes: Partial<Save>) => void; onRestart: () => void; onOpenBoard: () => void
+  onCollectGuardian: (id: GuardianId) => void
 }) {
   const title = {
     wardrobe: 'Wardrobe', pack: 'Your pack', settings: 'Settings', map: 'Area map',
-    missions: 'Missions', controls: 'Help & controls', restart: 'Restart tutorial?',
+    missions: 'Missions', controls: 'Help & controls', restart: 'Restart tutorial?', guardians: 'Guardians',
   }[panel]
   if (panel === 'wardrobe') return <Modal title={title} onClose={onClose} wide>
     <CharacterCustomizer initial={save.avatar} wardrobe onBack={onClose} onConfirm={avatar => { onUpdate({ avatar }); onClose() }} />
   </Modal>
-  return <Modal title={title} onClose={onClose}>
+  return <Modal title={title} onClose={onClose} className={panel === 'guardians' ? 'guardian-modal' : undefined}>
+    {panel === 'guardians' && <GuardianCollection save={save} onCollect={onCollectGuardian} />}
     {panel === 'missions' && <section className="mission-entry">
       <h3>{currentObjective(save)}</h3>
       <p>{objectiveDetails(save)}</p>
-      {save.investigation.entered && <Button className="secondary" onClick={onOpenBoard}><ClipboardList size={17} /> Evidence board</Button>}
+      {save.scene !== 'House' && save.investigation.entered && <Button className="secondary" onClick={onOpenBoard}><ClipboardList size={17} /> Evidence board</Button>}
     </section>}
     {panel === 'restart' && <>
       <p>Start the movement tutorial again from your current location.</p>

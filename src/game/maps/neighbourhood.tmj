@@ -1237,6 +1237,17 @@
      "visible": true,
      "rotation": 0,
      "point": true
+    },
+    {
+     "id": 69,
+     "name": "The Mysterious House",
+     "type": "house",
+     "x": 712,
+     "y": 248,
+     "width": 80,
+     "height": 67.2,
+     "visible": true,
+     "rotation": 0
     }
    ]
   }

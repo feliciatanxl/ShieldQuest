@@ -1,6 +1,9 @@
 import { categories, categoryKeys, type Avatar } from './avatar'
 import { neighbourhood } from '../game/maps'
-import { SHOP_SIZE, type Location } from '../game/locations'
+import { HOUSE_SIZE, HOUSE_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
+import { houseCollisions } from '../game/houseLayout'
+import { canStand } from '../game/isometric'
+import { newEscapeRoom, readEscapeRoom, type EscapeRoomProgress } from './escapeRoom'
 import { newInvestigation, validInvestigation, type Investigation } from './investigation'
 import { readSpotResult } from './spotTheRisk'
 import { readHoldResult } from './holdBeforeActing'
@@ -8,6 +11,7 @@ import { readInfluenceResult } from './identifyTheInfluence'
 import { readConsequencesResult } from './evaluateConsequences'
 import { readLeadResult } from './leadTheRightChoice'
 import { readDefendResult } from './defendYourCommunity'
+import { readCollectedGuardians, type GuardianId } from './guardians'
 import type { ShieldProgress } from './shield'
 
 export type Point = { x: number; y: number }
@@ -17,6 +21,8 @@ export type Save = {
   scene: Location
   investigation: Investigation
   shield: ShieldProgress
+  collectedGuardians: GuardianId[]
+  escapeRoom: EscapeRoomProgress
   position: Point
   walked: number
   tutorial: 'active' | 'done' | 'skipped'
@@ -29,7 +35,7 @@ export const WALK_GOAL = 3
 export const START = { x: 10.6, y: 10.55 }
 
 export function newSave(avatar: Avatar): Save {
-  return { version: 3, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {},
+  return { version: 3, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
     position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
 }
 
@@ -41,12 +47,12 @@ export function readSave(): Save | null {
     const { avatar, position, walked, coins, tutorial, reducedMotion } = data
     if (!categoryKeys.every(key => Number.isInteger(avatar[key]) && avatar[key] >= 0 && avatar[key] < categories[key].options.length)) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
-    if (scene !== 'Neighbourhood' && scene !== 'Minimart') return null
+    if (scene !== 'Neighbourhood' && scene !== 'Minimart' && !(data.version === 3 && scene === 'House')) return null
     const investigation = data.version === 1 ? newInvestigation() : data.investigation
     if (!validInvestigation(investigation)) return null
-    const size = scene === 'Minimart' ? SHOP_SIZE : neighbourhood.size
-    if (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
-        position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y) return null
+    const size = scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : neighbourhood.size
+    if (scene !== 'House' && (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
+        position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y)) return null
     if (typeof walked !== 'number' || !Number.isFinite(walked) || walked < 0 || walked > WALK_GOAL) return null
     if (typeof coins !== 'number' || !Number.isSafeInteger(coins) || coins < 0) return null
     if (tutorial !== 'active' && tutorial !== 'done' && tutorial !== 'skipped') return null
@@ -66,8 +72,13 @@ export function readSave(): Save | null {
       if (lead) shield.L = lead
       if (defend) shield.D = defend
     }
-    return { version: 3, avatar, scene, investigation, shield,
-      position, walked, tutorial, coins, reducedMotion }
+    const collectedGuardians = readCollectedGuardians(data.collectedGuardians, shield)
+    const escapeRoom = readEscapeRoom(data.escapeRoom)
+    const housePosition = scene === 'House' ? position : data.escapeRoom?.position
+    if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
+        canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
+    return { version: 3, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
+      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : position, walked, tutorial, coins, reducedMotion }
   } catch {
     return null
   }

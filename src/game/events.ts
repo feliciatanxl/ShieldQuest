@@ -2,9 +2,10 @@ import type { Avatar } from '../state/avatar'
 import type { Point } from '../state/saveGame'
 import type { ClueId } from '../state/investigation'
 import type { Location } from './locations'
+import type { HouseObjectId } from './houseLayout'
 
 export type ResidentId = 'may' | 'amir' | 'jun' | 'cashier'
-export type HotspotId = ResidentId | ClueId | 'enter' | 'exit'
+export type HotspotId = ResidentId | ClueId | HouseObjectId | 'enter' | 'exit' | 'house-entrance'
 export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number }
 
 type GameEvents = {
@@ -18,6 +19,7 @@ type GameEvents = {
   motion: boolean
   action: undefined
   direction: Point
+  houseTravel: { target: 'House' | 'Neighbourhood'; position: Point }
 }
 
 export class GameBridge {

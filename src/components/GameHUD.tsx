@@ -20,6 +20,7 @@ export type Panel = GameTool | 'menu'
 
 export function currentObjective(save: Save) {
   const { scene, tutorial, investigation } = save
+  if (scene === 'House') return save.escapeRoom.completedAt ? 'Level 1 Completed' : 'Investigate the Missing Evidence'
   if (save.shield.D) return STORY_TITLE
   if (save.shield.L) return DEFEND_TITLE
   if (save.shield.E) return LEAD_TITLE
@@ -39,6 +40,8 @@ export function currentObjective(save: Save) {
 
 export function objectiveDetails(save: Save) {
   switch (currentObjective(save)) {
+    case 'Investigate the Missing Evidence': return 'Search the living room for the host’s instructions. Reopen collected clues in House Inventory.'
+    case 'Level 1 Completed': return 'The case is closed. Reopen the front door panel to review your results or replay.'
     case SPOT_TITLE: return 'Classify observations and assumptions using the five clues you found.'
     case HOLD_TITLE: return 'Spot the Risk — Completed. Choose how to respond to Jun’s request in the moment.'
     case INFLUENCE_TITLE: return 'Hold Before Acting — Completed. Identify the influence in Jun’s request.'
@@ -91,7 +94,8 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
   const [expanded, setExpanded] = useState(false)
   const xp = Math.round(save.walked / WALK_GOAL * 20)
   const indoors = save.scene === 'Minimart'
-  const tutorial = save.tutorial === 'active' && !indoors
+  const house = save.scene === 'House'
+  const tutorial = save.tutorial === 'active' && !indoors && !house
   const { S, H, I, E, L, D } = save.shield
   const frameworkComplete = !!(S && H && I && E && L && D)
   return <div className="hud" inert={transitioning}>
@@ -109,6 +113,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
             <Compass size={20} /><span><small>CURRENT OBJECTIVE</small><strong>{currentObjective(save)}</strong></span><ChevronDown size={16} className={expanded ? 'rotated' : ''} />
           </button>
           {expanded && <p>{objectiveDetails(save)}</p>}
+          {!house && <>
           {frameworkComplete && <p className="framework-completion" role="status">
             <Check size={16} aria-hidden="true" /><span><strong>{FRAMEWORK_COMPLETE}</strong><small>6 of 6 submitted</small></span>
           </p>}
@@ -130,12 +135,15 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
           {(save.shield.S || canStartSpot(save.investigation)) && <Button className={`${save.shield.S ? 'secondary' : 'primary'} spot-entry`} onClick={() => onOpenAssessment('S')}>
             {save.shield.S ? 'Review Spot the Risk result' : 'Begin Spot the Risk'}
           </Button>}
+          </>}
         </section>
       </div>
       <div className="hud-centre dark-panel">
         <div className="coin-total" aria-label={save.coins + ' coins'}><Coins size={21} /><strong>{save.coins}</strong></div>
         <button type="button" onClick={() => onPanel('wardrobe')} title="Wardrobe" aria-label="Wardrobe"><Shirt size={19} /><span>Wardrobe</span></button>
-        <button type="button" onClick={() => onPanel('pack')} title="Pack" aria-label="Pack"><Backpack size={19} /><span>Pack</span></button>
+        <button type="button" onClick={() => onPanel('pack')} title={house ? 'House Inventory' : 'Pack'} aria-label={house ? 'House Inventory' : 'Pack'}>
+          <Backpack size={19} /><span>{house ? 'Inventory' : 'Pack'}</span>
+        </button>
       </div>
       <div className="hud-right">
         <div className="weather dark-panel" aria-label="Fictional in-game time and weather"><CloudSun size={25} /><span><strong>5:42 PM</strong><small>SAT · 31°C · FAIR</small></span></div>
@@ -145,7 +153,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         </div>
       </div>
     </div>
-    <div className="world-label dark-panel"><Sparkles size={14} /> {indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>
+    <div className="world-label dark-panel"><Sparkles size={14} /> {house ? 'THE MYSTERIOUS HOUSE' : indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>
     <div className="hud-bottom">
       <VirtualJoystick blocked={blocked || transitioning} onMove={onMove} />
       {nearby && <button className="interact dark-panel" type="button" aria-label={nearby.label}

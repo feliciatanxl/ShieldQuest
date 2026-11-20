@@ -1,11 +1,12 @@
 import type Phaser from 'phaser'
 import type { Hotspot } from './events'
 import type { Point } from '../state/saveGame'
-import { SHOP_DOOR } from './locations'
+import { HOUSE_DOOR, SHOP_DOOR } from './locations'
 import { type Footprint } from './isometric'
 import { groundColors, neighbourhood, type MapProp } from './maps'
 import { isResident } from './residentData'
 import { bench, block, box, floor, front, lamp, planter, poly, prop, shelter, shop, tree } from './worldArt'
+import { houseExterior } from './houseArt'
 
 const labels = {
   may: 'Talk to Auntie May', amir: 'Talk to Amir',
@@ -56,6 +57,8 @@ function street(scene: Phaser.Scene) {
   floor(g, 15.99, 18.05, 1.44, .23, '#e5b38b')
   floor(g, 2.23, 10.51, 4.9, .24, '#daba8f')
   floor(g, 13.01, 9.16, .44, .37, '#e5bd84')
+  floor(g, 22.05, 9.91, 2.63, .44, '#d7c7a9')
+  floor(g, 22.00, 9.93, .40, .91, '#d7c7a9')
   for (let i = 0; i < 8; i++) floor(g, 13.05 + .048 * i, 9.28, .018, .18, '#a37567')
 }
 
@@ -90,7 +93,7 @@ function bicycles(g: Phaser.GameObjects.Graphics, p: MapProp) {
 
 function renderProp(scene: Phaser.Scene, p: MapProp) {
   const { kind, x, y, w, d, properties } = p
-  if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes'].includes(kind)) return
+  if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes', 'house'].includes(kind)) return
   prop(scene, p, g => {
     switch (kind) {
       case 'block': block(g, x, y, w, d, String(properties.number), String(properties.accent), Number(properties.floors)); break
@@ -102,6 +105,7 @@ function renderProp(scene: Phaser.Scene, p: MapProp) {
       case 'shelter': case 'bus': shelter(g, x, y, w, d, kind === 'bus'); break
       case 'play': playArea(g, p); break
       case 'bikes': bicycles(g, p); break
+      case 'house': houseExterior(g, p); break
     }
   })
 }
@@ -124,5 +128,6 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
     if (isResident(id)) collisions.push({ kind: 'npc', name: id, x: at.x - .13, y: at.y - .13, w: .26, d: .26, properties: {} })
   }
   hotspots.push({ id: 'enter', label: 'Enter Sunshine Minimart', at: SHOP_DOOR, radius: .82 })
+  hotspots.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
   return { hotspots, collisions: collisions as Footprint[], size: map.size }
 }

@@ -3,6 +3,7 @@ import { CharacterCustomizer } from './components/CharacterCustomizer'
 import { CluePanel, EvidenceBoard } from './components/EvidenceBoard'
 import { DefendYourCommunityChallenge } from './components/DefendYourCommunityChallenge'
 import { EvaluateConsequencesChallenge } from './components/EvaluateConsequencesChallenge'
+import { HouseCompletion, HouseEntry, HouseInspection, HouseInventory } from './components/EscapeRoomPanels'
 import { GameCanvas } from './components/GameCanvas'
 import { GameHUD } from './components/GameHUD'
 import { HoldBeforeActingChallenge } from './components/HoldBeforeActingChallenge'
@@ -15,6 +16,9 @@ import { SpotTheRiskChallenge } from './components/SpotTheRiskChallenge'
 import { Button, Modal } from './components/ui'
 import { GameBridge, type Hotspot, type ResidentId } from './game/events'
 import { isResident } from './game/residentData'
+import { houseObject, type HouseObject } from './game/houseLayout'
+import { HOUSE_DOOR, HOUSE_SPAWN } from './game/locations'
+import { applyEscapeAction, newEscapeRoom, type EscapeAction } from './state/escapeRoom'
 import { presets, type Avatar } from './state/avatar'
 import { newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
 import { EXPLORE_GOAL, isClue, type ClueId, type JunChoice } from './state/investigation'
@@ -24,6 +28,7 @@ import { scoreInfluence, type InfluenceAnswers } from './state/identifyTheInflue
 import { scoreConsequences, type ConsequenceMatch } from './state/evaluateConsequences'
 import { scoreLead, type LeadAnswers } from './state/leadTheRightChoice'
 import { scoreDefend, type DefendAnswers } from './state/defendYourCommunity'
+import { guardians, type GuardianId } from './state/guardians'
 import type { AvailableAssessment } from './state/shield'
 
 type Screen = 'menu' | 'customise' | 'play'
@@ -33,6 +38,10 @@ type Overlay =
   | PanelOverlay
   | { type: 'dialogue'; id: ResidentId }
   | { type: 'clue'; id: ClueId }
+  | { type: 'house-entry' }
+  | { type: 'house-inspect'; object: HouseObject }
+  | { type: 'house-inventory'; fromMenu?: boolean; fromCompletion?: boolean }
+  | { type: 'house-complete' }
   | EvidenceOverlay
   | { type: 'assessment'; competency: AvailableAssessment; parent?: EvidenceOverlay }
 
@@ -44,6 +53,7 @@ export default function App() {
   const [confirm, setConfirm] = useState(false)
   const [overlay, setOverlay] = useState<Overlay | null>(null)
   const locked = useRef(false)
+  const houseClock = useRef<number | undefined>(undefined)
   const [nearby, setNearby] = useState<Hotspot | null>(null)
   const [transitioning, setTransitioning] = useState(false)
   const bridge = useMemo(() => new GameBridge(), [])
@@ -56,6 +66,46 @@ export default function App() {
     setStorageAvailable(saved)
     return saved
   }
+
+  function accountHouseTime(previous: Save): Save {
+    if (houseClock.current === undefined || previous.scene !== 'House' || previous.escapeRoom.completedAt) return previous
+    const now = performance.now()
+    const elapsed = Math.floor(now - houseClock.current)
+    if (elapsed < 1) return previous
+    houseClock.current += elapsed
+    return { ...previous, escapeRoom: { ...previous.escapeRoom, elapsedMs: previous.escapeRoom.elapsedMs + elapsed } }
+  }
+
+  const timingHouse = screen === 'play' && save?.scene === 'House' && !save.escapeRoom.completedAt
+  useEffect(() => {
+    if (!timingHouse) {
+      houseClock.current = undefined
+      return
+    }
+    if (!document.hidden) houseClock.current = performance.now()
+    function checkpointTime() {
+      const previous = current.current
+      if (!previous) return
+      const next = accountHouseTime(previous)
+      if (next !== previous) persist(next)
+    }
+    function onVisibility() {
+      if (document.hidden) {
+        checkpointTime()
+        houseClock.current = undefined
+      } else {
+        houseClock.current = performance.now()
+      }
+    }
+    const interval = window.setInterval(checkpointTime, 5000)
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', checkpointTime)
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', checkpointTime)
+    }
+  }, [timingHouse])
 
   useLayoutEffect(() => {
     locked.current = !!overlay
@@ -70,7 +120,10 @@ export default function App() {
       bridge.on('checkpoint', ({ scene, position, distance }) => {
         const previous = current.current
         if (!previous) return
-        if (scene === 'Minimart') {
+        if (scene === 'House') {
+          const timed = accountHouseTime(previous)
+          persist({ ...timed, scene, position, escapeRoom: { ...timed.escapeRoom, position } })
+        } else if (scene === 'Minimart') {
           persist({ ...previous, scene, position, investigation: {
             ...previous.investigation, entered: true,
             walked: Math.min(EXPLORE_GOAL, previous.investigation.walked + distance),
@@ -83,7 +136,16 @@ export default function App() {
         const previous = current.current
         if (locked.current || !previous) return
         const investigation = previous.investigation
-        if (isClue(id)) {
+        if (id === 'house-entrance' && previous.scene === 'Neighbourhood') {
+          locked.current = true
+          setOverlay({ type: 'house-entry' })
+        } else if (previous.scene === 'House') {
+          const object = houseObject(id)
+          if (!object) return
+          locked.current = true
+          setOverlay(object.type === 'door' && previous.escapeRoom.completedAt
+            ? { type: 'house-complete' } : { type: 'house-inspect', object })
+        } else if (isClue(id)) {
           locked.current = true
           if (!investigation.clues.includes(id)) {
             persist({ ...previous, investigation: { ...investigation, clues: [...investigation.clues, id] } })
@@ -116,7 +178,7 @@ export default function App() {
   }
 
   function saveCheckpoint() {
-    return current.current ? persist(current.current) : false
+    return current.current ? persist(accountHouseTime(current.current)) : false
   }
 
   function chooseResponse(choice: JunChoice) {
@@ -185,12 +247,75 @@ export default function App() {
     setScreen('menu')
   }
 
+  function collectGuardian(id: GuardianId) {
+    const previous = current.current
+    const guardian = guardians.find(candidate => candidate.id === id)
+    if (!previous || !guardian || !previous.shield[guardian.competency] || previous.collectedGuardians.includes(id)) return
+    persist({ ...previous, collectedGuardians: [...previous.collectedGuardians, id] })
+  }
+
+  function travelHouse(target: 'House' | 'Neighbourhood', replay = false) {
+    const previous = current.current
+    if (!previous || transitioning) return
+    if (target === 'Neighbourhood' && previous.scene !== 'House') {
+      setOverlay(null)
+      return
+    }
+    if (replay) persist({ ...previous, escapeRoom: newEscapeRoom() })
+    else if (previous.scene === 'House') persist(accountHouseTime(previous))
+    bridge.emit('houseTravel', {
+      target, position: target === 'House' ? (replay ? HOUSE_SPAWN : previous.escapeRoom.position ?? HOUSE_SPAWN) : HOUSE_DOOR,
+    })
+    setOverlay(null)
+  }
+
+  function applyHouseAction(action: EscapeAction) {
+    const previous = current.current
+    if (previous?.scene !== 'House' || overlay?.type !== 'house-inspect') return false
+    const { object } = overlay
+    const allowed = {
+      COLLECT_ITEM: action.type === 'COLLECT_ITEM' && object.pickup?.objectId === action.objectId,
+      REVEAL_HINT: action.type === 'REVEAL_HINT' && object.puzzleId === action.puzzleId,
+      SUBMIT_SEQUENCE: action.type === 'SUBMIT_SEQUENCE' && object.puzzleId === action.puzzleId,
+      UNLOCK_DRAWER: object.type === 'drawer',
+      LINK_EVIDENCE: object.puzzleId === 'board',
+      SUBMIT_SAFE_CODE: object.puzzleId === 'study-safe',
+      UNLOCK_EXIT: object.type === 'door',
+    }[action.type]
+    if (!allowed) return false
+    const timed = accountHouseTime(previous)
+    const progress = applyEscapeAction(timed.escapeRoom, action)
+    if (progress === timed.escapeRoom) {
+      if (timed !== previous) persist(timed)
+      return false
+    }
+    persist({ ...timed, escapeRoom: progress })
+    if (progress.completedAt) setOverlay({ type: 'house-complete' })
+    return true
+  }
+
+  function openPanel(panel: GamePanelView | 'menu', fromMenu = false) {
+    setOverlay(panel === 'pack' && current.current?.scene === 'House'
+      ? { type: 'house-inventory', fromMenu }
+      : { type: 'panel', panel, fromMenu })
+  }
+
   if (screen === 'play' && save) return <main className={`game-shell ${save.reducedMotion ? 'reduce-motion' : ''} ${save.scene === 'Minimart' ? 'minimart-shell' : ''}`}>
     <GameCanvas launch={{ bridge, avatar: save.avatar, scene: save.scene, position: save.position, reducedMotion: save.reducedMotion }} />
     <GameHUD save={save} nearby={nearby} transitioning={transitioning} blocked={!!overlay}
       onAction={() => { if (!locked.current && !transitioning) bridge.emit('action', undefined) }}
-      onMove={move} onPanel={panel => setOverlay({ type: 'panel', panel })}
+      onMove={move} onPanel={openPanel}
       onTutorial={tutorial => update({ tutorial })} onOpenAssessment={openAssessment} />
+    {overlay?.type === 'house-entry' && <HouseEntry onPlay={() => travelHouse('House')} onClose={() => setOverlay(null)}
+      onReview={save.escapeRoom.completedAt ? () => setOverlay({ type: 'house-complete' }) : undefined} />}
+    {overlay?.type === 'house-inspect' && <HouseInspection object={overlay.object} progress={save.escapeRoom}
+      onAction={applyHouseAction} onClose={() => setOverlay(null)} />}
+    {overlay?.type === 'house-inventory' && <HouseInventory progress={save.escapeRoom}
+      onClose={() => setOverlay(overlay.fromCompletion ? { type: 'house-complete' }
+        : overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />}
+    {overlay?.type === 'house-complete' && <HouseCompletion progress={save.escapeRoom}
+      onReturn={() => travelHouse('Neighbourhood')} onReview={() => setOverlay({ type: 'house-inventory', fromCompletion: true })}
+      onReplay={() => travelHouse('House', true)} onClose={() => setOverlay(null)} />}
     {overlay?.type === 'dialogue' && <DialogueBox id={overlay.id} choice={save.investigation.choice}
       onChoice={chooseResponse} onClose={() => setOverlay(null)} />}
     {overlay?.type === 'clue' && <CluePanel id={overlay.id} onClose={() => setOverlay(null)} onOpenBoard={() => setOverlay({ type: 'evidence' })} />}
@@ -206,8 +331,9 @@ export default function App() {
     </>}
     {overlay?.type === 'panel' && (overlay.panel === 'menu'
       ? <QuickMenu save={save} onClose={() => setOverlay(null)} onCheckpoint={saveCheckpoint} onReturn={returnToMenu}
-        onOpen={panel => setOverlay({ type: 'panel', panel, fromMenu: true })} />
+        onReturnToNeighbourhood={() => travelHouse('Neighbourhood')} onOpen={panel => openPanel(panel, true)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}
+        onCollectGuardian={collectGuardian}
         onOpenBoard={() => setOverlay({ type: 'evidence', parent: overlay })}
         onRestart={() => { update({ tutorial: 'active', walked: 0 }); setOverlay(null) }}
         onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />)}

@@ -434,6 +434,7 @@ Thumbs.db
 .env*.local
 .next/
 dist/
+cdk.out/
 .turbo/
 npm-debug.log*
 yarn-debug.log*

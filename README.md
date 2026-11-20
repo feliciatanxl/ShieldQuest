@@ -68,6 +68,20 @@ After submitting Lead the Right Choice, select **Begin Defend Your Community**. 
 
 The help channel, objective communication, and safe follow-up each earn one point. The default pass threshold is 3 of 3, configured in `DEFEND_RULE`. The save records D separately and keeps submitted plans read-only. Delayed feedback shows a neutral receipt. Submitting all six challenges marks the framework challenges complete and advances the objective to **Continue the Story** regardless of individual scores.
 
+## Guardian collection
+
+Open **Quick Menu → Guardians** to view all six characters. Each SHIELD challenge submission makes its paired Guardian available to collect. Previously submitted challenges count, and claimed Guardians are saved with the current browser checkpoint.
+
+The six origami SVGs and challenge pairings come from Team SecurePi’s ShieldQuest V2 archive. The SVGs were rendered from `apps/web/src/world/flat/GuardianIcon.tsx` using the original Guardian palette and registry. The archive’s MIT notice ships with the artwork in [public/assets/guardians/LICENSE.txt](public/assets/guardians/LICENSE.txt).
+
+## Escape Room Adventure
+
+Visit **The Mysterious House** on the east side of Sunshine Estate and choose **Play Solo**. Explore the living room, study, kitchen and entrance hall. Inspect gold floor markers with **E** or the touch prompt and reopen your finds from **House Inventory**.
+
+**The Missing Evidence** is a supervised fictional mystery. Reconstruct the letter, decipher the study bookshelf, unlock the drawer, order the incident timeline, and link claims to their sources on the evidence board. Use the resulting worksheet to open the safe, read the final evidence file, and unlock the front door. Each puzzle offers up to three optional hints.
+
+House progress and completion are saved in the browser. The completion screen provides evidence review, replay, and return to the neighbourhood. The quick menu also lets players leave an unfinished run and resume later. Multiplayer and later levels are planned.
+
 The monorepo setup and API descriptions below refer to earlier repository history.
 
 ---

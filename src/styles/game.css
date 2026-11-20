@@ -385,6 +385,67 @@
 .quick-resume:hover { background: #ffdb8b; }
 .quick-feedback { margin: 0; font-size: .8rem; color: var(--gold); }
 .quick-feedback:not(:empty) { margin-top: 8px; }
+
+.modal.guardian-modal { width: min(calc(100% - 24px), 720px); }
+.guardian-intro { display: grid; gap: 4px; margin-bottom: 14px; }
+.guardian-intro strong { width: fit-content; padding: 4px 10px; border-radius: 7px; color: #155b54; background: #e2f2e7; }
+.guardian-intro p { margin: 0; }
+.guardian-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.guardian-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px; border: 1px solid #dbc397; border-radius: 11px; background: #fffaf0; text-align: center; }
+.guardian-card img { display: block; padding: 7px; border: 1px solid #e8cc96; border-radius: 15px; background: #f7ebd2; }
+.guardian-locked img { filter: saturate(.35); }
+.guardian-card h3 { margin: 0; font-size: 1.05rem; }
+.guardian-card p { flex: 1; margin: 0; line-height: 1.3; font-size: .85rem; }
+.guardian-card .button { min-height: 44px; margin-top: 4px; }
+.guardian-status, .guardian-collected { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 700; }
+.guardian-status { min-height: 44px; margin-top: 4px; color: #535d65; }
+.guardian-collected { color: #155b54; border-color: #9dc6ac; background: #e2f2e7; cursor: default; }
+
+.house-entry-actions, .house-inventory, .house-keypad { display: grid; gap: 9px; margin-top: 14px; }
+.house-entry-actions button:disabled { opacity: .68; }
+.house-preview { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 10px; align-items: center; }
+.house-preview > span { display: grid; place-items: center; height: 48px; color: #155b54; background: #e2f2e7; border: 1px solid #9dc6ac; border-radius: 10px; }
+.house-lock, .house-note { padding: 8px 10px; margin: 9px 0 0; border-radius: 8px; background: #f1e1bd; }
+.house-lock { display: flex; align-items: center; gap: 7px; font-weight: 700; }
+.house-lock svg { flex-shrink: 0; }
+.house-keypad label { display: grid; gap: 5px; font-weight: 700; }
+.house-keypad input { min-width: 0; min-height: 44px; padding: 8px; border: 2px solid #a58066; border-radius: 8px; background: #fffaf0; color: var(--ink); font: .9rem var(--pixel); letter-spacing: .11em; }
+.house-keypad-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.house-keypad-grid > button { padding-inline: 3px; }
+.house-inventory section { padding: 10px; border: 1px solid #dfc58f; border-radius: 9px; background: #fffaf0; }
+.house-inventory h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; font-size: 1rem; }
+.house-inventory h3 small { margin-left: auto; }
+.house-inventory summary { display: flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; cursor: pointer; }
+.house-inventory summary::before { content: "▸"; }
+.house-inventory details[open] summary::before { content: "▾"; }
+.map-legend .house-key { background: #995e72; }
+.house-action { margin-top: 12px; }
+.house-success { display: flex; align-items: center; gap: 7px; margin: 10px 0; padding: 8px 10px; border-radius: 8px; background: #e2f2e7; color: #155b54; font-weight: 700; }
+.house-success svg { flex-shrink: 0; }
+.house-puzzle, .house-documents, .house-pinboard { display: grid; gap: 8px; min-width: 0; }
+.house-puzzle, .house-hints, .house-reference { margin-top: 10px; }
+.house-puzzle h3, .house-puzzle p, .house-documents p { margin: 0; }
+.house-documents details, .house-reference, .house-hints, .house-order li { border: 1px solid #dfc58f; border-radius: 8px; background: #fffaf0; padding: 0 8px 6px; }
+.house-documents summary, .house-hints summary, .house-reference summary { min-height: 44px; padding-block: 10px; font-weight: 700; cursor: pointer; }
+.house-hints ol { padding-inline-start: 23px; }
+.house-hints li + li { margin-top: 6px; }
+.house-choice-bank, .house-order { display: grid; gap: 6px; }
+.house-choice-bank .button { justify-content: flex-start; text-align: left; padding-inline: 10px; }
+.book-bank { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+.house-order { margin: 0; padding-inline-start: 24px; }
+.house-order li { padding: 7px; }
+.house-order li div { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.house-order .button { min-width: 44px; padding-inline: 8px; }
+.house-pinboard { padding: 8px; border-radius: 9px; background: #e8d4ac; }
+.house-pinboard fieldset { display: grid; gap: 6px; min-width: 0; margin: 0; padding: 8px; border: 1px solid #b98d67; border-radius: 7px; background: #fffaf0; }
+.house-pinboard legend { padding-inline: 4px; font-weight: 700; }
+.house-pinboard fieldset p { display: flex; gap: 6px; align-items: flex-start; }
+.house-pinboard fieldset p svg { flex-shrink: 0; margin-top: 2px; color: #97624f; }
+.house-pinboard label { display: grid; gap: 3px; font-weight: 700; }
+.house-pinboard select { width: 100%; min-width: 0; min-height: 44px; padding: 6px; border: 1px solid #a58066; border-radius: 6px; background: #fffaf0; color: var(--ink); font: inherit; }
+.house-results { display: grid; gap: 8px; padding: 10px; border-radius: 8px; background: #f1e1bd; }
+.house-results div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.house-results dd { margin: 0; font-weight: 700; }
 .minimart-shell .modal::backdrop { background: transparent; backdrop-filter: blur(2px); }
 .mission-entry { padding: 12px; background: #f5e9d3; border-radius: 9px; }
 .mission-entry h3 { margin: 0 0 4px; }
