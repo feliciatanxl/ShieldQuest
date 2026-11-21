@@ -8,6 +8,7 @@ import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
 import { FREEZE_FRAME_SPAWN, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
+import { preloadPixelLab } from '../pixellabArt'
 
 export type Launch = {
   avatar: Avatar
@@ -41,6 +42,11 @@ export abstract class ExplorationScene extends Phaser.Scene {
 
   protected abstract createWorld(): WorldLayout
 
+  // Every scene loads the shared PixelLab library so resident sprites work indoors too (cached after the first scene).
+  preload() {
+    preloadPixelLab(this)
+  }
+
   detach() {
     this.locked = true
     this.releaseScene?.()
@@ -60,7 +66,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const cleanups: Array<() => void> = []
     this.world = this.createWorld()
     for (const { id, at } of this.world.hotspots) {
-      if (isResident(id)) new Actor(this, 'resident-' + id, residents[id], at)
+      if (isResident(id)) new Actor(this, 'resident-' + id, residents[id], at, 'pl-objects-npc-' + id)
     }
     if (!preview) {
       const requested = data?.position ?? this.launch.position

@@ -1,4 +1,4 @@
-import { categories, categoryKeys, type Avatar } from './avatar'
+import { normalizeAvatar, type Avatar } from './avatar'
 import { NEIGHBOURHOOD_SIZE, HOUSE_SIZE, HOUSE_SPAWN, HOUSE_H_SIZE, HOUSE_H_SPAWN, HOUSE_I_SIZE, HOUSE_I_SPAWN, FREEZE_FRAME_SIZE, FREEZE_FRAME_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
 import { houseCollisions } from '../game/houseLayout'
 import { canStand } from '../game/isometric'
@@ -43,8 +43,9 @@ export function readSave(): Save | null {
     const data: (Partial<Omit<Save, 'version'>> & { version?: number }) | null =
       JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null')
     if (!data || (data.version !== 1 && data.version !== 2 && data.version !== 3) || !data.avatar || !data.position) return null
-    const { avatar, position, walked, coins, tutorial, reducedMotion } = data
-    if (!categoryKeys.every(key => Number.isInteger(avatar[key]) && avatar[key] >= 0 && avatar[key] < categories[key].options.length)) return null
+    const { position, walked, coins, tutorial, reducedMotion } = data
+    const avatar = normalizeAvatar(data.avatar)
+    if (!avatar) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
     if (scene !== 'Neighbourhood' && scene !== 'Minimart' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && !(data.version === 3 && scene === 'House')) return null
     const investigation = data.version === 1 ? newInvestigation() : data.investigation

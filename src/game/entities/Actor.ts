@@ -8,18 +8,25 @@ export class Actor {
   readonly sprite: Phaser.GameObjects.Image
   private shadow: Phaser.GameObjects.Ellipse
   private marker?: Phaser.GameObjects.Text
-  private texture: Phaser.Textures.CanvasTexture
+  private texture?: Phaser.Textures.CanvasTexture
   private facing: Facing = 'front'
   private frame = 0
   private walked = 0
 
-  constructor(scene: Phaser.Scene, key: string, private avatar: Avatar, public position: Point) {
-    const texture = scene.textures.createCanvas(key, AVATAR_WIDTH, AVATAR_HEIGHT)
-    if (!texture) throw new Error('Could not create an avatar texture')
-    this.texture = texture
-    this.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+  /** staticTexture: a pre-drawn standing sprite (PixelLab NPC) used instead of the animated avatar when loaded. */
+  constructor(scene: Phaser.Scene, key: string, private avatar: Avatar, public position: Point, staticTexture?: string) {
     this.shadow = scene.add.ellipse(0, 0, 24, 10, 0x343246, .28)
-    this.sprite = scene.add.image(0, 0, texture).setOrigin(.5, .95).setScale(1.35)
+    if (staticTexture && scene.textures.exists(staticTexture)) {
+      this.sprite = scene.add.image(0, 0, staticTexture).setOrigin(.5, .97)
+    } else {
+      const texture = scene.textures.createCanvas(key, AVATAR_WIDTH, AVATAR_HEIGHT)
+      if (!texture) throw new Error('Could not create an avatar texture')
+      this.texture = texture
+      this.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+      this.sprite = scene.add.image(0, 0, texture).setOrigin(.5, .95).setScale(1.35)
+      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.textures.remove(texture.key))
+    }
+    this.sprite.setName('character').setData('player', key === 'player')
     if (key === 'player') {
       this.marker = scene.add.text(0, 0, 'YOU', {
         fontFamily: 'Outfit, sans-serif', fontSize: '9px', fontStyle: 'bold',
@@ -28,7 +35,6 @@ export class Actor {
     }
     this.repaint()
     this.place()
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.textures.remove(texture.key))
   }
 
   setAvatar(avatar: Avatar) {
@@ -82,6 +88,7 @@ export class Actor {
   }
 
   private repaint() {
+    if (!this.texture) return
     drawAvatar(this.texture.context, this.avatar, this.facing, this.frame)
     this.texture.refresh()
   }

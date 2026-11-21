@@ -1,4 +1,4 @@
-import { categories, categoryKeys, type Avatar } from '../state/avatar'
+import { normalizeAvatar, type Avatar } from '../state/avatar'
 
 export const protocolVersion = 1
 export const codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
@@ -63,14 +63,8 @@ export function readProfile(value: unknown): Profile | null {
   if (!record(value) || typeof value.name !== 'string' || value.name.length > 48 || !record(value.avatar)) return null
   const name = value.name.normalize('NFC').trim().replace(/ {2,}/g, ' ')
   if (!/^[\p{L}\p{N}][\p{L}\p{M}\p{N} _'-]{0,23}$/u.test(name)) return null
-  const incoming = value.avatar
-  const avatar = {} as Avatar
-  for (const key of categoryKeys) {
-    const index = incoming[key]
-    if (typeof index !== 'number' || !Number.isInteger(index) || index < 0 || index >= categories[key].options.length) return null
-    avatar[key] = index
-  }
-  return { name, avatar }
+  const avatar = normalizeAvatar(value.avatar)
+  return avatar ? { name, avatar } : null
 }
 
 export function parseRequest(value: unknown): Request | null {

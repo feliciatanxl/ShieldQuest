@@ -128,8 +128,8 @@
 .custom-heading h1 { font-family: var(--pixel); font-size: clamp(.99rem, 2.4vw, 1.64rem); line-height: 1.5; margin: 9px 0 6px; }
 .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-family: var(--pixel); font-size: .48rem; line-height: 1.7; color: #28746e; }
 .custom-header > p { color: #586267; }
-.presets { display: flex; gap: 10px; margin: 16px 0 14px; padding: 9px; background: #f1e4ca; border-radius: 12px; }
-.preset { flex: 1; display: flex; min-height: 46px; min-width: 0; align-items: center; gap: 7px; padding: 4px 10px; border: 2px solid #ddc7a2; border-radius: 8px; background: #fff8e8; color: var(--ink); font-size: .91rem; font-weight: 600; text-align: left; }
+.presets { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 14px; padding: 9px; background: #f1e4ca; border-radius: 12px; }
+.preset { flex: 1 1 140px; display: flex; min-height: 46px; min-width: 0; align-items: center; gap: 7px; padding: 4px 10px; border: 2px solid #ddc7a2; border-radius: 8px; background: #fff8e8; color: var(--ink); font-size: .91rem; font-weight: 600; text-align: left; }
 .preset:hover { background: #fff1d2; }
 .preset[aria-pressed="true"] { background: #e1f1db; border-color: #5b9685; }
 .preset .avatar-sprite { width: 30px; height: 37.5px; flex-shrink: 0; }
@@ -163,6 +163,9 @@
 .appearance-title h2 { font-size: 1.25rem; }
 .appearance-options p { margin: 5px 0 13px; color: #5f6869; line-height: 1.35; }
 .choices { display: grid; gap: 6px; }
+.appearance-options { max-height: min(52vh, 420px); overflow-y: auto; }
+.choice-group + .choice-group { margin-top: 14px; }
+.choice-group h3 { margin: 0 0 7px; font-size: .86rem; letter-spacing: .02em; color: #3d5656; }
 .choices button { display: flex; justify-content: space-between; align-items: center; min-height: 37px; padding: 6px 9px; text-align: left; color: var(--ink); background: #f4e8d2; border: 1px solid #e3cda8; border-radius: 7px; }
 .choices button:hover { border-color: #7ba497; }
 .choices button[aria-pressed="true"] { border-color: #458e82; background: #e1efe1; }

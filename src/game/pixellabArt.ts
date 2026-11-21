@@ -1,4 +1,4 @@
-import type Phaser from 'phaser'
+import Phaser from 'phaser'
 import { depthAt, project, TILE_WIDTH } from './isometric'
 import type { MapProp } from './maps'
 
@@ -43,7 +43,8 @@ const fitted: Record<string, string | ((p: MapProp) => string)> = {
 }
 // Small props keep one pixel scale so street furniture reads consistently.
 const fixed: Record<string, [string | ((p: MapProp) => string), number]> = {
-  tree: [p => (Math.round(p.x * 7 + p.y * 3) % 4 === 0 ? 'frangipani' : 'rain-tree'), 1.1],
+  tree: [p => (Math.round(p.x * 7 + p.y * 3) % 4 === 0 ? 'frangipani' : 'rain-tree'), .95],
+  npc: [p => String(p.properties.sprite), 1],
   lamp: ['lamp', 1.05], trafficLight: ['traffic-light', .95], sign: ['street-sign', 1.05], bench: ['bench', 1.25],
   bin: ['bin', 1.1], kopitiam: ['kopitiam-table', 1.15], bougainvillea: ['planter', 1.2],
 }
@@ -54,6 +55,34 @@ const signs: Record<string, (p: MapProp) => [string, number, string, string]> = 
   shop: () => ['SUNSHINE MINIMART', .3, '#1d6b45', '#fff6d8'],
   kopi: () => ['KOPI CORNER', .38, '#7c2a22', '#fff6d8'],
   house: p => [p.name.includes('Freeze') ? 'FREEZE FRAME' : p.name.includes('Whisper') ? 'WHISPER NETWORK' : 'MYSTERY HOUSE', .12, '#2b2238', '#ffe7a8'],
+}
+
+// Tall sprites that may hide a character standing behind them.
+const tall = new Set(['tree', 'block', 'shop', 'kopi', 'house', 'bus', 'shelter', 'linkway'])
+const occluderLists = new WeakMap<Phaser.Scene, Phaser.GameObjects.Image[]>()
+function occluders(scene: Phaser.Scene) {
+  let list = occluderLists.get(scene)
+  if (!list) occluderLists.set(scene, list = [])
+  return list
+}
+
+/** Fades tall sprites in front of the player, and trees in front of anyone, so characters stay visible.
+ *  Standing NPCs don't fade buildings, or a shelter would stay see-through forever. */
+export function watchOcclusion(scene: Phaser.Scene) {
+  const list = occluders(scene)
+  const boxes = list.map(image => image.getBounds())
+  const isCharacter = (o: Phaser.GameObjects.GameObject): o is Phaser.GameObjects.Image => o instanceof Phaser.GameObjects.Image && o.name === 'character'
+  const onUpdate = () => {
+    const characters = scene.children.list.filter(isCharacter).map(c => ({ depth: c.depth, box: c.getBounds(), player: c.getData('player') === true }))
+    list.forEach((image, index) => {
+      const tree = image.getData('kind') === 'tree'
+      const hides = characters.some(c => (c.player || tree) && image.depth > c.depth && Phaser.Geom.Rectangle.Overlaps(boxes[index], c.box))
+      const target = hides ? .42 : 1
+      if (image.alpha !== target) image.setAlpha(Math.abs(image.alpha - target) < .03 ? target : Phaser.Math.Linear(image.alpha, target, .25))
+    })
+  }
+  scene.events.on(Phaser.Scenes.Events.UPDATE, onUpdate)
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate); occluderLists.delete(scene) })
 }
 
 /** Draws the prop as a PixelLab sprite; returns false when no sprite covers this kind. */
@@ -70,6 +99,7 @@ export function spriteProp(scene: Phaser.Scene, p: MapProp) {
     const base = project(p.x + p.w / 2, p.y + p.d / 2)
     const bottom = project(p.x + p.w, p.y + p.d).y
     image.setScale(scale).setOrigin(.5, 1).setPosition(base.x, bottom + 2).setDepth(depth)
+    if (tall.has(p.kind)) occluders(scene).push(image.setData('kind', p.kind))
     const sign = signs[p.kind]?.(p)
     if (sign) {
       const [text, at, fill, colour] = sign
@@ -83,7 +113,9 @@ export function spriteProp(scene: Phaser.Scene, p: MapProp) {
     const [name, scale] = fixed[p.kind]
     const size = p.properties.large ? 1.2 : 1
     const at = project(p.x + p.w / 2, p.y + p.d / 2)
-    scene.add.image(at.x, at.y + 4, pick(name)).setOrigin(.5, 1).setScale(scale * size).setDepth(depth)
+    const image = scene.add.image(at.x, at.y + 4, pick(name)).setOrigin(.5, 1).setScale(scale * size).setDepth(depth)
+    if (p.kind === 'npc') image.setName('character')
+    if (tall.has(p.kind)) occluders(scene).push(image.setData('kind', p.kind))
     return true
   }
   return false

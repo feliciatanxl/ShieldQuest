@@ -27,7 +27,7 @@ import { isResident } from './game/residentData'
 import { houseObject, type HouseObject } from './game/houseLayout'
 import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_SPAWN, FREEZE_FRAME_SPAWN, type Location } from './game/locations'
 import { applyEscapeAction, newEscapeRoom, type EscapeAction } from './state/escapeRoom'
-import { presets, type Avatar } from './state/avatar'
+import { baseAvatar, presets, type Avatar } from './state/avatar'
 import { newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
 import { EXPLORE_GOAL, isClue, type ClueId, type JunChoice } from './state/investigation'
 import { canStartSpot, scoreSpot, type SpotResponse } from './state/spotTheRisk'
@@ -550,7 +550,7 @@ export default function App() {
     <div className="menu-veil" aria-hidden="true" />
     {screen === 'menu' ? <MainMenu canContinue={!!save} storageAvailable={storageAvailable}
       onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && setScreen('play')} />
-      : <main className="custom-main"><CharacterCustomizer initial={presets[0].avatar} onBack={() => setScreen('menu')} onConfirm={start} /></main>}
+      : <main className="custom-main"><CharacterCustomizer initial={baseAvatar} onBack={() => setScreen('menu')} onConfirm={start} /></main>}
     {confirm && <Modal title="Start a new game?" onClose={() => setConfirm(false)}>
       <p>Your saved adventure will be replaced when you confirm a new character.</p>
       <div className="modal-actions">

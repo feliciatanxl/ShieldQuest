@@ -54,7 +54,7 @@ namespace ShieldQuest
                 {
                     Hotspots.Add(new Hotspot(p.Kind, label, new Vector2(p.X, p.Y), .95f));
                     Collisions.Add(new Footprint(p.X - .13f, p.Y - .13f, .26f, .26f, "npc", p.Kind));
-                    Marker(p.X, p.Y, new Color(.95f, .75f, .3f));
+                    Renderer(p.Name, Sprite("objects/npc-" + p.Kind), Iso.ToWorld(p.X, p.Y), 1, Iso.Sorting(p.X, p.Y));
                 }
                 if (p.W > 0 && p.D > 0 && !NonSolid.Contains(p.Kind)) Collisions.Add(new Footprint(p.X, p.Y, p.W, p.D, p.Kind, p.Name));
                 if (p.Kind is "shelter" or "bus")
@@ -107,7 +107,8 @@ namespace ShieldQuest
 
         static (string sprite, float scale)? FixedSprite(Prop p) => p.Kind switch
         {
-            "tree" => (Mathf.RoundToInt(p.X * 7 + p.Y * 3) % 4 == 0 ? "frangipani" : "rain-tree", 1.1f),
+            "tree" => (Mathf.RoundToInt(p.X * 7 + p.Y * 3) % 4 == 0 ? "frangipani" : "rain-tree", .95f),
+            "npc" => ((string)p.Properties.GetValueOrDefault("sprite"), 1f),
             "lamp" => ("lamp", 1.05f), "trafficLight" => ("traffic-light", .95f), "sign" => ("street-sign", 1.05f),
             "bench" => ("bench", 1.25f), "bin" => ("bin", 1.1f), "kopitiam" => ("kopitiam-table", 1.15f), "bougainvillea" => ("planter", 1.2f),
             _ => null,
@@ -174,13 +175,6 @@ namespace ShieldQuest
             back.color = plate;
             back.transform.localScale = new Vector3(text.Length * .26f + .4f, .55f, 1);
             back.sortingOrder = order;
-        }
-
-        void Marker(float x, float y, Color color)
-        {
-            var r = Renderer("Resident", UnityEngine.Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(.5f, 0), 4), Iso.ToWorld(x, y), 1, Iso.Sorting(x, y));
-            r.color = color;
-            r.transform.localScale = new Vector3(.4f, 1.2f, 1);
         }
 
         Sprite Sprite(string name)

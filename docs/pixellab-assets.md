@@ -46,6 +46,18 @@ Ground tile group: `641697e0-2993-4a06-a489-d64fe86e3b57` (10 generations).
 | street-sign | 99db4d92-e7a5-462f-9555-19786f9fedce |
 | garden | 72be29c3-3e89-4278-9449-1211071cfd07 |
 | player (Unity stand-in) | 93cdb109-9190-4977-ad81-74cbe0ae7ebc |
+| npc-may (Chinese auntie, resident May) | 9dff46df-6f87-4ec0-acd8-7ea7ced69594 |
+| npc-amir (Malay youth, resident Amir) | 4f363b88-54ba-48ab-a5f4-a5996863ccbc |
+| npc-cashier (Indian minimart worker) | 6895e9bf-5efb-410f-9bb9-346ed18046f0 |
+| npc-jun (student) | 1beea7ef-410c-4037-8bd9-32493faf9696 |
+| npc-kopi-uncle | df120667-2cb1-44a3-a2cf-6a32fa9bc97b |
+| npc-auntie-tudung | db70ec5d-212f-4d74-b5b4-6e1730dd0d72 |
+| npc-elderly | c5cbcf7d-e173-43c1-8d83-5f0e219cbb2a |
+| npc-office | 95900e8f-27ef-4e54-b7a6-aae80836550b |
+
+Residents standing in exploration scenes use `npc-<id>`. Mini-games that walk residents around keep the animated avatars from `residentData.ts`, which are styled to match. Ambient NPCs are `npc` objects in the `.tmj` `Residents` layer, with a `sprite` property.
+
+The player avatar is drawn in code (`avatarArt.ts`), not by PixelLab: modular clothing layers wouldn't line up across 4 facings and walk frames, and every option would cost generations. Add new options to the end of each list in `state/avatar.ts`, never in the middle, because saves store option indices. `normalizeAvatar` upgrades older saves.
 
 Re-download a sprite: `https://api.pixellab.ai/mcp/map-objects/<id>/download`, then trim its transparent margin.
 
@@ -54,3 +66,4 @@ Unused from this run: 5 square top-down terrain tilesets (5 generations) and one
 ## Generation spend (Nov 2026 run)
 
 39 generations of the 2,000 monthly allowance: 10 ground tiles, 23 sprites at 1 each, and 6 unused (listed above).
+Second run: 8 NPC sprites (8 generations). Total 47.
