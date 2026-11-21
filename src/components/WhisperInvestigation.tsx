@@ -23,6 +23,7 @@ import {
   type WhisperNetworkResult,
 } from '../state/whisperNetwork'
 import { residents } from '../game/residentData'
+import { sound } from '../game/audio'
 import { AvatarSprite } from './AvatarSprite'
 import { Button, Modal } from './ui'
 
@@ -212,16 +213,40 @@ export function WhisperTerminalModal({
 interface WhisperBoardModalProps {
   collectedPhrases: string[]
   onClose: () => void
+  onCaseSolved?: () => void
 }
 
-export function WhisperBoardModal({ collectedPhrases, onClose }: WhisperBoardModalProps) {
-  const scenario = WHISPER_SCENARIOS['snack-dare']
+interface RumourStep {
+  id: string
+  speaker: string
+  text: string
+  isCorrectOrder: number // 1 to 5
+}
+
+const DEFAULT_RUMOUR_STEPS: RumourStep[] = [
+  { id: 'step-1', speaker: 'Mr. Tan (Minimart Cashier)', text: '“Delivery truck arrived late today; the new stock isn’t checked in yet.”', isCorrectOrder: 1 },
+  { id: 'step-2', speaker: 'Auntie May (Kopi Regular)', text: '“The minimart inventory system is completely broken and down today!”', isCorrectOrder: 2 },
+  { id: 'step-3', speaker: 'Amir (Classmate)', text: '“System crashed, they don’t even know what items are in the store!”', isCorrectOrder: 3 },
+  { id: 'step-4', speaker: 'GhostRider_99 (Chat Influencer)', text: '“Bet no one has the guts to grab the snacks right now!”', isCorrectOrder: 4 },
+  { id: 'step-5', speaker: 'Jun (Targeted Student)', text: '“They dared me to do it... said I was chicken if I refused.”', isCorrectOrder: 5 },
+]
+
+export function WhisperBoardModal({ collectedPhrases, onClose, onCaseSolved }: WhisperBoardModalProps) {
+  const [selectedCase, setSelectedCase] = useState<'snack-dare' | 'fast-cash'>('snack-dare')
+  const scenario = WHISPER_SCENARIOS[selectedCase]
   const [connections, setConnections] = useState<WhisperConnection[]>([])
   const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null)
   const [selectedTarget, setSelectedTarget] = useState<string>('senior')
   const [selectedTactic, setSelectedTactic] = useState<TacticId | null>(null)
   const [result, setResult] = useState<WhisperNetworkResult | null>(null)
   const [identifiedTruth, setIdentifiedTruth] = useState(false)
+  const [rumourOrder, setRumourOrder] = useState<RumourStep[]>([
+    DEFAULT_RUMOUR_STEPS[2],
+    DEFAULT_RUMOUR_STEPS[0],
+    DEFAULT_RUMOUR_STEPS[4],
+    DEFAULT_RUMOUR_STEPS[1],
+    DEFAULT_RUMOUR_STEPS[3],
+  ])
 
   // Find phrases
   const allPhrases = scenario.witnesses.flatMap(w => w.transcript.flatMap(t => t.phrases))
@@ -229,12 +254,13 @@ export function WhisperBoardModal({ collectedPhrases, onClose }: WhisperBoardMod
 
   function addConnection() {
     if (!selectedPhrase || !selectedTactic) return
+    sound.playStringConnected()
     const newConn: WhisperConnection = {
       id: `conn-${Date.now()}`,
       phraseId: selectedPhrase,
-      speakerId: 'senior',
+      speakerId: selectedTarget,
       tacticId: selectedTactic,
-      targetId: selectedTarget,
+      targetId: selectedTarget === 'senior' ? 'jun' : 'amir',
     }
     setConnections(prev => [...prev.filter(c => c.phraseId !== selectedPhrase), newConn])
     setSelectedPhrase(null)
@@ -242,17 +268,35 @@ export function WhisperBoardModal({ collectedPhrases, onClose }: WhisperBoardMod
   }
 
   function removeConnection(connId: string) {
+    sound.playBlip()
     setConnections(prev => prev.filter(c => c.id !== connId))
   }
 
+  function moveRumourStep(fromIndex: number, toIndex: number) {
+    sound.playBlip()
+    if (toIndex < 0 || toIndex >= rumourOrder.length) return
+    const updated = [...rumourOrder]
+    const [moved] = updated.splice(fromIndex, 1)
+    updated.splice(toIndex, 0, moved)
+    setRumourOrder(updated)
+  }
+
   function submitDeduction() {
+    const isTimelineCorrect = rumourOrder.every((step, idx) => step.isCorrectOrder === idx + 1)
     const res = evaluateWhisperBoard({
-      scenarioId: 'snack-dare',
+      scenarioId: selectedCase,
       connections,
-      selectedTwistedSpeakerId: identifiedTruth ? 'auntie-may' : undefined,
+      selectedTwistedSpeakerId: identifiedTruth || isTimelineCorrect ? 'auntie-may' : undefined,
     })
     setResult(res)
     saveWhisperRecord(res)
+
+    if (res.passed) {
+      sound.playSuccessFanfare()
+      if (onCaseSolved) onCaseSolved()
+    } else {
+      sound.playAlarm()
+    }
   }
 
   if (result) {
@@ -302,167 +346,316 @@ export function WhisperBoardModal({ collectedPhrases, onClose }: WhisperBoardMod
   }
 
   return (
-    <Modal title="Interactive Influence Board · Map Evidence & Tactics" onClose={onClose}>
+    <Modal title="Interactive Pinboard · Map Rumours & Influence Tactics" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', minWidth: '320px' }}>
-        <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
-          Pin collected statements onto the board, connect them to suspects, and identify which manipulation tactic was used.
-        </p>
-
-        {/* 1. Evidence Statements Tray */}
-        <div>
-          <strong style={{ fontSize: '13px', color: '#334155', display: 'block', marginBottom: '6px' }}>
-            Step 1 · Select Evidence Statement:
-          </strong>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
-            {availablePhrases.map(p => {
-              const isSelected = selectedPhrase === p.id
-              const hasConn = connections.some(c => c.phraseId === p.id)
-              return (
-                <div
-                  key={p.id}
-                  onClick={() => setSelectedPhrase(p.id)}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: '6px',
-                    border: `1.5px solid ${isSelected ? '#0284c7' : hasConn ? '#10b981' : '#cbd5e1'}`,
-                    background: isSelected ? '#f0f9ff' : hasConn ? '#ecfdf5' : '#ffffff',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span style={{ fontStyle: 'italic', color: '#1e293b' }}>{p.text}</span>
-                  {hasConn && <span style={{ fontSize: '11px', color: '#059669', fontWeight: 700 }}>✓ Pinned</span>}
-                </div>
-              )
-            })}
+        {/* Case Selector Tabs */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <Button
+              className={selectedCase === 'snack-dare' ? 'primary' : 'secondary'}
+              onClick={() => {
+                sound.playBlip()
+                setSelectedCase('snack-dare')
+                setConnections([])
+              }}
+              style={{ fontSize: '12px', padding: '5px 10px' }}
+            >
+              Case 1: The Minimart Snack Dare
+            </Button>
+            <Button
+              className={selectedCase === 'fast-cash' ? 'primary' : 'secondary'}
+              onClick={() => {
+                sound.playBlip()
+                setSelectedCase('fast-cash')
+                setConnections([])
+              }}
+              style={{ fontSize: '12px', padding: '5px 10px' }}
+            >
+              Case 2: The Fast-Cash Scheme
+            </Button>
           </div>
         </div>
 
-        {/* 2. Target Suspect Selection */}
-        <div>
-          <strong style={{ fontSize: '13px', color: '#334155', display: 'block', marginBottom: '6px' }}>
-            Step 2 · Connect to Suspect:
-          </strong>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {[
-              { id: 'senior', label: 'Block 12 Senior (Influencer)' },
-              { id: 'amir', label: 'Amir (Target)' },
-              { id: 'jun', label: 'Jun (Target)' },
-            ].map(s => (
-              <Button
-                key={s.id}
-                className={selectedTarget === s.id ? 'primary' : 'secondary'}
-                onClick={() => setSelectedTarget(s.id)}
-                style={{ fontSize: '12px', padding: '6px 10px' }}
-              >
-                {s.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* 3. Tactic Selection */}
-        <div>
-          <strong style={{ fontSize: '13px', color: '#334155', display: 'block', marginBottom: '6px' }}>
-            Step 3 · Connect Influence Tactic Pin:
-          </strong>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '6px' }}>
-            {Object.values(INFLUENCE_TACTICS).map(t => {
-              const isSelected = selectedTactic === t.id
-              return (
-                <div
-                  key={t.id}
-                  onClick={() => setSelectedTactic(t.id)}
-                  style={{
-                    padding: '6px 8px',
-                    borderRadius: '6px',
-                    border: `1.5px solid ${isSelected ? '#b91c1c' : '#e2e8f0'}`,
-                    background: isSelected ? '#fef2f2' : '#ffffff',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
-                  <span>{t.icon}</span>
-                  <span style={{ fontWeight: isSelected ? 700 : 500, color: isSelected ? '#991b1b' : '#334155' }}>
-                    {t.name}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Action: Connect string */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          <Button
-            className="primary"
-            disabled={!selectedPhrase || !selectedTactic}
-            onClick={addConnection}
+        {/* Cork Pinboard Canvas */}
+        <div
+          style={{
+            background: '#c29b6c',
+            border: '6px solid #582f0e',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 0 25px rgba(0,0,0,0.45), 0 6px 16px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+          }}
+        >
+          {/* Rumour Mutation Timeline Arranger */}
+          <div
+            style={{
+              background: '#fef3c7',
+              border: '2px dashed #b45309',
+              borderRadius: '8px',
+              padding: '10px 12px',
+            }}
           >
-            🧶 Pin & Connect String
-          </Button>
-        </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <strong style={{ fontSize: '12px', color: '#78350f', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#dc2626', display: 'inline-block' }} />
+                Rumour Propagation Sequence (Arrange 1 to 5):
+              </strong>
+              <small style={{ fontSize: '11px', color: '#92400e' }}>
+                Reconstruct the path from Truth ➔ Distortion ➔ Dare
+              </small>
+            </div>
 
-        {/* 4. Active Yarn String Connections */}
-        {connections.length > 0 && (
-          <div style={{ padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <strong style={{ fontSize: '12px', color: '#475569', display: 'block', marginBottom: '6px' }}>
-              Pinned Connections on Board ({connections.length}):
-            </strong>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {connections.map(c => {
-                const phrase = allPhrases.find(p => p.id === c.phraseId)
-                const tactic = INFLUENCE_TACTICS[c.tacticId]
-                return (
-                  <div
-                    key={c.id}
+              {rumourOrder.map((step, idx) => (
+                <div
+                  key={step.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: '#ffffff',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid #d97706',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <span
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      fontSize: '12px',
-                      background: '#ffffff',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      border: '1px solid #e2e8f0',
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      background: '#b45309',
+                      color: '#ffffff',
+                      display: 'grid',
+                      placeItems: 'center',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      flexShrink: 0,
                     }}
                   >
-                    <span style={{ color: '#1e293b' }}>
-                      “{phrase?.text.slice(0, 32)}...” ➔ <strong>{tactic?.name}</strong>
-                    </span>
+                    {idx + 1}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#92400e' }}>{step.speaker}</div>
+                    <div style={{ fontSize: '12px', color: '#1e293b', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {step.text}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
                     <button
                       type="button"
-                      onClick={() => removeConnection(c.id)}
-                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}
+                      disabled={idx === 0}
+                      onClick={() => moveRumourStep(idx, idx - 1)}
+                      style={{ padding: '2px 6px', fontSize: '11px', cursor: 'pointer', borderRadius: '4px' }}
                     >
-                      <Trash2 size={14} />
+                      ▲
                     </button>
+                    <button
+                      type="button"
+                      disabled={idx === rumourOrder.length - 1}
+                      onClick={() => moveRumourStep(idx, idx + 1)}
+                      style={{ padding: '2px 6px', fontSize: '11px', cursor: 'pointer', borderRadius: '4px' }}
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Suspect Polaroid Pins */}
+          <div>
+            <strong style={{ fontSize: '12px', color: '#451a03', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#0284c7', display: 'inline-block' }} />
+              Suspect & Witness Nodes:
+            </strong>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+              {[
+                { id: 'senior', name: 'GhostRider_99', role: 'Anonymous Dare Prompter', note: 'Telegram Group Leader' },
+                { id: 'may', name: 'Auntie May', role: 'Kopi Corner Regular', note: 'Heard inventory rumour' },
+                { id: 'amir', name: 'Amir', role: 'Classmate', note: 'Exaggerated chat message' },
+                { id: 'jun', name: 'Jun', role: 'Targeted Student', note: 'Felt pressured into corner' },
+              ].map(s => {
+                const isSelected = selectedTarget === s.id
+                return (
+                  <div
+                    key={s.id}
+                    onClick={() => {
+                      sound.playBlip()
+                      setSelectedTarget(s.id)
+                    }}
+                    style={{
+                      background: '#fffdfa',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: `2px solid ${isSelected ? '#dc2626' : '#d1d5db'}`,
+                      boxShadow: '0 3px 6px rgba(0,0,0,0.15)',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {/* Pushpin at top of polaroid */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: -6,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: isSelected ? '#dc2626' : '#94a3b8',
+                        border: '1.5px solid #ffffff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                      }}
+                    />
+                    <strong style={{ fontSize: '12px', color: '#0f172a', display: 'block', marginTop: '4px' }}>
+                      {s.name}
+                    </strong>
+                    <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>{s.role}</span>
+                    <span style={{ fontSize: '9px', color: '#b45309', fontStyle: 'italic' }}>{s.note}</span>
                   </div>
                 )
               })}
             </div>
           </div>
-        )}
 
-        {/* 5. Rumour Distortion Check */}
-        <div style={{ padding: '10px 12px', background: '#fffbeb', borderRadius: '8px', border: '1px solid #fde68a' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', color: '#92400e', fontWeight: 600 }}>
-            <input
-              type="checkbox"
-              checked={identifiedTruth}
-              onChange={e => setIdentifiedTruth(e.target.checked)}
-            />
-            <span>Verify Rumour Distortion: Auntie May confirmed 3 full cartons in storeroom, exposing the artificial chip scarcity rumour.</span>
-          </label>
+          {/* Evidence Quotes Tray & String Pins */}
+          <div>
+            <strong style={{ fontSize: '12px', color: '#451a03', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
+              Step 1 · Pick Discovered Statement:
+            </strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '130px', overflowY: 'auto' }}>
+              {availablePhrases.map(p => {
+                const isSelected = selectedPhrase === p.id
+                const hasConn = connections.some(c => c.phraseId === p.id)
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => {
+                      sound.playBlip()
+                      setSelectedPhrase(p.id)
+                    }}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      border: `1.5px solid ${isSelected ? '#dc2626' : hasConn ? '#16a34a' : '#d1d5db'}`,
+                      background: isSelected ? '#fef2f2' : hasConn ? '#f0fdf4' : '#ffffff',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{ fontStyle: 'italic', color: '#1e293b' }}>“{p.text}”</span>
+                    {hasConn && <span style={{ fontSize: '10px', color: '#15803d', fontWeight: 700 }}>🧶 Pinned</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Influence Tactic Pins */}
+          <div>
+            <strong style={{ fontSize: '12px', color: '#451a03', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#9333ea', display: 'inline-block' }} />
+              Step 2 · Pick Psychological Tactic Pin:
+            </strong>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '6px' }}>
+              {Object.values(INFLUENCE_TACTICS).map(t => {
+                const isSelected = selectedTactic === t.id
+                return (
+                  <div
+                    key={t.id}
+                    onClick={() => {
+                      sound.playBlip()
+                      setSelectedTactic(t.id)
+                    }}
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      border: `1.5px solid ${isSelected ? '#9333ea' : '#e2e8f0'}`,
+                      background: isSelected ? '#faf5ff' : '#ffffff',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <span>{t.icon}</span>
+                    <span style={{ fontWeight: isSelected ? 700 : 500, color: isSelected ? '#7e22ce' : '#334155' }}>
+                      {t.name}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Action: Connect string button */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button
+              className="primary"
+              disabled={!selectedPhrase || !selectedTactic}
+              onClick={addConnection}
+            >
+              🧶 Pin & Connect Red Yarn String
+            </Button>
+          </div>
+
+          {/* Active Yarn String Connections */}
+          {connections.length > 0 && (
+            <div style={{ padding: '10px', background: 'rgba(255,255,255,0.92)', borderRadius: '8px', border: '1px solid #d97706' }}>
+              <strong style={{ fontSize: '12px', color: '#78350f', display: 'block', marginBottom: '6px' }}>
+                Active Yarn Connections ({connections.length}):
+              </strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {connections.map(c => {
+                  const phrase = allPhrases.find(p => p.id === c.phraseId)
+                  const tactic = INFLUENCE_TACTICS[c.tacticId]
+                  return (
+                    <div
+                      key={c.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '12px',
+                        background: '#ffffff',
+                        padding: '5px 10px',
+                        borderRadius: '4px',
+                        borderLeft: '4px solid #dc2626',
+                        border: '1px solid #e2e8f0',
+                      }}
+                    >
+                      <span style={{ color: '#1e293b' }}>
+                        “{phrase?.text.slice(0, 36)}...” ➔ <strong>{tactic?.name}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeConnection(c.id)}
+                        style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Submit */}
+        {/* Submit Deduction Button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
           <Button className="secondary" onClick={onClose}>
             Back to Room

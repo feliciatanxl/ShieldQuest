@@ -6,10 +6,26 @@ import { residents } from '../residentData'
 import { ExplorationScene, type Launch } from './ExplorationScene'
 import { freezeFrameObjects } from '../freezeFrameLayout'
 import { project } from '../isometric'
+import { sound } from '../audio'
+import type { Point } from '../../state/saveGame'
 
 const CUTAWAY_WIDTH = 594
 const CUTAWAY_HEIGHT = 392
 const CUTAWAY_CENTER = { x: 35, y: 104 }
+
+interface JunStageTarget {
+  pos: Point
+  facing: 'front' | 'back' | 'left' | 'right'
+  dialogue: string
+}
+
+const JUN_ROUTINE: Record<number, JunStageTarget> = {
+  1: { pos: { x: 7.2, y: 5.8 }, facing: 'left', dialogue: '“Hey! You’re here! Perfect timing, I need your help right now!”' },
+  2: { pos: { x: 3.3, y: 3.2 }, facing: 'back', dialogue: '“Eh bro, help me watch the entrance for two minutes! We’re friends right?”' },
+  3: { pos: { x: 3.1, y: 3.4 }, facing: 'right', dialogue: '“Keep eyes on the door! Don’t look over here, whistle if someone comes!”' },
+  4: { pos: { x: 4.8, y: 4.2 }, facing: 'front', dialogue: '“Almost done! Make sure no one walks past that door!”' },
+  5: { pos: { x: 5.4, y: 5.0 }, facing: 'front', dialogue: '“Someone’s coming! Quick, block the door! Tell them shop is closed!”' },
+}
 
 export class FreezeFrameScene extends ExplorationScene {
   private junActor?: Actor
@@ -18,8 +34,11 @@ export class FreezeFrameScene extends ExplorationScene {
   private freezeGraphics?: Phaser.GameObjects.Graphics
   private statusText?: Phaser.GameObjects.Text
   private junBubble?: Phaser.GameObjects.Text
+  private cashierBubble?: Phaser.GameObjects.Text
   private scenarioStage = 1
   private stageTimer?: number
+  private walkingTarget: Point = { x: 7.2, y: 5.8 }
+  private branchResolved = false
 
   constructor(launch: Launch) {
     super(launch, 'FreezeFrame', FREEZE_FRAME_SPAWN)
@@ -28,7 +47,6 @@ export class FreezeFrameScene extends ExplorationScene {
   protected createWorld() {
     this.cameras.main.setBackgroundColor(FREEZE_FRAME_BACKGROUND)
     const baseLayout = createMinimart(this)
-    // Replace default minimart exploration hotspots with Freeze Frame investigation hotspots
     return {
       size: baseLayout.size,
       hotspots: freezeFrameObjects,
@@ -40,12 +58,12 @@ export class FreezeFrameScene extends ExplorationScene {
     super.create(data)
 
     // Spawn Jun actor and Cashier actor
-    this.junActor = new Actor(this, 'ff-actor-jun', residents.jun, { x: 4.83, y: 3.31 })
+    this.junActor = new Actor(this, 'ff-actor-jun', residents.jun, { x: 7.2, y: 6.8 })
     this.cashierActor = new Actor(this, 'ff-actor-cashier', residents.cashier, { x: 8.77, y: 4.32 })
 
     // Speech bubble above Jun
-    const junPos = project(4.83, 3.31)
-    this.junBubble = this.add.text(junPos.x, junPos.y - 72, '“We’re friends right? Help me watch the door!”', {
+    const junPos = project(7.2, 6.8)
+    this.junBubble = this.add.text(junPos.x, junPos.y - 74, JUN_ROUTINE[1].dialogue, {
       fontFamily: 'Outfit, sans-serif',
       fontSize: '11px',
       color: '#1a1824',
@@ -54,9 +72,21 @@ export class FreezeFrameScene extends ExplorationScene {
       align: 'center',
     }).setOrigin(0.5, 1).setDepth(2000)
 
+    // Speech bubble above Cashier Mr. Tan
+    const cashierPos = project(8.77, 4.32)
+    this.cashierBubble = this.add.text(cashierPos.x, cashierPos.y - 74, '', {
+      fontFamily: 'Outfit, sans-serif',
+      fontSize: '11px',
+      fontStyle: 'bold',
+      color: '#0f172a',
+      backgroundColor: '#e0f2fe',
+      padding: { x: 8, y: 4 },
+      align: 'center',
+    }).setOrigin(0.5, 1).setDepth(2000).setVisible(false)
+
     // Time freeze visual layer
     this.freezeGraphics = this.add.graphics().setDepth(1500).setScrollFactor(0)
-    
+
     // Status banner
     this.statusText = this.add.text(0, 18, '▶ SCENARIO RUNNING · Press SPACE to Freeze Time', {
       fontFamily: 'Outfit, sans-serif',
@@ -77,10 +107,17 @@ export class FreezeFrameScene extends ExplorationScene {
       })
     }
 
-    // Bridge listeners
+    // Bridge listeners for React controls
     const cleanups = [
-      this.launch.bridge.on('action', () => {
-        // Can also trigger action or freeze toggle
+      this.launch.bridge.on('freezeToggle', (forceState?: boolean) => {
+        if (typeof forceState === 'boolean') {
+          if (this.isFrozen !== forceState) this.toggleFreeze()
+        } else {
+          this.toggleFreeze()
+        }
+      }),
+      this.launch.bridge.on('scenarioBranch', branch => {
+        if (branch) this.executeBranchOutcome(branch)
       }),
     ]
 
@@ -94,27 +131,109 @@ export class FreezeFrameScene extends ExplorationScene {
   }
 
   private startScenarioTicker() {
-    const dialogues = [
-      '“Hey! Perfect timing, I need your help right now!”',
-      '“Eh bro, watch the entrance for 2 minutes! We’re friends right?”',
-      '“Keep eyes on the door! Don’t look over here, whistle if someone comes!”',
-      '“Almost done! Make sure no one walks past that door!”',
-      '“Someone’s coming! Quick, block the door! Tell them shop is closed!”',
-    ]
-
     this.stageTimer = window.setInterval(() => {
-      if (this.isFrozen) return
+      if (this.isFrozen || this.branchResolved) return
       this.scenarioStage = (this.scenarioStage % 5) + 1
-      if (this.junBubble) {
-        this.junBubble.setText(dialogues[this.scenarioStage - 1])
+      const routine = JUN_ROUTINE[this.scenarioStage]
+      if (routine) {
+        this.walkingTarget = routine.pos
+        if (this.junBubble) {
+          this.junBubble.setText(routine.dialogue)
+        }
       }
+      // Alternate cashier routine
+      if (this.cashierActor) {
+        if (this.scenarioStage % 2 === 0) {
+          this.cashierActor.setFacing('left')
+        } else {
+          this.cashierActor.setFacing('front')
+        }
+      }
+      this.launch.bridge.emit('stageChanged', this.scenarioStage)
     }, 4500)
+  }
+
+  update(time: number, delta: number) {
+    super.update(time, delta)
+
+    // Dynamic movement for Jun when scenario is unfrozen
+    if (!this.isFrozen && !this.branchResolved && this.junActor) {
+      const arrived = this.junActor.stepTowards(this.walkingTarget, delta * 0.0018)
+      if (arrived) {
+        const routine = JUN_ROUTINE[this.scenarioStage]
+        if (routine) this.junActor.setFacing(routine.facing)
+      }
+      // Keep Jun speech bubble positioned above him
+      if (this.junBubble) {
+        const p = project(this.junActor.position.x, this.junActor.position.y)
+        this.junBubble.setPosition(p.x, p.y - 74)
+      }
+    }
   }
 
   toggleFreeze() {
     this.isFrozen = !this.isFrozen
+    if (this.isFrozen) {
+      sound.playFreeze()
+    } else {
+      sound.playUnfreeze()
+    }
     this.updateFreezeVisuals()
     this.updateStatusBanner()
+    this.launch.bridge.emit('freezeToggle', this.isFrozen)
+  }
+
+  executeBranchOutcome(branch: 'calm-refusal' | 'comply-lookout' | 'public-accusation' | 'staff-inquiry') {
+    this.branchResolved = true
+    if (this.isFrozen) this.toggleFreeze()
+
+    if (branch === 'calm-refusal') {
+      sound.playSuccessFanfare()
+      // Jun de-escalates peacefully, puts item back on shelf, turns to counter
+      this.walkingTarget = { x: 3.3, y: 3.2 }
+      if (this.junBubble) {
+        this.junBubble.setText('“You’re right... I was being pressured by the chat. I’ll pay for my snacks honestly.”')
+      }
+      this.time.delayedCall(1600, () => {
+        this.walkingTarget = { x: 7.8, y: 5.2 }
+        if (this.cashierBubble) {
+          this.cashierBubble.setVisible(true).setText('Mr. Tan: “Thanks for being honest, boys. That’s $4.50!”')
+        }
+      })
+    } else if (branch === 'comply-lookout') {
+      sound.playAlarm()
+      // Flash red screen, cashier rushes out
+      if (this.freezeGraphics) {
+        this.freezeGraphics.fillStyle(0xdc2626, 0.4)
+        this.freezeGraphics.fillRect(0, 0, this.scale.gameSize.width, this.scale.gameSize.height)
+        this.time.delayedCall(400, () => this.freezeGraphics?.clear())
+      }
+      if (this.cashierBubble) {
+        this.cashierBubble.setVisible(true).setStyle({ backgroundColor: '#fee2e2', color: '#991b1b' })
+          .setText('Mr. Tan: “HEY! Why are you blocking the entrance? What’s in that bag?!”')
+      }
+      if (this.junBubble) {
+        this.junBubble.setText('“Oh no... the alarm went off! We’re in huge trouble!”')
+      }
+    } else if (branch === 'public-accusation') {
+      sound.playAlarm()
+      if (this.junBubble) {
+        this.junBubble.setText('“Why did you yell that?! I didn’t even take it yet!”')
+      }
+      // Jun flees towards entrance
+      this.walkingTarget = { x: 8.53, y: 7.66 }
+      if (this.cashierBubble) {
+        this.cashierBubble.setVisible(true).setText('Mr. Tan: “Stop! Everyone calm down, do not run!”')
+      }
+    } else if (branch === 'staff-inquiry') {
+      sound.playClueDiscovered()
+      if (this.cashierBubble) {
+        this.cashierBubble.setVisible(true).setText('Mr. Tan: “Can I help you boys find the reserved items?”')
+      }
+      if (this.junBubble) {
+        this.junBubble.setText('“Uh... yes Mr. Tan, just checking the battery prices!”')
+      }
+    }
   }
 
   private updateFreezeVisuals() {
@@ -142,10 +261,10 @@ export class FreezeFrameScene extends ExplorationScene {
     this.statusText.setX(width / 2)
 
     if (this.isFrozen) {
-      this.statusText.setText('⏸ TIME FROZEN — Walk around to inspect evidence & characters (Space to Resume)')
+      this.statusText.setText('⏸ TIME FROZEN — Walk around to inspect evidence & CCTV (Space to Resume)')
       this.statusText.setStyle({ color: '#7dd3fc', backgroundColor: 'rgba(8, 28, 48, 0.92)' })
     } else {
-      this.statusText.setText('▶ SCENARIO RUNNING · Press SPACE to Freeze Time')
+      this.statusText.setText('▶ SCENARIO RUNNING · Press SPACE or tap button to Freeze Time')
       this.statusText.setStyle({ color: '#fef08a', backgroundColor: 'rgba(20, 24, 34, 0.88)' })
     }
   }

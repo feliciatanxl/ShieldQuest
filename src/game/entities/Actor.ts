@@ -36,6 +36,27 @@ export class Actor {
     this.repaint()
   }
 
+  setFacing(facing: Facing) {
+    if (this.facing !== facing) {
+      this.facing = facing
+      this.repaint()
+    }
+  }
+
+  stepTowards(target: Point, stepSize: number): boolean {
+    const dx = target.x - this.position.x
+    const dy = target.y - this.position.y
+    const dist = Math.hypot(dx, dy)
+    if (dist <= stepSize || dist === 0) {
+      this.move(target, dist, { x: dx, y: dy })
+      return true
+    }
+    const ratio = stepSize / dist
+    const newPos = { x: this.position.x + dx * ratio, y: this.position.y + dy * ratio }
+    this.move(newPos, stepSize, { x: dx, y: dy })
+    return false
+  }
+
   move(position: Point, distance: number, screenDirection: Point) {
     this.position = position
     this.place()

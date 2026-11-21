@@ -6,6 +6,148 @@
  * the player to act as a lookout.
  */
 
+export type FreezeScenarioId = 'snack-dare-device' | 'delivery-parcel-mixup'
+
+export interface CCTVCamFeed {
+  id: 'cam-01' | 'cam-02' | 'cam-03'
+  name: string
+  location: string
+  angles: {
+    stage: number
+    observationText: string
+    zoomDetail: string
+    keyClue?: string
+  }[]
+}
+
+export interface ManifestItem {
+  serial: string
+  name: string
+  price: string
+  status: 'PAID' | 'UNPAID_HOLD' | 'CUSTOMER_RESERVE'
+  customer: string
+  isDiscrepancy?: boolean
+}
+
+export const CCTV_CHANNELS: Record<string, CCTVCamFeed[]> = {
+  'snack-dare-device': [
+    {
+      id: 'cam-01',
+      name: 'CAM 01 · Register & Counter',
+      location: 'Checkout area & delivery counter',
+      angles: [
+        {
+          stage: 1,
+          observationText: 'Mr. Tan is organizing delivery logs on the counter clipboard.',
+          zoomDetail: 'Counter manifest shows 3 items arrived. Only 2 were paid for by previous customers.',
+        },
+        {
+          stage: 2,
+          observationText: 'Mr. Tan turns his back to retrieve fresh receipt rolls from the under-counter shelf.',
+          zoomDetail: 'The register drawer is shut and locked, but the reserved customer pickup shelf behind the counter is partially accessible from the side aisle.',
+        },
+        {
+          stage: 3,
+          observationText: 'Mr. Tan is checking serial barcode tags against his delivery clipboard.',
+          zoomDetail: 'Clipboard notes: “All high-value electronics must be signed by customer before departure.”',
+          keyClue: 'Official Store Policy: Items cannot be taken without cashier scanning.',
+        },
+        {
+          stage: 4,
+          observationText: 'Mr. Tan hears rustling near the doorway and looks up towards the front window.',
+          zoomDetail: 'His view of the lower door is partially blocked by the snack display stand.',
+        },
+        {
+          stage: 5,
+          observationText: 'Mr. Tan walks towards the counter bell to see who entered.',
+          zoomDetail: 'The bell chime is activated when the door sensor triggers.',
+        },
+      ],
+    },
+    {
+      id: 'cam-02',
+      name: 'CAM 02 · Electronics & Sundry Aisle',
+      location: 'Aisle 3 (Chargers, Cables, Powerbanks)',
+      angles: [
+        {
+          stage: 1,
+          observationText: 'Jun approaches the electronics shelf, constantly looking around with hurried posture.',
+          zoomDetail: 'His personal grey backpack is unzipped at his side.',
+        },
+        {
+          stage: 2,
+          observationText: 'Jun’s hands hover over the top shelf holding a 10,000mAh fast-charge powerbank.',
+          zoomDetail: 'Bright orange security tag #SEC-8821 is clearly visible on the packaging!',
+          keyClue: 'Security Tag #SEC-8821: This item has NOT been deactivated at the register.',
+        },
+        {
+          stage: 3,
+          observationText: 'Jun conceals the powerbank inside his backpack flap instead of placing it in the store basket.',
+          zoomDetail: 'The empty store basket is sitting untouched on the floor just 30cm away.',
+          keyClue: 'Concealment Observed: Item was deliberately hidden rather than held for payment.',
+        },
+        {
+          stage: 4,
+          observationText: 'Jun rushes down the aisle towards the player, face tense and pleading.',
+          zoomDetail: 'Jun’s smartphone screen in his hand shows an active Telegram group titled “Estate Squad Dare”.',
+          keyClue: 'Peer Dare Detected: Jun is under Telegram group pressure, not acting alone.',
+        },
+        {
+          stage: 5,
+          observationText: 'Jun crouches behind the endcap display, gesturing urgently towards the doorway.',
+          zoomDetail: 'Jun is trying to get the player to step between him and the counter line of sight.',
+        },
+      ],
+    },
+    {
+      id: 'cam-03',
+      name: 'CAM 03 · Entrance & Streetfront',
+      location: 'Minimart sliding door & pedestrian walkway',
+      angles: [
+        {
+          stage: 1,
+          observationText: 'The sliding door shuts. Sunshine Estate walkway is quiet outside.',
+          zoomDetail: 'Nobody is chasing or following Jun.',
+        },
+        {
+          stage: 2,
+          observationText: 'A light breeze outside; two neighbours are chatting peacefully near Block 102.',
+          zoomDetail: 'Zero police, security, or suspicious pursuit outside.',
+        },
+        {
+          stage: 3,
+          observationText: 'Auntie May carrying a grocery tote bag approaches leisurely along the sheltered walkway.',
+          zoomDetail: 'Auntie May is just walking to buy canned beans and fresh ginger.',
+        },
+        {
+          stage: 4,
+          observationText: 'Auntie May steps onto the green welcome mat outside the entrance.',
+          zoomDetail: 'The “someone coming” Jun panicked about is merely Auntie May doing daily grocery shopping!',
+          keyClue: 'Fabricated Panic: The approaching person is just a regular neighbourhood resident.',
+        },
+        {
+          stage: 5,
+          observationText: 'Auntie May pushes the door handle to enter.',
+          zoomDetail: 'If the player blocks the door, Auntie May will be obstructed and alarm will be raised.',
+        },
+      ],
+    },
+  ],
+}
+
+export const STORE_MANIFESTS: Record<string, ManifestItem[]> = {
+  'snack-dare-device': [
+    { serial: 'SN-0491', name: 'Alkaline AA Batteries (4-pk)', price: '$4.50', status: 'PAID', customer: 'Jun (Receipt in pocket)' },
+    { serial: 'SN-1022', name: 'USB-C Braided Cable (1m)', price: '$8.00', status: 'PAID', customer: 'Walk-in customer' },
+    { serial: 'SN-8821', name: '10,000mAh Powerbank Pro', price: '$45.00', status: 'CUSTOMER_RESERVE', customer: 'Mr. Lim (Hold until 6 PM)', isDiscrepancy: true },
+    { serial: 'SN-9014', name: 'Salted Egg Potato Crisps', price: '$3.20', status: 'PAID', customer: 'Morning delivery' },
+  ],
+  'delivery-parcel-mixup': [
+    { serial: 'PARCEL-A', name: 'Express Electronics Box (Unit 1)', price: '$65.00', status: 'PAID', customer: 'Customer pickup' },
+    { serial: 'PARCEL-B', name: 'Duplicate Shipping Carton', price: '$65.00', status: 'UNPAID_HOLD', customer: 'Courier Return Logged', isDiscrepancy: true },
+  ],
+}
+
 export interface TimelineStage {
   id: number
   timeSeconds: number

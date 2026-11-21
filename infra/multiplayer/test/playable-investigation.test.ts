@@ -2,8 +2,10 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   calculateFreezeScore,
+  CCTV_CHANNELS,
   FREEZE_DECISIONS,
   FREEZE_HOTSPOTS,
+  STORE_MANIFESTS,
   type FreezeDecisionId,
   type FreezeHotspotId,
 } from '../../../src/state/freezeFrame'
@@ -165,3 +167,33 @@ test('Save system: Restoring FreezeFrame location properly', () => {
   assert.equal(loaded.scene, 'FreezeFrame')
   assert.deepEqual(loaded.position, FREEZE_FRAME_SPAWN)
 })
+
+test('Freeze Frame Environmental Puzzle: CCTV Monitor feeds & zoom observation', () => {
+  const cctvFeeds = CCTV_CHANNELS['snack-dare-device']
+  assert.ok(cctvFeeds && cctvFeeds.length === 3, 'Must have 3 active CCTV camera channels')
+
+  const cam01 = cctvFeeds.find(f => f.id === 'cam-01')
+  const cam02 = cctvFeeds.find(f => f.id === 'cam-02')
+  const cam03 = cctvFeeds.find(f => f.id === 'cam-03')
+  assert.ok(cam01 && cam02 && cam03, 'All 3 cameras (Counter, Aisle, Entrance) exist')
+
+  // Cam 02 (Electronics aisle) should detect security tag in stage 2/3
+  const cam02Stage2 = cam02.angles.find(a => a.stage === 2)
+  assert.ok(cam02Stage2?.zoomDetail.includes('SEC-8821'), 'Zooming in Cam 02 reveals security tag')
+
+  // Cam 03 (Entrance) should confirm approaching person is merely Auntie May
+  const cam03Stage4 = cam03.angles.find(a => a.stage === 4)
+  assert.ok(cam03Stage4?.zoomDetail.includes('Auntie May'), 'Cam 03 debunks fake emergency')
+})
+
+test('Freeze Frame Environmental Puzzle: Store Delivery Manifest & receipt discrepancy audit', () => {
+  const manifest = STORE_MANIFESTS['snack-dare-device']
+  assert.ok(manifest && manifest.length >= 3, 'Delivery manifest contains store stock items')
+
+  const discrepancy = manifest.find(item => item.isDiscrepancy)
+  assert.ok(discrepancy, 'Manifest has detectable discrepancy')
+  assert.equal(discrepancy.serial, 'SN-8821')
+  assert.equal(discrepancy.status, 'CUSTOMER_RESERVE')
+  assert.ok(discrepancy.price.includes('$45.00'))
+})
+

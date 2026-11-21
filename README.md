@@ -72,30 +72,35 @@ Submit once to complete S and unlock **Hold Before Acting**. The saved result is
 After submitting Spot the Risk, select **Begin Hold Before Acting** in the objective card. Select an immediate response to Jun, review it, and confirm. Only declining calmly and suggesting normal shopping meets the safe boundary criterion. Any submitted response completes H and unlocks **Identify the Influence**. The H record is independent of the S score and the story response to Jun.
 
 ### Interactive Mini-Game: Freeze Frame (H Practice)
-Launch **Freeze Frame** from the H challenge, dialogue with Jun in Sunshine Minimart, or **Quick Menu → Practice H (Freeze Frame)**.
-- **Gameplay concept:** Inspired by *Papers, Please* and *The Case of the Golden Idol*, players experience a pausable real-time scenario inside Sunshine Minimart where Jun pressures them to watch the entrance.
+Launch **Freeze Frame** from the H challenge, dialogue with Jun in Sunshine Minimart, House H, or **Quick Menu → Practice H (Freeze Frame)**.
+- **Gameplay concept:** Inspired by *Papers, Please*, *The Case of the Golden Idol*, and time-manipulation puzzle games, players experience a pausable real-time scenario inside Sunshine Minimart with dynamic NPC routines, environmental puzzles, and visible in-world consequences.
 - **Controls & mechanics:**
-  - **Timeline Scrubber:** Play, Pause (Spacebar), step frame-by-frame, scrub across 5 scenario stages, or switch to 0.5x slow-motion.
-  - **Environmental Hotspots:** Inspect Jun's personal backpack (unpaid electronics), the active HD CCTV observation monitor, cashier store policies, the shopping basket abandoned on the floor, and pedestrians outside.
-  - **Clarification Inquiries:** Interrogate Jun and Mr. Tan to uncover real intentions versus artificial urgency.
-  - **Action Decisions:** Choose between calm protective boundaries, impulsive complicity, reckless public accusation, or passive evasion.
-  - **Scoring:** Measures pausing, evidence gathering, clarification, and boundary assertiveness (pressing Pause alone does not award a pass). Results persist locally without modifying official assessment records.
+  - **Dynamic In-World NPCs:** Jun and Mr. Tan follow physical walking paths across 5 scenario stages with real-time positional updates and reactive speech bubbles.
+  - **True Time Freeze (Spacebar / HUD Button):** Freezes NPC routines and environmental events while allowing the player to walk freely around the minimart to inspect clues frozen in time.
+  - **CCTV Security Console Puzzle:** Interactive 3-channel surveillance monitor (Register, Electronics Aisle, Entrance) with 1x/2x zoom, night-vision filter, stage scrubber, and physical clue discovery.
+  - **Store Manifest & Inventory Verifier Puzzle:** Audit incoming supplier invoices against customer receipts and barcodes to spot discrepancies (e.g. unbilled \$45.00 Powerbank SN-8821).
+  - **In-World Branching Consequences:**
+    - *Calm Boundary Refusal:* Jun stops, de-escalates, and returns merchandise with zero store alert.
+    - *Comply as Lookout:* Jun attempts theft, triggering store alarm buzzers and cashier confrontation.
+    - *Public Accusation:* Jun panics, drops items, and flees into the estate while the cashier investigates.
+    - *Staff Inquiry:* Player discreetly alerts Mr. Tan, leading to a peaceful inventory resolution.
+  - **Replayable Scenarios:** Switch between Scenario A (*Snack Dare & Unbilled Device*) and Scenario B (*Delivery Parcel Mixup*).
+  - **Synthesized Audio:** Retro zero-dependency Web Audio effects for time freezing, unfreezing, evidence discovery, alarms, and branch outcomes.
 
 ## Identify the Influence & Interactive Mini-Game: Whisper Network
 
 Select **Begin Identify the Influence** after submitting H. Identify the pressure tactic and requested role in Jun’s words, then review and confirm both answers. A pass requires both parts to be correct. Any submission completes I and advances the objective to **Evaluate Consequences**.
 
 ### Interactive Mini-Game: Whisper Network (I Practice)
-Launch **Whisper Network** from the I challenge, dialogue with Auntie May / Amir, or **Quick Menu → Practice I (Whisper Network)**.
-- **Gameplay concept:** Inspired by *Among Us*, *Suspects: Mystery Mansion*, and *The Case of the Golden Idol*, players investigate how peer pressure, rumors, and manipulative persuasion spread across Sunshine Estate.
-- **Scenario Variations:**
-  - **Case 1: The Minimart Snack Dare:** Unravels how supply delays were twisted into a dare to pocket snacks while claiming CCTV was broken.
-  - **Case 2: The Fast-Cash Account Scheme:** Exposes money-mule recruitment targeting students with $300 cash offers, 5 PM artificial deadlines, and isolation tactics.
+Launch **Whisper Network** from the I challenge, dialogue with Auntie May / Amir, House I, or **Quick Menu → Practice I (Whisper Network)**.
+- **Gameplay concept:** Inspired by *Suspects: Mystery Mansion*, *Among Us*, and detective investigation games, players investigate how peer pressure, rumors, and manipulative persuasion spread across Sunshine Estate.
 - **Controls & mechanics:**
-  - **Witness Interviews:** Examine transcripts from Amir, Jun, Auntie May, and Mr. Tan, extracting manipulative quote chips into an evidence ledger.
-  - **Influence Board:** Map quotes to psychological tactics (*Artificial Urgency*, *Social Proof*, *Friendship Appeal*, *Ego Dare*, *False Authority*, *Fast Reward*, *Secrecy/Isolation*).
-  - **Rumour Distortion:** Pinpoint the innocent truth that was twisted by chat groups.
-  - **Detective Ranking:** Comprehensive evaluation awarding Detective Ranks from Cadet to *Chief Guardian Analyst*.
+  - **Dynamic NPC Routines:** Amir, Auntie May, and Jun patrol between desks and interview stations inside House I, reacting dynamically when approached.
+  - **Interactive Detective Cork Pinboard:** Reconstruct cases using wooden pinboard UI featuring draggable yarn connection strings, suspect polaroids, and influence tactic pushpins.
+  - **Rumour Propagation Timeline:** Sequence 5 narrative steps from initial objective truth through group chat exaggeration to targeted coercive peer pressure.
+  - **Yarn String Connection Mechanics:** Draw and connect evidence statement cards to tactical psychological pushpins (*Artificial Urgency*, *Social Proof*, *Friendship Appeal*, *Ego Dare*, *False Authority*, *Fast Reward*, *Secrecy/Isolation*).
+  - **In-World Solved Celebration:** Solving the pinboard triggers triumphant audio chimes and in-world congratulatory reactions from all House I detectives.
+  - **Replayable Cases:** Support for Case 1 (*The Minimart Snack Dare*) and Case 2 (*The Fast-Cash Account Scheme*).
 
 ## Mobile Virtual Joystick: Run Lock & Speed Modulation
 

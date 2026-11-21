@@ -46,6 +46,9 @@ type GameEvents = {
   action: undefined
   direction: Point
   houseTravel: { target: Location; position: Point }
+  freezeToggle: boolean
+  scenarioBranch: 'calm-refusal' | 'comply-lookout' | 'public-accusation' | 'staff-inquiry'
+  stageChanged: number
 }
 
 export class GameBridge {

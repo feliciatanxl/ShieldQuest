@@ -14,7 +14,7 @@ import { lobbyEndpoint } from './multiplayer/endpoint'
 import { FriendsPanel } from './components/FriendsPanel'
 import { FreezeFrameGame } from './components/FreezeFrameGame'
 import { WhisperNetworkGame } from './components/WhisperNetworkGame'
-import { FreezeInspectionModal, FreezeDialogueModal, FreezeDecisionModal } from './components/FreezeFrameInvestigation'
+import { FreezeInspectionModal, FreezeDialogueModal, FreezeDecisionModal, CCTVConsoleModal, ManifestVerifierModal } from './components/FreezeFrameInvestigation'
 import { WhisperInterviewModal, WhisperTerminalModal, WhisperBoardModal } from './components/WhisperInvestigation'
 import type { FreezeHotspotId } from './state/freezeFrame'
 import { DialogueBox, GamePanel, type GamePanelView } from './components/GamePanels'
@@ -56,6 +56,8 @@ type Overlay =
   | { type: 'freeze-frame'; parent?: Overlay }
   | { type: 'whisper-network'; parent?: Overlay }
   | { type: 'ff-inspect'; id: FreezeHotspotId }
+  | { type: 'ff-cctv-console' }
+  | { type: 'ff-manifest' }
   | { type: 'ff-dialogue'; speaker: 'jun' | 'cashier' }
   | { type: 'ff-decision' }
   | { type: 'whisper-interview'; witnessId: 'amir' | 'may' | 'jun' }
@@ -72,6 +74,7 @@ export default function App() {
   const [ffFacts, setFfFacts] = useState<FreezeHotspotId[]>([])
   const [ffQuestions, setFfQuestions] = useState<string[]>([])
   const [whisperPhrases, setWhisperPhrases] = useState<string[]>([])
+  const [isSceneFrozen, setIsSceneFrozen] = useState(false)
   const locked = useRef(false)
   const houseClock = useRef<number | undefined>(undefined)
   const [nearby, setNearby] = useState<Hotspot | null>(null)
@@ -138,6 +141,7 @@ export default function App() {
     const cleanup = [
       bridge.on('proximity', setNearby),
       bridge.on('transition', setTransitioning),
+      bridge.on('freezeToggle', state => setIsSceneFrozen(Boolean(state))),
       bridge.on('ready', () => bridge.emit('lock', locked.current)),
       bridge.on('checkpoint', ({ scene, position, distance }) => {
         const previous = current.current
@@ -167,13 +171,16 @@ export default function App() {
           bridge.emit('houseTravel', { target: 'HouseH', position: HOUSE_H_SPAWN })
         } else if (id === 'ff-backpack') {
           locked.current = true
+          setFfFacts(prev => Array.from(new Set([...prev, 'jun-backpack'])))
           setOverlay({ type: 'ff-inspect', id: 'jun-backpack' })
         } else if (id === 'ff-cctv') {
           locked.current = true
-          setOverlay({ type: 'ff-inspect', id: 'cctv-monitor' })
+          setFfFacts(prev => Array.from(new Set([...prev, 'cctv-monitor'])))
+          setOverlay({ type: 'ff-cctv-console' })
         } else if (id === 'ff-counter') {
           locked.current = true
-          setOverlay({ type: 'ff-inspect', id: 'cashier-counter' })
+          setFfFacts(prev => Array.from(new Set([...prev, 'cashier-counter'])))
+          setOverlay({ type: 'ff-manifest' })
         } else if (id === 'ff-basket') {
           locked.current = true
           setOverlay({ type: 'ff-inspect', id: 'shopping-basket' })
@@ -443,6 +450,20 @@ export default function App() {
         onClose={() => { locked.current = false; setOverlay(null) }}
       />
     )}
+    {overlay?.type === 'ff-cctv-console' && (
+      <CCTVConsoleModal
+        alreadyRecorded={ffFacts.includes('cctv-monitor')}
+        onRecordClue={() => setFfFacts(prev => Array.from(new Set([...prev, 'cctv-monitor'])))}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'ff-manifest' && (
+      <ManifestVerifierModal
+        alreadyRecorded={ffFacts.includes('cashier-counter')}
+        onRecordClue={() => setFfFacts(prev => Array.from(new Set([...prev, 'cashier-counter'])))}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
     {overlay?.type === 'ff-dialogue' && (
       <FreezeDialogueModal
         speaker={overlay.speaker}
@@ -454,9 +475,10 @@ export default function App() {
     )}
     {overlay?.type === 'ff-decision' && (
       <FreezeDecisionModal
-        paused={true}
+        paused={isSceneFrozen}
         inspectedHotspots={ffFacts}
         askedQuestions={ffQuestions}
+        onExecuteBranch={branch => bridge.emit('scenarioBranch', branch)}
         onReturnToHouse={() => travelHouse('HouseH')}
         onClose={() => { locked.current = false; setOverlay(null) }}
       />
@@ -480,6 +502,7 @@ export default function App() {
     {overlay?.type === 'whisper-board' && (
       <WhisperBoardModal
         collectedPhrases={whisperPhrases}
+        onCaseSolved={() => bridge.emit('scenarioBranch', 'staff-inquiry')}
         onClose={() => { locked.current = false; setOverlay(null) }}
       />
     )}
@@ -487,10 +510,24 @@ export default function App() {
       <div className="freeze-floating-hud">
         <button
           type="button"
+          className="freeze-floating-btn freeze-btn"
+          onClick={() => bridge.emit('freezeToggle', !isSceneFrozen)}
+        >
+          {isSceneFrozen ? '▶ Resume Time (Space)' : '⏸ Freeze Time (Space)'}
+        </button>
+        <button
+          type="button"
           className="freeze-floating-btn action-btn"
           onClick={() => { locked.current = true; setOverlay({ type: 'ff-decision' }) }}
         >
-          ⚡ Decide Response
+          ⚡ Take a Stand
+        </button>
+        <button
+          type="button"
+          className="freeze-floating-btn leave-btn"
+          onClick={() => travelHouse('HouseH')}
+        >
+          🚪 Leave
         </button>
       </div>
     )}
