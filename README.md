@@ -295,37 +295,50 @@ The project's planned software evolution follows six core milestones:
 
 ## Repository Architecture
 
-ShieldQuest is organized as an npm workspaces monorepo:
+ShieldQuest is organized as a unified, client-first game application with a modular serverless multiplayer backend:
 
 ```
 ShieldQuest/
-├── apps/
-│   ├── web/                     # React + TypeScript + Vite + Tailwind CSS public frontend
-│   │   ├── src/
-│   │   │   ├── components/      # UI components (Navbar, Footer, HeroIllustration, DistrictMap, etc.)
-│   │   │   ├── pages/           # Public pages (Home, About, HowItWorks, Guardians, World, Faq, NotFound)
-│   │   │   ├── layouts/         # RootLayout (skip link, sticky navbar, main, footer)
-│   │   │   ├── services/        # API client with resilient bundled fallback
-│   │   │   ├── styles/          # Tailwind CSS styles and custom game design tokens
-│   │   │   └── tests/           # Component and routing tests with Vitest & RTL
-│   │   └── package.json
-│   └── api/                     # Node.js + TypeScript + Express backend service
-│       ├── src/
-│       │   ├── config/          # Environment configuration
-│       │   ├── data/            # Canonical public fixtures
-│       │   ├── middleware/      # Error handler and security policies
-│       │   ├── routes/          # Health and public API endpoints
-│       │   ├── app.ts           # Express application setup
-│       │   └── server.ts        # Server listener
-│       ├── tests/               # API endpoint tests with Vitest & Supertest
-│       └── package.json
-├── packages/
-│   └── shared/                  # Shared TypeScript types, interfaces, and constants
-│       ├── src/                 # Guardians, Districts, S.H.I.E.L.D. framework, Scenarios
-│       └── package.json
-├── docs/                        # Architectural and development documentation
-├── package.json                 # Root monorepo workspace scripts
-└── README.md
+├── public/
+│   └── assets/
+│       └── guardians/           # SVG vector art for the six Guardians
+├── src/
+│   ├── components/              # React UI (HUD, Menus, Challenges, Puzzles, Friends, Lobby)
+│   │   ├── CharacterCustomizer.tsx  # Character creation & wardrobe customiser
+│   │   ├── EscapeRoomPanels.tsx     # House inspection, inventory & completion modals
+│   │   ├── EvidenceBoard.tsx        # Minimart clue inspection & evidence board
+│   │   ├── FriendsPanel.tsx         # Player friend codes, list & status prototype
+│   │   ├── GameCanvas.tsx           # Phaser game viewport container
+│   │   ├── GameHUD.tsx              # Overlay HUD, touch joystick, objective bar & tools
+│   │   ├── GamePanels.tsx           # Area map, dialogue box, pack & controls
+│   │   ├── GuardianCollection.tsx   # Six skill Guardians collection view
+│   │   ├── HousePuzzles.tsx         # Sequence puzzles, hints, pinboard & safe documents
+│   │   ├── MainMenu.tsx             # Title screen with resume/start prompts
+│   │   ├── MultiplayerLobby.tsx     # 2-player room lobby, ready state & session view
+│   │   ├── NumericKeypad.tsx        # Interactive PIN keypad for safe & drawer
+│   │   ├── QuickMenu.tsx            # Pause quick menu with shortcuts & checkpointing
+│   │   ├── SpotTheRiskChallenge.tsx # S: Observation vs assumption classification
+│   │   ├── HoldBeforeActingChallenge.tsx # H: De-escalation & pause response
+│   │   ├── IdentifyTheInfluenceChallenge.tsx # I: Tactic & role identification
+│   │   ├── EvaluateConsequencesChallenge.tsx # E: Immediate & delayed consequence matching
+│   │   ├── LeadTheRightChoiceChallenge.tsx   # L: Constructive response builder
+│   │   ├── DefendYourCommunityChallenge.tsx  # D: Safe bystander help channel builder
+│   │   └── ui.tsx                   # Reusable modal dialogs, buttons & marks
+│   ├── game/                    # Phaser 3.90 isometric engine & world layout
+│   │   ├── entities/Actor.ts    # Player and NPC isometric actor rendering
+│   │   ├── scenes/              # Neighbourhood, Minimart, and House game scenes
+│   │   ├── maps/                # Ground tileset and Tiled JSON map
+│   │   └── worldArt.ts          # Procedural isometric geometry (HDB blocks, trees, shops)
+│   ├── multiplayer/             # Client WebSocket connection, protocol, and state sync
+│   ├── state/                   # Game state, save migration, and competency scoring
+│   └── styles/                  # Cohesive Singapore heartland palette and pixel styles
+├── infra/
+│   └── multiplayer/             # Optional AWS CDK & local WebSocket multiplayer server
+│       ├── src/                 # DynamoDB / memory store, connection handlers, service
+│       └── test/                # Automated lobby and game systems test suites
+├── index.html                   # HTML entry point
+├── vite.config.ts               # Vite build configuration
+└── package.json                 # Project scripts and dependencies
 ```
 
 ---
@@ -339,98 +352,73 @@ ShieldQuest/
 
 ### Installation
 
-Clone the repository and install all workspace dependencies from the root:
+Clone the repository and install dependencies from the root:
 
 ```bash
 npm install
 ```
 
-### Environment Configuration
-
-By default, the application runs out of the box with sensible development defaults. You can customize them using environment variables:
-
-#### API Service (`apps/api/.env`)
-- `PORT` — Port number for the API server (Default: `4000`)
-- `NODE_ENV` — `development` | `production` | `test` (Default: `development`)
-- `ALLOWED_ORIGINS` — Comma-separated list of allowed CORS origins (Default: `http://localhost:5173,http://localhost:3000`)
-
-#### Frontend Web (`apps/web/.env`)
-- `VITE_API_URL` — Base URL of the API server (Default: `/api` via Vite development proxy)
-
 ### Development Commands
 
-Run the frontend and backend in development mode:
+Run the game locally in development mode:
 
 ```bash
 # Start the Vite React development server (http://localhost:5173)
-npm run dev:web
+npm run dev
 
-# Start the Node.js + Express API server with hot reloading (http://localhost:4000)
-npm run dev:api
-```
-
-### Production Build
-
-Build all packages and applications for production:
-
-```bash
-npm run build
-```
-
-Or build individual workspaces:
-```bash
-npm run build:shared   # Compiles shared types and constants
-npm run build:api      # Compiles Express TypeScript backend into dist/
-npm run build:web      # Compiles Vite production bundle into dist/
-```
-
-### Running Tests and Quality Checks
-
-```bash
-# Run all tests across web and API
-npm run test
-
-# Run API tests only
-npm run test:api
-
-# Run Web component tests only
-npm run test:web
-
-# TypeScript strict type checking across all workspaces
+# Run strict TypeScript typechecking
 npm run typecheck
+
+# Build the production bundle into dist/
+npm run build
+
+# Run the complete test suite (includes multiplayer protocol and game system tests)
+npm test
+
+# Preview the production build locally
+npm run preview
 ```
 
+### Local Multiplayer Server (Optional)
+
+To test 2-player multiplayer room matchmaking locally:
+
+```bash
+# In terminal 1: Start the local WebSocket lobby server (port 8787)
+npm run local --prefix infra/multiplayer
+
+# In terminal 2: Start the frontend connected to the local lobby
+$env:VITE_SHIELDQUEST_LOBBY_URL = "ws://127.0.0.1:8787"  # PowerShell
+# or for bash: export VITE_SHIELDQUEST_LOBBY_URL="ws://127.0.0.1:8787"
+npm run dev
+```
+
+Open two browser profiles or private windows at `http://localhost:5173`. Walk to the Mysterious House on the east side of Sunshine Estate, select **Create Multiplayer Room** on one profile, and **Join Multiplayer Room** with the 6-character room code on the second profile.
+
 ---
 
-## Backend API Endpoints
+## Current Game Systems & Content
 
-The Phase 1 API provides typed public metadata endpoints:
+The current version of ShieldQuest includes full playable environments, assessments, and adventure modes:
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Service health status, uptime, and timestamp |
-| `GET` | `/api/public/site` | Public project metadata and disclaimers |
-| `GET` | `/api/public/districts` | List of all four City Board districts |
-| `GET` | `/api/public/districts/:id` | Detailed dossier for a single district |
-| `GET` | `/api/public/guardians` | Profiles of all six protective skill Guardians |
-| `GET` | `/api/public/guardians/:id` | Profile of an individual Guardian |
-| `GET` | `/api/public/framework` | Six stages of the S.H.I.E.L.D. behavioural framework |
-| `GET` | `/api/public/teaser` | Public interactive consequence preview scenarios |
-
----
-
-## Current Public Website Functionality (Phase 1)
-
-The public website serves as the introductory gateway to the world of ShieldQuest:
-
-- **Home (`/`):** Cinematic hero section with interactive City Board waypoints, introduction to the game, three pillars (Explore, Decide, Protect), an interactive Delayed Consequence Engine demonstration, district previews, Guardian previews, and squad play introduction.
-- **About (`/about`):** Details the youth crime-prevention problem, the limits of passive lectures, educational objectives, and an interactive breakdown of the 6-step **S.H.I.E.L.D.** framework.
-- **How It Works (`/how-it-works`):** Explains the intended 6-phase player journey and details the **Think–Vote–Explain** anonymous squad deliberation ritual.
-- **The World (`/world`):** Explores the 4 urban districts (School Street, Retail District, Digi-District, Community Hub) with an interactive dossier and an accessible list-view alternative.
-- **Guardians (`/guardians`):** Complete gallery of the six skill-based Guardians (VeriFox, Echo, Beacon, Shieldfin, Cluepaw, ByteBuddy) with discipline filtering.
-- **FAQ (`/faq`):** Searchable and filterable accordion answering core questions about target audiences, privacy policies, data minimisation, and official emergency reporting helplines.
-- **Custom 404 (`*`):** Themed recovery page with navigation back to the City Board.
-- **Accessibility:** Targeted WCAG 2.2 Level AA compliance, high contrast palettes, visible focus indicators, skip-to-content navigation, screen-reader headings, and respect for `prefers-reduced-motion`.
+- **Sunshine Estate:** An isometric heartland neighbourhood featuring void decks, sheltered walkways, HDB blocks 101–103, Kopi Corner, a playground, bus stops, and residents (Auntie May, Amir).
+- **Character Customiser & Wardrobe:** Customise skin tones, hairstyles, shirts, shorts, shoes, and accessories with instant 4-directional live sprite preview.
+- **Sunshine Minimart Dilemma:** Step into the teal grocery store, inspect 5 physical clues, talk to Jun and the cashier, and navigate the initial dilemma of Jun asking you to "watch the door".
+- **The S.H.I.E.L.D. Assessment Suite:** Six standalone competency challenges directly assessing critical protective behaviours:
+  - **S — Spot the Risk:** Classify ten statements into verified facts vs ungrounded assumptions.
+  - **H — Hold Before Acting:** Pause before reacting to peer pressure and select a calm boundary.
+  - **I — Identify the Influence:** Identify persuasion tactics (urgency, social proof, authority, dares) and the role requested.
+  - **E — Evaluate Consequences:** Match choices to both immediate perks and delayed liabilities.
+  - **L — Lead the Right Choice:** Construct a constructive peer de-escalation message.
+  - **D — Defend Your Community:** Formulate a safe bystander intervention and reporting plan.
+- **The Six Guardians Collection:** Collect origami-inspired Guardians (Cluepaw, Echo, VeriFox, ByteBuddy, Beacon, Shieldfin) as you demonstrate protective competencies.
+- **The Mysterious House (Escape Room Level 1 — The Missing Evidence):**
+  - Supervised mystery room with living room, study, kitchen, and entrance hall.
+  - Puzzles: Letter reconstruction, book spine cipher, locked desk drawer, incident timeline ordering, pinboard evidence review, and 4-digit safe keypad.
+  - Complete with hint progression system, house inventory viewer, and completion replay.
+- **Quick Menu & Friends System:** Pause menu with active objectives, fast checkpoint saving, help & controls, area map, and a dedicated Friends panel with unique friend codes, local search, and presence display.
+- **Multiplayer Lobby:** Real-time WebSocket room matchmaking supporting private 6-character room codes, host/guest roles, connection heartbeats, and readiness confirmation.
+- **Accessibility & Persistence:** Supports touch controls, on-screen virtual joystick, keyboard navigation, `prefers-reduced-motion` detection, and persistent browser storage across sessions.
 
 ---
 

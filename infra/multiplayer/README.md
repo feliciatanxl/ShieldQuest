@@ -7,10 +7,10 @@ Phase 4C connects two players in a private room at The Mysterious House. Startin
 Use Node.js 22 and npm. From the repository root, install the frontend and backend dependencies. The backend has its own lockfile.
 
 ```powershell
-npm ci
-npm ci --prefix infra/multiplayer
+npm install
+npm install --prefix infra/multiplayer
 npm run typecheck --prefix infra/multiplayer
-npm test --prefix infra/multiplayer
+npm test
 npm run local --prefix infra/multiplayer
 ```
 

@@ -8,7 +8,7 @@ import { Button, Modal } from './ui'
 
 const shortcuts = [
   { key: 'missions', icon: ClipboardList, label: 'Missions', detail: 'Track your current objective' },
-  { key: 'friends', icon: Users, label: 'Friends', detail: 'Available in a later phase' },
+  { key: 'friends', icon: Users, label: 'Friends', detail: 'View friends and friend code' },
   { key: 'guardians', icon: Shield, label: 'Guardians', detail: '' },
   { key: 'wardrobe', icon: Shirt, label: 'Wardrobe', detail: 'Edit your look' },
   { key: 'pack', icon: Backpack, label: 'Inventory', detail: 'Estate pocket guide' },
@@ -19,7 +19,7 @@ const shortcuts = [
 export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onReturnToNeighbourhood }: {
   save: Save
   onClose: () => void
-  onOpen: (panel: GamePanelView) => void
+  onOpen: (panel: GamePanelView | 'friends') => void
   onCheckpoint: () => boolean
   onReturn: () => void
   onReturnToNeighbourhood: () => void
@@ -39,10 +39,10 @@ export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onRet
     </details>
     <nav className="quick-shortcuts" aria-label="Game shortcuts">
       {shortcuts.map(({ key, icon: Icon, label, detail }) => {
-        const open = key === 'friends' ? undefined : () => onOpen(key)
+        const open = () => onOpen(key as GamePanelView | 'friends')
         const status = key === 'guardians' ? `${save.collectedGuardians.length} of ${guardians.length} collected`
           : key === 'map' ? area : key === 'pack' && house ? 'House evidence and keys' : detail
-        return <button className={`quick-card quick-${key}`} key={key} type="button" disabled={!open} onClick={open}>
+        return <button className={`quick-card quick-${key}`} key={key} type="button" onClick={open}>
           <span className="quick-icon"><Icon size={21} aria-hidden="true" /></span>
           <span className="quick-card-copy"><strong>{label}</strong><small>{status}</small></span>
         </button>

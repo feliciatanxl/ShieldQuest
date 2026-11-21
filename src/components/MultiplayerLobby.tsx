@@ -99,9 +99,15 @@ export function MultiplayerLobby({ mode, endpoint, avatar, onClose }: {
         <PlayerSlot player={room.players.find(player => player.role === 'host')} role="Host" you={playerId} />
         <PlayerSlot player={room.players.find(player => player.role === 'guest')} role="Guest" you={playerId} />
       </ol>
-      {room.status === 'IN_GAME' && <div className="lobby-notice" role="status">
+      {room.status === 'IN_GAME' && <div className="lobby-in-game" role="status">
         <strong>Level 1 — The Missing Evidence</strong>
-        <p>Both players have started the session. Shared movement, puzzles and inventory are in development. Play Solo from the house entrance to play the full level.</p>
+        <p>Both players are in the session. The host coordinates puzzle progress while each player explores independently.</p>
+        <dl className="lobby-session-info">
+          <div><dt>Room</dt><dd>{room.code}</dd></div>
+          <div><dt>Players</dt><dd>{room.players.filter(p => p.connected).length} / {room.players.length} connected</dd></div>
+          <div><dt>Status</dt><dd>In Progress</dd></div>
+        </dl>
+        <p className="lobby-coop-note">Shared puzzle synchronisation and cooperative inventory are planned for the next phase. Each player can solve puzzles in their own escape room session while staying in the multiplayer room.</p>
       </div>}
       {room.status === 'STARTING' && <p role="status">Starting the session…</p>}
       <div className="lobby-actions">

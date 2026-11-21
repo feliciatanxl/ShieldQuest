@@ -48,8 +48,14 @@ export function HouseEntry({ onPlay, onClose, onReview, onMultiplayer }: {
     <p>The neighbourhood has set up a supervised mystery game. In the fictional case, a compass is missing from a shop shelf. Reconstruct what happened, recover the final evidence file, and use the key to leave.</p>
     <div className="house-entry-actions">
       <Button className="primary" onClick={onReview ?? onPlay}>{onReview ? 'View Completion' : 'Play Solo'}</Button>
-      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('create')}>Create Multiplayer Room{!onMultiplayer && ' · Coming Soon'}</Button>
-      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('join')}>Join Multiplayer Room{!onMultiplayer && ' · Coming Soon'}</Button>
+      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('create')}
+        title={!onMultiplayer ? 'Set VITE_SHIELDQUEST_LOBBY_URL in .env to enable multiplayer' : undefined}>
+        Create Multiplayer Room{!onMultiplayer && ' · No Server'}
+      </Button>
+      <Button className="secondary" disabled={!onMultiplayer} onClick={() => onMultiplayer?.('join')}
+        title={!onMultiplayer ? 'Set VITE_SHIELDQUEST_LOBBY_URL in .env to enable multiplayer' : undefined}>
+        Join Multiplayer Room{!onMultiplayer && ' · No Server'}
+      </Button>
       <Button className="secondary" onClick={onClose}>Back</Button>
     </div>
   </Modal>

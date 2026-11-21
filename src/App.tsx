@@ -11,6 +11,7 @@ import { IdentifyTheInfluenceChallenge } from './components/IdentifyTheInfluence
 import { LeadTheRightChoiceChallenge } from './components/LeadTheRightChoiceChallenge'
 import { MultiplayerLobby } from './components/MultiplayerLobby'
 import { lobbyEndpoint } from './multiplayer/endpoint'
+import { FriendsPanel } from './components/FriendsPanel'
 import { DialogueBox, GamePanel, type GamePanelView } from './components/GamePanels'
 import { MainMenu } from './components/MainMenu'
 import { QuickMenu } from './components/QuickMenu'
@@ -34,7 +35,7 @@ import { guardians, type GuardianId } from './state/guardians'
 import type { AvailableAssessment } from './state/shield'
 
 type Screen = 'menu' | 'customise' | 'play'
-type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu'; fromMenu?: boolean }
+type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu' | 'friends'; fromMenu?: boolean }
 type EvidenceOverlay = { type: 'evidence'; parent?: PanelOverlay }
 type Overlay =
   | PanelOverlay
@@ -299,7 +300,7 @@ export default function App() {
     return true
   }
 
-  function openPanel(panel: GamePanelView | 'menu', fromMenu = false) {
+  function openPanel(panel: GamePanelView | 'menu' | 'friends', fromMenu = false) {
     setOverlay(panel === 'pack' && current.current?.scene === 'House'
       ? { type: 'house-inventory', fromMenu }
       : { type: 'panel', panel, fromMenu })
@@ -340,6 +341,8 @@ export default function App() {
     {overlay?.type === 'panel' && (overlay.panel === 'menu'
       ? <QuickMenu save={save} onClose={() => setOverlay(null)} onCheckpoint={saveCheckpoint} onReturn={returnToMenu}
         onReturnToNeighbourhood={() => travelHouse('Neighbourhood')} onOpen={panel => openPanel(panel, true)} />
+      : overlay.panel === 'friends'
+      ? <FriendsPanel onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}
         onCollectGuardian={collectGuardian}
         onOpenBoard={() => setOverlay({ type: 'evidence', parent: overlay })}

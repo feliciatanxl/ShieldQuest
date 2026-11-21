@@ -15,7 +15,7 @@ We welcome contributions across several key domains:
 1. **Scenario Content & Curriculum Review:** Review draft scenarios across our four districts (School Street, Retail District, Digi-District, Community Hub) for factual accuracy, age-appropriate language, emotional tone, and strict avoidance of victim-blaming. We especially welcome inputs from educators, youth workers, and crime-prevention specialists.
 2. **Youth Co-Design & Feedback:** Participate in youth feedback sessions to help ensure scenarios reflect the genuine social pressures, digital platforms, and slang encountered by youths in Singapore.
 3. **Accessibility & Usability Audits:** Test interfaces against WCAG 2.1 Level AA standards, specifically evaluating keyboard navigation, screen-reader compatibility, scalable typography, colour-blind accessibility, and performance on low-end mobile devices.
-4. **Technical Implementation:** Assist with planned application rebuild tasks (front-end PWA components, anonymous session management, state logic for the Delayed Consequence Engine, Guardian abilities, and the Scenario Management Portal) that have been agreed upon in an open issue.
+4. **Technical Implementation:** Assist with game development (React UI panels, Phaser isometric scenes, S.H.I.E.L.D. challenge assessments, escape room puzzles, Friends system, and WebSocket multiplayer room infrastructure) that have been agreed upon in an open issue.
 
 ---
 
@@ -97,11 +97,12 @@ When opening a Pull Request (PR), ensure the description provides:
 
 ## Testing Expectations
 
-Contributions touching core application mechanics should include automated or reproducible manual test plans:
+Contributions touching core application mechanics should include automated tests or reproducible manual verification:
 
-- **Anonymous Squad Voting:** Tests should verify that individual ballots are aggregated on the server and that client-bound payloads do not expose individual identifiers.
-- **Delayed Consequence Logic:** Unit tests should confirm that state changes (e.g. district trust adjustments, flagged account alerts) trigger deterministically across subsequent scenario turns.
-- **Content Moderation Gate:** Tests should verify that scenarios marked as draft or unreviewed cannot be queried or rendered by public player clients.
+- **Quality Checks:** All pull requests must pass `npm run typecheck` and `npm run build` without errors.
+- **Automated Tests:** Run `npm test` from the root directory to execute all unit tests (covering multiplayer room lifecycle, presence, protocol admission, escape room progression, guardian unlock prerequisites, and friend code validation).
+- **Multiplayer Checks:** Backend changes under `infra/multiplayer` must pass `npm run typecheck` and `npm test` within `infra/multiplayer`.
+- **Gameplay Verification:** Manually verify touch, mouse, and keyboard controls across all active locations (Sunshine Estate, Sunshine Minimart, The Mysterious House) and confirm save compatibility.
 
 ---
 
