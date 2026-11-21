@@ -3,7 +3,8 @@ import type { Hotspot } from './events'
 import type { Point } from '../state/saveGame'
 import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, SHOP_DOOR } from './locations'
 import { type Footprint } from './isometric'
-import { groundColors, neighbourhood, type MapProp } from './maps'
+import { neighbourhood, type MapProp } from './maps'
+import { groundTiles, spriteProp } from './pixellabArt'
 import { isResident } from './residentData'
 import {
   bench, block, bougainvillea, box, communityGarden, floor, front, kopitiamTable, lamp,
@@ -21,23 +22,7 @@ export type WorldLayout = { hotspots: Hotspot[]; collisions: Footprint[]; size: 
 function pavement(scene: Phaser.Scene) {
   const map = neighbourhood
   const g = scene.add.graphics().setDepth(-2000)
-  floor(g, -16, -16, 72, 66, '#9caf7c')
-  map.tiles.forEach((tile, index) => {
-    if (!tile) return
-    const x = index % map.size.x
-    const y = Math.floor(index / map.size.x)
-    floor(g, x, y, 1, 1, groundColors[tile - 1] ?? '#a8bd83')
-    const detail = (x * 37 + y * 139 + x * y * 41) % 19
-    if (tile <= 4 && detail < 12) {
-      floor(g, x + .19, y + .23, .13, .052, '#819d6d', 0, .75)
-      floor(g, x + .63, y + .68, .085, .056, detail < 4 ? '#f1d39e' : '#b9ce8b')
-      floor(g, x + .40, y + .23, .045, .15, '#91a86f')
-    } else if ((tile >= 5 && tile <= 8) || (tile >= 13 && tile <= 16)) {
-      floor(g, x, y, 1, .022, '#b2a398', 0, .5)
-      floor(g, x, y, .022, 1, '#b2a398', 0, .5)
-      if (detail < 6) floor(g, x + .65, y + .26, .115, .05, '#c6af9e')
-    }
-  })
+  groundTiles(scene, map.tiles, map.size.x)
   return g
 }
 
@@ -130,6 +115,7 @@ function bicycles(g: Phaser.GameObjects.Graphics, p: MapProp) {
 
 function renderProp(scene: Phaser.Scene, p: MapProp) {
   const { kind, x, y, w, d, properties } = p
+  if (spriteProp(scene, p)) return
   if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes', 'house', 'bin', 'sign', 'linkway', 'kopitiam', 'trafficLight', 'garden', 'bougainvillea'].includes(kind)) return
   prop(scene, p, g => {
     switch (kind) {

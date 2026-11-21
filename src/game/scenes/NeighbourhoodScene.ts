@@ -1,10 +1,15 @@
 import { START } from '../../state/saveGame'
+import { preloadPixelLab } from '../pixellabArt'
 import { createWorld } from '../world'
 import { ExplorationScene, type Launch } from './ExplorationScene'
 
 export class NeighbourhoodScene extends ExplorationScene {
   constructor(launch: Launch) {
     super(launch, 'Neighbourhood', START)
+  }
+
+  preload() {
+    preloadPixelLab(this)
   }
 
   protected createWorld() {

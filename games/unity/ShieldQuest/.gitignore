@@ -1,0 +1,14 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/MemoryCaptures/
+*.csproj
+*.sln
+# Synced from src/game by Editor/PixelLabSync.cs (single source of art)
+/Assets/Resources/PixelLab/
+/Assets/Resources/PixelLab.meta

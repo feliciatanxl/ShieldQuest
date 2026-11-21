@@ -8,8 +8,8 @@
  "height": 32,
  "tilewidth": 64,
  "tileheight": 32,
- "nextlayerid": 3,
- "nextobjectid": 147,
+ "nextlayerid": 4,
+ "nextobjectid": 179,
  "layers": [
   {
    "id": 1,
@@ -3037,6 +3037,600 @@
      "height": 38.4,
      "visible": true,
      "rotation": 0,
+     "properties": []
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "Landscaping",
+   "type": "objectgroup",
+   "visible": true,
+   "opacity": 1,
+   "x": 0,
+   "y": 0,
+   "draworder": "topdown",
+   "objects": [
+    {
+     "id": 147,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 817.7,
+     "y": 35.6,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 148,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1168.7,
+     "y": 35.9,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 149,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 919,
+     "y": 69.4,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 150,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1012.3,
+     "y": 73.9,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 151,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1072.1,
+     "y": 73.3,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 152,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 776.1,
+     "y": 120.9,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 153,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 966.4,
+     "y": 179.3,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 154,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1059.7,
+     "y": 318.4,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 155,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1117.2,
+     "y": 317.6,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 156,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 826.8,
+     "y": 380.5,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 157,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1072.1,
+     "y": 374.2,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 158,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1163.9,
+     "y": 377,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 159,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1116.8,
+     "y": 433.1,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 160,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 865.6,
+     "y": 620,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 161,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 971.2,
+     "y": 618.8,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 162,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1062.5,
+     "y": 611.1,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 163,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1164.5,
+     "y": 623,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 164,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1124.2,
+     "y": 665,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 165,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 127.6,
+     "y": 724.7,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 166,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 262.6,
+     "y": 719.5,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 167,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 424.4,
+     "y": 725.7,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 168,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 826.7,
+     "y": 708.9,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 169,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 974.4,
+     "y": 716.6,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 170,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1072.7,
+     "y": 728.1,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 171,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1155.8,
+     "y": 728,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 172,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 772.3,
+     "y": 772.3,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 173,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 877,
+     "y": 768.3,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": true
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 174,
+     "name": "Rain tree",
+     "type": "tree",
+     "x": 1012.6,
+     "y": 818.9,
+     "width": 22.4,
+     "height": 22.4,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "large",
+       "type": "bool",
+       "value": false
+      },
+      {
+       "name": "hue",
+       "type": "int",
+       "value": 0
+      }
+     ]
+    },
+    {
+     "id": 175,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 1115.2,
+     "y": 811.6,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 176,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 133.4,
+     "y": 913.6,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 177,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 64.7,
+     "y": 961.3,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
+     "properties": []
+    },
+    {
+     "id": 178,
+     "name": "Bougainvillea",
+     "type": "bougainvillea",
+     "x": 222.9,
+     "y": 968.4,
+     "width": 19.2,
+     "height": 19.2,
+     "rotation": 0,
+     "visible": true,
      "properties": []
     }
    ]
