@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Backpack, ChevronDown, ClipboardList, Compass, DoorOpen, Gamepad2, Map, Network, Pause, Play, RotateCcw, Save as SaveIcon, Settings, Shield, Shirt, Users } from 'lucide-react'
+import { Backpack, ChevronDown, ClipboardList, Compass, DoorOpen, Gamepad2, Map, Play, RotateCcw, Save as SaveIcon, Settings, Shield, Shirt, Users } from 'lucide-react'
 import type { Save } from '../state/saveGame'
 import { guardians } from '../state/guardians'
 import { currentObjective, objectiveDetails } from './GameHUD'
@@ -19,14 +19,18 @@ const shortcuts = [
 export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onReturnToNeighbourhood }: {
   save: Save
   onClose: () => void
-  onOpen: (panel: GamePanelView | 'friends' | 'freeze-frame' | 'whisper-network') => void
+  onOpen: (panel: GamePanelView | 'friends') => void
   onCheckpoint: () => boolean
   onReturn: () => void
   onReturnToNeighbourhood: () => void
 }) {
   const [feedback, setFeedback] = useState('')
   const house = save.scene === 'House'
-  const area = house ? 'The Mysterious House' : save.scene === 'Minimart' ? 'Sunshine Minimart' : 'Sunshine Estate'
+  const isInterior = house || save.scene === 'HouseH' || save.scene === 'HouseI'
+  const area = house ? 'The Mysterious House'
+    : save.scene === 'HouseH' ? 'Freeze Frame House'
+    : save.scene === 'HouseI' ? 'Whisper Network House'
+    : save.scene === 'Minimart' ? 'Sunshine Minimart' : 'Sunshine Estate'
 
   return <Modal title={area} eyebrow="PAUSED · QUICK MENU" className="quick-menu" onClose={onClose}>
     <details className="quick-objective">
@@ -50,11 +54,9 @@ export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onRet
     </nav>
     <footer className="quick-footer">
       <div className="quick-utilities">
-        <Button onClick={() => onOpen('freeze-frame')}><Pause size={16} /> Practice H (Freeze Frame)</Button>
-        <Button onClick={() => onOpen('whisper-network')}><Network size={16} /> Practice I (Whisper Network)</Button>
         <Button onClick={() => setFeedback(onCheckpoint() ? 'Checkpoint saved.' : 'Browser storage is unavailable.')}><SaveIcon size={16} /> Save checkpoint</Button>
         <Button onClick={() => onOpen('controls')}><Gamepad2 size={17} /> Help &amp; controls</Button>
-        {house
+        {isInterior
           ? <Button onClick={onReturnToNeighbourhood}><DoorOpen size={16} /> Return to Neighbourhood</Button>
           : <Button onClick={() => onOpen('restart')}><RotateCcw size={16} /> Restart tutorial</Button>}
         <Button onClick={onReturn}><DoorOpen size={17} /> Return to title</Button>

@@ -1,12 +1,12 @@
 import type Phaser from 'phaser'
 import type { Hotspot } from './events'
 import type { Point } from '../state/saveGame'
-import { HOUSE_DOOR, SHOP_DOOR } from './locations'
+import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, SHOP_DOOR } from './locations'
 import { type Footprint } from './isometric'
 import { groundColors, neighbourhood, type MapProp } from './maps'
 import { isResident } from './residentData'
 import { bench, block, box, floor, front, lamp, planter, poly, prop, shelter, shop, tree } from './worldArt'
-import { houseExterior } from './houseArt'
+import { houseExterior, houseHExterior, houseIExterior } from './houseArt'
 
 const labels = {
   may: 'Talk to Auntie May', amir: 'Talk to Amir',
@@ -17,12 +17,12 @@ export type WorldLayout = { hotspots: Hotspot[]; collisions: Footprint[]; size: 
 function pavement(scene: Phaser.Scene) {
   const map = neighbourhood
   const g = scene.add.graphics().setDepth(-2000)
-  floor(g, -13, -13, 51, 49, '#9caf7c')
+  floor(g, -16, -16, 72, 66, '#9caf7c')
   map.tiles.forEach((tile, index) => {
     if (!tile) return
     const x = index % map.size.x
     const y = Math.floor(index / map.size.x)
-    floor(g, x, y, 1, 1, groundColors[tile - 1])
+    floor(g, x, y, 1, 1, groundColors[tile - 1] ?? '#a8bd83')
     const detail = (x * 37 + y * 139 + x * y * 41) % 19
     if (tile <= 4 && detail < 12) {
       floor(g, x + .19, y + .23, .13, .052, '#819d6d', 0, .75)
@@ -39,27 +39,51 @@ function pavement(scene: Phaser.Scene) {
 
 function street(scene: Phaser.Scene) {
   const g = pavement(scene)
-  for (let x = 0; x < 25; x++) {
+  // Main horizontal street extended across the full width
+  for (let x = 0; x < 38; x++) {
     floor(g, x, 15.04, 1, .045, '#bdbcaf')
     floor(g, x, 17.89, 1, .045, '#c4c2b4')
-    if (x % 2 === 0 && x !== 16 && x !== 20) floor(g, x + .12, 16.49, .66, .065, '#ead5aa')
+    if (x % 2 === 0 && x !== 16 && x !== 20 && x !== 28) floor(g, x + .12, 16.49, .66, .065, '#ead5aa')
   }
-  for (let y = 5; y < 15; y++) {
+  // Central North-South boulevard extended down into the south expansion
+  for (let y = 5; y < 31; y++) {
     floor(g, 19.05, y, .052, 1, '#c4c2b4')
     floor(g, 21.9, y, .055, 1, '#c4c2b4')
-    if (y % 2 === 0) floor(g, 20.49, y + .18, .065, .62, '#e7d4a8')
+    if (y % 2 === 0 && y !== 16 && y !== 28) floor(g, 20.49, y + .18, .065, .62, '#e7d4a8')
   }
+  // South Boulevard connecting the new community district
+  for (let x = 8; x < 35; x++) {
+    floor(g, x, 28.04, 1, .045, '#bdbcaf')
+    floor(g, x, 30.89, 1, .045, '#c4c2b4')
+    if (x % 2 === 0 && x !== 20) floor(g, x + .12, 29.49, .66, .065, '#ead5aa')
+  }
+
+  // Zebra pedestrian crossings
   for (let index = 0; index < 7; index++) {
     floor(g, 16.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
     floor(g, 19.14 + index * .39, 13.25, .21, 1.22, '#e6dfcc')
+    floor(g, 28.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
+    floor(g, 19.14 + index * .39, 26.25, .21, 1.22, '#e6dfcc')
   }
   floor(g, 15.99, 14.73, 1.44, .23, '#e5b38b')
   floor(g, 15.99, 18.05, 1.44, .23, '#e5b38b')
+  floor(g, 27.99, 14.73, 1.44, .23, '#e5b38b')
+  floor(g, 27.99, 18.05, 1.44, .23, '#e5b38b')
   floor(g, 2.23, 10.51, 4.9, .24, '#daba8f')
   floor(g, 13.01, 9.16, .44, .37, '#e5bd84')
   floor(g, 22.05, 9.91, 2.63, .44, '#d7c7a9')
   floor(g, 22.00, 9.93, .40, .91, '#d7c7a9')
   for (let i = 0; i < 8; i++) floor(g, 13.05 + .048 * i, 9.28, .018, .18, '#a37567')
+
+  // Paved walkway & entrance plaza for House H (Freeze Frame)
+  floor(g, 27.2, 8.0, 2.8, 1.6, '#d7c7a9')
+  floor(g, 28.0, 8.4, 1.1, .35, '#e5bd84')
+  for (let y = 9.2; y < 15.0; y += .95) floor(g, 28.0, y, .85, .95, '#dfd2bd')
+
+  // Paved promenade & entrance plaza for House I (Whisper Network)
+  floor(g, 13.2, 26.0, 2.8, 1.6, '#d7c7a9')
+  floor(g, 14.0, 26.4, 1.1, .35, '#e5bd84')
+  for (let y = 26.8; y < 28.0; y += .6) floor(g, 14.0, y, .85, .6, '#dfd2bd')
 }
 
 function playArea(g: Phaser.GameObjects.Graphics, p: MapProp) {
@@ -105,7 +129,11 @@ function renderProp(scene: Phaser.Scene, p: MapProp) {
       case 'shelter': case 'bus': shelter(g, x, y, w, d, kind === 'bus'); break
       case 'play': playArea(g, p); break
       case 'bikes': bicycles(g, p); break
-      case 'house': houseExterior(g, p); break
+      case 'house':
+        if (p.name.includes('Freeze Frame') || p.name.includes('House H')) houseHExterior(g, p)
+        else if (p.name.includes('Whisper Network') || p.name.includes('House I')) houseIExterior(g, p)
+        else houseExterior(g, p)
+        break
     }
   })
 }
@@ -129,5 +157,7 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   }
   hotspots.push({ id: 'enter', label: 'Enter Sunshine Minimart', at: SHOP_DOOR, radius: .82 })
   hotspots.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
+  hotspots.push({ id: 'house-h-entrance', label: 'Enter Freeze Frame House', at: HOUSE_H_DOOR, radius: .95 })
+  hotspots.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
   return { hotspots, collisions: collisions as Footprint[], size: map.size }
 }

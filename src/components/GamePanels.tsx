@@ -51,7 +51,7 @@ export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, 
 
 function AreaMap({ save }: { save: Save }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const inside = save.scene === 'Minimart'
+  const inside = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI'
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
   const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE

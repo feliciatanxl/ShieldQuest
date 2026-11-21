@@ -2,13 +2,17 @@ import Phaser from 'phaser'
 import { NeighbourhoodScene } from './scenes/NeighbourhoodScene'
 import { MinimartScene } from './scenes/MinimartScene'
 import { HouseScene } from './scenes/HouseScene'
+import { HouseHScene } from './scenes/HouseHScene'
+import { HouseIScene } from './scenes/HouseIScene'
 import type { Launch } from './scenes/ExplorationScene'
 
 export function mountGame(parent: HTMLElement, launch: Launch) {
   const neighbourhood = new NeighbourhoodScene(launch)
   const minimart = new MinimartScene(launch)
   const house = new HouseScene(launch)
-  const scenes = { Neighbourhood: neighbourhood, Minimart: minimart, House: house }
+  const houseH = new HouseHScene(launch)
+  const houseI = new HouseIScene(launch)
+  const scenes = { Neighbourhood: neighbourhood, Minimart: minimart, House: house, HouseH: houseH, HouseI: houseI }
   const first = scenes[launch.scene ?? 'Neighbourhood']
   let viewportObserver: ResizeObserver | undefined
   const game = new Phaser.Game({
@@ -41,6 +45,8 @@ export function mountGame(parent: HTMLElement, launch: Launch) {
     neighbourhood.detach()
     minimart.detach()
     house.detach()
+    houseH.detach()
+    houseI.detach()
     game.destroy(true)
   }
 }

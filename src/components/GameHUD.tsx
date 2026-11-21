@@ -21,6 +21,8 @@ export type Panel = GameTool | 'menu'
 export function currentObjective(save: Save) {
   const { scene, tutorial, investigation } = save
   if (scene === 'House') return save.escapeRoom.completedAt ? 'Level 1 Completed' : 'Investigate the Missing Evidence'
+  if (scene === 'HouseH') return 'Hold Practice · Freeze Frame Station'
+  if (scene === 'HouseI') return 'Influence Practice · Whisper Network Station'
   if (save.shield.D) return STORY_TITLE
   if (save.shield.L) return DEFEND_TITLE
   if (save.shield.E) return LEAD_TITLE
@@ -93,7 +95,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
 }) {
   const [expanded, setExpanded] = useState(false)
   const xp = Math.round(save.walked / WALK_GOAL * 20)
-  const indoors = save.scene === 'Minimart'
+  const indoors = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI'
   const house = save.scene === 'House'
   const tutorial = save.tutorial === 'active' && !indoors && !house
   const { S, H, I, E, L, D } = save.shield

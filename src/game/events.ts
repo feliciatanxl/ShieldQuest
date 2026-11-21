@@ -5,7 +5,19 @@ import type { Location } from './locations'
 import type { HouseObjectId } from './houseLayout'
 
 export type ResidentId = 'may' | 'amir' | 'jun' | 'cashier'
-export type HotspotId = ResidentId | ClueId | HouseObjectId | 'enter' | 'exit' | 'house-entrance'
+export type HotspotId =
+  | ResidentId
+  | ClueId
+  | HouseObjectId
+  | 'enter'
+  | 'exit'
+  | 'house-entrance'
+  | 'house-h-entrance'
+  | 'exit-house-h'
+  | 'freeze-station'
+  | 'house-i-entrance'
+  | 'exit-house-i'
+  | 'whisper-station'
 export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number }
 
 type GameEvents = {

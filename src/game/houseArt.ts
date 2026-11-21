@@ -37,6 +37,68 @@ export function houseExterior(g: Graphics, { x, y, w, d }: Footprint) {
   letterSign(g, 'MYSTERY HOUSE', x + .46, frontY, 43, .94, '#fff0c4')
 }
 
+export function houseHExterior(g: Graphics, { x, y, w, d }: Footprint) {
+  const frontY = y + d
+  const wallPlaster = ['#eef3ed', '#c7d6c9', '#92a896'] as const
+  box(g, x, y, w, d, 60, wallPlaster)
+  const ridge = y + d / 2
+  // Teal sloped roof
+  poly(g, '#2b6e68', [[x - .12, frontY + .14, 59], [x + w + .15, frontY + .14, 59],
+    [x + w + .15, ridge, 86], [x - .12, ridge, 86]])
+  poly(g, '#184743', [[x - .12, ridge, 86], [x + w + .15, ridge, 86], [x + w + .15, y - .14, 59], [x - .12, y - .14, 59]])
+  poly(g, '#679b93', [[x + w, y, 60], [x + w, frontY, 60], [x + w, ridge, 84]])
+  front(g, x - .12, frontY + .14, w + .27, 56, 4, '#1b3f3c')
+  for (let i = 1; i < 5; i++) {
+    const shadeY = frontY + .14 - i * (d / 2 + .14) / 5
+    front(g, x - .09, shadeY, w + .22, 59 + i * 5.2, 1.5, '#408780')
+  }
+  // Door with teal & gold trim
+  front(g, x + .95, frontY, .75, 0, 40, '#1c3e3c')
+  front(g, x + 1.02, frontY, .61, 1, 36, '#28736b')
+  front(g, x + 1.48, frontY, .065, 16, 4, '#f8d485')
+  // Observation bay windows
+  for (const windowX of [x + .20, x + 1.95]) {
+    front(g, windowX, frontY, .46, 17, 23, '#1d4340')
+    front(g, windowX + .047, frontY, .365, 20, 17, '#a9dad2')
+    front(g, windowX + .205, frontY, .045, 20, 17, '#e4f3ef')
+    front(g, windowX + .047, frontY, .365, 27, 2, '#e4f3ef')
+  }
+  // Signboard: "FREEZE FRAME"
+  front(g, x + .30, frontY, 1.9, 43, 11, '#1b3f3c')
+  letterSign(g, 'FREEZE FRAME', x + .42, frontY, 44, .95, '#ffe396')
+}
+
+export function houseIExterior(g: Graphics, { x, y, w, d }: Footprint) {
+  const frontY = y + d
+  const amberPlaster = ['#f7ebd7', '#dfc2a2', '#a88160'] as const
+  box(g, x, y, w, d, 60, amberPlaster)
+  const ridge = y + d / 2
+  // Amber / Terracotta sloped roof
+  poly(g, '#96482e', [[x - .12, frontY + .14, 59], [x + w + .15, frontY + .14, 59],
+    [x + w + .15, ridge, 86], [x - .12, ridge, 86]])
+  poly(g, '#672e1c', [[x - .12, ridge, 86], [x + w + .15, ridge, 86], [x + w + .15, y - .14, 59], [x - .12, y - .14, 59]])
+  poly(g, '#bd6a4d', [[x + w, y, 60], [x + w, frontY, 60], [x + w, ridge, 84]])
+  front(g, x - .12, frontY + .14, w + .27, 56, 4, '#4d2315')
+  for (let i = 1; i < 5; i++) {
+    const shadeY = frontY + .14 - i * (d / 2 + .14) / 5
+    front(g, x - .09, shadeY, w + .22, 59 + i * 5.2, 1.5, '#ba5f3e')
+  }
+  // Mahogany door with brass knocker
+  front(g, x + .95, frontY, .75, 0, 40, '#4a2618')
+  front(g, x + 1.02, frontY, .61, 1, 36, '#7d4129')
+  front(g, x + 1.48, frontY, .065, 16, 4, '#ffda73')
+  // Warm deduction study windows
+  for (const windowX of [x + .20, x + 1.95]) {
+    front(g, windowX, frontY, .46, 17, 23, '#4a2618')
+    front(g, windowX + .047, frontY, .365, 20, 17, '#fcd59d')
+    front(g, windowX + .205, frontY, .045, 20, 17, '#fff1db')
+    front(g, windowX + .047, frontY, .365, 27, 2, '#fff1db')
+  }
+  // Signboard: "WHISPER NET"
+  front(g, x + .30, frontY, 1.9, 43, 11, '#4a2618')
+  letterSign(g, 'WHISPER NET', x + .46, frontY, 44, .95, '#ffd875')
+}
+
 function drawFurniture(g: Graphics, f: typeof houseFurniture[number]) {
   const { x, y, w, d, kind } = f
   const face = y + d

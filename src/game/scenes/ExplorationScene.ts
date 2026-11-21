@@ -6,7 +6,7 @@ import { type GameBridge, type Hotspot } from '../events'
 import { canStand, project, screenMovement } from '../isometric'
 import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
-import { SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
+import { HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
 
 export type Launch = {
@@ -87,7 +87,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
         bridge.on('action', () => this.interact()),
         bridge.on('houseTravel', ({ target, position }) => {
           if ((target === 'House' && (this.location === 'Neighbourhood' || this.location === 'House')) ||
-              (target === 'Neighbourhood' && this.location === 'House')) this.changeLocation(target, position)
+              (target === 'Neighbourhood' && (this.location === 'House' || this.location === 'HouseH' || this.location === 'HouseI'))) this.changeLocation(target, position)
         }),
         bridge.on('direction', direction => { this.touch = this.locked || this.transitioning ? { x: 0, y: 0 } : direction }),
         bridge.on('motion', motion => {
@@ -219,6 +219,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const { id } = this.nearby
     if (id === 'enter') this.changeLocation('Minimart', SHOP_SPAWN)
     else if (id === 'exit') this.changeLocation('Neighbourhood', SHOP_DOOR)
+    else if (id === 'house-h-entrance') this.changeLocation('HouseH', HOUSE_H_SPAWN)
+    else if (id === 'exit-house-h') this.changeLocation('Neighbourhood', HOUSE_H_DOOR)
+    else if (id === 'house-i-entrance') this.changeLocation('HouseI', HOUSE_I_SPAWN)
+    else if (id === 'exit-house-i') this.changeLocation('Neighbourhood', HOUSE_I_DOOR)
     else this.launch.bridge.emit('interact', id)
   }
 

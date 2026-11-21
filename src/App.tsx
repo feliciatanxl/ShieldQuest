@@ -22,7 +22,7 @@ import { Button, Modal } from './components/ui'
 import { GameBridge, type Hotspot, type ResidentId } from './game/events'
 import { isResident } from './game/residentData'
 import { houseObject, type HouseObject } from './game/houseLayout'
-import { HOUSE_DOOR, HOUSE_SPAWN } from './game/locations'
+import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, HOUSE_SPAWN } from './game/locations'
 import { applyEscapeAction, newEscapeRoom, type EscapeAction } from './state/escapeRoom'
 import { presets, type Avatar } from './state/avatar'
 import { newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
@@ -149,6 +149,12 @@ export default function App() {
         if (id === 'house-entrance' && previous.scene === 'Neighbourhood') {
           locked.current = true
           setOverlay({ type: 'house-entry' })
+        } else if (id === 'freeze-station') {
+          locked.current = true
+          setOverlay({ type: 'freeze-frame' })
+        } else if (id === 'whisper-station') {
+          locked.current = true
+          setOverlay({ type: 'whisper-network' })
         } else if (previous.scene === 'House') {
           const object = houseObject(id)
           if (!object) return
@@ -267,9 +273,21 @@ export default function App() {
   function travelHouse(target: 'House' | 'Neighbourhood', replay = false) {
     const previous = current.current
     if (!previous || transitioning) return
-    if (target === 'Neighbourhood' && previous.scene !== 'House') {
-      setOverlay(null)
-      return
+    if (target === 'Neighbourhood') {
+      if (previous.scene === 'HouseH') {
+        bridge.emit('houseTravel', { target: 'Neighbourhood', position: HOUSE_H_DOOR })
+        setOverlay(null)
+        return
+      }
+      if (previous.scene === 'HouseI') {
+        bridge.emit('houseTravel', { target: 'Neighbourhood', position: HOUSE_I_DOOR })
+        setOverlay(null)
+        return
+      }
+      if (previous.scene !== 'House') {
+        setOverlay(null)
+        return
+      }
     }
     if (replay) persist({ ...previous, escapeRoom: newEscapeRoom() })
     else if (previous.scene === 'House') persist(accountHouseTime(previous))
@@ -351,11 +369,7 @@ export default function App() {
     {overlay?.type === 'panel' && (overlay.panel === 'menu'
       ? <QuickMenu save={save} onClose={() => setOverlay(null)} onCheckpoint={saveCheckpoint} onReturn={returnToMenu}
         onReturnToNeighbourhood={() => travelHouse('Neighbourhood')}
-        onOpen={panel => {
-          if (panel === 'freeze-frame') setOverlay({ type: 'freeze-frame', parent: overlay })
-          else if (panel === 'whisper-network') setOverlay({ type: 'whisper-network', parent: overlay })
-          else openPanel(panel, true)
-        }} />
+        onOpen={panel => openPanel(panel, true)} />
       : overlay.panel === 'friends'
       ? <FriendsPanel onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}
