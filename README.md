@@ -40,13 +40,43 @@ Inspect all five minimart clues, then select **Begin Spot the Risk** from the ob
 
 Submit once to complete S and unlock **Hold Before Acting**. The saved result is available to review after continuing from the title screen.
 
-## Hold Before Acting
+## Hold Before Acting & Interactive Mini-Game: Freeze Frame
 
-After submitting Spot the Risk, select **Begin Hold Before Acting** in the objective card. Select an immediate response to Jun, review it, and confirm. Only declining calmly and suggesting normal shopping meets the safe boundary criterion. Any submitted response completes H and unlocks **Identify the Influence**. The H record is independent of the S score and the story response to Jun. Existing saves with only an S result can continue into H.
+After submitting Spot the Risk, select **Begin Hold Before Acting** in the objective card. Select an immediate response to Jun, review it, and confirm. Only declining calmly and suggesting normal shopping meets the safe boundary criterion. Any submitted response completes H and unlocks **Identify the Influence**. The H record is independent of the S score and the story response to Jun.
 
-## Identify the Influence
+### Interactive Mini-Game: Freeze Frame (H Practice)
+Launch **Freeze Frame** from the H challenge, dialogue with Jun in Sunshine Minimart, or **Quick Menu → Practice H (Freeze Frame)**.
+- **Gameplay concept:** Inspired by *Papers, Please* and *The Case of the Golden Idol*, players experience a pausable real-time scenario inside Sunshine Minimart where Jun pressures them to watch the entrance.
+- **Controls & mechanics:**
+  - **Timeline Scrubber:** Play, Pause (Spacebar), step frame-by-frame, scrub across 5 scenario stages, or switch to 0.5x slow-motion.
+  - **Environmental Hotspots:** Inspect Jun's personal backpack (unpaid electronics), the active HD CCTV observation monitor, cashier store policies, the shopping basket abandoned on the floor, and pedestrians outside.
+  - **Clarification Inquiries:** Interrogate Jun and Mr. Tan to uncover real intentions versus artificial urgency.
+  - **Action Decisions:** Choose between calm protective boundaries, impulsive complicity, reckless public accusation, or passive evasion.
+  - **Scoring:** Measures pausing, evidence gathering, clarification, and boundary assertiveness (pressing Pause alone does not award a pass). Results persist locally without modifying official assessment records.
 
-Select **Begin Identify the Influence** after submitting H. Identify the pressure tactic and requested role in Jun’s words, then review and confirm both answers. A pass requires both parts to be correct. Any submission completes I and advances the objective to **Evaluate Consequences**. The save stores both answers and each part’s correctness in a separate I record. Existing saves with an H result can continue into I.
+## Identify the Influence & Interactive Mini-Game: Whisper Network
+
+Select **Begin Identify the Influence** after submitting H. Identify the pressure tactic and requested role in Jun’s words, then review and confirm both answers. A pass requires both parts to be correct. Any submission completes I and advances the objective to **Evaluate Consequences**.
+
+### Interactive Mini-Game: Whisper Network (I Practice)
+Launch **Whisper Network** from the I challenge, dialogue with Auntie May / Amir, or **Quick Menu → Practice I (Whisper Network)**.
+- **Gameplay concept:** Inspired by *Among Us*, *Suspects: Mystery Mansion*, and *The Case of the Golden Idol*, players investigate how peer pressure, rumors, and manipulative persuasion spread across Sunshine Estate.
+- **Scenario Variations:**
+  - **Case 1: The Minimart Snack Dare:** Unravels how supply delays were twisted into a dare to pocket snacks while claiming CCTV was broken.
+  - **Case 2: The Fast-Cash Account Scheme:** Exposes money-mule recruitment targeting students with $300 cash offers, 5 PM artificial deadlines, and isolation tactics.
+- **Controls & mechanics:**
+  - **Witness Interviews:** Examine transcripts from Amir, Jun, Auntie May, and Mr. Tan, extracting manipulative quote chips into an evidence ledger.
+  - **Influence Board:** Map quotes to psychological tactics (*Artificial Urgency*, *Social Proof*, *Friendship Appeal*, *Ego Dare*, *False Authority*, *Fast Reward*, *Secrecy/Isolation*).
+  - **Rumour Distortion:** Pinpoint the innocent truth that was twisted by chat groups.
+  - **Detective Ranking:** Comprehensive evaluation awarding Detective Ranks from Cadet to *Chief Guardian Analyst*.
+
+## Mobile Virtual Joystick: Run Lock & Speed Modulation
+
+On touch devices, drag the bottom-left virtual joystick:
+- **Walk:** Drag within the inner dashed circle to walk at normal speed.
+- **Run:** Push past the dashed ring toward the perimeter to run.
+- **Run Lock (Auto-Run):** Push up into the top lock notch or past the run threshold to lock into full sprint speed. The character continues running even when the finger is lifted.
+- **Speed Modulation / Unlock:** Touch the joystick and bring the stick into the normal walking circle (`strength <= 0.78`) to immediately cancel the run lock and transition to normal walking speed. Quick-tapping or dragging to the center stops movement completely.
 
 The challenges use immediate feedback by default. Set `VITE_SHIELD_FEEDBACK=after-post-test` at build time to delay detailed review. H and I show neutral receipts in this mode. A future post-test flow can release the review. Browser-local results and bundled answer keys are suitable for practice rather than controlled assessment.
 

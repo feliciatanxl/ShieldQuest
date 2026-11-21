@@ -1,16 +1,17 @@
 import { useState, type FormEvent } from 'react'
-import { Check, ClipboardCheck } from 'lucide-react'
+import { Check, ClipboardCheck, Network } from 'lucide-react'
 import {
   influenceOptions, influenceParts, type InfluenceAnswers, type InfluenceResult,
 } from '../state/identifyTheInfluence'
 import { canReviewShieldAnswers } from './shieldFeedback'
 import { Button, Modal } from './ui'
 
-export function IdentifyTheInfluenceChallenge({ result, postTestComplete = false, onSubmit, onClose }: {
+export function IdentifyTheInfluenceChallenge({ result, postTestComplete = false, onSubmit, onClose, onLaunchPractice }: {
   result?: InfluenceResult
   postTestComplete?: boolean
   onSubmit: (answers: InfluenceAnswers) => void
   onClose: () => void
+  onLaunchPractice?: () => void
 }) {
   const [answers, setAnswers] = useState<Partial<InfluenceAnswers>>({})
   const [confirming, setConfirming] = useState(false)
@@ -26,12 +27,17 @@ export function IdentifyTheInfluenceChallenge({ result, postTestComplete = false
   }
 
   return <Modal title="Identify the Influence" eyebrow="SHIELD CHALLENGE 3 · I" className="spot-challenge hold-challenge" onClose={onClose}>
-    {result ? <InfluenceFeedback result={result} showReview={canReviewShieldAnswers(postTestComplete)} onClose={onClose} />
+    {result ? <InfluenceFeedback result={result} showReview={canReviewShieldAnswers(postTestComplete)} onClose={onClose} onLaunchPractice={onLaunchPractice} />
       : <form onSubmit={submit}>
         <section className="spot-card hold-scenario" aria-label="Situation">
           <p>Inside Sunshine Minimart, Jun says</p>
           <blockquote>“We’re friends right? Just help me watch the door for a while lah. Don’t need to make it such a big deal.”</blockquote>
           <p>You don’t know whether Jun intends to steal anything.</p>
+          {onLaunchPractice && <div style={{ marginTop: 10 }}>
+            <Button className="secondary" type="button" onClick={onLaunchPractice}>
+              <Network size={16} /> Play Interactive Game: Whisper Network
+            </Button>
+          </div>}
         </section>
         {confirming ? <section className="spot-card hold-selection" aria-labelledby="influence-confirm-heading">
           <h3 id="influence-confirm-heading" tabIndex={-1} ref={heading => { heading?.focus() }}>Confirm your answers</h3>
@@ -65,10 +71,11 @@ export function IdentifyTheInfluenceChallenge({ result, postTestComplete = false
   </Modal>
 }
 
-function InfluenceFeedback({ result, showReview, onClose }: {
+function InfluenceFeedback({ result, showReview, onClose, onLaunchPractice }: {
   result: InfluenceResult
   showReview: boolean
   onClose: () => void
+  onLaunchPractice?: () => void
 }) {
   return <>
     <section className="spot-result" aria-label="Identify the Influence result">
@@ -91,6 +98,11 @@ function InfluenceFeedback({ result, showReview, onClose }: {
         <p>Recognising this pressure and role leaves Jun’s intentions and whether any theft occurred unknown.</p>
       </> : <p role="status">Your two answers were recorded. Feedback becomes available after the post-test.</p>}
     </section>
-    <div className="modal-actions"><Button className="primary" onClick={onClose}>Continue exploring</Button></div>
+    <div className="modal-actions">
+      {onLaunchPractice && <Button className="secondary" onClick={onLaunchPractice}>
+        <Network size={16} /> Play Interactive Game: Whisper Network
+      </Button>}
+      <Button className="primary" onClick={onClose}>Continue exploring</Button>
+    </div>
   </>
 }

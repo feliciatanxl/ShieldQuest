@@ -12,6 +12,8 @@ import { LeadTheRightChoiceChallenge } from './components/LeadTheRightChoiceChal
 import { MultiplayerLobby } from './components/MultiplayerLobby'
 import { lobbyEndpoint } from './multiplayer/endpoint'
 import { FriendsPanel } from './components/FriendsPanel'
+import { FreezeFrameGame } from './components/FreezeFrameGame'
+import { WhisperNetworkGame } from './components/WhisperNetworkGame'
 import { DialogueBox, GamePanel, type GamePanelView } from './components/GamePanels'
 import { MainMenu } from './components/MainMenu'
 import { QuickMenu } from './components/QuickMenu'
@@ -48,6 +50,8 @@ type Overlay =
   | { type: 'house-complete' }
   | EvidenceOverlay
   | { type: 'assessment'; competency: AvailableAssessment; parent?: EvidenceOverlay }
+  | { type: 'freeze-frame'; parent?: Overlay }
+  | { type: 'whisper-network'; parent?: Overlay }
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
@@ -326,21 +330,32 @@ export default function App() {
       onReturn={() => travelHouse('Neighbourhood')} onReview={() => setOverlay({ type: 'house-inventory', fromCompletion: true })}
       onReplay={() => travelHouse('House', true)} onClose={() => setOverlay(null)} />}
     {overlay?.type === 'dialogue' && <DialogueBox id={overlay.id} choice={save.investigation.choice}
-      onChoice={chooseResponse} onClose={() => setOverlay(null)} />}
+      onChoice={chooseResponse} onClose={() => setOverlay(null)}
+      onOpenFreezeFrame={() => setOverlay({ type: 'freeze-frame', parent: overlay })}
+      onOpenWhisperNetwork={() => setOverlay({ type: 'whisper-network', parent: overlay })} />}
     {overlay?.type === 'clue' && <CluePanel id={overlay.id} onClose={() => setOverlay(null)} onOpenBoard={() => setOverlay({ type: 'evidence' })} />}
     {overlay?.type === 'evidence' && <EvidenceBoard discovered={save.investigation.clues} spotComplete={!!save.shield.S}
       onOpenSpot={() => openAssessment('S', overlay)} onClose={() => setOverlay(overlay.parent ?? null)} />}
     {overlay?.type === 'assessment' && <>
       {overlay.competency === 'S' && <SpotTheRiskChallenge result={save.shield.S} onSubmit={submitSpot} onClose={() => setOverlay(overlay.parent ?? null)} />}
-      {overlay.competency === 'H' && <HoldBeforeActingChallenge result={save.shield.H} onSubmit={submitHold} onClose={() => setOverlay(overlay.parent ?? null)} />}
-      {overlay.competency === 'I' && <IdentifyTheInfluenceChallenge result={save.shield.I} onSubmit={submitInfluence} onClose={() => setOverlay(overlay.parent ?? null)} />}
+      {overlay.competency === 'H' && <HoldBeforeActingChallenge result={save.shield.H} onSubmit={submitHold}
+        onClose={() => setOverlay(overlay.parent ?? null)} onLaunchPractice={() => setOverlay({ type: 'freeze-frame', parent: overlay })} />}
+      {overlay.competency === 'I' && <IdentifyTheInfluenceChallenge result={save.shield.I} onSubmit={submitInfluence}
+        onClose={() => setOverlay(overlay.parent ?? null)} onLaunchPractice={() => setOverlay({ type: 'whisper-network', parent: overlay })} />}
       {overlay.competency === 'E' && <EvaluateConsequencesChallenge result={save.shield.E} onSubmit={submitConsequences} onClose={() => setOverlay(overlay.parent ?? null)} />}
       {overlay.competency === 'L' && <LeadTheRightChoiceChallenge result={save.shield.L} onSubmit={submitLead} onClose={() => setOverlay(overlay.parent ?? null)} />}
       {overlay.competency === 'D' && <DefendYourCommunityChallenge result={save.shield.D} onSubmit={submitDefend} onClose={() => setOverlay(overlay.parent ?? null)} />}
     </>}
+    {overlay?.type === 'freeze-frame' && <FreezeFrameGame onClose={() => setOverlay(overlay.parent ?? null)} />}
+    {overlay?.type === 'whisper-network' && <WhisperNetworkGame onClose={() => setOverlay(overlay.parent ?? null)} />}
     {overlay?.type === 'panel' && (overlay.panel === 'menu'
       ? <QuickMenu save={save} onClose={() => setOverlay(null)} onCheckpoint={saveCheckpoint} onReturn={returnToMenu}
-        onReturnToNeighbourhood={() => travelHouse('Neighbourhood')} onOpen={panel => openPanel(panel, true)} />
+        onReturnToNeighbourhood={() => travelHouse('Neighbourhood')}
+        onOpen={panel => {
+          if (panel === 'freeze-frame') setOverlay({ type: 'freeze-frame', parent: overlay })
+          else if (panel === 'whisper-network') setOverlay({ type: 'whisper-network', parent: overlay })
+          else openPanel(panel, true)
+        }} />
       : overlay.panel === 'friends'
       ? <FriendsPanel onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}

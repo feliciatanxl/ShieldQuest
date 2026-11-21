@@ -264,9 +264,14 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
               <span className="friends-code-badge" aria-label={`Your friend code is ${friendCode}`}>
                 {friendCode}
               </span>
-              <Button className={`secondary friends-copy-btn ${copied ? 'copied-state' : ''}`} onClick={() => copyCode(friendCode)}>
-                {copied ? <><Check size={16} /> Copied!</> : <><Copy size={16} /> Copy</>}
-              </Button>
+              <button
+                type="button"
+                className={`friends-copy-btn ${copied ? 'copied-state' : ''}`}
+                onClick={() => copyCode(friendCode)}
+                aria-label={copied ? 'Friend code copied' : 'Copy friend code'}
+              >
+                {copied ? <><Check size={15} /> Copied!</> : <><Copy size={15} /> Copy</>}
+              </button>
             </div>
           </div>
 

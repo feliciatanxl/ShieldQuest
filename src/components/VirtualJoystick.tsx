@@ -70,27 +70,25 @@ export function VirtualJoystick({ blocked, onMove }: { blocked: boolean; onMove:
     const inLockZone = strength >= JOYSTICK_RUN_THRESHOLD && displacement.y < -radius * 0.65 && Math.abs(displacement.x) < radius * 0.85
 
     if (runLocked.current) {
-      // Already locked in run. "unless the user controls the joystick to normal speed":
-      // If user pulls stick down into the normal walking zone (strength <= 0.5):
-      if (strength > 0 && strength <= 0.5) {
+      // User is controlling the joystick while locked in run:
+      // "unless the user controls the joystick to normal speed"
+      // If the user brings the joystick into the normal walking zone:
+      if (strength <= JOYSTICK_RUN_THRESHOLD) {
         runLocked.current = false
         setRunState('idle')
         delete event.currentTarget.dataset.locked
-        delete event.currentTarget.dataset.running
+        event.currentTarget.toggleAttribute('data-running', false)
         stick.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`
         onMove(direction)
         return
       }
 
-      // If user is actively steering while locked in run (strength > 0.5):
-      // Keep full running speed in the steered direction!
-      if (strength > 0.5) {
-        const dist = Math.hypot(direction.x, direction.y)
-        const runDir = dist > 0 ? { x: direction.x / dist, y: direction.y / dist } : { x: 0, y: -1 }
-        stick.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`
-        onMove(runDir)
-        return
-      }
+      // If user continues steering at run speed (strength > JOYSTICK_RUN_THRESHOLD):
+      const dist = Math.hypot(direction.x, direction.y)
+      const runDir = dist > 0 ? { x: direction.x / dist, y: direction.y / dist } : { x: 0, y: -1 }
+      stick.current.style.transform = `translate(${offset.x}px, ${offset.y}px)`
+      onMove(runDir)
+      return
     }
 
     // Normal movement:
@@ -147,7 +145,7 @@ export function VirtualJoystick({ blocked, onMove }: { blocked: boolean; onMove:
     const strength = Math.hypot(lastDirection.current.x, lastDirection.current.y)
     const inLockZone = strength >= JOYSTICK_RUN_THRESHOLD && displacement.y < -radius * 0.65
 
-    if (inLockZone || (runLocked.current && strength > 0.5)) {
+    if (inLockZone || (runLocked.current && strength >= JOYSTICK_RUN_THRESHOLD)) {
       // Lock on run! Keep running speed!
       runLocked.current = true
       setRunState('locked')

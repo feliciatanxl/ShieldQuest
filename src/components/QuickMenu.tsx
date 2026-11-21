@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Backpack, ChevronDown, ClipboardList, Compass, DoorOpen, Gamepad2, Map, Play, RotateCcw, Save as SaveIcon, Settings, Shield, Shirt, Users } from 'lucide-react'
+import { Backpack, ChevronDown, ClipboardList, Compass, DoorOpen, Gamepad2, Map, Network, Pause, Play, RotateCcw, Save as SaveIcon, Settings, Shield, Shirt, Users } from 'lucide-react'
 import type { Save } from '../state/saveGame'
 import { guardians } from '../state/guardians'
 import { currentObjective, objectiveDetails } from './GameHUD'
@@ -19,7 +19,7 @@ const shortcuts = [
 export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onReturnToNeighbourhood }: {
   save: Save
   onClose: () => void
-  onOpen: (panel: GamePanelView | 'friends') => void
+  onOpen: (panel: GamePanelView | 'friends' | 'freeze-frame' | 'whisper-network') => void
   onCheckpoint: () => boolean
   onReturn: () => void
   onReturnToNeighbourhood: () => void
@@ -50,6 +50,8 @@ export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onRet
     </nav>
     <footer className="quick-footer">
       <div className="quick-utilities">
+        <Button onClick={() => onOpen('freeze-frame')}><Pause size={16} /> Practice H (Freeze Frame)</Button>
+        <Button onClick={() => onOpen('whisper-network')}><Network size={16} /> Practice I (Whisper Network)</Button>
         <Button onClick={() => setFeedback(onCheckpoint() ? 'Checkpoint saved.' : 'Browser storage is unavailable.')}><SaveIcon size={16} /> Save checkpoint</Button>
         <Button onClick={() => onOpen('controls')}><Gamepad2 size={17} /> Help &amp; controls</Button>
         {house

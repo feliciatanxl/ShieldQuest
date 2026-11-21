@@ -1,14 +1,15 @@
 import { useState, type FormEvent } from 'react'
-import { Check, ClipboardCheck } from 'lucide-react'
+import { Check, ClipboardCheck, Play } from 'lucide-react'
 import { holdOptions, holdResponses, type HoldResponse, type HoldResult } from '../state/holdBeforeActing'
 import { canReviewShieldAnswers } from './shieldFeedback'
 import { Button, Modal } from './ui'
 
-export function HoldBeforeActingChallenge({ result, postTestComplete = false, onSubmit, onClose }: {
+export function HoldBeforeActingChallenge({ result, postTestComplete = false, onSubmit, onClose, onLaunchPractice }: {
   result?: HoldResult
   postTestComplete?: boolean
   onSubmit: (response: HoldResponse) => void
   onClose: () => void
+  onLaunchPractice?: () => void
 }) {
   const [selection, setSelection] = useState<HoldResponse | null>(null)
   const [confirming, setConfirming] = useState(false)
@@ -21,12 +22,17 @@ export function HoldBeforeActingChallenge({ result, postTestComplete = false, on
   }
 
   return <Modal title="Hold Before Acting" eyebrow="SHIELD CHALLENGE 2 · H" className="spot-challenge hold-challenge" onClose={onClose}>
-    {result ? <HoldFeedback result={result} showReview={canReviewShieldAnswers(postTestComplete)} onClose={onClose} />
+    {result ? <HoldFeedback result={result} showReview={canReviewShieldAnswers(postTestComplete)} onClose={onClose} onLaunchPractice={onLaunchPractice} />
       : <form onSubmit={submit}>
         <section className="spot-card hold-scenario" aria-label="Situation">
           <p>You are inside Sunshine Minimart. Your friend Jun approaches you and says</p>
           <blockquote>“Eh, can you watch the door for me? Just let me know if anyone comes.”</blockquote>
           <p>You are unsure what Jun intends to do. You need to decide how to respond immediately.</p>
+          {onLaunchPractice && <div style={{ marginTop: 10 }}>
+            <Button className="secondary" type="button" onClick={onLaunchPractice}>
+              <Play size={16} /> Play Interactive Scenario: Freeze Frame
+            </Button>
+          </div>}
         </section>
         {confirming && selection ? <section className="spot-card hold-selection" aria-labelledby="hold-confirm-heading">
           <h3 id="hold-confirm-heading" tabIndex={-1} ref={heading => { heading?.focus() }}>Confirm your response</h3>
@@ -52,10 +58,11 @@ export function HoldBeforeActingChallenge({ result, postTestComplete = false, on
   </Modal>
 }
 
-function HoldFeedback({ result, showReview, onClose }: {
+function HoldFeedback({ result, showReview, onClose, onLaunchPractice }: {
   result: HoldResult
   showReview: boolean
   onClose: () => void
+  onLaunchPractice?: () => void
 }) {
   const answer = result.responses[0].answer
   return <>
@@ -68,6 +75,11 @@ function HoldFeedback({ result, showReview, onClose }: {
         <p>You can calmly refuse to take part even when you have no proof that anything is wrong.</p>
       </> : <p role="status">Your response was recorded. Feedback becomes available after the post-test.</p>}
     </section>
-    <div className="modal-actions"><Button className="primary" onClick={onClose}>Continue exploring</Button></div>
+    <div className="modal-actions">
+      {onLaunchPractice && <Button className="secondary" onClick={onLaunchPractice}>
+        <Play size={16} /> Play Interactive Scenario: Freeze Frame
+      </Button>}
+      <Button className="primary" onClick={onClose}>Continue exploring</Button>
+    </div>
   </>
 }

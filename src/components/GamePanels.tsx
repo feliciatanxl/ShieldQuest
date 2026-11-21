@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Backpack, Check, ClipboardList, CloudSun, MapPin } from 'lucide-react'
+import { Backpack, Check, ClipboardList, CloudSun, MapPin, Network, Play } from 'lucide-react'
 import type { ResidentId } from '../game/events'
 import { groundColors, neighbourhood } from '../game/maps'
 import { HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
@@ -22,8 +22,13 @@ const dialogue = {
   cashier: { name: 'Cashier', text: '“Let me know if you have a question. If something worries you, you can tell me exactly what you saw.”' },
 }
 
-export function DialogueBox({ id, choice, onChoice, onClose }: {
-  id: ResidentId; choice: JunChoice | null; onChoice: (choice: JunChoice) => void; onClose: () => void
+export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, onOpenWhisperNetwork }: {
+  id: ResidentId
+  choice: JunChoice | null
+  onChoice: (choice: JunChoice) => void
+  onClose: () => void
+  onOpenFreezeFrame?: () => void
+  onOpenWhisperNetwork?: () => void
 }) {
   const { name, text } = dialogue[id]
   const consequence = id === 'jun' && choice ? responses[choice].consequence : null
@@ -35,7 +40,12 @@ export function DialogueBox({ id, choice, onChoice, onClose }: {
     {consequence && <p className="jun-consequence" role="status">{consequence}</p>}
     {id === 'jun' && !choice ? <div className="jun-choices" aria-label="Choose a response">
       {choiceIds.map(option => <Button key={option} className="secondary" onClick={() => onChoice(option)}>{responses[option].label}</Button>)}
-    </div> : <div className="modal-actions"><Button className="primary" onClick={onClose}><Check size={17} /> Done</Button></div>}
+      {onOpenFreezeFrame && <Button className="secondary" onClick={onOpenFreezeFrame}><Play size={15} /> Practice: Freeze Frame (Hold)</Button>}
+    </div> : <div className="modal-actions">
+      {id === 'jun' && onOpenFreezeFrame && <Button className="secondary" onClick={onOpenFreezeFrame}><Play size={15} /> Practice Freeze Frame</Button>}
+      {(id === 'may' || id === 'amir') && onOpenWhisperNetwork && <Button className="secondary" onClick={onOpenWhisperNetwork}><Network size={15} /> Practice Whisper Network</Button>}
+      <Button className="primary" onClick={onClose}><Check size={17} /> Done</Button>
+    </div>}
   </Modal>
 }
 
