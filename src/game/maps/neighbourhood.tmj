@@ -9,7 +9,7 @@
  "tilewidth": 64,
  "tileheight": 32,
  "nextlayerid": 3,
- "nextobjectid": 125,
+ "nextobjectid": 147,
  "layers": [
   {
    "id": 1,
@@ -2753,6 +2753,288 @@
      "y": 720,
      "width": 64,
      "height": 32,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 125,
+     "name": "Covered Linkway Block 101",
+     "type": "linkway",
+     "x": 217.6,
+     "y": 153.6,
+     "width": 102.4,
+     "height": 32,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 126,
+     "name": "Covered Linkway Minimart",
+     "type": "linkway",
+     "x": 320,
+     "y": 240,
+     "width": 38.4,
+     "height": 112,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 127,
+     "name": "Kopitiam Table 1",
+     "type": "kopitiam",
+     "x": 153.6,
+     "y": 297.6,
+     "width": 32,
+     "height": 32,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 128,
+     "name": "Kopitiam Table 2",
+     "type": "kopitiam",
+     "x": 201.6,
+     "y": 297.6,
+     "width": 32,
+     "height": 32,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 129,
+     "name": "NEA Bin Bus Stop",
+     "type": "bin",
+     "x": 432,
+     "y": 454.4,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 130,
+     "name": "NEA Bin Minimart",
+     "type": "bin",
+     "x": 544,
+     "y": 281.6,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 131,
+     "name": "NEA Bin South Park",
+     "type": "bin",
+     "x": 272,
+     "y": 838.4,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 132,
+     "name": "NEA Bin Freeze Frame",
+     "type": "bin",
+     "x": 825.6,
+     "y": 294.4,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 133,
+     "name": "Sign Sunshine Ave",
+     "type": "sign",
+     "x": 486.4,
+     "y": 467.2,
+     "width": 32,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "SUNSHINE AVE"
+      }
+     ]
+    },
+    {
+     "id": 134,
+     "name": "Sign South Blvd",
+     "type": "sign",
+     "x": 592,
+     "y": 883.2,
+     "width": 32,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "SOUTH BLVD"
+      }
+     ]
+    },
+    {
+     "id": 135,
+     "name": "Sign Central Rd",
+     "type": "sign",
+     "x": 592,
+     "y": 467.2,
+     "width": 32,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": [
+      {
+       "name": "text",
+       "type": "string",
+       "value": "CENTRAL RD"
+      }
+     ]
+    },
+    {
+     "id": 136,
+     "name": "Traffic Light West Crossing",
+     "type": "trafficLight",
+     "x": 499.2,
+     "y": 467.2,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 137,
+     "name": "Traffic Light Mid Crossing",
+     "type": "trafficLight",
+     "x": 560,
+     "y": 582.4,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 138,
+     "name": "Traffic Light North Crossing",
+     "type": "trafficLight",
+     "x": 595.2,
+     "y": 409.6,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 139,
+     "name": "Traffic Light East Crossing",
+     "type": "trafficLight",
+     "x": 880,
+     "y": 467.2,
+     "width": 16,
+     "height": 16,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 140,
+     "name": "Bougainvillea Meridian 1",
+     "type": "bougainvillea",
+     "x": 569.6,
+     "y": 464,
+     "width": 25.6,
+     "height": 25.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 141,
+     "name": "Bougainvillea Meridian 2",
+     "type": "bougainvillea",
+     "x": 720,
+     "y": 464,
+     "width": 25.6,
+     "height": 25.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 142,
+     "name": "Bougainvillea Meridian 3",
+     "type": "bougainvillea",
+     "x": 816,
+     "y": 464,
+     "width": 25.6,
+     "height": 25.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 143,
+     "name": "Bougainvillea Block 105",
+     "type": "bougainvillea",
+     "x": 992,
+     "y": 240,
+     "width": 25.6,
+     "height": 25.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 144,
+     "name": "Bougainvillea Mysterious Garden",
+     "type": "bougainvillea",
+     "x": 684.8,
+     "y": 313.6,
+     "width": 25.6,
+     "height": 25.6,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 145,
+     "name": "Community Garden South",
+     "type": "garden",
+     "x": 272,
+     "y": 784,
+     "width": 80,
+     "height": 38.4,
+     "visible": true,
+     "rotation": 0,
+     "properties": []
+    },
+    {
+     "id": 146,
+     "name": "Community Garden House I",
+     "type": "garden",
+     "x": 496,
+     "y": 784,
+     "width": 70.4,
+     "height": 38.4,
      "visible": true,
      "rotation": 0,
      "properties": []

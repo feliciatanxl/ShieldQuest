@@ -55,23 +55,103 @@ function AreaMap({ save }: { save: Save }) {
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
   const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
-  const tileWidth = Math.floor(250 / size.x)
+  const tileWidth = Math.max(7, Math.floor(266 / size.x))
   const width = tileWidth * size.x
   const height = tileWidth * size.y
+
   useLayoutEffect(() => {
     const ctx = ref.current?.getContext('2d')
     if (!ctx) return
     ctx.fillStyle = '#ecd1b0'
     ctx.fillRect(0, 0, width, height)
+
+    // Terrain ground tiles
     map?.tiles.forEach((tile, i) => {
       ctx.fillStyle = groundColors[tile - 1] ?? '#25364b'
-      ctx.fillRect(i % size.x * tileWidth, Math.floor(i / size.x) * tileWidth, tileWidth, tileWidth)
+      ctx.fillRect((i % size.x) * tileWidth, Math.floor(i / size.x) * tileWidth, tileWidth, tileWidth)
     })
+
+    // Roads and pedestrian thoroughfares
+    if (map) {
+      // Main horizontal street
+      ctx.fillStyle = '#475569'
+      ctx.fillRect(0, 15 * tileWidth, 38 * tileWidth, 3 * tileWidth)
+      // Central North-South boulevard
+      ctx.fillRect(19 * tileWidth, 5 * tileWidth, 3 * tileWidth, 26 * tileWidth)
+      // South Boulevard
+      ctx.fillRect(8 * tileWidth, 28 * tileWidth, 27 * tileWidth, 3 * tileWidth)
+
+      // Zebra crossings (white stripes)
+      ctx.fillStyle = '#f8fafc'
+      ctx.fillRect(16 * tileWidth, 15 * tileWidth, 1.3 * tileWidth, 3 * tileWidth)
+      ctx.fillRect(28 * tileWidth, 15 * tileWidth, 1.3 * tileWidth, 3 * tileWidth)
+      ctx.fillRect(19 * tileWidth, 13 * tileWidth, 3 * tileWidth, 1.3 * tileWidth)
+      ctx.fillRect(19 * tileWidth, 26 * tileWidth, 3 * tileWidth, 1.3 * tileWidth)
+    }
+
+    // World props & buildings
     for (const item of map?.props ?? []) {
       if (!item.w || !item.d) continue
-      ctx.fillStyle = item.kind === 'shop' ? '#299c91' : item.kind === 'house' ? '#995e72' : item.kind === 'tree' ? '#54806b' : '#62566f'
-      ctx.fillRect(item.x * tileWidth, item.y * tileWidth, item.w * tileWidth, item.d * tileWidth)
+      const px = item.x * tileWidth
+      const py = item.y * tileWidth
+      const pw = item.w * tileWidth
+      const ph = item.d * tileWidth
+
+      if (item.kind === 'block') {
+        // HDB Blocks 101–105
+        ctx.fillStyle = '#334155'
+        ctx.fillRect(px, py, pw, ph)
+        ctx.strokeStyle = '#1e293b'
+        ctx.lineWidth = 1
+        ctx.strokeRect(px, py, pw, ph)
+        // Block number badge
+        ctx.fillStyle = '#fef08a'
+        ctx.font = 'bold 8px monospace'
+        const blockNum = String(item.properties.number || '')
+        ctx.fillText(blockNum, px + 3, py + 10)
+      } else if (item.kind === 'shop') {
+        // Sunshine Minimart
+        ctx.fillStyle = '#0d9488'
+        ctx.fillRect(px, py, pw, ph)
+        ctx.strokeStyle = '#042f2e'
+        ctx.strokeRect(px, py, pw, ph)
+        ctx.fillStyle = '#fef08a'
+        ctx.font = 'bold 7px sans-serif'
+        ctx.fillText('MART', px + 3, py + ph / 2 + 2)
+      } else if (item.kind === 'kopi') {
+        // Kopi Corner
+        ctx.fillStyle = '#d97706'
+        ctx.fillRect(px, py, pw, ph)
+        ctx.strokeStyle = '#78350f'
+        ctx.strokeRect(px, py, pw, ph)
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 7px sans-serif'
+        ctx.fillText('KOPI', px + 3, py + ph / 2 + 2)
+      } else if (item.kind === 'house') {
+        const isH = item.name.includes('Freeze Frame') || item.name.includes('House H')
+        const isI = item.name.includes('Whisper Network') || item.name.includes('House I')
+        ctx.fillStyle = isH ? '#059669' : isI ? '#c2410c' : '#831843'
+        ctx.fillRect(px, py, pw, ph)
+        ctx.strokeStyle = '#0f172a'
+        ctx.strokeRect(px, py, pw, ph)
+        ctx.fillStyle = '#fef08a'
+        ctx.font = 'bold 8px sans-serif'
+        ctx.fillText(isH ? 'H' : isI ? 'I' : 'M', px + pw / 2 - 3, py + ph / 2 + 3)
+      } else if (item.kind === 'linkway') {
+        // Sheltered Linkways
+        ctx.fillStyle = '#16a34a'
+        ctx.fillRect(px, py, pw, ph)
+      } else if (item.kind === 'tree') {
+        ctx.fillStyle = '#4ade80'
+        ctx.beginPath()
+        ctx.arc(px + pw / 2, py + ph / 2, Math.max(3, pw / 2), 0, Math.PI * 2)
+        ctx.fill()
+      } else if (item.kind === 'play') {
+        ctx.fillStyle = '#fbbf24'
+        ctx.fillRect(px, py, pw, ph)
+      }
     }
+
     if (inside) {
       ctx.fillStyle = '#8b6e6a'
       for (const fixture of shopFixtures) {
@@ -91,22 +171,67 @@ function AreaMap({ save }: { save: Save }) {
         ctx.fillRect(fixture.x * tileWidth, fixture.y * tileWidth, fixture.w * tileWidth, fixture.d * tileWidth)
       }
     }
+
+    // Player position beacon with pulsing gold halo
     const position = save.position
+    const beaconX = position.x * tileWidth
+    const beaconY = position.y * tileWidth
+
+    // Gold halo
     ctx.beginPath()
-    ctx.arc(position.x * tileWidth, position.y * tileWidth, 4, 0, Math.PI * 2)
-    ctx.fillStyle = '#fff9e2'
+    ctx.arc(beaconX, beaconY, 8, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.45)'
     ctx.fill()
-    ctx.strokeStyle = '#26364c'
-    ctx.lineWidth = 2
+
+    // Inner bright white beacon
+    ctx.beginPath()
+    ctx.arc(beaconX, beaconY, 4, 0, Math.PI * 2)
+    ctx.fillStyle = '#ffffff'
+    ctx.fill()
+    ctx.strokeStyle = '#0f172a'
+    ctx.lineWidth = 1.5
     ctx.stroke()
-  }, [map, inside, house, width, height, tileWidth, save.position])
-  return <div className="map-content">
-    <p><MapPin size={17} /> {house ? 'The Mysterious House' : save.scene === 'HouseH' ? 'Freeze Frame House' : save.scene === 'HouseI' ? 'Whisper Network House' : save.scene === 'FreezeFrame' ? 'Freeze Frame · Investigation' : inside ? 'Sunshine Minimart' : 'Sunshine Estate'}</p>
-    <canvas ref={ref} width={width} height={height} aria-label="Area map with your location marked by a white dot" role="img" />
-    <div className="map-legend"><span><i /> You are here</span>{map && <>
-      <span><i className="shop-key" /> Minimart</span><span><i className="house-key" /> Mysterious House</span>
-    </>}</div>
-  </div>
+  }, [map, inside, house, width, height, tileWidth, save.position, size])
+
+  return (
+    <div className="map-content">
+      <p>
+        <MapPin size={17} />{' '}
+        {house
+          ? 'The Mysterious House'
+          : save.scene === 'HouseH'
+          ? 'Freeze Frame House'
+          : save.scene === 'HouseI'
+          ? 'Whisper Network House'
+          : save.scene === 'FreezeFrame'
+          ? 'Freeze Frame · Investigation'
+          : inside
+          ? 'Sunshine Minimart'
+          : 'Sunshine Estate'}
+      </p>
+      <canvas
+        ref={ref}
+        width={width}
+        height={height}
+        aria-label="Area map with your location marked by a beacon"
+        role="img"
+      />
+      <div className="map-legend">
+        <span><i /> You</span>
+        {map && (
+          <>
+            <span><i className="block-key" /> Blocks 101–105</span>
+            <span><i className="shop-key" /> Minimart</span>
+            <span><i className="kopi-key" /> Kopi Corner</span>
+            <span><i className="mystery-key" /> Mystery (M)</span>
+            <span><i className="house-h-key" /> House H</span>
+            <span><i className="house-i-key" /> House I</span>
+            <span><i className="linkway-key" /> Linkway</span>
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export type GamePanelView = GameTool | 'missions' | 'controls' | 'restart' | 'guardians'

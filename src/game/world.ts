@@ -5,7 +5,11 @@ import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, SHOP_DOOR } from './locations'
 import { type Footprint } from './isometric'
 import { groundColors, neighbourhood, type MapProp } from './maps'
 import { isResident } from './residentData'
-import { bench, block, box, floor, front, lamp, planter, poly, prop, shelter, shop, tree } from './worldArt'
+import {
+  bench, block, bougainvillea, box, communityGarden, floor, front, kopitiamTable, lamp,
+  letterSign, linkway, planter, poly, prop, rubbishBin, shelter, shop, streetSign,
+  trafficLight, tree
+} from './worldArt'
 import { houseExterior, houseHExterior, houseIExterior } from './houseArt'
 
 const labels = {
@@ -58,13 +62,22 @@ function street(scene: Phaser.Scene) {
     if (x % 2 === 0 && x !== 20) floor(g, x + .12, 29.49, .66, .065, '#ead5aa')
   }
 
-  // Zebra pedestrian crossings
+  // Zebra pedestrian crossings with white stop lines
   for (let index = 0; index < 7; index++) {
     floor(g, 16.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
     floor(g, 19.14 + index * .39, 13.25, .21, 1.22, '#e6dfcc')
     floor(g, 28.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
     floor(g, 19.14 + index * .39, 26.25, .21, 1.22, '#e6dfcc')
   }
+  // Singapore solid white pedestrian stop lines
+  floor(g, 15.75, 15.05, .16, 2.85, '#ffffff')
+  floor(g, 17.50, 15.05, .16, 2.85, '#ffffff')
+  floor(g, 27.75, 15.05, .16, 2.85, '#ffffff')
+  floor(g, 29.50, 15.05, .16, 2.85, '#ffffff')
+  floor(g, 19.05, 12.95, 2.85, .16, '#ffffff')
+  floor(g, 19.05, 25.95, 2.85, .16, '#ffffff')
+  floor(g, 19.05, 27.65, 2.85, .16, '#ffffff')
+
   floor(g, 15.99, 14.73, 1.44, .23, '#e5b38b')
   floor(g, 15.99, 18.05, 1.44, .23, '#e5b38b')
   floor(g, 27.99, 14.73, 1.44, .23, '#e5b38b')
@@ -117,7 +130,7 @@ function bicycles(g: Phaser.GameObjects.Graphics, p: MapProp) {
 
 function renderProp(scene: Phaser.Scene, p: MapProp) {
   const { kind, x, y, w, d, properties } = p
-  if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes', 'house'].includes(kind)) return
+  if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes', 'house', 'bin', 'sign', 'linkway', 'kopitiam', 'trafficLight', 'garden', 'bougainvillea'].includes(kind)) return
   prop(scene, p, g => {
     switch (kind) {
       case 'block': block(g, x, y, w, d, String(properties.number), String(properties.accent), Number(properties.floors)); break
@@ -129,6 +142,13 @@ function renderProp(scene: Phaser.Scene, p: MapProp) {
       case 'shelter': case 'bus': shelter(g, x, y, w, d, kind === 'bus'); break
       case 'play': playArea(g, p); break
       case 'bikes': bicycles(g, p); break
+      case 'bin': rubbishBin(g, x, y); break
+      case 'sign': streetSign(g, x, y, String(properties.text || 'SUNSHINE AVE')); break
+      case 'linkway': linkway(g, x, y, w, d); break
+      case 'kopitiam': kopitiamTable(g, x, y); break
+      case 'trafficLight': trafficLight(g, x, y); break
+      case 'garden': communityGarden(g, x, y, w, d); break
+      case 'bougainvillea': bougainvillea(g, x, y); break
       case 'house':
         if (p.name.includes('Freeze Frame') || p.name.includes('House H')) houseHExterior(g, p)
         else if (p.name.includes('Whisper Network') || p.name.includes('House I')) houseIExterior(g, p)
@@ -146,7 +166,8 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
     const id = kind as keyof typeof labels
     return { id, label: labels[id], at: { x, y }, radius: .95 }
   })
-  const collisions = map.props.filter(p => p.w > 0 && p.d > 0 && p.kind !== 'shelter' && p.kind !== 'bus')
+  const nonSolidKinds = new Set(['shelter', 'bus', 'linkway', 'sign', 'bougainvillea'])
+  const collisions = map.props.filter(p => p.w > 0 && p.d > 0 && !nonSolidKinds.has(p.kind))
   for (const p of map.props.filter(p => p.kind === 'shelter' || p.kind === 'bus')) {
     for (const x of [p.x, p.x + p.w - .13]) {
       for (const y of [p.y, p.y + p.d - .13]) collisions.push({ ...p, x, y, w: .13, d: .13 })

@@ -313,11 +313,17 @@
 .dialogue-portrait { width: 53px; height: 54px; display: grid; place-items: start center; overflow: hidden; flex-shrink: 0; border-radius: 7px; border: 2px solid #e8ca85; background: #c3dbbf; }
 .dialogue-portrait .avatar-sprite { width: 54px; height: 67.5px; }
 .map-content { display: grid; justify-items: center; gap: 9px; }
-.map-content canvas { width: min(100%, 250px); height: auto; border: 2px solid #6b7162; border-radius: 7px; image-rendering: pixelated; }
+.map-content canvas { width: min(100%, 280px); height: auto; border: 2px solid #475569; border-radius: 8px; image-rendering: pixelated; box-shadow: 0 4px #1e293b; }
 .map-content p, .map-legend, .pack-items p, .settings-content p { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
-.map-legend { gap: 13px; font-size: .85rem; }
+.map-legend { gap: 10px; font-size: .82rem; justify-content: center; }
 .map-legend i { display: inline-block; width: 10px; height: 10px; border: 1px solid #26364b; border-radius: 50%; background: #fff9e2; }
-.map-legend .shop-key { border-radius: 2px; background: #299c91; }
+.map-legend .block-key { border-radius: 2px; background: #334155; }
+.map-legend .shop-key { border-radius: 2px; background: #0d9488; }
+.map-legend .kopi-key { border-radius: 2px; background: #d97706; }
+.map-legend .mystery-key { border-radius: 2px; background: #831843; }
+.map-legend .house-h-key { border-radius: 2px; background: #059669; }
+.map-legend .house-i-key { border-radius: 2px; background: #c2410c; }
+.map-legend .linkway-key { border-radius: 2px; background: #16a34a; }
 .pack-items, .settings-content { display: grid; gap: 11px; }
 .pack-items ul { margin: 0; padding-left: 23px; line-height: 1.65; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px; border-radius: 7px; background: #f5e9d3; cursor: pointer; }
@@ -417,13 +423,17 @@
 .quick-feedback:not(:empty) { margin-top: 8px; }
 
 /* Friends panel */
-.modal.friends-modal { width: min(calc(100% - 20px), 460px); }
+.modal.friends-modal {
+  width: min(calc(100% - 16px), 460px);
+  max-width: calc(100vw - 16px);
+  overflow-x: hidden;
+}
 .friends-header { margin-bottom: 10px; }
-.friends-tabs { display: flex; gap: 6px; }
+.friends-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .friends-tab {
-  flex: 1 1 0;
+  flex: 1 1 120px; min-width: 0;
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 40px; padding: 6px 10px; border: 1px solid #d8c8a4; border-radius: 8px;
+  min-height: 44px; padding: 6px 10px; border: 1px solid #d8c8a4; border-radius: 8px;
   background: #fff8ed; color: var(--ink); font-size: .84rem; font-weight: 700;
   cursor: pointer; white-space: nowrap; transition: background 120ms ease, border-color 120ms ease;
 }
@@ -501,19 +511,19 @@
 .friends-code-hint { font-size: .82rem; color: #667; margin: 0 0 6px; }
 
 .friends-code-card {
-  display: flex; gap: 8px; align-items: center; justify-content: space-between;
-  padding: 6px 8px; border: 1px solid #d8c8a4; border-radius: 10px; background: #f7ebd2;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  padding: 8px 10px; border: 1px solid #d8c8a4; border-radius: 10px; background: #f7ebd2;
   box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0;
 }
 .friends-code-badge {
-  font: 700 1.05rem / 1.3 var(--pixel); letter-spacing: .12em; color: var(--navy);
-  padding: 4px 6px; text-align: center; flex: 1 1 auto; min-width: 0;
+  font: 700 clamp(.85rem, 4vw, 1.05rem) / 1.3 var(--pixel); letter-spacing: .08em; color: var(--navy);
+  padding: 6px 8px; text-align: center; flex: 1 1 140px; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .friends-copy-btn {
-  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  min-height: 36px; padding: 6px 12px; border: 1px solid #dac29c; border-radius: 8px;
-  background: #fff8ed; color: var(--ink); font-weight: 700; font-size: .82rem;
+  flex: 1 1 auto; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 6px 14px; border: 1px solid #dac29c; border-radius: 8px;
+  background: #fff8ed; color: var(--ink); font-weight: 700; font-size: .84rem;
   cursor: pointer; white-space: nowrap; box-shadow: 0 2px #d4be95;
   transition: all 120ms ease;
 }
@@ -528,8 +538,9 @@
   width: 100%; min-width: 0; box-sizing: border-box;
   padding: 9px 12px; font: 700 .95rem var(--pixel); letter-spacing: .12em; text-align: center;
   border: 1px solid #d8c8a4; border-radius: 9px; background: #fffaf0; color: var(--ink);
+  min-height: 44px;
 }
-.friends-add-form .button { min-height: 42px; width: 100%; }
+.friends-add-form .button { min-height: 44px; width: 100%; }
 
 .friends-local-note {
   margin: 0; padding: 8px 10px; font-size: .78rem; line-height: 1.35;
@@ -567,10 +578,12 @@
 .friends-profile-actions .button { flex: 1 1 120px; min-height: 40px; font-size: .84rem; }
 .danger-btn:hover { background: #fae8e6 !important; border-color: #c95244 !important; color: #8e2b20 !important; }
 
-@media (max-width: 380px) {
+@media (max-width: 440px) {
   .modal:not(.wide):not(.quick-menu) {
     padding: 14px 10px;
-    width: calc(100% - 14px);
+    width: calc(100% - 12px);
+    max-width: calc(100vw - 12px);
+    overflow-x: hidden !important;
   }
   .friends-code-card {
     flex-direction: column;
@@ -840,12 +853,16 @@
 }
 @media (any-pointer: coarse), (max-width: 580px) {
   .hud-bottom {
-    --joystick-size: clamp(108px, 29vw, 124px);
+    --joystick-size: clamp(100px, 28vw, 120px);
     left: calc(12px + var(--safe-left)); right: calc(12px + var(--safe-right)); bottom: calc(12px + var(--safe-bottom));
     grid-template-columns: var(--joystick-size) minmax(0, 1fr);
     grid-template-areas: "tutorial tutorial" "stick action";
     align-items: end; justify-items: stretch;
+    row-gap: 38px;
+    column-gap: 12px;
+    pointer-events: none;
   }
+  .hud-bottom > * { pointer-events: auto; }
   .keyboard-instructions { display: none; }
   .touch-instructions { display: inline; }
   .virtual-joystick { display: grid; grid-area: stick; }

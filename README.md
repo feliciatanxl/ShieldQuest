@@ -28,6 +28,33 @@ The prototype saves your avatar, position, settings, and tutorial progress in th
 
 Open `src/game/maps/neighbourhood.tmj` in Tiled to edit the 64×32 isometric ground and scenery footprints. Phaser draws the original scenery from the map's object types.
 
+## Sunshine Estate: Singapore Neighbourhood Authenticity
+
+Sunshine Estate is an authentic, distinctly Singaporean 2D/2.5D life-simulation neighbourhood rendered on an isometric $38 \times 32$ tile grid:
+
+- **HDB Blocks 101–105:** Residential high-rise blocks featuring:
+  - Open void-deck breezeways with load-bearing pillars.
+  - Stainless steel letterbox banks and glass-encased community noticeboards.
+  - Concrete void-deck chess tables with cylindrical stools.
+  - Singapore bamboo laundry poles extending from upper-floor brackets with colorful clothes.
+  - Air-conditioner outdoor compressor units mounted on facade brackets.
+  - Rooftop lift motor machine rooms fitted with pulsing red aircraft warning beacons.
+  - Dual prominent block numbers painted in contrasting regional tones.
+- **Commercial & Community Spaces:**
+  - **Sunshine Minimart:** Neighbourhood sundry shop with slanted fruit crates, ice-cream freezer chest, and green welcome mat.
+  - **Kopi Corner:** Traditional kopitiam with outdoor green-rimmed round marble tables, red plastic stools, and striped canvas awnings.
+  - **Bus Stop:** LTA-style bus shelter with routes 14, 65, and 111, timetables, and orange bus stop signpost.
+- **Singapore Streetscape Infrastructure:**
+  - **Sheltered Linkways:** Signature emerald-green curved covered walkways with white support stanchions connecting HDB blocks to amenities.
+  - **Public Sanitation:** NParks/NEA dual dark-green public litter and yellow-lidded recycling bins.
+  - **Street Signage:** Singapore green street nameboards on black posts (*Sunshine Ave*, *South Blvd*, *Central Rd*).
+  - **Traffic Safety:** Zebra crossings with solid white pedestrian stop lines and pedestrian signal poles with yellow audio push-button buzzer boxes.
+  - **Tropical Flora & Urban Farming:** Vibrant bougainvillea flowering shrubs with magenta blooms and community timber herb gardens planted with pandan and chili.
+- **Dedicated Locations:**
+  - **The Mysterious House:** Black & White colonial bungalow with terracotta hipped roof, Peranakan tiled veranda, timber louvers, and the "Missing Evidence" solo/co-op escape room.
+  - **House H (Freeze Frame Observation Studio):** Modernized heritage observation studio with surveillance CCTV dome, acoustic interior, and pausable timeline minimart investigation.
+  - **House I (Whisper Network Detective Bureau):** Warm amber Peranakan detective residence with mahogany double doors, brass emblem, witness interrogation desks, and tactical influence pinboard.
+
 ## Explore Sunshine Minimart
 
 Find the teal minimart beside Kopi Corner. Approach its door and press E or select **Enter Sunshine Minimart**. Inside, look for gold floor markers to inspect five clues, check the **Evidence board** from your Pack, and speak to Jun and the cashier. Follow the green mat to the **Leave Sunshine Minimart** prompt to return to the estate.
