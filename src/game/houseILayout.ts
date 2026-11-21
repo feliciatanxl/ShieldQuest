@@ -3,7 +3,11 @@ import type { Hotspot } from './events'
 import { HOUSE_I_SIZE } from './locations'
 
 export const houseIObjects: Hotspot[] = [
-  { id: 'whisper-station', label: 'Launch Whisper Network (Identify the Influence)', at: { x: 5.5, y: 3.2 }, radius: 1.1 },
+  { id: 'whisper-station', label: 'Whisper Network · Open Influence Board', at: { x: 5.5, y: 1.8 }, radius: 1.2 },
+  { id: 'whisper-amir', label: 'Interview Amir (Classmate)', at: { x: 2.8, y: 3.5 }, radius: 1.1 },
+  { id: 'whisper-may', label: 'Interview Auntie May (Witness)', at: { x: 8.5, y: 3.5 }, radius: 1.1 },
+  { id: 'whisper-jun', label: 'Interview Jun (Student)', at: { x: 8.5, y: 5.8 }, radius: 1.1 },
+  { id: 'whisper-terminal', label: 'Inspect Chat Log Terminal', at: { x: 2.5, y: 5.8 }, radius: 1.0 },
   { id: 'exit-house-i', label: 'Leave Whisper Network House', at: { x: 5.5, y: 7.2 }, radius: 0.95 },
 ]
 

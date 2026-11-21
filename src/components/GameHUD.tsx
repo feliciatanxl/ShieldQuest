@@ -22,6 +22,7 @@ export function currentObjective(save: Save) {
   const { scene, tutorial, investigation } = save
   if (scene === 'House') return save.escapeRoom.completedAt ? 'Level 1 Completed' : 'Investigate the Missing Evidence'
   if (scene === 'HouseH') return 'Hold Practice · Freeze Frame Station'
+  if (scene === 'FreezeFrame') return 'Freeze Frame · Minimart Investigation'
   if (scene === 'HouseI') return 'Influence Practice · Whisper Network Station'
   if (save.shield.D) return STORY_TITLE
   if (save.shield.L) return DEFEND_TITLE
@@ -43,6 +44,7 @@ export function currentObjective(save: Save) {
 export function objectiveDetails(save: Save) {
   switch (currentObjective(save)) {
     case 'Investigate the Missing Evidence': return 'Search the living room for the host’s instructions. Reopen collected clues in House Inventory.'
+    case 'Freeze Frame · Minimart Investigation': return 'Observe Jun, freeze time to inspect evidence, and ask questions before taking action.'
     case 'Level 1 Completed': return 'The case is closed. Reopen the front door panel to review your results or replay.'
     case SPOT_TITLE: return 'Classify observations and assumptions using the five clues you found.'
     case HOLD_TITLE: return 'Spot the Risk — Completed. Choose how to respond to Jun’s request in the moment.'
@@ -95,7 +97,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
 }) {
   const [expanded, setExpanded] = useState(false)
   const xp = Math.round(save.walked / WALK_GOAL * 20)
-  const indoors = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI'
+  const indoors = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
   const tutorial = save.tutorial === 'active' && !indoors && !house
   const { S, H, I, E, L, D } = save.shield
@@ -155,7 +157,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         </div>
       </div>
     </div>
-    <div className="world-label dark-panel"><Sparkles size={14} /> {house ? 'THE MYSTERIOUS HOUSE' : indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>
+    <div className="world-label dark-panel"><Sparkles size={14} /> {house ? 'THE MYSTERIOUS HOUSE' : save.scene === 'HouseH' ? 'FREEZE FRAME HOUSE' : save.scene === 'HouseI' ? 'WHISPER NETWORK HOUSE' : save.scene === 'FreezeFrame' ? 'FREEZE FRAME · INVESTIGATION' : indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>
     <div className="hud-bottom">
       <VirtualJoystick blocked={blocked || transitioning} onMove={onMove} />
       {nearby && <button className="interact dark-panel" type="button" aria-label={nearby.label}

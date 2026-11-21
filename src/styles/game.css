@@ -2196,3 +2196,40 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* Freeze Frame & Whisper Investigation Quick Overlays */
+.freeze-floating-hud {
+  position: absolute;
+  top: 72px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  pointer-events: auto;
+}
+.freeze-floating-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font: 700 0.85rem / 1 var(--font);
+  color: #fff;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid rgba(125, 211, 252, 0.6);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.freeze-floating-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  transform: translateY(-1px);
+}
+.freeze-floating-btn.action-btn {
+  background: #0284c7;
+  border-color: #38bdf8;
+}
+.freeze-floating-btn.action-btn:hover {
+  background: #0369a1;
+}

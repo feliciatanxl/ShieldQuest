@@ -15,9 +15,23 @@ export type HotspotId =
   | 'house-h-entrance'
   | 'exit-house-h'
   | 'freeze-station'
+  | 'exit-freeze-frame'
+  | 'ff-backpack'
+  | 'ff-cctv'
+  | 'ff-basket'
+  | 'ff-counter'
+  | 'ff-door'
+  | 'ff-jun'
+  | 'ff-cashier'
+  | 'ff-action'
   | 'house-i-entrance'
   | 'exit-house-i'
   | 'whisper-station'
+  | 'whisper-amir'
+  | 'whisper-may'
+  | 'whisper-jun'
+  | 'whisper-terminal'
+  | 'whisper-board'
 export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number }
 
 type GameEvents = {
@@ -31,7 +45,7 @@ type GameEvents = {
   motion: boolean
   action: undefined
   direction: Point
-  houseTravel: { target: 'House' | 'Neighbourhood'; position: Point }
+  houseTravel: { target: Location; position: Point }
 }
 
 export class GameBridge {

@@ -1,6 +1,6 @@
 import type { Point } from '../state/saveGame'
 
-export type Location = 'Neighbourhood' | 'Minimart' | 'House' | 'HouseH' | 'HouseI'
+export type Location = 'Neighbourhood' | 'Minimart' | 'House' | 'HouseH' | 'HouseI' | 'FreezeFrame'
 export const NEIGHBOURHOOD_SIZE: Point = { x: 38, y: 32 }
 export const SHOP_DOOR: Point = { x: 13.24, y: 9.64 }
 export const SHOP_SPAWN: Point = { x: 7.72, y: 7.22 }
@@ -15,6 +15,11 @@ export const HOUSE_H_DOOR: Point = { x: 28.5, y: 8.5 }
 export const HOUSE_H_SPAWN: Point = { x: 5.0, y: 6.8 }
 export const HOUSE_H_SIZE: Point = { x: 10, y: 8 }
 export const HOUSE_H_BACKGROUND = '#141e28'
+
+// Playable Freeze Frame Minimart Investigation
+export const FREEZE_FRAME_SPAWN: Point = { x: 7.2, y: 7.0 }
+export const FREEZE_FRAME_SIZE: Point = { x: 10, y: 8 }
+export const FREEZE_FRAME_BACKGROUND = '#100e16'
 
 // SHIELD House I · Whisper Network (Identify the Influence)
 export const HOUSE_I_DOOR: Point = { x: 14.5, y: 26.5 }

@@ -4,6 +4,7 @@ import { MinimartScene } from './scenes/MinimartScene'
 import { HouseScene } from './scenes/HouseScene'
 import { HouseHScene } from './scenes/HouseHScene'
 import { HouseIScene } from './scenes/HouseIScene'
+import { FreezeFrameScene } from './scenes/FreezeFrameScene'
 import type { Launch } from './scenes/ExplorationScene'
 
 export function mountGame(parent: HTMLElement, launch: Launch) {
@@ -12,7 +13,8 @@ export function mountGame(parent: HTMLElement, launch: Launch) {
   const house = new HouseScene(launch)
   const houseH = new HouseHScene(launch)
   const houseI = new HouseIScene(launch)
-  const scenes = { Neighbourhood: neighbourhood, Minimart: minimart, House: house, HouseH: houseH, HouseI: houseI }
+  const freezeFrame = new FreezeFrameScene(launch)
+  const scenes = { Neighbourhood: neighbourhood, Minimart: minimart, House: house, HouseH: houseH, HouseI: houseI, FreezeFrame: freezeFrame }
   const first = scenes[launch.scene ?? 'Neighbourhood']
   let viewportObserver: ResizeObserver | undefined
   const game = new Phaser.Game({
@@ -47,6 +49,7 @@ export function mountGame(parent: HTMLElement, launch: Launch) {
     house.detach()
     houseH.detach()
     houseI.detach()
+    freezeFrame.detach()
     game.destroy(true)
   }
 }

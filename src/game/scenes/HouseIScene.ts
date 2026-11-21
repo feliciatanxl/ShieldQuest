@@ -1,8 +1,14 @@
 import { HOUSE_I_BACKGROUND, HOUSE_I_SPAWN } from '../locations'
 import { createHouseI } from '../houseIArt'
+import { Actor } from '../entities/Actor'
+import { residents } from '../residentData'
 import { ExplorationScene, type Launch } from './ExplorationScene'
 
 export class HouseIScene extends ExplorationScene {
+  private amirActor?: Actor
+  private mayActor?: Actor
+  private junActor?: Actor
+
   constructor(launch: Launch) {
     super(launch, 'HouseI', HOUSE_I_SPAWN)
   }
@@ -10,6 +16,15 @@ export class HouseIScene extends ExplorationScene {
   protected createWorld() {
     this.cameras.main.setBackgroundColor(HOUSE_I_BACKGROUND)
     return createHouseI(this)
+  }
+
+  create(data?: { position?: { x: number; y: number } }) {
+    super.create(data)
+
+    // Spawn witness and suspect actors in the investigation room
+    this.amirActor = new Actor(this, 'whisper-actor-amir', residents.amir, { x: 2.8, y: 3.5 })
+    this.mayActor = new Actor(this, 'whisper-actor-may', residents.may, { x: 8.5, y: 3.5 })
+    this.junActor = new Actor(this, 'whisper-actor-jun', residents.jun, { x: 8.5, y: 5.8 })
   }
 
   protected layout() {

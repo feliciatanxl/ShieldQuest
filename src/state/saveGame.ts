@@ -1,5 +1,5 @@
 import { categories, categoryKeys, type Avatar } from './avatar'
-import { NEIGHBOURHOOD_SIZE, HOUSE_SIZE, HOUSE_SPAWN, HOUSE_H_SIZE, HOUSE_H_SPAWN, HOUSE_I_SIZE, HOUSE_I_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
+import { NEIGHBOURHOOD_SIZE, HOUSE_SIZE, HOUSE_SPAWN, HOUSE_H_SIZE, HOUSE_H_SPAWN, HOUSE_I_SIZE, HOUSE_I_SPAWN, FREEZE_FRAME_SIZE, FREEZE_FRAME_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
 import { houseCollisions } from '../game/houseLayout'
 import { canStand } from '../game/isometric'
 import { newEscapeRoom, readEscapeRoom, type EscapeRoomProgress } from './escapeRoom'
@@ -46,11 +46,11 @@ export function readSave(): Save | null {
     const { avatar, position, walked, coins, tutorial, reducedMotion } = data
     if (!categoryKeys.every(key => Number.isInteger(avatar[key]) && avatar[key] >= 0 && avatar[key] < categories[key].options.length)) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
-    if (scene !== 'Neighbourhood' && scene !== 'Minimart' && scene !== 'HouseH' && scene !== 'HouseI' && !(data.version === 3 && scene === 'House')) return null
+    if (scene !== 'Neighbourhood' && scene !== 'Minimart' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && !(data.version === 3 && scene === 'House')) return null
     const investigation = data.version === 1 ? newInvestigation() : data.investigation
     if (!validInvestigation(investigation)) return null
-    const size = scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : scene === 'HouseH' ? HOUSE_H_SIZE : scene === 'HouseI' ? HOUSE_I_SIZE : NEIGHBOURHOOD_SIZE
-    if (scene !== 'House' && scene !== 'HouseH' && scene !== 'HouseI' && (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
+    const size = scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : scene === 'HouseH' ? HOUSE_H_SIZE : scene === 'HouseI' ? HOUSE_I_SIZE : scene === 'FreezeFrame' ? FREEZE_FRAME_SIZE : NEIGHBOURHOOD_SIZE
+    if (scene !== 'House' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
         position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y)) return null
     if (typeof walked !== 'number' || !Number.isFinite(walked) || walked < 0 || walked > WALK_GOAL) return null
     if (typeof coins !== 'number' || !Number.isSafeInteger(coins) || coins < 0) return null
@@ -77,7 +77,7 @@ export function readSave(): Save | null {
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
     return { version: 3, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
-      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : position, walked, tutorial, coins, reducedMotion }
+      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion }
   } catch {
     return null
   }

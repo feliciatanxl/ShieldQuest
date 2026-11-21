@@ -14,6 +14,9 @@ import { lobbyEndpoint } from './multiplayer/endpoint'
 import { FriendsPanel } from './components/FriendsPanel'
 import { FreezeFrameGame } from './components/FreezeFrameGame'
 import { WhisperNetworkGame } from './components/WhisperNetworkGame'
+import { FreezeInspectionModal, FreezeDialogueModal, FreezeDecisionModal } from './components/FreezeFrameInvestigation'
+import { WhisperInterviewModal, WhisperTerminalModal, WhisperBoardModal } from './components/WhisperInvestigation'
+import type { FreezeHotspotId } from './state/freezeFrame'
 import { DialogueBox, GamePanel, type GamePanelView } from './components/GamePanels'
 import { MainMenu } from './components/MainMenu'
 import { QuickMenu } from './components/QuickMenu'
@@ -22,7 +25,7 @@ import { Button, Modal } from './components/ui'
 import { GameBridge, type Hotspot, type ResidentId } from './game/events'
 import { isResident } from './game/residentData'
 import { houseObject, type HouseObject } from './game/houseLayout'
-import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, HOUSE_SPAWN } from './game/locations'
+import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_SPAWN, FREEZE_FRAME_SPAWN, type Location } from './game/locations'
 import { applyEscapeAction, newEscapeRoom, type EscapeAction } from './state/escapeRoom'
 import { presets, type Avatar } from './state/avatar'
 import { newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
@@ -52,6 +55,12 @@ type Overlay =
   | { type: 'assessment'; competency: AvailableAssessment; parent?: EvidenceOverlay }
   | { type: 'freeze-frame'; parent?: Overlay }
   | { type: 'whisper-network'; parent?: Overlay }
+  | { type: 'ff-inspect'; id: FreezeHotspotId }
+  | { type: 'ff-dialogue'; speaker: 'jun' | 'cashier' }
+  | { type: 'ff-decision' }
+  | { type: 'whisper-interview'; witnessId: 'amir' | 'may' | 'jun' }
+  | { type: 'whisper-terminal' }
+  | { type: 'whisper-board' }
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('menu')
@@ -60,6 +69,9 @@ export default function App() {
   const [storageAvailable, setStorageAvailable] = useState(true)
   const [confirm, setConfirm] = useState(false)
   const [overlay, setOverlay] = useState<Overlay | null>(null)
+  const [ffFacts, setFfFacts] = useState<FreezeHotspotId[]>([])
+  const [ffQuestions, setFfQuestions] = useState<string[]>([])
+  const [whisperPhrases, setWhisperPhrases] = useState<string[]>([])
   const locked = useRef(false)
   const houseClock = useRef<number | undefined>(undefined)
   const [nearby, setNearby] = useState<Hotspot | null>(null)
@@ -150,11 +162,48 @@ export default function App() {
           locked.current = true
           setOverlay({ type: 'house-entry' })
         } else if (id === 'freeze-station') {
+          bridge.emit('houseTravel', { target: 'FreezeFrame', position: FREEZE_FRAME_SPAWN })
+        } else if (id === 'exit-freeze-frame') {
+          bridge.emit('houseTravel', { target: 'HouseH', position: HOUSE_H_SPAWN })
+        } else if (id === 'ff-backpack') {
           locked.current = true
-          setOverlay({ type: 'freeze-frame' })
-        } else if (id === 'whisper-station') {
+          setOverlay({ type: 'ff-inspect', id: 'jun-backpack' })
+        } else if (id === 'ff-cctv') {
           locked.current = true
-          setOverlay({ type: 'whisper-network' })
+          setOverlay({ type: 'ff-inspect', id: 'cctv-monitor' })
+        } else if (id === 'ff-counter') {
+          locked.current = true
+          setOverlay({ type: 'ff-inspect', id: 'cashier-counter' })
+        } else if (id === 'ff-basket') {
+          locked.current = true
+          setOverlay({ type: 'ff-inspect', id: 'shopping-basket' })
+        } else if (id === 'ff-door') {
+          locked.current = true
+          setOverlay({ type: 'ff-inspect', id: 'entrance-door' })
+        } else if (id === 'ff-jun') {
+          locked.current = true
+          setOverlay({ type: 'ff-dialogue', speaker: 'jun' })
+        } else if (id === 'ff-cashier') {
+          locked.current = true
+          setOverlay({ type: 'ff-dialogue', speaker: 'cashier' })
+        } else if (id === 'ff-action') {
+          locked.current = true
+          setOverlay({ type: 'ff-decision' })
+        } else if (id === 'whisper-station' || id === 'whisper-board') {
+          locked.current = true
+          setOverlay({ type: 'whisper-board' })
+        } else if (id === 'whisper-amir') {
+          locked.current = true
+          setOverlay({ type: 'whisper-interview', witnessId: 'amir' })
+        } else if (id === 'whisper-may') {
+          locked.current = true
+          setOverlay({ type: 'whisper-interview', witnessId: 'may' })
+        } else if (id === 'whisper-jun') {
+          locked.current = true
+          setOverlay({ type: 'whisper-interview', witnessId: 'jun' })
+        } else if (id === 'whisper-terminal') {
+          locked.current = true
+          setOverlay({ type: 'whisper-terminal' })
         } else if (previous.scene === 'House') {
           const object = houseObject(id)
           if (!object) return
@@ -270,7 +319,7 @@ export default function App() {
     persist({ ...previous, collectedGuardians: [...previous.collectedGuardians, id] })
   }
 
-  function travelHouse(target: 'House' | 'Neighbourhood', replay = false) {
+  function travelHouse(target: Location, replay = false) {
     const previous = current.current
     if (!previous || transitioning) return
     if (target === 'Neighbourhood') {
@@ -284,10 +333,30 @@ export default function App() {
         setOverlay(null)
         return
       }
+      if (previous.scene === 'FreezeFrame') {
+        bridge.emit('houseTravel', { target: 'HouseH', position: HOUSE_H_SPAWN })
+        setOverlay(null)
+        return
+      }
       if (previous.scene !== 'House') {
         setOverlay(null)
         return
       }
+    }
+    if (target === 'HouseH') {
+      bridge.emit('houseTravel', { target: 'HouseH', position: HOUSE_H_SPAWN })
+      setOverlay(null)
+      return
+    }
+    if (target === 'HouseI') {
+      bridge.emit('houseTravel', { target: 'HouseI', position: HOUSE_I_SPAWN })
+      setOverlay(null)
+      return
+    }
+    if (target === 'FreezeFrame') {
+      bridge.emit('houseTravel', { target: 'FreezeFrame', position: FREEZE_FRAME_SPAWN })
+      setOverlay(null)
+      return
     }
     if (replay) persist({ ...previous, escapeRoom: newEscapeRoom() })
     else if (previous.scene === 'House') persist(accountHouseTime(previous))
@@ -366,6 +435,65 @@ export default function App() {
     </>}
     {overlay?.type === 'freeze-frame' && <FreezeFrameGame onClose={() => setOverlay(overlay.parent ?? null)} />}
     {overlay?.type === 'whisper-network' && <WhisperNetworkGame onClose={() => setOverlay(overlay.parent ?? null)} />}
+    {overlay?.type === 'ff-inspect' && (
+      <FreezeInspectionModal
+        hotspotId={overlay.id}
+        alreadyAdded={ffFacts.includes(overlay.id)}
+        onAddFact={fact => setFfFacts(prev => Array.from(new Set([...prev, fact])))}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'ff-dialogue' && (
+      <FreezeDialogueModal
+        speaker={overlay.speaker}
+        askedQuestions={ffQuestions}
+        onAskQuestion={q => setFfQuestions(prev => Array.from(new Set([...prev, q])))}
+        onOpenDecision={() => setOverlay({ type: 'ff-decision' })}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'ff-decision' && (
+      <FreezeDecisionModal
+        paused={true}
+        inspectedHotspots={ffFacts}
+        askedQuestions={ffQuestions}
+        onReturnToHouse={() => travelHouse('HouseH')}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'whisper-interview' && (
+      <WhisperInterviewModal
+        witnessId={overlay.witnessId}
+        collectedPhrases={whisperPhrases}
+        onCollectPhrase={p => setWhisperPhrases(prev => Array.from(new Set([...prev, p])))}
+        onOpenBoard={() => setOverlay({ type: 'whisper-board' })}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'whisper-terminal' && (
+      <WhisperTerminalModal
+        collectedPhrases={whisperPhrases}
+        onCollectPhrase={p => setWhisperPhrases(prev => Array.from(new Set([...prev, p])))}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {overlay?.type === 'whisper-board' && (
+      <WhisperBoardModal
+        collectedPhrases={whisperPhrases}
+        onClose={() => { locked.current = false; setOverlay(null) }}
+      />
+    )}
+    {save.scene === 'FreezeFrame' && !overlay && (
+      <div className="freeze-floating-hud">
+        <button
+          type="button"
+          className="freeze-floating-btn action-btn"
+          onClick={() => { locked.current = true; setOverlay({ type: 'ff-decision' }) }}
+        >
+          ⚡ Decide Response
+        </button>
+      </div>
+    )}
     {overlay?.type === 'panel' && (overlay.panel === 'menu'
       ? <QuickMenu save={save} onClose={() => setOverlay(null)} onCheckpoint={saveCheckpoint} onReturn={returnToMenu}
         onReturnToNeighbourhood={() => travelHouse('Neighbourhood')}

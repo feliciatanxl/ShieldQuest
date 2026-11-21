@@ -51,7 +51,7 @@ export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, 
 
 function AreaMap({ save }: { save: Save }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const inside = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI'
+  const inside = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
   const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
@@ -101,7 +101,7 @@ function AreaMap({ save }: { save: Save }) {
     ctx.stroke()
   }, [map, inside, house, width, height, tileWidth, save.position])
   return <div className="map-content">
-    <p><MapPin size={17} /> {house ? 'The Mysterious House' : inside ? 'Sunshine Minimart' : 'Sunshine Estate'}</p>
+    <p><MapPin size={17} /> {house ? 'The Mysterious House' : save.scene === 'HouseH' ? 'Freeze Frame House' : save.scene === 'HouseI' ? 'Whisper Network House' : save.scene === 'FreezeFrame' ? 'Freeze Frame · Investigation' : inside ? 'Sunshine Minimart' : 'Sunshine Estate'}</p>
     <canvas ref={ref} width={width} height={height} aria-label="Area map with your location marked by a white dot" role="img" />
     <div className="map-legend"><span><i /> You are here</span>{map && <>
       <span><i className="shop-key" /> Minimart</span><span><i className="house-key" /> Mysterious House</span>
