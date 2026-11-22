@@ -6,55 +6,122 @@ import type { MapProp } from './maps'
 const urls = import.meta.glob('./assets/pixellab/**/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 const key = (path: string) => 'pl-' + path.split('/').slice(-2).join('-').replace('.png', '')
 
+// Walking residents: sheets laid out like the player base sheets (see docs/pixellab-assets.md).
+const walkerUrls = import.meta.glob('./assets/characters/npc-*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
+export const walkerKey = (sheet: string) => 'pl-walker-' + sheet
+
 export function preloadPixelLab(scene: Phaser.Scene) {
   for (const [path, url] of Object.entries(urls)) if (!scene.textures.exists(key(path))) scene.load.image(key(path), url)
+  for (const [path, url] of Object.entries(walkerUrls)) {
+    const name = walkerKey(path.split('/').pop()!.replace(/^npc-|.png$/g, ''))
+    if (!scene.textures.exists(name)) scene.load.spritesheet(name, url, { frameWidth: 80, frameHeight: 80 })
+  }
 }
 
 const object = (name: string) => `pl-objects-${name}`
 
 // Ground gids 1-16 map 1:1 onto ground/tile_0..15 (grass, pavement, road, plaza; 4 variants each).
-// A grass border of MARGIN cells hides the void past the playable edge.
-const MARGIN = 14
+// A grass border of MARGIN cells hides the void past the playable edge. Baked in chunks of CHUNK cells so no
+// render texture outgrows what a phone GPU allows.
+const MARGIN = 14, CHUNK = 24
 export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number) {
   const height = tiles.length / width
-  const left = project(-MARGIN, height + MARGIN).x - TILE_WIDTH / 2, right = project(width + MARGIN, -MARGIN).x + TILE_WIDTH / 2
-  const top = project(-MARGIN, -MARGIN).y - TILE_WIDTH, bottom = project(width + MARGIN, height + MARGIN).y + TILE_WIDTH
-  const rt = scene.add.renderTexture(left, top, right - left, bottom - top).setOrigin(0).setDepth(-2001)
-  rt.beginDraw()
-  for (let y = -MARGIN; y < height + MARGIN; y++) {
-    for (let x = -MARGIN; x < width + MARGIN; x++) {
-      const inside = x >= 0 && y >= 0 && x < width && y < height
-      const tile = inside ? tiles[y * width + x] : 1 + ((x * 7 + y * 13) & 3)
-      if (!tile) continue
-      const centre = project(x + .5, y + .5)
-      rt.batchDraw(`pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
+  for (let cy = -MARGIN; cy < height + MARGIN; cy += CHUNK) {
+    for (let cx = -MARGIN; cx < width + MARGIN; cx += CHUNK) {
+      const x1 = Math.min(cx + CHUNK, width + MARGIN), y1 = Math.min(cy + CHUNK, height + MARGIN)
+      const left = project(cx, y1).x - TILE_WIDTH / 2, right = project(x1, cy).x + TILE_WIDTH / 2
+      const top = project(cx, cy).y - TILE_WIDTH, bottom = project(x1, y1).y + TILE_WIDTH
+      const rt = scene.add.renderTexture(left, top, right - left, bottom - top).setOrigin(0).setDepth(-2001)
+      rt.beginDraw()
+      for (let y = cy; y < y1; y++) {
+        for (let x = cx; x < x1; x++) {
+          const inside = x >= 0 && y >= 0 && x < width && y < height
+          const tile = inside ? tiles[y * width + x] : 1 + ((x * 7 + y * 13) & 3)
+          if (!tile) continue
+          const centre = project(x + .5, y + .5)
+          rt.batchDraw(`pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
+        }
+      }
+      rt.endDraw()
     }
   }
-  rt.endDraw()
 }
 
 // Sprites sized to the Tiled footprint so collisions and doors keep lining up with what is drawn.
 const fitted: Record<string, string | ((p: MapProp) => string)> = {
-  block: p => ['hdb-teal', 'hdb-mondrian', 'hdb-yellow'][Number(String(p.properties.number).slice(-1)) % 3],
-  shop: 'minimart', kopi: 'kopi', play: 'playground', garden: 'garden', bikes: 'bikes', planter: 'planter',
-  shelter: 'linkway', linkway: 'linkway', bus: 'bus-shelter',
+  block: p => p.properties.sprite ? String(p.properties.sprite) : ['hdb-teal', 'hdb-mondrian', 'hdb-yellow'][Number(String(p.properties.number).slice(-1)) % 3],
+  shop: 'minimart', kopi: 'kopi', play: 'playground', garden: 'garden', planter: 'planter',
+  shelter: 'linkway', linkway: 'linkway', bus: 'bus-shelter', hawker: 'hawker-centre', fitness: 'fitness-corner', pavilion: 'pavilion', pond: 'pond',
+  // Any other building: its sprite and (optionally) sign text come from the map.
+  building: p => String(p.properties.sprite),
   house: p => p.name.includes('Freeze Frame') || p.name.includes('House H') ? 'house-h'
     : p.name.includes('Whisper Network') || p.name.includes('House I') ? 'house-i' : 'house-mysterious',
 }
+const alongY = new Set(['hdb-teal', 'hdb-mondrian'])
 // Small props keep one pixel scale so street furniture reads consistently.
 const fixed: Record<string, [string | ((p: MapProp) => string), number]> = {
-  tree: [p => (Math.round(p.x * 7 + p.y * 3) % 4 === 0 ? 'frangipani' : 'rain-tree'), .95],
+  tree: [p => (p.properties.palm ? 'rain-tree' : Math.round(p.x * 7 + p.y * 3) % 5 === 0 ? 'frangipani' : 'angsana'), .9],
   npc: [p => String(p.properties.sprite), 1],
-  lamp: ['lamp', 1.05], trafficLight: ['traffic-light', .95], sign: ['street-sign', 1.05], bench: ['bench', 1.25],
-  bin: ['bin', 1.1], kopitiam: ['kopitiam-table', 1.15], bougainvillea: ['planter', 1.2],
+  lamp: ['lamp', .9], trafficLight: ['traffic-light', .85], sign: ['street-sign', 1.05], bench: ['bench', .95],
+  bin: ['bin', .8], kopitiam: ['kopitiam-table', 1.15], bougainvillea: ['planter', 1], chess: ['chess-table', 1], recycle: ['recycling-bins', 1],
+  bikes: ['bikes', 1.1],
 }
 
-// [text, height fraction from sprite top, plate colour, text colour] — the generated signboards are blank.
-const signs: Record<string, (p: MapProp) => [string, number, string, string]> = {
-  block: p => [`BLK ${p.properties.number}`, .16, '#1f3b4d', '#f4efe2'],
-  shop: () => ['SUNSHINE MINIMART', .3, '#1d6b45', '#fff6d8'],
-  kopi: () => ['KOPI CORNER', .38, '#7c2a22', '#fff6d8'],
-  house: p => [p.name.includes('Freeze') ? 'FREEZE FRAME' : p.name.includes('Whisper') ? 'WHISPER NETWORK' : 'MYSTERY HOUSE', .12, '#2b2238', '#ffe7a8'],
+// Names painted onto the generated (blank) signboards and HDB end walls. Positions are in source sprite pixels;
+// slope shears the text along an isometric wall (+.5 runs down-right, -.5 up-right); size is in world pixels.
+type Sign = { x: number; y: number; slope: number; w: number; h: number; size: number; colour: string; plate?: string; lines: (p: MapProp) => string[] }
+const blk = (p: MapProp) => ['BLK', String(p.properties.number)]
+const signs: Record<string, Sign> = {
+  'hdb-teal': { x: 33, y: 128, slope: .5, w: 48, h: 40, size: 13, colour: '#24474f', lines: blk },
+  'hdb-mondrian': { x: 60, y: 222, slope: .5, w: 36, h: 40, size: 13, colour: '#b9482a', lines: blk },
+  'hdb-yellow': { x: 278, y: 190, slope: -.5, w: 56, h: 44, size: 13, colour: '#2f6b2a', lines: blk },
+  kopi: { x: 211, y: 58, slope: .5, w: 112, h: 44, size: 10, colour: '#7c2a22', lines: () => ['KOPI CORNER', '咖啡店'] },
+  minimart: { x: 137, y: 49, slope: .5, w: 86, h: 44, size: 10, colour: '#fff6d8', lines: () => ['SUNSHINE', 'MINIMART'] },
+  'house-h': { x: 140, y: 160, slope: -.5, w: 66, h: 11, size: 6, colour: '#ffe7a8', plate: '#2e2f36', lines: () => ['FREEZE FRAME'] },
+  'house-i': { x: 55, y: 135, slope: .5, w: 58, h: 24, size: 7, colour: '#ffe7a8', plate: '#2b2238', lines: () => ['WHISPER', 'NETWORK'] },
+  'hawker-centre': { x: 96, y: 130, slope: .5, w: 120, h: 20, size: 9, colour: '#fff2c4', plate: '#1f5a3a', lines: () => ['SUNSHINE FOOD CENTRE'] },
+  'hdb-point': { x: 125, y: 112, slope: -.5, w: 30, h: 34, size: 13, colour: '#c0582b', lines: blk },
+  'mrt-station': { x: 295, y: 32, slope: .5, w: 58, h: 30, size: 10, colour: '#ffffff', plate: '#1d3b6e', lines: () => ['SINAR', 'MRT'] },
+  'town-mall': { x: 128, y: 55, slope: .5, w: 90, h: 46, size: 15, colour: '#1f6f8b', lines: () => ['SINAR', 'POINT'] },
+  'community-club': { x: 89, y: 130, slope: .5, w: 34, h: 26, size: 8, colour: '#a8323a', lines: () => ['SINAR', 'CC'] },
+  'neighbourhood-centre': { x: 130, y: 92, slope: .5, w: 88, h: 14, size: 8, colour: '#fff2c4', plate: '#2f5d50', lines: () => ['SINAR CENTRE'] },
+  library: { x: 205, y: 118, slope: -.5, w: 70, h: 18, size: 9, colour: '#fff3dc', lines: () => ['LIBRARY'] },
+  'bus-interchange': { x: 115, y: 100, slope: .5, w: 120, h: 16, size: 9, colour: '#ffffff', plate: '#2b4a6f', lines: () => ['SINAR BUS INTERCHANGE'] },
+  school: { x: 246, y: 165, slope: -.4, w: 30, h: 16, size: 6, colour: '#1e3a8a', lines: () => ['SINAR', 'PRI SCH'] },
+  'house-mysterious': { x: 157, y: 178, slope: -.5, w: 44, h: 26, size: 6, colour: '#f1e6c8', plate: '#2a2a2e', lines: () => ['MYSTERY', 'HOUSE'] },
+}
+
+/** The sprite with its name painted on, mirrored first when flip is set. Smoothly filtered, since buildings are
+ *  drawn at roughly their native size and nearest-neighbour scaling made them look blocky. */
+function signedTexture(scene: Phaser.Scene, name: string, p: MapProp, flip: boolean, scale: number) {
+  // A shophouse can carry its own sign text (lines split by |) on a shared sprite.
+  const sign = signs[name], lines = p.properties.sign ? String(p.properties.sign).split('|') : sign?.lines(p) ?? []
+  const key = `${object(name)}~${flip ? 'f' : ''}~${lines.join('/')}`
+  if (scene.textures.exists(key)) return key
+  const src = scene.textures.get(object(name)).getSourceImage() as HTMLImageElement
+  const canvas = scene.textures.createCanvas(key, src.width, src.height)
+  if (!canvas) return object(name)
+  const ctx = canvas.context
+  ctx.save()
+  if (flip) ctx.setTransform(-1, 0, 0, 1, src.width, 0)
+  ctx.drawImage(src, 0, 0)
+  ctx.restore()
+  if (sign) {
+    const slope = flip ? -sign.slope : sign.slope
+    ctx.setTransform(1, slope, 0, 1, flip ? src.width - sign.x : sign.x, sign.y)
+    if (sign.plate) { ctx.fillStyle = sign.plate; ctx.fillRect(-sign.w / 2, -sign.h / 2, sign.w, sign.h) }
+    // Shrink to fit the board when the name is long or the sprite is drawn small.
+    let size = Math.min(sign.size / scale, sign.h / lines.length * .9)
+    ctx.font = `800 ${size}px Outfit, sans-serif`
+    const widest = Math.max(...lines.map(line => ctx.measureText(line).width))
+    if (widest > sign.w * .92) size *= sign.w * .92 / widest
+    ctx.font = `800 ${size}px Outfit, sans-serif`
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = sign.colour
+    lines.forEach((line, i) => ctx.fillText(line, 0, (i - (lines.length - 1) / 2) * size * 1.05))
+  }
+  canvas.setFilter(Phaser.Textures.FilterMode.LINEAR)
+  canvas.refresh()
+  return key
 }
 
 // Walkable covered walkways and shelters would hide a player standing beneath them, so only these roofs,
@@ -69,33 +136,76 @@ export function updateRoofs(scene: Phaser.Scene, at: { x: number; y: number }) {
   }
 }
 
+// Buildings per scene, with the opaque pixels of their sprite, so nobody can walk where a building would hide them.
+type Solid = { image: Phaser.GameObjects.Image; p: MapProp; mask: Uint8Array; w: number }
+const solids = new WeakMap<Phaser.Scene, Solid[]>()
+const perScene = <T>(map: WeakMap<Phaser.Scene, T[]>, scene: Phaser.Scene) => {
+  if (!map.has(scene)) {
+    map.set(scene, [])
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => map.delete(scene))
+  }
+  return map.get(scene)!
+}
+const masks = new Map<string, Uint8Array>()
+function alphaMask(scene: Phaser.Scene, key: string) {
+  if (!masks.has(key)) {
+    const source = scene.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement
+    const canvas = document.createElement('canvas')
+    canvas.width = source.width; canvas.height = source.height
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(source, 0, 0)
+    const data = ctx.getImageData(0, 0, source.width, source.height).data
+    const mask = new Uint8Array(source.width * source.height)
+    for (let i = 0; i < mask.length; i++) mask[i] = data[i * 4 + 3] > 96 ? 1 : 0
+    masks.set(key, mask)
+  }
+  return masks.get(key)!
+}
+
+// Close behind a building counts as walking under it; further back a tall building may still cover the player.
+const NEAR = 2.5
+/** Whether a character standing here is covered by a building: 'near' (right behind it, kept out), 'far' (further
+ *  behind a tall one: walkable, the player shows as a ghost), or false. */
+export function hiddenByBuilding(scene: Phaser.Scene, at: { x: number; y: number }): 'near' | 'far' | false {
+  const feet = project(at.x, at.y)
+  let hidden: 'near' | 'far' | false = false
+  for (const { image, p, mask, w } of solids.get(scene) ?? []) {
+    // In front of either visible wall: drawn over the building, so never hidden.
+    if (at.x >= p.x + p.w || at.y >= p.y + p.d) continue
+    const u = Math.floor((feet.x - image.x) / image.scaleX + image.width / 2)
+    if (u < 0 || u >= w) continue
+    for (const lift of [6, 24, 44]) {
+      const v = Math.floor((feet.y - lift - image.y) / image.scaleY + image.height)
+      if (v < 0 || v >= image.height || !mask[v * w + u]) continue
+      if (Math.max(p.x - at.x, p.y - at.y) < NEAR) return 'near'
+      hidden = 'far'
+    }
+  }
+  return hidden
+}
+
 /** Draws the prop as a PixelLab sprite; returns false when no sprite covers this kind. */
 export function spriteProp(scene: Phaser.Scene, p: MapProp) {
   const depth = depthAt(p.x + p.w, p.y + p.d)
   const pick = (name: string | ((p: MapProp) => string)) => object(typeof name === 'function' ? name(p) : name)
   if (fitted[p.kind]) {
-    const texture = pick(fitted[p.kind])
-    const image = scene.add.image(0, 0, texture)
+    const name = typeof fitted[p.kind] === 'function' ? (fitted[p.kind] as (p: MapProp) => string)(p) : fitted[p.kind] as string
+    const image = scene.add.image(0, 0, object(name))
     const footprintWidth = (p.w + p.d) * TILE_WIDTH / 2
     const scale = footprintWidth / image.width
-    // Elongated walkways run along whichever grid axis is longer; the sprites are drawn along y.
-    image.setFlipX(['shelter', 'linkway', 'bus'].includes(p.kind) && p.w > p.d)
+    // Elongated walkways and slab blocks run along whichever grid axis is longer; these sprites are drawn along y.
+    const flip = (alongY.has(name) || roofKinds.has(p.kind)) && p.w > p.d
+    if (roofKinds.has(p.kind)) image.setFlipX(flip)
+    else image.setTexture(signedTexture(scene, name, p, flip, scale))
     const base = project(p.x + p.w / 2, p.y + p.d / 2)
     const bottom = project(p.x + p.w, p.y + p.d).y
     image.setScale(scale).setOrigin(.5, 1).setPosition(base.x, bottom + 2).setDepth(depth)
-    if (roofKinds.has(p.kind)) {
-      if (!roofs.has(scene)) {
-        roofs.set(scene, [])
-        scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => roofs.delete(scene))
-      }
-      roofs.get(scene)!.push({ image, p })
-    }
-    const sign = signs[p.kind]?.(p)
-    if (sign) {
-      const [text, at, fill, colour] = sign
-      scene.add.text(base.x, bottom - image.displayHeight * (1 - at), text, {
-        fontFamily: '"Press Start 2P", monospace', fontSize: '9px', color: colour, backgroundColor: fill, padding: { x: 4, y: 3 },
-      }).setOrigin(.5).setDepth(depth + .5).setResolution(2)
+    if (roofKinds.has(p.kind)) perScene(roofs, scene).push({ image, p })
+    else {
+      // A long building's front corner is far forward, so sorting by it hides anyone standing along its front walls.
+      // Everything in front of either visible wall is at least this deep; anything behind is kept out (hiddenByBuilding).
+      image.setDepth(depthAt(p.x, p.y + Math.min(p.w, p.d)) - .5)
+      perScene(solids, scene).push({ image, p, mask: alphaMask(scene, image.texture.key), w: image.width })
     }
     return true
   }

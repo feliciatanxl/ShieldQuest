@@ -185,7 +185,7 @@ function skinGaps(data: Uint8ClampedArray, regions: Uint8Array, y: number) {
 }
 
 // Sheet rows: south, north, east, west, south-east, south-west, north-east, north-west.
-const rows: Record<Facing, number> = { front: 0, back: 1, right: 2, left: 3, 'front-right': 4, 'front-left': 5, 'back-right': 6, 'back-left': 7 }
+export const rows: Record<Facing, number> = { front: 0, back: 1, right: 2, left: 3, 'front-right': 4, 'front-left': 5, 'back-right': 6, 'back-left': 7 }
 /** The row for a facing; sheets without diagonals use the nearest front or back view, and without west, mirrored east. */
 function sheetRow(sheet: ImageData, facing: Facing) {
   const row = rows[facing], available = sheet.height / CELL

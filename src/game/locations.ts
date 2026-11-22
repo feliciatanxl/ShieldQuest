@@ -1,7 +1,7 @@
 import type { Point } from '../state/saveGame'
 
 export type Location = 'Neighbourhood' | 'Minimart' | 'House' | 'HouseH' | 'HouseI' | 'FreezeFrame'
-export const NEIGHBOURHOOD_SIZE: Point = { x: 38, y: 32 }
+export const NEIGHBOURHOOD_SIZE: Point = { x: 60, y: 54 }
 export const SHOP_DOOR: Point = { x: 13.24, y: 9.64 }
 export const SHOP_SPAWN: Point = { x: 7.72, y: 7.22 }
 export const SHOP_SIZE: Point = { x: 10, y: 8 }

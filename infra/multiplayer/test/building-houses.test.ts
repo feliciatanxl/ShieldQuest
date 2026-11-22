@@ -5,7 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_H_SIZE,
-  HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_I_SIZE,
+  HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_I_SIZE, NEIGHBOURHOOD_SIZE,
 } from '../../../src/game/locations'
 import { houseHCollisions, houseHObjects } from '../../../src/game/houseHLayout'
 import { houseICollisions, houseIObjects } from '../../../src/game/houseILayout'
@@ -18,9 +18,9 @@ test('Sunshine Estate map expansion dimensions and landmarks', () => {
   const mapPath = path.resolve(dir, '../../../src/game/maps/neighbourhood.tmj')
   const tmj = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
 
-  // Verify expanded dimensions: 38x32 = 1216 tiles (original was 25x23 = 575 tiles -> 2.11x expansion)
-  assert.equal(tmj.width, 38)
-  assert.equal(tmj.height, 32)
+  // Sinar Town: 60x54, matching the size saves are validated against
+  assert.equal(tmj.width, NEIGHBOURHOOD_SIZE.x)
+  assert.equal(tmj.height, NEIGHBOURHOOD_SIZE.y)
   assert.ok(tmj.width * tmj.height >= 25 * 23 * 1.5, 'World map is at least 1.5x larger')
 
   // Verify object layers and essential landmarks

@@ -2,13 +2,14 @@ import Phaser from 'phaser'
 import type { Avatar } from '../../state/avatar'
 import type { Point } from '../../state/saveGame'
 import { Actor } from '../entities/Actor'
+import { Walker } from '../entities/Walker'
 import { type GameBridge, type Hotspot } from '../events'
 import { canStand, project, screenMovement } from '../isometric'
 import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
 import { FREEZE_FRAME_SPAWN, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
-import { preloadPixelLab, updateRoofs } from '../pixellabArt'
+import { hiddenByBuilding, preloadPixelLab, updateRoofs, walkerKey } from '../pixellabArt'
 
 export type Launch = {
   avatar: Avatar
@@ -36,6 +37,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
   private travelled = 0
   private releaseScene?: () => void
   private cameraFocus?: Phaser.GameObjects.Zone
+  private walkers: Walker[] = []
 
   constructor(protected launch: Launch, private location: Location, private fallback: Point) {
     super(location)
@@ -66,14 +68,17 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const { bridge, preview } = this.launch
     const cleanups: Array<() => void> = []
     this.world = this.createWorld()
+    this.walkers = (this.world.routes ?? []).filter(route => this.textures.exists(walkerKey(String(route.properties.sheet))))
+      .map((route, i) => new Walker(this, String(i), walkerKey(String(route.properties.sheet)), route.path!))
     for (const { id, at } of this.world.hotspots) {
       if (isResident(id)) new Actor(this, 'resident-' + id, residents[id], at, 'pl-objects-npc-' + id)
     }
     if (!preview) {
       const requested = data?.position ?? this.launch.position
-      const spawn = canStand(requested, this.world.size, this.world.collisions) ? requested : this.fallback
+      const spawn = this.free(requested) ? requested : this.fallback
       this.player = new Actor(this, 'player', this.launch.avatar, spawn, undefined, this.launch.name)
       updateRoofs(this, spawn)
+      this.player.setGhost(hiddenByBuilding(this, spawn) === 'far')
       if (this.location !== 'Minimart') this.cameraFocus = this.add.zone(0, 0, 1, 1)
       this.moveCamera()
       const keys = this.input.keyboard
@@ -167,6 +172,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
+    for (const walker of this.walkers) walker.update(delta, this.player?.position)
     const { player, keys } = this
     if (!player) return
     if (this.locked || this.transitioning) {
@@ -186,11 +192,14 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const next = { x, y }
     const dx = direction.x * step
     const dy = direction.y * step
-    if (canStand({ x: x + dx, y }, this.world.size, this.world.collisions)) next.x += dx
-    if (canStand({ x: next.x, y: y + dy }, this.world.size, this.world.collisions)) next.y += dy
+    if (this.free({ x: x + dx, y })) next.x += dx
+    if (this.free({ x: next.x, y: y + dy })) next.y += dy
     const moved = Math.hypot(next.x - x, next.y - y)
     player.move(next, moved, { x: sx, y: sy }, speed > WALK_SPEED)
-    if (moved) updateRoofs(this, next)
+    if (moved) {
+      updateRoofs(this, next)
+      player.setGhost(hiddenByBuilding(this, next) === 'far')
+    }
     if (moved) {
       this.travelled += moved
       this.moveCamera()
@@ -198,6 +207,16 @@ export abstract class ExplorationScene extends Phaser.Scene {
       this.checkpointTime += delta
     }
     if (this.travelled && (this.checkpointTime >= 120 || !moved)) this.checkpoint()
+  }
+
+  /** Clear of scenery, residents walking by, and spots where a building would hide the player. */
+  private free(point: Point) {
+    return canStand(point, this.world.size, this.world.collisions) && hiddenByBuilding(this, point) !== 'near'
+      // Residents block the way, but never trap a player who is already next to one.
+      && !this.walkers.some(({ position }) => {
+        const gap = Math.hypot(position.x - point.x, position.y - point.y)
+        return gap < .4 && (!this.player || gap < Math.hypot(position.x - this.player.position.x, position.y - this.player.position.y))
+      })
   }
 
   private checkpoint() {

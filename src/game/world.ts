@@ -17,7 +17,8 @@ const labels = {
   may: 'Talk to Auntie May', amir: 'Talk to Amir',
 } as const
 
-export type WorldLayout = { hotspots: Hotspot[]; collisions: Footprint[]; size: Point }
+/** routes: residents walking back and forth along a polyline, drawn from a walking sheet. */
+export type WorldLayout = { hotspots: Hotspot[]; collisions: Footprint[]; size: Point; routes?: MapProp[] }
 
 function pavement(scene: Phaser.Scene) {
   const map = neighbourhood
@@ -26,62 +27,45 @@ function pavement(scene: Phaser.Scene) {
   return g
 }
 
+// Road markings from the map's `road` and `crossing` rectangles: kerbs, Singapore double yellow lines and lane
+// dashes, all broken where another road or a crossing passes; zebra crossings with their white stop lines.
 function street(scene: Phaser.Scene) {
   const g = pavement(scene)
-  // Main horizontal street extended across the full width
-  for (let x = 0; x < 38; x++) {
-    floor(g, x, 15.04, 1, .045, '#bdbcaf')
-    floor(g, x, 17.89, 1, .045, '#c4c2b4')
-    if (x % 2 === 0 && x !== 16 && x !== 20 && x !== 28) floor(g, x + .12, 16.49, .66, .065, '#ead5aa')
+  const roads = neighbourhood.props.filter(p => p.kind === 'road')
+  const crossings = neighbourhood.props.filter(p => p.kind === 'crossing')
+  const covered = (self: MapProp, x: number, y: number) => [...roads, ...crossings]
+    .some(o => o !== self && x > o.x && x < o.x + o.w && y > o.y && y < o.y + o.d)
+  const yellow = '#e2b93b'
+  for (const r of roads) {
+    const alongX = r.w >= r.d, length = alongX ? r.w : r.d, width = alongX ? r.d : r.w
+    // t runs along the road, u across it.
+    const point = (t: number, u: number) => alongX ? [r.x + t, r.y + u] as const : [r.x + u, r.y + t] as const
+    const mark = (t: number, u: number, l: number, w: number, colour: string) => {
+      const [x, y] = point(t, u)
+      floor(g, x, y, alongX ? l : w, alongX ? w : l, colour)
+    }
+    for (let t = 0; t < length; t++) {
+      const free = (u: number) => !covered(r, ...point(t + .5, u))
+      if (free(.04)) mark(t, .04, 1, .045, '#bdbcaf')
+      if (free(width - .09)) mark(t, width - .09, 1, .045, '#c4c2b4')
+      for (const u of [.16, .26, width - .3, width - .2]) if (free(u)) mark(t, u, 1, .035, yellow)
+      if (t % 2 === 0 && free(width / 2)) mark(t + .12, width / 2 - .03, .66, .065, '#ead5aa')
+    }
   }
-  // Central North-South boulevard extended down into the south expansion
-  for (let y = 5; y < 31; y++) {
-    floor(g, 19.05, y, .052, 1, '#c4c2b4')
-    floor(g, 21.9, y, .055, 1, '#c4c2b4')
-    if (y % 2 === 0 && y !== 16 && y !== 28) floor(g, 20.49, y + .18, .065, .62, '#e7d4a8')
+  for (const c of crossings) {
+    const acrossY = c.d >= c.w, span = acrossY ? c.d : c.w
+    for (let i = 0; i * .39 + .3 < span; i++) {
+      if (acrossY) floor(g, c.x, c.y + .1 + i * .39, c.w, .21, '#e6dfcc')
+      else floor(g, c.x + .1 + i * .39, c.y, .21, c.d, '#e6dfcc')
+    }
+    if (acrossY) for (const x of [c.x - .35, c.x + c.w + .15]) floor(g, x, c.y + .05, .16, c.d - .1, '#ffffff')
+    else for (const y of [c.y - .35, c.y + c.d + .15]) floor(g, c.x + .05, y, c.w - .1, .16, '#ffffff')
   }
-  // South Boulevard connecting the new community district
-  for (let x = 8; x < 35; x++) {
-    floor(g, x, 28.04, 1, .045, '#bdbcaf')
-    floor(g, x, 30.89, 1, .045, '#c4c2b4')
-    if (x % 2 === 0 && x !== 20) floor(g, x + .12, 29.49, .66, .065, '#ead5aa')
-  }
-
-  // Zebra pedestrian crossings with white stop lines
-  for (let index = 0; index < 7; index++) {
-    floor(g, 16.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
-    floor(g, 19.14 + index * .39, 13.25, .21, 1.22, '#e6dfcc')
-    floor(g, 28.1, 15.15 + index * .39, 1.25, .21, '#e6dfcc')
-    floor(g, 19.14 + index * .39, 26.25, .21, 1.22, '#e6dfcc')
-  }
-  // Singapore solid white pedestrian stop lines
-  floor(g, 15.75, 15.05, .16, 2.85, '#ffffff')
-  floor(g, 17.50, 15.05, .16, 2.85, '#ffffff')
-  floor(g, 27.75, 15.05, .16, 2.85, '#ffffff')
-  floor(g, 29.50, 15.05, .16, 2.85, '#ffffff')
-  floor(g, 19.05, 12.95, 2.85, .16, '#ffffff')
-  floor(g, 19.05, 25.95, 2.85, .16, '#ffffff')
-  floor(g, 19.05, 27.65, 2.85, .16, '#ffffff')
-
-  floor(g, 15.99, 14.73, 1.44, .23, '#e5b38b')
-  floor(g, 15.99, 18.05, 1.44, .23, '#e5b38b')
-  floor(g, 27.99, 14.73, 1.44, .23, '#e5b38b')
-  floor(g, 27.99, 18.05, 1.44, .23, '#e5b38b')
-  floor(g, 2.23, 10.51, 4.9, .24, '#daba8f')
+  // Door mats at the shop and the two SHIELD houses.
   floor(g, 13.01, 9.16, .44, .37, '#e5bd84')
-  floor(g, 22.05, 9.91, 2.63, .44, '#d7c7a9')
-  floor(g, 22.00, 9.93, .40, .91, '#d7c7a9')
   for (let i = 0; i < 8; i++) floor(g, 13.05 + .048 * i, 9.28, .018, .18, '#a37567')
-
-  // Paved walkway & entrance plaza for House H (Freeze Frame)
-  floor(g, 27.2, 8.0, 2.8, 1.6, '#d7c7a9')
   floor(g, 28.0, 8.4, 1.1, .35, '#e5bd84')
-  for (let y = 9.2; y < 15.0; y += .95) floor(g, 28.0, y, .85, .95, '#dfd2bd')
-
-  // Paved promenade & entrance plaza for House I (Whisper Network)
-  floor(g, 13.2, 26.0, 2.8, 1.6, '#d7c7a9')
   floor(g, 14.0, 26.4, 1.1, .35, '#e5bd84')
-  for (let y = 26.8; y < 28.0; y += .6) floor(g, 14.0, y, .85, .6, '#dfd2bd')
 }
 
 function playArea(g: Phaser.GameObjects.Graphics, p: MapProp) {
@@ -152,8 +136,8 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
     const id = kind as keyof typeof labels
     return { id, label: labels[id], at: { x, y }, radius: .95 }
   })
-  const nonSolidKinds = new Set(['shelter', 'bus', 'linkway', 'sign', 'bougainvillea'])
-  const collisions = map.props.filter(p => p.w > 0 && p.d > 0 && !nonSolidKinds.has(p.kind))
+  const nonSolidKinds = new Set(['shelter', 'bus', 'linkway', 'sign', 'bougainvillea', 'road', 'crossing'])
+  const collisions = map.props.filter(p => p.w > 0 && p.d > 0 && !nonSolidKinds.has(p.kind) && p.kind !== 'walker')
   for (const p of map.props.filter(p => p.kind === 'shelter' || p.kind === 'bus')) {
     for (const x of [p.x, p.x + p.w - .13]) {
       for (const y of [p.y, p.y + p.d - .13]) collisions.push({ ...p, x, y, w: .13, d: .13 })
@@ -166,5 +150,6 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   hotspots.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
   hotspots.push({ id: 'house-h-entrance', label: 'Enter Freeze Frame House', at: HOUSE_H_DOOR, radius: .95 })
   hotspots.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
-  return { hotspots, collisions: collisions as Footprint[], size: map.size }
+  const routes = map.props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1)
+  return { hotspots, collisions: collisions as Footprint[], size: map.size, routes }
 }

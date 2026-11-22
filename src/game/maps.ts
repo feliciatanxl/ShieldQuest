@@ -1,11 +1,12 @@
 import town from './maps/neighbourhood.tmj?raw'
 import type { Footprint } from './isometric'
 
-type MapObject = { name: string; type: string; x: number; y: number; width: number; height: number;
+type MapObject = { name: string; type: string; x: number; y: number; width: number; height: number; polyline?: { x: number; y: number }[];
   properties?: { name: string; value: string | number | boolean }[] }
 type MapLayer = { type: 'tilelayer'; data: number[] } | { type: 'objectgroup'; objects: MapObject[] }
 type TiledMap = { orientation: 'isometric'; width: number; height: number; tileheight: number; layers: MapLayer[] }
-export type MapProp = Footprint & { kind: string; name: string; properties: Record<string, unknown> }
+/** path: the points of a polyline object (walker routes), in tiles. */
+export type MapProp = Footprint & { kind: string; name: string; properties: Record<string, unknown>; path?: { x: number; y: number }[] }
 
 function loadMap(source: string) {
   const map: TiledMap = JSON.parse(source)
@@ -16,6 +17,7 @@ function loadMap(source: string) {
     x: object.x / map.tileheight, y: object.y / map.tileheight,
     w: object.width / map.tileheight, d: object.height / map.tileheight,
     properties: Object.fromEntries((object.properties ?? []).map(property => [property.name, property.value])),
+    path: object.polyline?.map(point => ({ x: (object.x + point.x) / map.tileheight, y: (object.y + point.y) / map.tileheight })),
   }))
   return { size: { x: map.width, y: map.height }, tiles, props }
 }

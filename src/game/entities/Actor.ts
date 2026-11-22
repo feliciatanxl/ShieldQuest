@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import type { Avatar, Facing } from '../../state/avatar'
 import type { Point } from '../../state/saveGame'
-import { CELL, FEET_Y, RUN_START, WALK_FRAMES, drawPlayer } from '../playerArt'
+import { CELL, FEET_Y, RUN_START, WALK_FRAMES, drawPlayer, rows } from '../playerArt'
 import { depthAt, project } from '../isometric'
 
 // Eight 45° sectors of on-screen movement, clockwise from right (screen y points down, towards the viewer).
@@ -15,16 +15,20 @@ export class Actor {
   private shadow: Phaser.GameObjects.Ellipse
   private marker?: Phaser.GameObjects.Text
   private texture?: Phaser.Textures.CanvasTexture
+  private sheet = false
+  private ghost?: Phaser.GameObjects.Image
   private facing: Facing = 'front'
   private frame = 0
   private walked = 0
 
-  /** staticTexture: a pre-drawn standing sprite (PixelLab NPC) used instead of the animated avatar when loaded.
+  /** staticTexture: a pre-drawn PixelLab sprite used instead of the avatar when loaded: a single standing image, or a
+   *  walking sheet laid out like the player base sheets (8 facing rows of standing, walk and run frames).
    *  label: the name tag shown under the player. */
   constructor(scene: Phaser.Scene, key: string, private avatar: Avatar, public position: Point, staticTexture?: string, label?: string) {
     this.shadow = scene.add.ellipse(0, 0, 24, 10, 0x343246, .28)
     if (staticTexture && scene.textures.exists(staticTexture)) {
-      this.sprite = scene.add.image(0, 0, staticTexture).setOrigin(.5, .97)
+      this.sheet = scene.textures.get(staticTexture).frameTotal > 2
+      this.sprite = scene.add.image(0, 0, staticTexture).setOrigin(.5, this.sheet ? FEET_Y / CELL : .97)
     } else {
       const texture = scene.textures.createCanvas(key, CELL, CELL)
       if (!texture) throw new Error('Could not create an avatar texture')
@@ -47,6 +51,16 @@ export class Actor {
   setAvatar(avatar: Avatar) {
     this.avatar = avatar
     this.repaint()
+  }
+
+  /** A see-through copy drawn over everything, shown while a tall building stands between the camera and the actor. */
+  setGhost(on: boolean) {
+    if (on && !this.ghost) {
+      this.ghost = this.sprite.scene.add.image(0, 0, this.sprite.texture.key, this.sprite.frame.name)
+        .setOrigin(this.sprite.originX, this.sprite.originY).setAlpha(.5).setDepth(1e6 - 1)
+      this.place()
+    }
+    this.ghost?.setVisible(on)
   }
 
   setLabel(text: string) {
@@ -94,11 +108,14 @@ export class Actor {
     const depth = depthAt(this.position.x, this.position.y)
     this.shadow.setPosition(x, y - 1).setDepth(depth - .01)
     this.sprite.setPosition(Math.round(x), Math.round(y)).setDepth(depth)
+    this.ghost?.setPosition(this.sprite.x, this.sprite.y)
     // The name tag stays readable above roofs and trees in front of the player.
     this.marker?.setPosition(Math.round(x), Math.round(y + 4)).setDepth(1e6)
   }
 
   private repaint() {
+    if (this.sheet) this.sprite.setFrame(rows[this.facing] * (RUN_START + WALK_FRAMES) + this.frame)
+    if (this.sheet) this.ghost?.setFrame(this.sprite.frame.name)
     if (!this.texture) return
     this.texture.context.clearRect(0, 0, CELL, CELL)
     drawPlayer(this.texture.context, this.avatar, this.facing, this.frame)
