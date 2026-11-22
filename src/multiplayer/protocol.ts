@@ -59,10 +59,17 @@ export function record(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
+/** A display name: up to 24 letters, numbers, spaces, _ ' or -, starting with a letter or number. Null if invalid. */
+export function readName(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length > 48) return null
+  const name = value.normalize('NFC').trim().replace(/ {2,}/g, ' ')
+  return /^[\p{L}\p{N}][\p{L}\p{M}\p{N} _'-]{0,23}$/u.test(name) ? name : null
+}
+
 export function readProfile(value: unknown): Profile | null {
-  if (!record(value) || typeof value.name !== 'string' || value.name.length > 48 || !record(value.avatar)) return null
-  const name = value.name.normalize('NFC').trim().replace(/ {2,}/g, ' ')
-  if (!/^[\p{L}\p{N}][\p{L}\p{M}\p{N} _'-]{0,23}$/u.test(name)) return null
+  if (!record(value) || !record(value.avatar)) return null
+  const name = readName(value.name)
+  if (!name) return null
   const avatar = normalizeAvatar(value.avatar)
   return avatar ? { name, avatar } : null
 }

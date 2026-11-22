@@ -1,11 +1,16 @@
-import { useState } from 'react'
-import { ArrowLeft, Briefcase, Check, Footprints, Glasses, Palette, RotateCcw, Shirt, Shuffle, Smile, Sparkles, UserRound } from 'lucide-react'
+import { useId, useState } from 'react'
+import { ArrowDown, ArrowDownLeft, ArrowDownRight, ArrowLeft, ArrowRight, ArrowUp, ArrowUpLeft, ArrowUpRight, Briefcase, Check, Footprints, Glasses, Palette, RotateCcw, Shirt, Shuffle, Smile, Sparkles, UserRound } from 'lucide-react'
 import { baseAvatar, categories, groups, presets, randomAvatar, sameAvatar, type Avatar, type Category, type Facing } from '../state/avatar'
 import { AvatarSprite } from './AvatarSprite'
+import { readName } from '../multiplayer/protocol'
 import { Button } from './ui'
 
 const icons = [Smile, UserRound, Palette, Shirt, Shirt, Footprints, Glasses, Briefcase]
-const facings: Facing[] = ['front', 'right', 'back', 'left']
+// Preview angles in turning order; each arrow points the way the character faces.
+const facings: [Facing, typeof ArrowDown, string][] = [
+  ['front', ArrowDown, 'Front'], ['front-right', ArrowDownRight, 'Front right'], ['right', ArrowRight, 'Right'], ['back-right', ArrowUpRight, 'Back right'],
+  ['back', ArrowUp, 'Back'], ['back-left', ArrowUpLeft, 'Back left'], ['left', ArrowLeft, 'Left'], ['front-left', ArrowDownLeft, 'Front left'],
+]
 const starters = [{ name: 'Base', avatar: baseAvatar }, ...presets]
 
 function Choices({ category, avatar, onPick, titled }: { category: Category; avatar: Avatar; onPick: (index: number) => void; titled: boolean }) {
@@ -23,10 +28,14 @@ function Choices({ category, avatar, onPick, titled }: { category: Category; ava
   </div>
 }
 
-export function CharacterCustomizer({ initial, wardrobe = false, onBack, onConfirm }: {
-  initial: Avatar; wardrobe?: boolean; onBack: () => void; onConfirm: (avatar: Avatar) => void
+export function CharacterCustomizer({ initial, initialName = '', wardrobe = false, onBack, onConfirm }: {
+  initial: Avatar; initialName?: string; wardrobe?: boolean; onBack: () => void; onConfirm: (avatar: Avatar, name: string) => void
 }) {
   const [avatar, setAvatar] = useState(initial)
+  const [name, setName] = useState(initialName)
+  const [touched, setTouched] = useState(false)
+  const validName = readName(name)
+  const nameId = useId()
   const [tab, setTab] = useState(0)
   const [facing, setFacing] = useState<Facing>('front')
   const group = groups[tab]
@@ -39,8 +48,17 @@ export function CharacterCustomizer({ initial, wardrobe = false, onBack, onConfi
         <div className="eyebrow"><Shirt size={15} /> {wardrobe ? 'PLAYER WARDROBE' : 'CHARACTER CUSTOMISATION'}</div>
         <h1 id="custom-title">Choose your look</h1>
       </div>
-      <p>Start from the base or a look inspired by Singapore&apos;s communities. Every option stays open to everyone.</p>
+      <p>Name your character, pick a starting look, then make it your own. Every option stays open to everyone.</p>
     </header>
+    <div className="name-field">
+      <label htmlFor={nameId}>Your name</label>
+      <input id={nameId} value={name} maxLength={24} autoComplete="nickname" placeholder="e.g. Wei Ling, Hafiz, Priya"
+        aria-invalid={touched && !validName} aria-describedby={nameId + '-hint'}
+        onChange={event => setName(event.target.value)} onBlur={() => setTouched(true)} />
+      <small id={nameId + '-hint'} className={touched && !validName ? 'invalid' : ''}>
+        {touched && !validName ? 'Enter up to 24 letters or numbers, starting with a letter or number.' : 'Shown above your character and in your player card.'}
+      </small>
+    </div>
     <div className="presets" aria-label="Starter looks">
       {starters.map(preset => <button className="preset" type="button" key={preset.name}
         aria-pressed={sameAvatar(avatar, preset.avatar)} onClick={() => setAvatar(preset.avatar)}>
@@ -66,7 +84,7 @@ export function CharacterCustomizer({ initial, wardrobe = false, onBack, onConfi
           <AvatarSprite avatar={avatar} facing={facing} />
         </div>
         <div className="facing" aria-label="Preview angle">
-          {facings.map(angle => <button key={angle} type="button" aria-pressed={facing === angle} onClick={() => setFacing(angle)}>{angle}</button>)}
+          {facings.map(([angle, Arrow, label]) => <button key={angle} type="button" title={label} aria-label={label} aria-pressed={facing === angle} onClick={() => setFacing(angle)}><Arrow size={16} aria-hidden="true" /></button>)}
         </div>
       </div>
       <section className="appearance-options" aria-label={group.label}>
@@ -81,7 +99,7 @@ export function CharacterCustomizer({ initial, wardrobe = false, onBack, onConfi
         <Button className="secondary" onClick={() => setAvatar(randomAvatar())}><Shuffle size={17} /> Randomise</Button>
         <Button className="secondary" onClick={() => { setAvatar(initial); setFacing('front') }}><RotateCcw size={17} /> Reset</Button>
       </div>
-      <Button className="primary" onClick={() => onConfirm(avatar)}><Check size={19} /> {wardrobe ? 'Save look' : 'Confirm character'}</Button>
+      <Button className="primary" disabled={!validName} onClick={() => validName && onConfirm(avatar, validName)}><Check size={19} /> {wardrobe ? 'Save look' : 'Confirm character'}</Button>
     </footer>
   </section>
 }

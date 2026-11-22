@@ -1,10 +1,9 @@
 import { useRef, useState, type FormEvent, type MouseEvent } from 'react'
 import { Check, ClipboardCheck, MessageSquare } from 'lucide-react'
-import { residents } from '../game/residentData'
 import {
   fragmentSlots, leadFragmentText, type FragmentId, type FragmentSlotId, type LeadAnswers, type LeadDraft, type LeadResult,
 } from '../state/leadTheRightChoice'
-import { AvatarSprite } from './AvatarSprite'
+import { ResidentPortrait } from './AvatarSprite'
 import { canReviewShieldAnswers } from './shieldFeedback'
 import { Button, Modal } from './ui'
 
@@ -47,7 +46,7 @@ export function LeadTheRightChoiceChallenge({ result, postTestComplete = false, 
     {result ? <LeadFeedback result={result} showReview={canReviewShieldAnswers(postTestComplete)} onClose={onClose} />
       : <form onSubmit={submit}>
         <section className="lead-conversation" aria-label="Conversation">
-          <span className="lead-portrait"><AvatarSprite avatar={residents.jun} /></span>
+          <span className="lead-portrait"><ResidentPortrait id="jun" /></span>
           <div className="spot-card lead-bubble">
             <strong>Jun</strong>
             <p>“Come on lah, we’re friends. Just help me this once.”</p>

@@ -55,9 +55,28 @@ Ground tile group: `641697e0-2993-4a06-a489-d64fe86e3b57` (10 generations).
 | npc-elderly | c5cbcf7d-e173-43c1-8d83-5f0e219cbb2a |
 | npc-office | 95900e8f-27ef-4e54-b7a6-aae80836550b |
 
-Residents standing in exploration scenes use `npc-<id>`. Mini-games that walk residents around keep the animated avatars from `residentData.ts`, which are styled to match. Ambient NPCs are `npc` objects in the `.tmj` `Residents` layer, with a `sprite` property.
+Residents standing in exploration scenes use `npc-<id>`. Mini-games that walk residents around use player base bodies dressed by `residentData.ts` to match. Friend and dialogue portraits crop the `npc-<id>` sprite (`ResidentPortrait` in `AvatarSprite.tsx`). Ambient NPCs are `npc` objects in the `.tmj` `Residents` layer, with a `sprite` property.
 
-The player avatar is drawn in code (`avatarArt.ts`), not by PixelLab: modular clothing layers wouldn't line up across 4 facings and walk frames, and every option would cost generations. Add new options to the end of each list in `state/avatar.ts`, never in the middle, because saves store option indices. `normalizeAvatar` upgrades older saves.
+## Player base bodies
+
+The player is drawn from eight PixelLab base bodies, one per hairstyle option, at `src/game/assets/characters/base-<hairstyle index>.png`. Each sheet holds 80×80 cells in 8 rows: south, north, east, west, south-east, south-west, north-east, north-west; column 0 is the standing pose, columns 1–6 the walk cycle and 7–12 the run cycle (used while Shift is held or the joystick is pushed past its ring). West art is recoloured as if it faced east and then flipped back, so the profile rules for eyes, cap brim and bag apply to it as well. Every base wears the same outfit (white tee, navy shorts, red sneakers, black hair or a teal tudung). `playerArt.ts` classifies each pixel by colour and height and recolours skin, hair, top, bottom and shoes from the wardrobe. It relabels pixels for long pants, long sleeves, singlets and open footwear, and draws glasses, collars, lanyard, satchel, hair clip, cap and bucket hat on top. If you add a base, keep that outfit so the classifier still fits.
+
+The script reads the rotations and the `walk` and `run` animations in every direction. A `run-<direction>` clip replaces that direction of `run`. Frames on a larger canvas, such as skeleton-v3 output, are cropped to 80. Single frames drawn facing the wrong way are swapped for a mirrored frame. If most of a clip is turned, that clip is skipped and the game walks instead. A south walk frame drawn from behind is swapped for the opposite-phase frame, mirrored.
+
+Each base is two PixelLab characters: the original 4-direction one (cardinal rotations, walk and run) and an 8-direction copy made from those exact rotations, which adds the diagonals and their walk and run. Build a sheet from both downloads: `node scripts/pixellab/character-sheet.cjs src/game/assets/characters/base-<n>.png <4-direction dir> <8-direction dir>`.
+
+| Base | 4-direction id | 8-direction id |
+|---|---|---|
+| 0 Side swept | 6c24b890-57ff-4ede-bd20-1ac2d0d6fdd4 | 36e4901c-05db-48fe-953a-53a841f566f8 |
+| 1 Bob cut | fdf999ed-99f5-42cc-81c8-c5ea91cbbf14 | 1a7b0b68-fb7e-4600-99f8-9adf90d10426 |
+| 2 High bun | 0adab75d-98ce-4ec8-b644-6debc07eed0f | 678200fe-2947-4163-888d-111a41c67a23 |
+| 3 Soft curls | 1ffc3865-3d5c-4dbb-8f6e-405675012bf4 | 599e65ab-80be-4c87-8e54-4fb69760e740 |
+| 4 Short crop | abc5321a-c6ea-4a90-8247-88091b197923 | 30a296b7-1d12-46af-b2c9-b0c4ace2cca3 |
+| 5 Ponytail | c7b25298-f9a7-484f-b0f4-3d65e90c6303 | 67df9a73-4aed-4366-89d5-77bed267c936 |
+| 6 Long straight | c4d5d143-7875-4f92-bad9-de39d42f44a9 | 9b084a32-7768-4102-9d89-5823b4a33fd6 |
+| 7 Tudung | ad20e4a5-cb6a-4e0d-ad0b-9d9d13d5f363 | c7c030a6-b6a8-4fb8-ab2d-50c58abea7e1 |
+
+Add new options to the end of each list in `state/avatar.ts`, never in the middle, because saves store option indices. `normalizeAvatar` upgrades older saves.
 
 Re-download a sprite: `https://api.pixellab.ai/mcp/map-objects/<id>/download`, then trim its transparent margin.
 
@@ -67,3 +86,6 @@ Unused from this run: 5 square top-down terrain tilesets (5 generations) and one
 
 39 generations of the 2,000 monthly allowance: 10 ground tiles, 23 sprites at 1 each, and 6 unused (listed above).
 Second run: 8 NPC sprites (8 generations). Total 47.
+Third run: 8 base bodies (standard mode, 4 directions, 1 each) and 6-frame walks for 7 of them (3 directions × 1 each = 21). 29 generations. Total 76.
+Fourth run: west walks for 7 bases (7), a 4-direction walk for the high bun (4), 4-direction runs for all 8 (32), one template retry of the north run for soft curls, side swept and long straight, which had been drawn facing the camera (3; only soft curls came out right), and skeleton-v3 north runs for the other two (6). 52 generations. Total 128.
+Fifth run: 8-direction copies of all 8 bases (v3 with the existing rotations as references, 8), diagonal walk and run for each (64), and the tudung north-east run redone after it drifted side-on (1). 73 generations. Total 201.

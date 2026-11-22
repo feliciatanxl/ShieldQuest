@@ -24,7 +24,8 @@ import {
 } from '../../../src/game/locations'
 import { freezeFrameObjects } from '../../../src/game/freezeFrameLayout'
 import { houseIObjects } from '../../../src/game/houseILayout'
-import { readSave, SAVE_KEY, newSave, type Save } from '../../../src/state/saveGame'
+import { DEFAULT_NAME, readSave, SAVE_KEY, newSave, type Save } from '../../../src/state/saveGame'
+import { readName } from '../../../src/multiplayer/protocol'
 import { presets } from '../../../src/state/avatar'
 
 test('Freeze Frame: Playable scene hotspots, evidence, and spawn definitions', () => {
@@ -155,7 +156,7 @@ test('Save system: Restoring FreezeFrame location properly', () => {
     length: 0,
   }
 
-  const baseSave = newSave(presets[0].avatar)
+  const baseSave = newSave(presets[0].avatar, 'Wei Ling')
   const ffSave: Save = {
     ...baseSave,
     scene: 'FreezeFrame',
@@ -166,6 +167,24 @@ test('Save system: Restoring FreezeFrame location properly', () => {
   assert.ok(loaded)
   assert.equal(loaded.scene, 'FreezeFrame')
   assert.deepEqual(loaded.position, FREEZE_FRAME_SPAWN)
+  assert.equal(loaded.name, 'Wei Ling')
+
+  // Saves from before players chose a name, or with a tampered name, still load under the default.
+  const { name: _dropped, ...legacy } = baseSave
+  localStorage.setItem(SAVE_KEY, JSON.stringify(legacy))
+  assert.equal(readSave()?.name, DEFAULT_NAME)
+  localStorage.setItem(SAVE_KEY, JSON.stringify({ ...baseSave, name: '<script>' }))
+  assert.equal(readSave()?.name, DEFAULT_NAME)
+})
+
+test('Player names: trimmed, limited to 24 characters and must start with a letter or number', () => {
+  assert.equal(readName('  Wei   Ling '), 'Wei Ling')
+  assert.equal(readName('Nur Aisyah'), 'Nur Aisyah')
+  assert.equal(readName(''), null)
+  assert.equal(readName('   '), null)
+  assert.equal(readName('-dash'), null)
+  assert.equal(readName('a'.repeat(25)), null)
+  assert.equal(readName(42), null)
 })
 
 test('Freeze Frame Environmental Puzzle: CCTV Monitor feeds & zoom observation', () => {

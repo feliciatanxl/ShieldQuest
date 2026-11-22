@@ -11,8 +11,7 @@ import type { GuardianId } from '../state/guardians'
 import { GuardianCollection } from './GuardianCollection'
 import { CharacterCustomizer } from './CharacterCustomizer'
 import { currentObjective, objectiveDetails, type GameTool } from './GameHUD'
-import { AvatarSprite } from './AvatarSprite'
-import { residents } from '../game/residentData'
+import { ResidentPortrait } from './AvatarSprite'
 import { Button, Modal } from './ui'
 
 const dialogue = {
@@ -34,7 +33,7 @@ export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, 
   const consequence = id === 'jun' && choice ? responses[choice].consequence : null
   return <Modal title={name} onClose={onClose}>
     <div className="dialogue-line">
-      <span className="dialogue-portrait"><AvatarSprite avatar={residents[id]} /></span>
+      <span className="dialogue-portrait"><ResidentPortrait id={id} /></span>
       <p>{text}</p>
     </div>
     {consequence && <p className="jun-consequence" role="status">{consequence}</p>}
@@ -245,7 +244,7 @@ export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoa
     missions: 'Missions', controls: 'Help & controls', restart: 'Restart tutorial?', guardians: 'Guardians',
   }[panel]
   if (panel === 'wardrobe') return <Modal title={title} onClose={onClose} wide>
-    <CharacterCustomizer initial={save.avatar} wardrobe onBack={onClose} onConfirm={avatar => { onUpdate({ avatar }); onClose() }} />
+    <CharacterCustomizer initial={save.avatar} initialName={save.name} wardrobe onBack={onClose} onConfirm={(avatar, name) => { onUpdate({ avatar, name }); onClose() }} />
   </Modal>
   return <Modal title={title} onClose={onClose} className={panel === 'guardians' ? 'guardian-modal' : undefined}>
     {panel === 'guardians' && <GuardianCollection save={save} onCollect={onCollectGuardian} />}

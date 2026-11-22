@@ -4,7 +4,7 @@ import type { Point } from '../state/saveGame'
 import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, SHOP_DOOR } from './locations'
 import { type Footprint } from './isometric'
 import { neighbourhood, type MapProp } from './maps'
-import { groundTiles, spriteProp, watchOcclusion } from './pixellabArt'
+import { groundTiles, spriteProp } from './pixellabArt'
 import { isResident } from './residentData'
 import {
   bench, block, bougainvillea, box, communityGarden, floor, front, kopitiamTable, lamp,
@@ -148,7 +148,6 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   street(scene)
   const map = neighbourhood
   map.props.forEach(p => renderProp(scene, p))
-  watchOcclusion(scene)
   const hotspots: Hotspot[] = map.props.filter(p => Object.hasOwn(labels, p.kind)).map(({ x, y, kind }) => {
     const id = kind as keyof typeof labels
     return { id, label: labels[id], at: { x, y }, radius: .95 }

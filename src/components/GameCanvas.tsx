@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { Launch } from '../game/scenes/ExplorationScene'
+import { loadPlayerArt } from '../game/playerArt'
 
 export function GameCanvas({ launch }: { launch: Launch }) {
   const container = useRef<HTMLDivElement>(null)
@@ -11,7 +12,8 @@ export function GameCanvas({ launch }: { launch: Launch }) {
     container.current?.append(host)
     let disposed = false
     let destroy: (() => void) | undefined
-    void import('../game/main').then(({ mountGame }) => {
+    // Player sprites are recoloured from pixels, so their sheets must be decoded before any scene draws them.
+    void Promise.all([import('../game/main'), loadPlayerArt()]).then(([{ mountGame }]) => {
       if (!disposed) destroy = mountGame(host, initial.current)
     })
     return () => {

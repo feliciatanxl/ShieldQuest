@@ -22,9 +22,8 @@ import {
   type WhisperConnection,
   type WhisperNetworkResult,
 } from '../state/whisperNetwork'
-import { residents } from '../game/residentData'
 import { sound } from '../game/audio'
-import { AvatarSprite } from './AvatarSprite'
+import { ResidentPortrait } from './AvatarSprite'
 import { Button, Modal } from './ui'
 
 interface WhisperInterviewModalProps {
@@ -44,7 +43,6 @@ export function WhisperInterviewModal({
 }: WhisperInterviewModalProps) {
   const scenario = WHISPER_SCENARIOS['snack-dare']
   const witness = scenario.witnesses.find(w => w.id === witnessId)
-  const resident = residents[witnessId === 'may' ? 'may' : witnessId === 'jun' ? 'jun' : 'amir']
 
   if (!witness) return null
 
@@ -53,7 +51,7 @@ export function WhisperInterviewModal({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: '#f8fafc', borderRadius: '8px' }}>
           <div style={{ width: 44, height: 44, overflow: 'hidden' }}>
-            <AvatarSprite avatar={resident} facing="front" />
+            <ResidentPortrait id={witnessId} />
           </div>
           <div>
             <strong style={{ fontSize: '15px', color: '#0f172a' }}>{witness.name} · {witness.title}</strong>

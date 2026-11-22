@@ -12,10 +12,12 @@ import { readLeadResult } from './leadTheRightChoice'
 import { readDefendResult } from './defendYourCommunity'
 import { readCollectedGuardians, type GuardianId } from './guardians'
 import type { ShieldProgress } from './shield'
+import { readName } from '../multiplayer/protocol'
 
 export type Point = { x: number; y: number }
 export type Save = {
   version: 3
+  name: string
   avatar: Avatar
   scene: Location
   investigation: Investigation
@@ -32,9 +34,11 @@ export type Save = {
 export const SAVE_KEY = 'shieldquest.phase1'
 export const WALK_GOAL = 3
 export const START = { x: 10.6, y: 10.55 }
+/** Shown for saves made before players chose a name. */
+export const DEFAULT_NAME = 'Player'
 
-export function newSave(avatar: Avatar): Save {
-  return { version: 3, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
+export function newSave(avatar: Avatar, name: string): Save {
+  return { version: 3, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
     position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
 }
 
@@ -77,7 +81,7 @@ export function readSave(): Save | null {
     const housePosition = scene === 'House' ? position : data.escapeRoom?.position
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
-    return { version: 3, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
+    return { version: 3, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
       position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion }
   } catch {
     return null

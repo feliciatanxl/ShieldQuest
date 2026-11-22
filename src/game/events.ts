@@ -42,6 +42,7 @@ type GameEvents = {
   ready: undefined
   lock: boolean
   avatar: Avatar
+  name: string
   motion: boolean
   action: undefined
   direction: Point

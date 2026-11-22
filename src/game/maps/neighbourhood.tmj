@@ -1565,121 +1565,6 @@
      ]
     },
     {
-     "id": 25,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 57.6,
-     "y": 423.04,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 30,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 227.2,
-     "y": 440,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
-     "id": 31,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 267.2,
-     "y": 413.76,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 33,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 409.6,
-     "y": 440,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 37,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 761.6,
-     "y": 220.8,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
      "id": 39,
      "name": "Rain tree",
      "type": "tree",
@@ -1726,29 +1611,6 @@
      ]
     },
     {
-     "id": 42,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 112,
-     "y": 665.6,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
      "id": 43,
      "name": "Rain tree",
      "type": "tree",
@@ -1768,29 +1630,6 @@
        "name": "hue",
        "type": "int",
        "value": 0
-      }
-     ]
-    },
-    {
-     "id": 44,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 307.2,
-     "y": 620.8,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 1
       }
      ]
     },
@@ -1818,29 +1657,6 @@
      ]
     },
     {
-     "id": 46,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 560,
-     "y": 662.4,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
      "id": 47,
      "name": "Rain tree",
      "type": "tree",
@@ -1855,52 +1671,6 @@
        "name": "large",
        "type": "bool",
        "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 48,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 748.8,
-     "y": 684.8,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 1
-      }
-     ]
-    },
-    {
-     "id": 49,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 326.4,
-     "y": 704,
-     "width": 21.44,
-     "height": 21.44,
-     "visible": true,
-     "rotation": 0,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
       },
       {
        "name": "hue",
@@ -2661,52 +2431,6 @@
    "draworder": "topdown",
    "objects": [
     {
-     "id": 147,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 817.7,
-     "y": 35.6,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 148,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1168.7,
-     "y": 35.9,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
      "id": 149,
      "name": "Bougainvillea",
      "type": "bougainvillea",
@@ -2729,29 +2453,6 @@
      "rotation": 0,
      "visible": true,
      "properties": []
-    },
-    {
-     "id": 151,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1072.1,
-     "y": 73.3,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
     },
     {
      "id": 152,
@@ -2790,144 +2491,6 @@
      "properties": []
     },
     {
-     "id": 155,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1117.2,
-     "y": 317.6,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 157,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1072.1,
-     "y": 374.2,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 158,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1163.9,
-     "y": 377,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 159,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1116.8,
-     "y": 433.1,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 160,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 865.6,
-     "y": 620,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 161,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 971.2,
-     "y": 618.8,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
      "id": 162,
      "name": "Bougainvillea",
      "type": "bougainvillea",
@@ -2964,29 +2527,6 @@
      "properties": []
     },
     {
-     "id": 165,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 127.6,
-     "y": 724.7,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
      "id": 166,
      "name": "Bougainvillea",
      "type": "bougainvillea",
@@ -2999,29 +2539,6 @@
      "properties": []
     },
     {
-     "id": 167,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 424.4,
-     "y": 725.7,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
      "id": 168,
      "name": "Bougainvillea",
      "type": "bougainvillea",
@@ -3032,144 +2549,6 @@
      "rotation": 0,
      "visible": true,
      "properties": []
-    },
-    {
-     "id": 169,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 974.4,
-     "y": 716.6,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 170,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1072.7,
-     "y": 728.1,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 171,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1155.8,
-     "y": 728,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 172,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 772.3,
-     "y": 772.3,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 173,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 877,
-     "y": 768.3,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": true
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
-    },
-    {
-     "id": 174,
-     "name": "Rain tree",
-     "type": "tree",
-     "x": 1012.6,
-     "y": 818.9,
-     "width": 22.4,
-     "height": 22.4,
-     "rotation": 0,
-     "visible": true,
-     "properties": [
-      {
-       "name": "large",
-       "type": "bool",
-       "value": false
-      },
-      {
-       "name": "hue",
-       "type": "int",
-       "value": 0
-      }
-     ]
     },
     {
      "id": 175,

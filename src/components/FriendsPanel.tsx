@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { ArrowLeft, Check, Copy, Search, Trash2, UserPlus, Users, Wifi, WifiOff } from 'lucide-react'
 import { randomAvatar, type Avatar } from '../state/avatar'
 import { residents } from '../game/residentData'
-import { AvatarSprite } from './AvatarSprite'
+import { AvatarSprite, ResidentPortrait } from './AvatarSprite'
+import type { ResidentId } from '../game/events'
 import { Button, Modal } from './ui'
 
 export type FriendStatus = 'online' | 'offline' | 'in-game'
@@ -23,7 +24,7 @@ const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
 const defaultFriends: Friend[] = [
   {
     id: 'friend-amir',
-    name: 'Amir (Demo)',
+    name: 'Amir',
     code: 'AMIR2026',
     avatar: residents.amir,
     status: 'online',
@@ -31,7 +32,7 @@ const defaultFriends: Friend[] = [
   },
   {
     id: 'friend-jun',
-    name: 'Jun (Demo)',
+    name: 'Jun',
     code: 'JUN99EST',
     avatar: residents.jun,
     status: 'in-game',
@@ -39,7 +40,7 @@ const defaultFriends: Friend[] = [
   },
   {
     id: 'friend-may',
-    name: 'Auntie May (Demo)',
+    name: 'Auntie May',
     code: 'MAY101SG',
     avatar: residents.may,
     status: 'offline',
@@ -48,12 +49,22 @@ const defaultFriends: Friend[] = [
   },
 ]
 
+// Neighbours in your list show the same PixelLab portrait as in the estate; added players show their avatar.
+const residentFriends: Record<string, ResidentId> = { 'friend-amir': 'amir', 'friend-jun': 'jun', 'friend-may': 'may' }
+function FriendPortrait({ friend }: { friend: Friend }) {
+  const resident = residentFriends[friend.id]
+  return resident ? <ResidentPortrait id={resident} /> : <AvatarSprite avatar={friend.avatar} />
+}
+
 function readStoredFriends(): Friend[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultFriends
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultFriends
+    // Lists saved by earlier versions labelled the starter friends '(Demo)'.
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed.map((friend: Friend) => ({ ...friend, name: String(friend.name).replace(/ \((Demo|Local)\)$/, '') }))
+      : defaultFriends
   } catch {
     return defaultFriends
   }
@@ -130,7 +141,7 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
 
     const newFriend: Friend = {
       id: 'friend-' + Date.now(),
-      name: `Player_${sanitized.slice(0, 4)} (Local)`,
+      name: `Player ${sanitized.slice(0, 4)}`,
       code: sanitized,
       avatar: randomAvatar(),
       status: 'online',
@@ -164,7 +175,7 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
 
         <div className="friends-profile-card">
           <div className="friends-profile-stage">
-            <AvatarSprite avatar={selectedFriend.avatar} facing="front" />
+            <FriendPortrait friend={selectedFriend} />
           </div>
           <div className="friends-profile-details">
             <h3>{selectedFriend.name}</h3>
@@ -236,7 +247,7 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
                   <li key={friend.id}>
                     <button type="button" className="friends-entry-btn" onClick={() => setSelectedFriend(friend)}>
                       <span className="friends-avatar">
-                        <AvatarSprite avatar={friend.avatar} />
+                        <FriendPortrait friend={friend} />
                         <span className={`friends-status-dot ${friend.status}`} title={statusLabel[friend.status]} />
                       </span>
                       <div className="friends-info">
@@ -288,7 +299,7 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
           </form>
 
           <p className="friends-local-note">
-            Friends is a local prototype. Friend codes and connections are stored in this browser. A connected multiplayer service is required for real-time friend features.
+            Your friends list and friend code are saved on this device.
           </p>
         </>}
       </>

@@ -6,11 +6,11 @@ import { readProfile, roomCodePattern, type RoomPlayer } from '../multiplayer/pr
 import { AvatarSprite } from './AvatarSprite'
 import { Button, Modal } from './ui'
 
-export function MultiplayerLobby({ mode, endpoint, avatar, onClose }: {
-  mode: 'create' | 'join'; endpoint: { url: string; local: boolean }; avatar: Avatar; onClose: () => void
+export function MultiplayerLobby({ mode, endpoint, avatar, name: savedName = '', onClose }: {
+  mode: 'create' | 'join'; endpoint: { url: string; local: boolean }; avatar: Avatar; name?: string; onClose: () => void
 }) {
   const [state, setState] = useState<LobbyState>({ connection: 'connecting', room: null })
-  const [name, setName] = useState('')
+  const [name, setName] = useState(savedName)
   const [code, setCode] = useState('')
   const [notice, setNotice] = useState('')
   const client = useRef<LobbyClient>(null)

@@ -36,8 +36,7 @@ import {
   type FreezeHotspotId,
   type ManifestItem,
 } from '../state/freezeFrame'
-import { residents } from '../game/residentData'
-import { AvatarSprite } from './AvatarSprite'
+import { ResidentPortrait } from './AvatarSprite'
 import { Button, Modal } from './ui'
 import { sound } from '../game/audio'
 
@@ -492,7 +491,6 @@ export function FreezeDialogueModal({
   onOpenDecision,
   onClose,
 }: FreezeDialogueModalProps) {
-  const resident = speaker === 'jun' ? residents.jun : residents.cashier
   const relevantQuestions = CLARIFICATION_QUESTIONS.filter(q => q.target === speaker)
   const [activeAnswer, setActiveAnswer] = useState<string | null>(null)
 
@@ -504,7 +502,7 @@ export function FreezeDialogueModal({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
           <div style={{ width: 44, height: 44, overflow: 'hidden' }}>
-            <AvatarSprite avatar={resident} facing="front" />
+            <ResidentPortrait id={speaker} />
           </div>
           <div>
             <strong style={{ fontSize: '15px', color: '#0f172a' }}>

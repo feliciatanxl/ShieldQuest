@@ -28,7 +28,7 @@ import { houseObject, type HouseObject } from './game/houseLayout'
 import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_SPAWN, FREEZE_FRAME_SPAWN, type Location } from './game/locations'
 import { applyEscapeAction, newEscapeRoom, type EscapeAction } from './state/escapeRoom'
 import { baseAvatar, presets, type Avatar } from './state/avatar'
-import { newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
+import { DEFAULT_NAME, newSave, readSave, START, WALK_GOAL, writeSave, type Point, type Save } from './state/saveGame'
 import { EXPLORE_GOAL, isClue, type ClueId, type JunChoice } from './state/investigation'
 import { canStartSpot, scoreSpot, type SpotResponse } from './state/spotTheRisk'
 import { scoreHold, type HoldResponse } from './state/holdBeforeActing'
@@ -235,8 +235,8 @@ export default function App() {
     return () => cleanup.forEach(remove => remove())
   }, [bridge])
 
-  function start(avatar: Avatar) {
-    const fresh = newSave(avatar)
+  function start(avatar: Avatar, name: string) {
+    const fresh = newSave(avatar, name)
     fresh.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     persist(fresh)
     setScreen('play')
@@ -246,6 +246,7 @@ export default function App() {
     if (!current.current) return
     persist({ ...current.current, ...changes })
     if (changes.avatar) bridge.emit('avatar', changes.avatar)
+    if (changes.name) bridge.emit('name', changes.name)
     if (changes.reducedMotion !== undefined) bridge.emit('motion', changes.reducedMotion)
   }
 
@@ -405,7 +406,7 @@ export default function App() {
   }
 
   if (screen === 'play' && save) return <main className={`game-shell ${save.reducedMotion ? 'reduce-motion' : ''} ${save.scene === 'Minimart' ? 'minimart-shell' : ''}`}>
-    <GameCanvas launch={{ bridge, avatar: save.avatar, scene: save.scene, position: save.position, reducedMotion: save.reducedMotion }} />
+    <GameCanvas launch={{ bridge, avatar: save.avatar, name: save.name, scene: save.scene, position: save.position, reducedMotion: save.reducedMotion }} />
     <GameHUD save={save} nearby={nearby} transitioning={transitioning} blocked={!!overlay}
       onAction={() => { if (!locked.current && !transitioning) bridge.emit('action', undefined) }}
       onMove={move} onPanel={openPanel}
@@ -414,7 +415,7 @@ export default function App() {
       onMultiplayer={multiplayer ? mode => setOverlay({ type: 'house-lobby', mode }) : undefined}
       onReview={save.escapeRoom.completedAt ? () => setOverlay({ type: 'house-complete' }) : undefined} />}
     {overlay?.type === 'house-lobby' && multiplayer &&
-      <MultiplayerLobby mode={overlay.mode} endpoint={multiplayer} avatar={save.avatar} onClose={closeLobby} />}
+      <MultiplayerLobby mode={overlay.mode} endpoint={multiplayer} avatar={save.avatar} name={save.name} onClose={closeLobby} />}
     {overlay?.type === 'house-inspect' && <HouseInspection object={overlay.object} progress={save.escapeRoom}
       onAction={applyHouseAction} onClose={() => setOverlay(null)} />}
     {overlay?.type === 'house-inventory' && <HouseInventory progress={save.escapeRoom}
@@ -551,11 +552,12 @@ export default function App() {
     {screen === 'menu' ? <MainMenu canContinue={!!save} storageAvailable={storageAvailable}
       onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && setScreen('play')} />
       : <main className="custom-main"><CharacterCustomizer initial={baseAvatar} onBack={() => setScreen('menu')} onConfirm={start} /></main>}
-    {confirm && <Modal title="Start a new game?" onClose={() => setConfirm(false)}>
-      <p>Your saved adventure will be replaced when you confirm a new character.</p>
+    {confirm && save && <Modal title="Start a new game?" onClose={() => setConfirm(false)}>
+      <p>Starting a new game may overwrite your current progress{save.name !== DEFAULT_NAME ? ` as ${save.name}` : ''}. Do you want to continue?</p>
+      <p className="modal-note">Your saved game stays safe until you confirm your new character. To keep playing it, choose Cancel, then Continue.</p>
       <div className="modal-actions">
         <Button className="secondary" onClick={() => setConfirm(false)}>Cancel</Button>
-        <Button className="primary" onClick={() => { setConfirm(false); setScreen('customise') }}>Create new character</Button>
+        <Button className="primary" onClick={() => { setConfirm(false); setScreen('customise') }}>Start new game anyway</Button>
       </div>
     </Modal>}
   </div>

@@ -20,9 +20,9 @@ export function MainMenu({ canContinue, storageAvailable, onStart, onContinue }:
           <Button className="primary" onClick={onStart}><Play size={18} fill="currentColor" /> Start new game</Button>
           <Button className="outline" disabled={!canContinue} onClick={onContinue}><BookOpen size={17} /> Continue</Button>
         </div>
-        <p className="save-note"><Database size={14} /> {storageAvailable ? 'Prototype progress is stored in this browser.' : 'Browser storage is unavailable.'}</p>
+        <p className="save-note"><Database size={14} /> {storageAvailable ? 'Your progress is saved automatically in this browser.' : 'Browser storage is unavailable.'}</p>
       </section>
     </div>
-    <footer className="menu-footer">PHASE 1 PROTOTYPE</footer>
+    <footer className="menu-footer">© 2026 TEAM SECUREPI · SHIELDQUEST</footer>
   </main>
 }

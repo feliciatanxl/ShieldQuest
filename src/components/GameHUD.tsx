@@ -108,7 +108,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         <section className="dark-panel player-card" aria-label="Player status">
           <div className="portrait"><AvatarSprite avatar={save.avatar} /></div>
           <div className="player-data">
-            <strong>PLAYER01</strong><span>LEVEL 01</span>
+            <strong>{save.name}</strong><span>LEVEL 01</span>
             <div className="xp-bar" role="progressbar" aria-label="Experience" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={100}><i style={{ width: xp + '%' }} /></div>
           </div>
         </section>

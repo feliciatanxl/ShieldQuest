@@ -8,10 +8,11 @@ import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
 import { FREEZE_FRAME_SPAWN, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
-import { preloadPixelLab } from '../pixellabArt'
+import { preloadPixelLab, updateRoofs } from '../pixellabArt'
 
 export type Launch = {
   avatar: Avatar
+  name?: string
   scene?: Location
   bridge: GameBridge
   position: Point
@@ -71,7 +72,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
     if (!preview) {
       const requested = data?.position ?? this.launch.position
       const spawn = canStand(requested, this.world.size, this.world.collisions) ? requested : this.fallback
-      this.player = new Actor(this, 'player', this.launch.avatar, spawn)
+      this.player = new Actor(this, 'player', this.launch.avatar, spawn, undefined, this.launch.name)
+      updateRoofs(this, spawn)
       if (this.location !== 'Minimart') this.cameraFocus = this.add.zone(0, 0, 1, 1)
       this.moveCamera()
       const keys = this.input.keyboard
@@ -102,6 +104,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
         bridge.on('avatar', avatar => {
           this.launch.avatar = avatar
           this.player?.setAvatar(avatar)
+        }),
+        bridge.on('name', name => {
+          this.launch.name = name
+          this.player?.setLabel(name)
         }),
       )
       this.checkpoint()
@@ -183,7 +189,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
     if (canStand({ x: x + dx, y }, this.world.size, this.world.collisions)) next.x += dx
     if (canStand({ x: next.x, y: y + dy }, this.world.size, this.world.collisions)) next.y += dy
     const moved = Math.hypot(next.x - x, next.y - y)
-    player.move(next, moved, { x: sx, y: sy })
+    player.move(next, moved, { x: sx, y: sy }, speed > WALK_SPEED)
+    if (moved) updateRoofs(this, next)
     if (moved) {
       this.travelled += moved
       this.moveCamera()

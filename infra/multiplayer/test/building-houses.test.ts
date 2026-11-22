@@ -104,7 +104,7 @@ test('Save system parses and restores HouseH and HouseI locations', () => {
     length: 0,
   }
 
-  const baseSave = newSave(presets[0].avatar)
+  const baseSave = newSave(presets[0].avatar, 'Player')
 
   // Test House H save restoration
   const houseHSave: Save = {
