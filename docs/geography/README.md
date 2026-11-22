@@ -23,7 +23,7 @@ Comparison camera: 1440×1000 viewport; world centre (0,1700); zoom 0.24. The ol
 
 Layout truth is the frozen [OSM API extract](amk-osm.json), downloaded from `https://www.openstreetmap.org/api/0.6/map?bbox=103.841,1.365,103.852,1.375`. Complete source ways may extend past the requested box. The retrieval timestamp is recorded in that JSON.
 
-© [OpenStreetMap contributors](https://www.openstreetmap.org/copyright). The source extract and adapted geographic databases, including `correspondence.json` and the generated Tiled map, are available under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The production build serves downloadable copies at `/map-data/` and links the licence from the game. Artwork and code retain their separate licences. No reference-site artwork, screenshots, Google imagery or Roblox assets were extracted into the game.
+© [OpenStreetMap contributors](https://www.openstreetmap.org/copyright). The source extract and adapted geographic databases, including `correspondence.json` and the generated Tiled map, are available under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). The production build serves downloadable copies at `/map-data/` with consolidated repository attribution in [CREDITS.md](../../CREDITS.md). Artwork and code retain their separate licences. No reference-site artwork, screenshots, Google imagery or Roblox assets were extracted into the game.
 
 Reference research:
 

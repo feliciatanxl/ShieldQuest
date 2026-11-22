@@ -511,3 +511,8 @@ Earlier iterations and design references developed during the concept phase:
 ---
 
 *ShieldQuest is developed by Team SecurePi (Nanyang Polytechnic, Singapore). Copyright © 2026 Team SecurePi. All rights reserved.*
+
+
+## Credits and licences
+
+See [CREDITS.md](CREDITS.md) for map data attribution, artwork credits, weather sources and third-party licences.

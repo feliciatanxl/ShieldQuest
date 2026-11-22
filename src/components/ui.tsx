@@ -16,11 +16,11 @@ export function Modal({ title, onClose, children, wide = false, eyebrow, classNa
   useLayoutEffect(() => {
     const dialog = ref.current
     dialog?.showModal()
-    if (className.includes('game-panel')) dialog?.focus()
+    if (!wide) dialog?.focus()
     return () => dialog?.close()
   }, [])
   return (
-    <dialog ref={ref} tabIndex={-1} className={`modal ${wide ? 'wide' : ''} ${className}`} aria-label={title}
+    <dialog ref={ref} tabIndex={-1} className={`modal standard-modal ${wide ? 'wide' : ''} ${className}`} aria-label={title}
       onCancel={event => { event.preventDefault(); onClose() }}>
       {!wide && <header className="modal-heading">
         <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>

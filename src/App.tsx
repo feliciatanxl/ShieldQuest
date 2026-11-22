@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { ProfileModal } from './components/ProfileModal'
+import { readPlayerProfile } from './state/profile'
 import { ShopModal } from './components/ShopModal'
 import { purchaseItem, shopCatalog } from './state/shop'
 import { CharacterCustomizer } from './components/CharacterCustomizer'
@@ -42,7 +44,7 @@ import { guardians, type GuardianId } from './state/guardians'
 import type { AvailableAssessment } from './state/shield'
 
 type Screen = 'menu' | 'customise' | 'play'
-type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu' | 'friends' | 'shop'; fromMenu?: boolean }
+type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu' | 'friends' | 'shop' | 'profile'; fromMenu?: boolean }
 type EvidenceOverlay = { type: 'evidence'; parent?: PanelOverlay }
 type Overlay =
   | PanelOverlay
@@ -581,6 +583,8 @@ export default function App() {
         onOpen={panel => openPanel(panel, true)} />
       : overlay.panel === 'friends'
       ? <FriendsPanel onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />
+      : overlay.panel === 'profile'
+      ? <ProfileModal save={save} onUpdate={update} onOpen={openPanel} onClose={() => setOverlay(null)} />
       : overlay.panel === 'shop'
       ? <ShopModal save={save} onBuy={buyShopItem} onWear={wearShopItem} onClose={() => setOverlay(overlay.fromMenu ? {type:'panel',panel:'menu'} : null)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}
@@ -596,7 +600,7 @@ export default function App() {
       reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches }} />
     <div className="menu-veil" aria-hidden="true" />
     {screen === 'menu' ? <MainMenu canContinue={!!save} storageAvailable={storageAvailable}
-      onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && enterEstate(() => setScreen('play'))} />
+      onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && enterEstate(() => { persist({...save,profile:{...readPlayerProfile(save.profile),lastLoginAt:new Date().toISOString()}}); setScreen('play') })} />
       : <main className="custom-main"><CharacterCustomizer initial={baseAvatar} onBack={() => setScreen('menu')} onConfirm={start} /></main>}
     {confirm && save && <Modal title="Start a new game?" onClose={() => setConfirm(false)}>
       <p>Starting a new game may overwrite your current progress{save.name !== DEFAULT_NAME ? ` as ${save.name}` : ''}. Do you want to continue?</p>

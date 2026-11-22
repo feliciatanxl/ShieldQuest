@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Backpack, Check, ChevronDown, CloudSun, Coins, Compass, Gamepad2, Hand, Map, Menu, Settings, Shirt, SkipForward, Sparkles } from 'lucide-react'
+import { Backpack, Check, ChevronDown, CloudSun, Coins, Compass, Gamepad2, Hand, Map, Menu, Moon, Cloud, CloudRain, CloudLightning, Settings, Shirt, SkipForward, Sparkles } from 'lucide-react'
 import type { Hotspot } from '../game/events'
 import type { Point, Save } from '../state/saveGame'
+import {useSingaporeWeather} from './useSingaporeWeather'
+import {singaporeClock,nightStrength,weatherDisplay} from '../state/singaporeWeather'
 import { WALK_GOAL } from '../state/saveGame'
 import { clueIds, EXPLORE_GOAL } from '../state/investigation'
 import { canStartSpot, SPOT_TITLE } from '../state/spotTheRisk'
@@ -16,7 +18,7 @@ import { Button } from './ui'
 import { VirtualJoystick } from './VirtualJoystick'
 
 export type GameTool = 'wardrobe' | 'pack' | 'settings' | 'map'
-export type Panel = GameTool | 'menu' | 'shop'
+export type Panel = GameTool | 'menu' | 'shop' | 'profile'
 
 export function currentObjective(save: Save) {
   const { scene, tutorial, investigation } = save
@@ -96,6 +98,11 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
   onOpenAssessment: (competency: AvailableAssessment) => void
 }) {
   const [expanded, setExpanded] = useState(false)
+  const {now,weather,loading}=useSingaporeWeather()
+  const clock=singaporeClock(now),conditions=weatherDisplay(weather,now),night=nightStrength(now)>.5
+  const WeatherIcon=/thunder/i.test(conditions.condition)?CloudLightning:/rain|shower/i.test(conditions.condition)?CloudRain:/cloud|hazy|mist/i.test(conditions.condition)?Cloud:night?Moon:CloudSun
+  const observed=weather.observedAt?singaporeClock(new Date(weather.observedAt)).time:'unavailable'
+  const weatherTitle=`Singapore time (SGT). Temperature: ${weather.station??'unavailable'}, observed ${observed}${conditions.delayed?' (delayed)':''}. Ang Mo Kio 2-hour forecast: ${conditions.condition}. Source: NEA / data.gov.sg.`
   const xp = Math.round(save.walked / WALK_GOAL * 20)
   const indoors = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
@@ -105,13 +112,13 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
   return <div className="hud" inert={transitioning}>
     <div className="hud-top">
       <div className="hud-left">
-        <section className="dark-panel player-card" aria-label="Player status">
+        <button type="button" className="dark-panel player-card" onClick={() => onPanel('profile')} aria-label={`Open ${save.name}'s profile`} title="Your profile">
           <div className="portrait"><AvatarSprite avatar={save.avatar} /></div>
           <div className="player-data">
             <strong>{save.name}</strong><span>LEVEL 01</span>
             <div className="xp-bar" role="progressbar" aria-label="Experience" aria-valuenow={xp} aria-valuemin={0} aria-valuemax={100}><i style={{ width: xp + '%' }} /></div>
           </div>
-        </section>
+        </button>
         <section className="objective dark-panel">
           <button type="button" className="objective-toggle" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
             <Compass size={20} /><span><small>CURRENT OBJECTIVE</small><strong>{currentObjective(save)}</strong></span><ChevronDown size={16} className={expanded ? 'rotated' : ''} />
@@ -150,7 +157,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         </button>
       </div>
       <div className="hud-right">
-        <div className="weather dark-panel" aria-label="Fictional in-game time and weather"><CloudSun size={25} /><span><strong>5:42 PM</strong><small>SAT · 31°C · FAIR</small></span></div>
+        <div className={`weather dark-panel ${night?'weather-night':''}`} aria-label={weatherTitle} title={weatherTitle}><WeatherIcon size={25} /><span><strong>{clock.time}</strong><small>{clock.day} · {conditions.temperature} · {loading?'LOADING…':conditions.current?conditions.condition.toUpperCase():'UNAVAILABLE'}{conditions.delayed?' · DELAYED':''}</small></span></div>
         <div className="hud-tools">
           {([['settings', Settings], ['map', Map], ['menu', Menu]] as const).map(([panel, Icon]) =>
             <button className="dark-panel" key={panel} type="button" aria-label={panel[0].toUpperCase() + panel.slice(1)} title={panel} onClick={() => onPanel(panel)}><Icon size={20} /></button>)}

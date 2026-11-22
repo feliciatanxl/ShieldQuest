@@ -1,3 +1,4 @@
+import {newPlayerProfile,readPlayerProfile,type PlayerProfile} from './profile'
 import { readShopInventory, type ShopInventory } from './shop'
 import { normalizeAvatar, type Avatar } from './avatar'
 import district from '../game/maps/amk-config.json'
@@ -30,6 +31,7 @@ export type Save = {
   position: Point
   walked: number
   tutorial: 'active' | 'done' | 'skipped'
+  profile?: PlayerProfile
   shop?: ShopInventory
   coins: number
   reducedMotion: boolean
@@ -43,7 +45,7 @@ export const DEFAULT_NAME = 'Player'
 
 export function newSave(avatar: Avatar, name: string): Save {
   return { version: 3, mapRevision: district.revision, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
-    shop: {}, position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
+    profile: newPlayerProfile(), shop: {}, position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
 }
 
 export function readSave(): Save | null {
@@ -89,7 +91,7 @@ export function readSave(): Save | null {
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
     return { version: 3, mapRevision: district.revision, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
-      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion, shop: readShopInventory(data.shop) }
+      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion, shop: readShopInventory(data.shop), profile: readPlayerProfile(data.profile) }
   } catch {
     return null
   }

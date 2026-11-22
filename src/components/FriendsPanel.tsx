@@ -51,18 +51,18 @@ const defaultFriends: Friend[] = [
 
 // Neighbours in your list show the same PixelLab portrait as in the estate; added players show their avatar.
 const residentFriends: Record<string, ResidentId> = { 'friend-amir': 'amir', 'friend-jun': 'jun', 'friend-may': 'may' }
-function FriendPortrait({ friend }: { friend: Friend }) {
+export function FriendPortrait({ friend }: { friend: Friend }) {
   const resident = residentFriends[friend.id]
   return resident ? <ResidentPortrait id={resident} /> : <AvatarSprite avatar={friend.avatar} />
 }
 
-function readStoredFriends(): Friend[] {
+export function readStoredFriends(): Friend[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultFriends
     const parsed = JSON.parse(raw)
     // Lists saved by earlier versions labelled the starter friends '(Demo)'.
-    return Array.isArray(parsed) && parsed.length > 0
+    return Array.isArray(parsed)
       ? parsed.map((friend: Friend) => ({ ...friend, name: String(friend.name).replace(/ \((Demo|Local)\)$/, '') }))
       : defaultFriends
   } catch {
@@ -78,7 +78,7 @@ function writeStoredFriends(friends: Friend[]): void {
   }
 }
 
-function friendCodeFromSave(): string {
+export function friendCodeFromSave(): string {
   try {
     const stored = localStorage.getItem(CODE_KEY)
     if (stored && /^[A-Z0-9]{8}$/.test(stored)) return stored

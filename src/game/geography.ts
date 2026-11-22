@@ -7,8 +7,16 @@ import { poly, box, floor } from './worldArt'
 export { footprint, insidePolygon } from './geoPolygon'
 import { footprint, insidePolygon } from './geoPolygon'
 const STOREY=30, DECK=38
-type Mass={p:MapProp;graphics:Phaser.GameObjects.RenderTexture;silhouettes:Point[][]}
+type Mass={p:MapProp;graphics:Phaser.GameObjects.RenderTexture;silhouettes:Point[][];lights:Phaser.GameObjects.Graphics}
 const geographicMasses = new WeakMap<Phaser.Scene, Mass[]>()
+export function updateGeographicLighting(scene:Phaser.Scene,strength:number){
+  const view=scene.cameras.main.worldView
+  for(const mass of geographicMasses.get(scene)??[]){
+    const r=mass.graphics
+    const visible=strength>.01&&r.x+r.width>view.x&&r.x<view.right&&r.y+r.height>view.y&&r.y<view.bottom
+    mass.lights.setVisible(visible).setAlpha(strength*r.alpha)
+  }
+}
 function obscures(m:Mass,at:Point){
   if(depthAt(at.x,at.y)>m.graphics.depth)return false
   const feet=project(at.x,at.y)
@@ -27,6 +35,8 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
   const z=deck?DECK:0, height=levels*STOREY+z
   const depth=depthAt(p.x+p.w/2,p.y+p.d/2)
   const g=scene.make.graphics({},false)
+  const lights=scene.add.graphics().setDepth(depth+.03).setVisible(false)
+  const winding=points.reduce((sum,a,i)=>{const b=points[(i+1)%points.length];return sum+a.x*b.y-b.x*a.y},0)
   if(!geographicMasses.has(scene)) { geographicMasses.set(scene,[]); scene.events.once('shutdown',()=>geographicMasses.delete(scene)) }
   const ground=scene.add.graphics().setDepth(-1999)
   poly(ground,'#24332f',points.map(a=>[a.x+.6,a.y+.15]),.22)
@@ -45,6 +55,10 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
         const s=(bay+.18)/bays,t=(bay+.78)/bays
         face(s,t,low+8,low+23,'#516568')
         face(s,(s+t)/2,low+9,low+22,'#7d9693')
+        const outward=(b.y-a.y)-(b.x-a.x)
+        if((winding>0?outward:-outward)>0&&(bay*11+level*7+Math.floor(p.x))%5===0){
+          poly(lights,level%3===0?'#ffd290':'#f6e3ae',[[a.x+(b.x-a.x)*s,a.y+(b.y-a.y)*s,low+9],[a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,low+9],[a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,low+22],[a.x+(b.x-a.x)*s,a.y+(b.y-a.y)*s,low+22]])
+        }
         if(deck&&bay%4===1){face(s,t,low+4,low+7,'#d1d2c6');face(s,t,low+5,low+6,'#929f98')}
         if(deck&&bay%5===3){face(s,t,low+2,low+3,'#8b9187')}
         if(deck&&bay%3===0)face(s,t,low+2,low+4,'#bfc4b7')
@@ -65,7 +79,7 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
   const baked=scene.add.renderTexture(left,top,right-left,bottom-top).setOrigin(0).setDepth(depth)
   baked.draw(g,-left,-top);g.destroy()
   const silhouettes=[points.map(a=>project(a.x,a.y,height)),...faces.map(({a,b})=>[project(a.x,a.y,z),project(b.x,b.y,z),project(b.x,b.y,height),project(a.x,a.y,height)])]
-  geographicMasses.get(scene)!.push({p,graphics:baked,silhouettes})
+  geographicMasses.get(scene)!.push({p,graphics:baked,silhouettes,lights})
   const at=project(p.x+p.w/2,p.y+p.d/2,height+8)
   const title=p.name==='Ang Mo Kio Hub'?'AMK HUB · BUS INTERCHANGE':p.name==='Ang Mo Kio'?'ANG MO KIO MRT':p.properties.number==='724'?'724 · MARKET & FOOD CENTRE':p.name.startsWith('Building')?'':p.name
   if(title)scene.add.text(at.x,at.y,title,{fontFamily:'Outfit',fontSize:12,color:'#f5f0db',backgroundColor:'#304e48',padding:{x:4,y:2}}).setOrigin(.5,1).setDepth(depth+.1)

@@ -15,6 +15,7 @@ import {
   letterSign, linkway, planter, poly, prop, rubbishBin, shelter, side, shop, streetSign,
   trafficLight, tree
 } from './worldArt'
+import { estateLighting } from './estateLighting'
 import { houseExterior, houseHExterior, houseIExterior } from './houseArt'
 import { geographicBuilding, geographicRoads } from './geography'
 
@@ -222,8 +223,8 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
     const screen = { x: (at.x-at.y)*32, y:(at.x+at.y)*16 }
     scene.add.text(screen.x,screen.y-26,`◆ ${entry.properties.mission} · SHIELD`,{fontFamily:'Outfit',fontSize:12,color:'#ffdf88',backgroundColor:'#28463f',padding:{x:4,y:2}}).setOrigin(.5,1).setDepth(100000)
   }
-  scene.add.text(12,scene.scale.height-24,'© OpenStreetMap contributors · ODbL 1.0 · Schematics: ShieldQuest',{fontFamily:'Outfit',fontSize:11,color:'#fff5d7',backgroundColor:'#263b48'}).setScrollFactor(0).setDepth(200000)
   const routes = map.props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1)
   const life = neighbourhoodLife(scene, map.props.filter(p => p.kind === 'busroute'), map.props.filter(p => p.kind === 'bus'), detailAreas())
-  return { hotspots, collisions, size: map.size, routes, tick: life.tick, blocks: life.blocks }
+  const lighting=estateLighting(scene,map.props)
+  return { hotspots, collisions, size: map.size, routes, tick: (time,delta,player,still) => { life.tick(time,delta,player,still); lighting(time) }, blocks: life.blocks }
 }

@@ -1,0 +1,120 @@
+/* Shared modal language. Friends and Guardians are the reference components.
+   Layout widths remain content-driven; full-screen game/customizer canvases keep their own layout. */
+:root {
+  --modal-card: #fffaf0;
+  --modal-card-line: #dbc397;
+  --modal-body-muted: #6d756b;
+  --modal-status: #e2f2e7;
+  --modal-status-ink: #155b54;
+}
+.modal.standard-modal:not(.wide) {
+  padding: 20px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 3px solid var(--navy);
+  border-radius: 17px;
+  box-shadow: inset 0 0 0 3px #f1deb4, 0 6px #142638, 0 14px 30px #15233266;
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+.modal.standard-modal:focus { outline: none; }
+.modal.standard-modal:not(.wide)::backdrop { background: #19283bb2; backdrop-filter: blur(2px); }
+.modal.standard-modal:not(.wide) .modal-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; margin: 0 0 14px; padding: 0; border: 0;
+}
+.modal.standard-modal:not(.wide) .modal-heading > div { min-width: 0; }
+.modal.standard-modal:not(.wide) .modal-heading h2 {
+  margin: 0; color: var(--ink); font-family: var(--pixel);
+  font-size: .93rem; font-weight: 700; line-height: 1.65; letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+.modal.standard-modal:not(.wide) .modal-heading .eyebrow {
+  display: block; margin: 0 0 3px; color: #28746e;
+  font-family: var(--pixel); font-size: .48rem; font-weight: 400;
+  line-height: 1.7; letter-spacing: normal;
+}
+.modal.standard-modal:not(.wide) .close {
+  display: grid; place-items: center; flex: 0 0 44px;
+  width: 44px; height: 44px; padding: 0;
+  border: 1px solid #e5cda5; border-radius: 7px;
+  background: #f6e8ce; color: var(--navy); box-shadow: none;
+}
+.modal.standard-modal:not(.wide) .close:hover { background: #f4dbac; }
+.modal.standard-modal:not(.wide) .close:focus:not(:focus-visible) { outline: none; }
+.modal.standard-modal:not(.wide) :is(button,input,textarea,summary):focus-visible { outline: 3px solid #009998; outline-offset: 3px; }
+.modal.standard-modal:not(.wide) .button {
+  min-height: 44px; border-radius: 8px;
+  font-family: Outfit,system-ui,sans-serif; font-size: .84rem; font-weight: 700; line-height: 1.35;
+}
+.modal.standard-modal:not(.wide) .button.secondary { color: var(--ink); background: #f8ecd3; border: 1px solid #d8bd8f; }
+.modal.standard-modal:not(.wide) .button.secondary:hover { background: #e2eed9; border-color: #66a599; }
+.modal.standard-modal:not(.wide) :is(.spot-card,.spot-result,.spot-review,.dialogue-line,.mission-entry,.setting-row,.guide-row,.pack-board,.house-inventory section) {
+  padding: 12px; border: 1px solid var(--modal-card-line);
+  border-radius: 9px; color: var(--ink); background: var(--modal-card);
+}
+.modal.standard-modal:not(.wide) :is(.spot-card,.spot-result,.mission-entry) h3 { font-size: 1.05rem; line-height: 1.35; }
+.modal.standard-modal:not(.wide) .modal-actions { margin-top: 14px; gap: 8px; }
+
+/* Utility panels use the same compact rows and cards as the friend list. */
+.modal.standard-modal.game-panel { width: min(calc(100% - 28px),480px); }
+.modal.standard-modal.panel-map { width: min(calc(100% - 28px),720px); }
+.modal.standard-modal.game-panel :is(.pack-items,.settings-content) { gap: 14px; }
+.modal.standard-modal.game-panel .panel-kicker {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 8px; padding: 0; background: transparent;
+  color: var(--ink); font: 700 .85rem/1.4 Outfit,system-ui,sans-serif; letter-spacing: normal;
+}
+.modal.standard-modal .mission-entry .panel-kicker {
+  display: inline-flex; padding: 4px 7px; margin-bottom: 10px;
+  border-radius: 6px; color: var(--modal-status-ink); background: var(--modal-status); font-size: .78rem;
+}
+.modal.standard-modal.game-panel .mission-entry h3 { margin-bottom: 7px; }
+.modal.standard-modal.game-panel .mission-entry p { color: var(--ink); font-size: .88rem; line-height: 1.5; }
+.modal.standard-modal.game-panel .mission-entry .button { margin: 12px 0 0; }
+.modal.standard-modal.game-panel .pack-board { gap: 10px; text-align: left; box-shadow: none; }
+.modal.standard-modal.game-panel .pack-board:hover { border-color: #66a599; background: #e2eed9; }
+.modal.standard-modal.game-panel .panel-icon { width: 34px; height: 34px; flex-basis: 34px; border-radius: 7px; background: #f1eadb; border-color: #e2d1b1; color: #617b6b; }
+.modal.standard-modal.game-panel .pack-board strong { margin-bottom: 3px; font-size: .92rem; color: var(--ink); }
+.modal.standard-modal.game-panel .pack-board small { font-size: .78rem; color: var(--modal-body-muted); }
+.modal.standard-modal.game-panel .pocket-guide h3 { margin: 0 0 9px; color: var(--ink); font-size: .88rem; font-weight: 700; }
+.modal.standard-modal.game-panel .pocket-guide { display: grid; gap: 8px; }
+.modal.standard-modal.game-panel .pocket-guide h3 { margin-bottom: 0; }
+.modal.standard-modal.game-panel .guide-row { align-items: center; gap: 10px; padding: 10px; }
+.modal.standard-modal.game-panel .guide-row strong { font-size: .92rem; }
+.modal.standard-modal.game-panel .guide-row p { margin-top: 3px; color: var(--modal-body-muted); font-size: .8rem; line-height: 1.45; }
+.modal.standard-modal.game-panel .guide-marker { border: 1px solid #e2d1b1; border-radius: 6px; background: #f1eadb; }
+.modal.standard-modal.game-panel .setting-row { padding: 11px; gap: 12px; }
+.modal.standard-modal.game-panel .setting-row strong { margin-bottom: 3px; font-size: .92rem; }
+.modal.standard-modal.game-panel .setting-row small { color: var(--modal-body-muted); font-size: .8rem; line-height: 1.45; }
+.modal.standard-modal.game-panel .panel-controls dl { gap: 8px; }
+.modal.standard-modal.game-panel .panel-controls dl > div { min-height: 43px; padding: 7px 10px; border: 1px solid var(--modal-card-line); border-radius: 8px; background: var(--modal-card); }
+.modal.standard-modal.game-panel .panel-controls dt { color: var(--ink); font-size: .85rem; font-weight: 600; }
+.modal.standard-modal.game-panel .panel-note { padding: 0; border: 0; color: var(--modal-body-muted); font-size: .78rem; }
+.modal.standard-modal.panel-map .map-content { gap: 12px; }
+.modal.standard-modal.panel-map .map-content > p { width: fit-content; padding: 4px 7px; border-radius: 6px; color: var(--modal-status-ink); background: var(--modal-status); font-size: .85rem; font-weight: 700; }
+.modal.standard-modal.panel-map .area-map-stage { padding: 9px; border-radius: 9px; border-color: var(--modal-card-line); background: var(--modal-card); }
+.modal.standard-modal.panel-map .map-legend { font-size: .78rem; gap: 10px 8px; color: var(--ink); }
+
+/* Shared palette for assessments and the pause drawer, without changing their interaction layouts. */
+.modal.standard-modal.spot-challenge:not(.wide) { color: var(--ink); background: var(--cream); border-color: var(--navy); }
+.modal.standard-modal.spot-challenge .spot-submit { background: var(--cream); border-top: 1px solid var(--modal-card-line); bottom: -20px; }
+.modal.standard-modal.spot-challenge :is(.spot-submit p,.lead-actions p) { color: var(--modal-status-ink); }
+.modal.standard-modal.quick-menu .quick-utilities .button { color: var(--ink); background: #f8ecd3; border: 1px solid #d8bd8f; }
+.modal.standard-modal.quick-menu .quick-footer { border-color: #dfc9a5; }
+.modal.standard-modal.quick-menu .quick-card { background: var(--modal-card); border-color: var(--modal-card-line); box-shadow: none; border-radius: 9px; }
+.modal.standard-modal.quick-menu .quick-card-copy strong { font-size: .92rem; }
+.modal.standard-modal.quick-menu .quick-card-copy small { font-size: .8rem; }
+.modal.standard-modal.quick-menu .quick-feedback { color: #447257; }
+.modal.standard-modal.quick-menu .quick-footer > a { color: #28746e; font-size: .78rem; }
+.modal.standard-modal.profile-modal .profile-person-copy h3 { font-size: 1.2rem; }
+.modal.standard-modal.profile-modal :is(.profile-estate,.profile-friend-preview > div) { border-radius: 9px; }
+.modal.standard-modal.shop-modal .shop-tabs button { font-size: .84rem; font-weight: 700; }
+@media(max-width:540px) {
+  .modal.standard-modal:not(.wide):not(.quick-menu) { padding: 17px; max-width: calc(100% - 24px); }
+  .modal.standard-modal:not(.wide) .modal-heading { gap: 10px; margin-bottom: 13px; }
+  .modal.standard-modal:not(.wide) .modal-heading h2 { font-size: .82rem; }
+  .modal.standard-modal.panel-map .map-legend { font-size: .7rem; }
+  .modal.standard-modal.shop-modal .shop-tabs button { font-size: 11px; }
+}
