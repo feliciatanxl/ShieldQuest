@@ -118,6 +118,13 @@ function core(scene: Phaser.Scene, deck: { p: Footprint; top: number }, r: Footp
 type Spec = { w: number; h: number; anchor: { x: number; y: number } }
 /** Bakes a module once onto its exact canvas: draw() works in grid units with the module's anchor at the origin. */
 function moduleTexture(scene: Phaser.Scene, key: string, spec: Spec, draw: (g: Graphics) => void) {
+  // Approved PixelLab art can replace geometry without changing anchors, collisions or stacking.
+  const candidates = [`pl-modules-${key}`, `pl-modules-${key.replace(/^hdb-bay-(\d+)-[0-3]$/, 'hdb-bay-$1')}`]
+  for (const candidate of candidates) {
+    if (!scene.textures.exists(candidate)) continue
+    const frame = scene.textures.getFrame(candidate)
+    if (frame.width === spec.w && frame.height === spec.h) return candidate
+  }
   if (!scene.textures.exists(key)) {
     const g = scene.make.graphics({}, false)
     draw(g)
@@ -143,18 +150,28 @@ const LIT = { wall: '#efe6cf', glass: '#3b4a5c', frame: '#cbbfa3', slab: '#a3988
 
 /** One storey of one bay, as a lit face from its anchor: two framed windows with mullions, an air-con ledge and a
  *  slab line. panel draws only the recolourable parts (edge pilaster, spandrel band) in white. */
-function bayArt(g: Graphics, storey: number, panel: boolean) {
+function bayArt(g: Graphics, storey: number, panel: boolean, variant = 0, narrowBand = false) {
   const face = (t: number, len: number, z: number, h: number, c: string) => front(g, t, 0, len, z, h, c)
   const z = (k: number) => Math.round(storey * k)
-  if (panel) { face(0, .14, 0, storey, '#ffffff'); face(.14, BAY - .14, 2, z(.2), '#ffffff'); return }
+  if (panel) { face(0, .14, 0, storey, '#ffffff'); face(.14, BAY - .14, 2, narrowBand ? 4 : z(.2), '#ffffff'); return }
   face(0, BAY, 0, storey, LIT.wall)
   face(0, BAY, 0, 2, LIT.slab)
   for (const t of [.3, 1.12]) {
     face(t, .58, z(.26), z(.52), LIT.frame)
     face(t + .05, .48, z(.26) + 2, z(.52) - 4, LIT.glass)
     face(t + .28, .02, z(.26) + 2, z(.52) - 4, LIT.frame)
+    face(t + .06, .46, z(.54), 1, '#a5b4b4')
+    // Casement reflections and occasional curtains break the perfect window repetition.
+    face(t + .07, .12, z(.29), z(.42), variant === 1 ? '#c0b7a2' : '#64797f')
+    if (variant === 2) face(t + .3, .21, z(.28), z(.4), '#b2afa0')
   }
-  face(.36, .34, z(.2), 3, LIT.ledge)
+  // Air-con condenser on its concrete ledge, with small grille slits and a drain pipe.
+  face(.3, .49, z(.18), 3, LIT.ledge)
+  face(.37, .34, z(.18) + 3, 9, '#c6c7bc')
+  for (let i = 0; i < 3; i++) face(.4, .27, z(.18) + 5 + i * 2, 1, '#828e88')
+  face(BAY - .12, .025, 3, storey - 5, '#c4baa4')
+  // Quiet plaster wear, confined to the module so shared textures remain seamless.
+  for (let i = 0; i < 10; i++) face(.22 + ((i * 17 + variant * 7) % 160) / 100, .025, 5 + (i * 13 % (storey - 10)), 2, '#d8cfbc')
 }
 
 /** One storey of the end wall, as a lit face: plain wall, small ventilation slots; panel draws the recolourable band. */
@@ -169,8 +186,10 @@ function endArt(g: Graphics, storey: number, panel: boolean) {
 
 /** The roof over one bay from its back vertex: roof slab, parapet along the long side; tank adds a water tank. */
 function roofArt(g: Graphics, tank: boolean) {
-  floor(g, 0, 0, BAY, BLOCK_DEPTH, '#8fae6a')
-  floor(g, .1, .1, BAY - .2, BLOCK_DEPTH - .2, '#7f9d5c')
+  floor(g, 0, 0, BAY, BLOCK_DEPTH, '#b8b9ad')
+  floor(g, .1, .1, BAY - .2, BLOCK_DEPTH - .2, '#989f98')
+  floor(g, .15, .15, .025, BLOCK_DEPTH - .3, '#7d8581')
+  floor(g, .15, .15, BAY - .3, .025, '#c5c7bc')
   front(g, 0, BLOCK_DEPTH, BAY, 0, ROOF - 4, LIT.wall)
   front(g, 0, BLOCK_DEPTH, BAY, ROOF - 4, 2, LIT.slab)
   if (tank) box(g, BAY * .3, BLOCK_DEPTH * .25, .7, .7, 22, ['#d9dcd8', '#b9bdb8', '#9da19c'])
@@ -202,9 +221,12 @@ export function buildHdbBlock(scene: Phaser.Scene, p: MapProp) {
   const upper = scene.add.container(0, 0).setDepth(top)
   const s = plan.storey, mirrorLong = !alongX, mirrorEnd = alongX
   const bay = { ...MODULE.bay, h: s + BAY * 16, anchor: { x: 0, y: s } }, end = { ...MODULE.end, h: s + BLOCK_DEPTH * 16, anchor: { x: 0, y: s } }
+  const bayKeys = [0, 1, 2, 3].map(v => moduleTexture(scene, `hdb-bay-${s}-${v}`, bay, g => bayArt(g, s, false, v)))
+  const generatedBay = bayKeys.every(key => key.startsWith('pl-modules-'))
   const keys = {
-    bay: moduleTexture(scene, `hdb-bay-${s}`, bay, g => bayArt(g, s, false)),
-    bayPanel: moduleTexture(scene, `hdb-bay-panel-${s}`, bay, g => bayArt(g, s, true)),
+    bay: bayKeys,
+    // Keep tintable pilasters; a thin band leaves the generated condenser/ledge unobscured.
+    bayPanel: moduleTexture(scene, `hdb-bay-panel-${s}${generatedBay ? '-narrow' : ''}`, bay, g => bayArt(g, s, true, 0, generatedBay)),
     end: moduleTexture(scene, `hdb-end-${s}`, end, g => endArt(g, s, false)),
     endPanel: moduleTexture(scene, `hdb-end-panel-${s}`, end, g => endArt(g, s, true)),
     roof: moduleTexture(scene, 'hdb-roof', MODULE.roof, g => roofArt(g, false)),
@@ -216,7 +238,8 @@ export function buildHdbBlock(scene: Phaser.Scene, p: MapProp) {
   const roofAt = (t: number) => alongX ? { x: p.x + t, y: p.y } : { x: p.x, y: p.y + t }
   for (const m of plan.modules) {
     if (m.kind === 'bay') {
-      upper.add(placeModule(scene, keys.bay, bay, longAt(m.t), m.z, mirrorLong).setTint(shaded(0xffffff, mirrorLong)))
+      const variant = (m.t / BAY + m.storey * 3 + Number(p.properties.number ?? 0)) % keys.bay.length
+      upper.add(placeModule(scene, keys.bay[variant], bay, longAt(m.t), m.z, mirrorLong).setTint(shaded(0xffffff, mirrorLong)))
       upper.add(placeModule(scene, keys.bayPanel, bay, longAt(m.t), m.z, mirrorLong).setTint(shaded(accent, mirrorLong)))
     } else if (m.kind === 'end') {
       upper.add(placeModule(scene, keys.end, end, endAt, m.z, mirrorEnd).setTint(shaded(0xffffff, mirrorEnd)))

@@ -3,7 +3,7 @@ import { voidDeckLayout } from './hdbLayout'
 
 type Prop = Footprint & { kind: string; properties: Record<string, unknown> }
 // Walked under or over: roofs, flat markings, map metadata.
-const nonSolid = new Set(['shelter', 'bus', 'linkway', 'sign', 'bougainvillea', 'road', 'crossing', 'detail', 'walker', 'busroute'])
+const nonSolid = new Set(['shelter', 'bus', 'linkway', 'sign', 'bougainvillea', 'road', 'crossing', 'detail', 'walker', 'busroute', 'parking'])
 
 /** The scenery a character can't stand in. A block with a void deck contributes only its pillars, lift core and any
  *  walls, so people can walk underneath it; a shelter only its four corner posts. Kept free of Phaser so tests and

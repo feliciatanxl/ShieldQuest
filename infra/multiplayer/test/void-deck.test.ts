@@ -7,7 +7,7 @@ import { PILLAR, voidDeckLayout, type BlockSpec } from '../../../src/game/hdbLay
 import { sceneryCollisions } from '../../../src/game/collisions'
 import { DECK } from '../../../src/game/hdbModules'
 import { canStand, type Footprint } from '../../../src/game/isometric'
-import { NEIGHBOURHOOD_SIZE } from '../../../src/game/locations'
+import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, NEIGHBOURHOOD_SIZE, SHOP_DOOR } from '../../../src/game/locations'
 import { newSave, readSave, SAVE_KEY, START } from '../../../src/state/saveGame'
 import { presets } from '../../../src/state/avatar'
 
@@ -129,4 +129,27 @@ test('Block 102 (12-storey modular block on the north edge): its void deck is re
   const under = { x: 11, y: 1.4 }
   assert.ok(canStand(under, NEIGHBOURHOOD_SIZE, solid))
   assert.ok(walkable(START, under, solid), 'from the starting plaza into Block 102\'s void deck')
+})
+
+test('Sunshine Court: connected decks, bus stop and all mission doors remain reachable', () => {
+  const props = mapProps(), solid = sceneryCollisions(props)
+  const destinations = [
+    SHOP_DOOR, HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR,
+    { x: 1.2, y: 21 }, { x: 1.2, y: 32 }, { x: 9.4, y: 20.4 },
+    { x: 12.2, y: 35 }, { x: 14, y: 40.5 }, { x: 9, y: 28 },
+  ]
+  for (const to of destinations) {
+    assert.ok(canStand(to, NEIGHBOURHOOD_SIZE, solid), `destination ${to.x},${to.y} is free`)
+    assert.ok(walkable(START, to, solid), `start connects to ${to.x},${to.y}`)
+  }
+  // Traversal through each new deck, from one open side to the other, without bypassing the block.
+  for (const number of ['106', '109', '112']) {
+    const block = props.find(p => p.name === `Block ${number}`)!
+    const alongX = block.w >= block.d
+    const from = alongX ? { x: block.x + 1, y: block.y - .5 } : { x: block.x - .5, y: block.y + 1 }
+    const to = alongX ? { x: from.x, y: block.y + block.d + .5 } : { x: block.x + block.w + .5, y: from.y }
+    const bounds = { x: block.x - .5, y: block.y - .5, w: block.w + 1, d: block.d + 1 }
+    assert.ok(walkable(from, to, solid, NEIGHBOURHOOD_SIZE, bounds), `through Block ${number}'s void deck`)
+  }
+  assert.ok(canStand({ x: 14.5, y: 30 }, NEIGHBOURHOOD_SIZE, solid), 'parking paint never creates an invisible solid building')
 })

@@ -68,7 +68,7 @@ function street(scene: Phaser.Scene) {
       if (free(.04)) mark(t, .04, 1, .045, '#bdbcaf')
       if (free(width - .09)) mark(t, width - .09, 1, .045, '#c4c2b4')
       for (const u of [.16, .26, width - .3, width - .2]) if (free(u)) mark(t, u, 1, .035, yellow)
-      if (t % 2 === 0 && free(width / 2)) mark(t + .12, width / 2 - .03, .66, .065, '#ead5aa')
+      if (!r.properties.access && t % 2 === 0 && free(width / 2)) mark(t + .12, width / 2 - .03, .66, .065, '#ead5aa')
     }
   }
   for (const c of crossings) {
@@ -135,6 +135,16 @@ function bicycles(g: Phaser.GameObjects.Graphics, p: MapProp) {
 
 function renderProp(scene: Phaser.Scene, p: MapProp) {
   const { kind, x, y, w, d, properties } = p
+  if (kind === 'parkedCar') {
+    prop(scene, p, g => {
+      floor(g, x + .05, y + .05, w + .12, d + .08, '#24312d', 0, .24)
+      box(g, x, y, w, d, 11, ['#ccd1ca', String(properties.colour ?? '#819390'), '#626e6b'], 5)
+      box(g, x + .1, y + .28, w - .2, d - .55, 8, ['#acb8b6', '#344a55', '#2d414a'], 16)
+      front(g, x + .08, y + d, w - .16, 9, 3, '#e3d7ae')
+      side(g, x + w, y + d - .16, .1, 8, 3, '#b66e60')
+    })
+    return
+  }
   if (spriteProp(scene, p)) return
   if (!['block', 'shop', 'kopi', 'tree', 'planter', 'bench', 'lamp', 'shelter', 'bus', 'play', 'bikes', 'house', 'bin', 'sign', 'linkway', 'kopitiam', 'trafficLight', 'garden', 'bougainvillea', 'notice'].includes(kind)) return
   const drawn = prop(scene, p, g => {

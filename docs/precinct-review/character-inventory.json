@@ -1,0 +1,72 @@
+[
+  {
+    "file": "characters/base-0.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-1.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-2.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-3.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-4.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-5.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-6.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/base-7.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-auntie.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-indian-uncle.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-kopi-uncle.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-makcik.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-office-worker.png",
+    "width": 1040,
+    "height": 640
+  },
+  {
+    "file": "characters/npc-student.png",
+    "width": 1040,
+    "height": 640
+  }
+]

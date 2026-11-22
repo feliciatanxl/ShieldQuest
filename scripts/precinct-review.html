@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Sunshine Estate precinct review</title>
+<style>html,body,#game{margin:0;width:100%;height:100%;overflow:hidden;background:#263b48}nav{position:absolute;top:12px;left:12px;z-index:2;display:flex;gap:6px}button{padding:8px 12px;background:#263b48;color:#fff3da;border:1px solid #b8b6a2;border-radius:4px;font:12px sans-serif}</style></head>
+<body><div id="game"></div><nav><button id="overview">Precinct overview</button><button id="street">Street view</button><button id="deck">Void deck</button><button id="block">Block + player</button><button id="facade">Facade close-up</button><button id="play">Play / follow</button><button id="check">Check navigation</button><button id="traffic">Bus traffic</button></nav><output id="result" style="position:absolute;bottom:12px;left:12px;background:#263b48;color:white;font:12px sans-serif;padding:8px;max-width:95%" hidden></output>
+<script type="module">
+import { mountGame } from '../src/game/main'
+import { GameBridge } from '../src/game/events'
+import { baseAvatar } from '../src/state/avatar'
+import { loadPlayerArt } from '../src/game/playerArt'
+const bridge = new GameBridge()
+await loadPlayerArt()
+mountGame(document.querySelector('#game'), { avatar:baseAvatar, name:'REVIEW', position:{x:10.6,y:10.55}, reducedMotion:true, bridge })
+const positions = { overview:[-560,650,.9], street:[-650,860,1.25], deck:[-700,690,1.5], block:[-700,610,1.05], facade:[-690,640,2.2] }
+let fixed = 'overview'
+// Runs after the scene's own follow update. Review never writes browser saves.
+const timer = setInterval(() => {
+ const scene = window.__shieldGame?.scene.getScene('Neighbourhood')
+ if (!scene?.cameras?.main) return
+ const camera = scene.cameras.main
+ if (fixed) { camera.stopFollow(); const [x,y,z] = positions[fixed]; camera.setZoom(z).centerOn(x,y) }
+}, 30)
+for (const name of Object.keys(positions)) document.getElementById(name).onclick = () => {
+ fixed = name
+ document.getElementById('result').hidden = true
+ if (name === 'deck') bridge.emit('houseTravel',{target:'Neighbourhood',position:{x:11.2,y:35.7}})
+ if (name === 'block' || name === 'facade') bridge.emit('houseTravel',{target:'Neighbourhood',position:{x:14.4,y:36.6}})
+}
+document.getElementById('play').onclick = () => { fixed = ''; const scene = window.__shieldGame.scene.getScene('Neighbourhood'); scene.follow(); scene.focusCamera(1.2) }
+const result = document.getElementById('result')
+document.getElementById('check').onclick = () => {
+ const scene = window.__shieldGame.scene.getScene('Neighbourhood')
+ const points = {start:[10.6,10.55],minimart:[13.24,9.64],mysteriousHouse:[23.56,10.14],freezeFrame:[28.5,8.5],whisperNetwork:[14.5,26.5],deck110:[12.2,35],deck106:[1.2,21],deck109:[1.2,32],deck112:[9.4,20.4],court:[9,28],busStop:[14,40.5]}
+ const checks = Object.entries(points).map(([name,[x,y]]) => `${name}: ${scene.free({x,y}) ? 'PASS' : 'BLOCKED'}`)
+ const generated = scene.children.list.flatMap(item => item.list || [item]).filter(item => item.texture?.key === 'pl-modules-hdb-bay-64').length
+ result.hidden=false;result.textContent=checks.join(' · ') + ` · generated bay placements: ${generated} · FPS: ${Math.round(window.__shieldGame.loop.actualFps)} · page: ${document.visibilityState}/${document.hasFocus() ? 'focused' : 'blurred'}`
+}
+document.getElementById('traffic').onclick = () => { bridge.emit('motion',false); result.hidden=false; result.textContent='Traffic running. Buses use the unchanged left-hand routes and yield to the player.' }
+window.addEventListener('pagehide', () => clearInterval(timer))
+</script></body></html>

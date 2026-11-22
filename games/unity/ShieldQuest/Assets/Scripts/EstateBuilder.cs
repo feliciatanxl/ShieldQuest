@@ -29,7 +29,7 @@ namespace ShieldQuest
             ["house-i-entrance"] = ("Enter Whisper Network House", new Vector2(14.5f, 26.5f), .95f),
         };
         static readonly Dictionary<string, string> Residents = new() { ["may"] = "Talk to Auntie May", ["amir"] = "Talk to Amir" };
-        static readonly HashSet<string> NonSolid = new() { "shelter", "bus", "linkway", "sign", "bougainvillea", "road", "crossing", "detail", "walker", "busroute" };
+        static readonly HashSet<string> NonSolid = new() { "shelter", "bus", "linkway", "sign", "bougainvillea", "road", "crossing", "detail", "walker", "busroute", "parking" };
 
         void Awake() => Build();
 

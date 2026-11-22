@@ -1,7 +1,8 @@
 import Phaser from 'phaser'
 import { depthAt, project, TILE_WIDTH } from './isometric'
-import type { MapProp } from './maps'
+import { neighbourhood, type MapProp } from './maps'
 import { buildHdbBlock } from './hdbBlock'
+import { estateSurfaceKey, estateSurfaces } from './estateSurface'
 
 // PixelLab-generated art, shared with the Unity project (see docs/pixellab-assets.md).
 const urls = import.meta.glob('./assets/pixellab/**/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -28,6 +29,8 @@ const object = (name: string) => `pl-objects-${name}`
 const MARGIN = 14, CHUNK = 24
 export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number) {
   const height = tiles.length / width
+  const estate = neighbourhood.props.filter(p => p.kind === 'detail' && p.properties.surface === 'estate')
+  if (estate.length) estateSurfaces(scene)
   for (let cy = -MARGIN; cy < height + MARGIN; cy += CHUNK) {
     for (let cx = -MARGIN; cx < width + MARGIN; cx += CHUNK) {
       const x1 = Math.min(cx + CHUNK, width + MARGIN), y1 = Math.min(cy + CHUNK, height + MARGIN)
@@ -52,7 +55,8 @@ export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number)
           }
           if (!tile) continue
           const centre = project(x + .5, y + .5)
-          rt.batchDraw(`pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
+          const calm = estate.some(p => x >= p.x && y >= p.y && x < p.x + p.w && y < p.y + p.d)
+          rt.batchDraw(calm ? estateSurfaceKey(scene, tile) : `pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
         }
       }
       rt.endDraw()

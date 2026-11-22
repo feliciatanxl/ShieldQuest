@@ -1,0 +1,25 @@
+{
+  "source": "src/game/assets/pixellab/modules/hdb-bay-64.png",
+  "width": 64,
+  "height": 96,
+  "anchor": {
+    "x": 0,
+    "y": 64
+  },
+  "bayOffset": {
+    "x": 64,
+    "y": 32
+  },
+  "storeyOffset": {
+    "x": 0,
+    "y": -64
+  },
+  "opaquePixels": 4096,
+  "transparentPixels": 2048,
+  "addedExteriorPixels": 0,
+  "missingFacePixels": 0,
+  "semiTransparentPixels": 0,
+  "templateAlphaExact": true,
+  "repeatCoverageExact": true,
+  "note": "Pixel geometry and repeat coverage are exact. Material seams still require visual inspection; no automatic texture retouch or paid retry was performed."
+}

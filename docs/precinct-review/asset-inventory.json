@@ -1,0 +1,443 @@
+[
+  {
+    "file": "ground/tile_0.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1112,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_1.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1072,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_10.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_11.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_12.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_13.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_14.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_15.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_2.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1069,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_3.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1093,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_4.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_5.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_6.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1057,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_7.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_8.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "ground/tile_9.png",
+    "width": 64,
+    "height": 64,
+    "opaque": 1056,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/angsana.png",
+    "width": 108,
+    "height": 159,
+    "opaque": 8905,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/bench.png",
+    "width": 56,
+    "height": 62,
+    "opaque": 1586,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/bikes.png",
+    "width": 64,
+    "height": 47,
+    "opaque": 1199,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/bin.png",
+    "width": 32,
+    "height": 56,
+    "opaque": 1198,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/bus-interchange.png",
+    "width": 381,
+    "height": 272,
+    "opaque": 64229,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/bus-shelter.png",
+    "width": 157,
+    "height": 135,
+    "opaque": 9989,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/carpark.png",
+    "width": 344,
+    "height": 325,
+    "opaque": 74361,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/chess-table.png",
+    "width": 74,
+    "height": 54,
+    "opaque": 3256,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/community-club.png",
+    "width": 330,
+    "height": 252,
+    "opaque": 53406,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/fitness-corner.png",
+    "width": 160,
+    "height": 148,
+    "opaque": 11747,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/frangipani.png",
+    "width": 52,
+    "height": 73,
+    "opaque": 1377,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/garden.png",
+    "width": 100,
+    "height": 69,
+    "opaque": 3900,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/hawker-centre.png",
+    "width": 346,
+    "height": 268,
+    "opaque": 57812,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/hdb-mondrian.png",
+    "width": 338,
+    "height": 361,
+    "opaque": 83119,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/hdb-point.png",
+    "width": 245,
+    "height": 338,
+    "opaque": 50116,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/hdb-teal.png",
+    "width": 243,
+    "height": 328,
+    "opaque": 63844,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/hdb-yellow.png",
+    "width": 312,
+    "height": 299,
+    "opaque": 57656,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/house-h.png",
+    "width": 191,
+    "height": 242,
+    "opaque": 31592,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/house-i.png",
+    "width": 176,
+    "height": 231,
+    "opaque": 26610,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/house-mysterious.png",
+    "width": 238,
+    "height": 238,
+    "opaque": 34448,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/kopi.png",
+    "width": 336,
+    "height": 280,
+    "opaque": 48982,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/kopitiam-table.png",
+    "width": 44,
+    "height": 39,
+    "opaque": 962,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/lamp.png",
+    "width": 27,
+    "height": 117,
+    "opaque": 648,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/library.png",
+    "width": 302,
+    "height": 257,
+    "opaque": 45172,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/linkway.png",
+    "width": 166,
+    "height": 143,
+    "opaque": 12802,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/minimart.png",
+    "width": 294,
+    "height": 253,
+    "opaque": 39904,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/mrt-station.png",
+    "width": 351,
+    "height": 279,
+    "opaque": 49063,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/neighbourhood-centre.png",
+    "width": 368,
+    "height": 329,
+    "opaque": 67371,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-amir.png",
+    "width": 17,
+    "height": 57,
+    "opaque": 665,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-auntie-tudung.png",
+    "width": 28,
+    "height": 60,
+    "opaque": 1108,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-cashier.png",
+    "width": 19,
+    "height": 59,
+    "opaque": 796,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-elderly.png",
+    "width": 22,
+    "height": 55,
+    "opaque": 840,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-jun.png",
+    "width": 22,
+    "height": 58,
+    "opaque": 802,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-kopi-uncle.png",
+    "width": 24,
+    "height": 51,
+    "opaque": 901,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-may.png",
+    "width": 23,
+    "height": 59,
+    "opaque": 854,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/npc-office.png",
+    "width": 24,
+    "height": 58,
+    "opaque": 922,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/pavilion.png",
+    "width": 156,
+    "height": 166,
+    "opaque": 15147,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/planter.png",
+    "width": 55,
+    "height": 55,
+    "opaque": 2181,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/player.png",
+    "width": 12,
+    "height": 38,
+    "opaque": 310,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/playground.png",
+    "width": 140,
+    "height": 109,
+    "opaque": 7665,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/pond.png",
+    "width": 180,
+    "height": 172,
+    "opaque": 21626,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/rain-tree.png",
+    "width": 136,
+    "height": 148,
+    "opaque": 11302,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/recycling-bins.png",
+    "width": 70,
+    "height": 77,
+    "opaque": 3796,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/school.png",
+    "width": 366,
+    "height": 240,
+    "opaque": 52823,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/street-sign.png",
+    "width": 28,
+    "height": 68,
+    "opaque": 788,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/town-mall.png",
+    "width": 355,
+    "height": 348,
+    "opaque": 70013,
+    "semiTransparent": 0
+  },
+  {
+    "file": "objects/traffic-light.png",
+    "width": 32,
+    "height": 112,
+    "opaque": 1362,
+    "semiTransparent": 0
+  }
+]

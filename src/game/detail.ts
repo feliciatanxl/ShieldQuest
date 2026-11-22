@@ -140,6 +140,18 @@ function apron(g: Graphics, p: MapProp) {
   floor(g, p.x + p.w + m - .06, p.y - m, .06, p.d + m * 2, '#a9a294')
 }
 
+/** Small surface carpark: painted bays, wheel stops and a clear central drive aisle. */
+function parking(g: Graphics, p: MapProp) {
+  floor(g, p.x, p.y, p.w, p.d, '#656c6d')
+  for (const u of [.08, p.w - .08]) floor(g, p.x + u, p.y, .035, p.d, '#e0ded1')
+  for (let t = .1; t < p.d; t += 1.25) {
+    floor(g, p.x, p.y + t, 1.1, .035, '#e0ded1')
+    floor(g, p.x + p.w - 1.1, p.y + t, 1.1, .035, '#e0ded1')
+    floor(g, p.x + .15, p.y + t + .25, .08, .65, '#b6b6aa')
+    floor(g, p.x + p.w - .23, p.y + t + .25, .08, .65, '#b6b6aa')
+  }
+}
+
 /** Neighbourhood noticeboard: two posts and a green board pinned with notices. */
 export function noticeboard(g: Graphics, p: MapProp) {
   const { x, y } = p
@@ -165,6 +177,7 @@ export function bakeDetail(scene: Phaser.Scene, area: MapProp) {
     else if (k === PAVEMENT || k === PLAZA) paving(g, x, y)
     else if (k === GRASS && !props.some(p => p.kind === 'block' && x + 1 > p.x - .7 && x < p.x + p.w + .7 && y + 1 > p.y - .7 && y < p.y + p.d + .7)) grass(g, x, y)
   }
+  for (const p of props.filter(p => p.kind === 'parking')) parking(g, p)
   for (const road of neighbourhood.props.filter(p => p.kind === 'road')) laneWear(g, road, area)
   for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { drains(g, x, y); kerbs(g, x, y) }
   for (const c of props.filter(p => p.kind === 'crossing')) tactile(g, c)
