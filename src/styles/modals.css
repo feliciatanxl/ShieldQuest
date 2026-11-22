@@ -118,3 +118,49 @@
   .modal.standard-modal.panel-map .map-legend { font-size: .7rem; }
   .modal.standard-modal.shop-modal .shop-tabs button { font-size: 11px; }
 }
+/* Profile identity: two balanced columns, with account facts grouped beneath the avatar. */
+.modal.standard-modal.profile-modal .profile-top { grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); align-items: stretch; gap: 16px; }
+.modal.standard-modal.profile-modal .profile-identity { display: flex; flex-direction: column; gap: 12px; }
+.modal.standard-modal.profile-modal .profile-person { align-items: center; gap: 13px; min-height: 145px; padding: 12px; border: 1px solid var(--modal-card-line); border-radius: 10px; background: var(--modal-card); }
+.modal.standard-modal.profile-modal .profile-avatar { flex: 0 0 74px; padding: 7px 3px; border-radius: 8px; }
+.modal.standard-modal.profile-modal .profile-avatar .avatar-sprite { width: 61px; height: 76px; }
+.modal.standard-modal.profile-modal .profile-avatar > span { margin-top: 3px; font-size: 8px; }
+.modal.standard-modal.profile-modal .profile-person-copy { min-width: 0; flex: 1; }
+.modal.standard-modal.profile-modal .profile-name-row { align-items: center; gap: 6px 8px; margin-bottom: 10px; }
+.modal.standard-modal.profile-modal .profile-name-row h3 { font-size: 21px; line-height: 1.2; }
+.modal.standard-modal.profile-modal .profile-level { padding: 5px 6px; font-size: .4rem; }
+.modal.standard-modal.profile-modal .profile-name-xp { max-width: none; gap: 7px; }
+.modal.standard-modal.profile-modal .profile-name-xp .profile-xp-track { height: 6px; min-width: 38px; }
+.modal.standard-modal.profile-modal .profile-name-xp > span { font-size: 9px; }
+.modal.standard-modal.profile-modal .profile-bio { margin: 12px 0 6px; color: #677568; font-size: 12px; line-height: 1.45; }
+.modal.standard-modal.profile-modal .profile-edit.text-button { min-height: 24px; padding: 2px 0; font-size: 11px; }
+.modal.standard-modal.profile-modal .profile-details-card { padding: 12px; border: 1px solid var(--modal-card-line); border-radius: 10px; background: var(--modal-card); }
+.modal.standard-modal.profile-modal .profile-facts { gap: 9px; margin: 0; padding: 0; border: 0; }
+.modal.standard-modal.profile-modal .profile-facts > div { min-height: 20px; align-items: center; gap: 10px; }
+.modal.standard-modal.profile-modal .profile-facts dt { font-size: 11px; }
+.modal.standard-modal.profile-modal .profile-facts dd { flex-wrap: wrap; justify-content: flex-end; font-size: 11px; font-weight: 500; }
+.modal.standard-modal.profile-modal .profile-facts dd small { font-size: 8px; }
+.modal.standard-modal.profile-modal .profile-location-code { gap: 10px; margin-top: 11px; padding-top: 11px; }
+.modal.standard-modal.profile-modal .profile-location-code > span { flex-shrink: 0; font-size: 11px; }
+.modal.standard-modal.profile-modal .profile-location-code > div { gap: 8px; padding: 3px 4px 3px 8px; background: #f6eedb; }
+.modal.standard-modal.profile-modal .profile-location-code code { font-size: .48rem; }
+.modal.standard-modal.profile-modal .profile-location-code button { width: 29px; height: 29px; }
+.modal.standard-modal.profile-modal .profile-social { display: flex; flex-direction: column; padding: 12px; border: 1px solid var(--modal-card-line); border-radius: 10px; background: var(--modal-card); }
+.modal.standard-modal.profile-modal .profile-social h3 { margin: 0 0 11px; min-height: 22px; }
+.modal.standard-modal.profile-modal .profile-friend-preview { gap: 8px; }
+.modal.standard-modal.profile-modal .profile-friend-preview > div { min-height: 51px; padding: 8px; background: var(--cream); }
+.modal.standard-modal.profile-modal .profile-friend-preview strong { font-size: 12px; }
+.modal.standard-modal.profile-modal .profile-friend-preview small { font-size: 10px; }
+.modal.standard-modal.profile-modal .profile-social > .button { margin: auto 0 0; padding-top: 10px; transform: none; }
+.modal.standard-modal.profile-modal .profile-friend-preview { margin-bottom: 12px; }
+.modal.standard-modal.profile-modal .profile-bio-editor { margin-top: 0; }
+@media(max-width:560px) {
+  .modal.standard-modal.profile-modal .profile-top { grid-template-columns: 1fr; gap: 12px; }
+  .modal.standard-modal.profile-modal .profile-person { padding: 11px; gap: 12px; }
+  .modal.standard-modal.profile-modal .profile-social { padding: 12px; }
+  .modal.standard-modal.profile-modal .profile-friend-preview { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+  .modal.standard-modal.profile-modal .profile-friend-preview > div { padding: 8px 3px; }
+  .modal.standard-modal.profile-modal .profile-friend-preview strong { font-size: 11px; }
+  .modal.standard-modal.profile-modal .profile-friend-preview small { font-size: 8px; }
+  .modal.standard-modal.profile-modal .profile-social > .button { margin-top: 0; }
+}
