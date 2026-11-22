@@ -1,8 +1,17 @@
 {
   "name": "ShieldQuest.Tests",
-  "references": ["ShieldQuest", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
-  "precompiledReferences": ["nunit.framework.dll"],
+  "references": [
+    "ShieldQuest",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Newtonsoft.Json.dll"
+  ],
   "overrideReferences": true,
   "autoReferenced": false,
-  "defineConstraints": ["UNITY_INCLUDE_TESTS"]
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
 }

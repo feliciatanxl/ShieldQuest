@@ -9,6 +9,4 @@
 /MemoryCaptures/
 *.csproj
 *.sln
-# Synced from src/game by Editor/PixelLabSync.cs (single source of art)
-/Assets/Resources/PixelLab/
-/Assets/Resources/PixelLab.meta
+# Shared exports are checked in so a fresh clone is playable without running Vite.

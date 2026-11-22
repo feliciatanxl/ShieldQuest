@@ -8,7 +8,7 @@ namespace ShieldQuest
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            if (Object.FindFirstObjectByType<EstateBuilder>() == null) new GameObject("Sunshine Estate").AddComponent<EstateBuilder>();
+            if (Object.FindAnyObjectByType<EstateBuilder>() == null) new GameObject("Sunshine Estate").AddComponent<EstateBuilder>();
         }
     }
 }

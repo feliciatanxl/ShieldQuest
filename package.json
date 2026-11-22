@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "npm test --prefix infra/multiplayer"
+    "test": "npm test --prefix infra/multiplayer",
+    "unity:export": "node scripts/export-unity.cjs",
+    "unity:check": "node scripts/check-unity-parity.cjs"
   },
   "dependencies": {
     "@fontsource/outfit": "^5.2.0",
@@ -22,7 +24,9 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.7.0",
+    "playwright": "^1.65.1",
     "typescript": "~5.8.3",
-    "vite": "^6.3.6"
+    "vite": "^6.3.6",
+    "wawoff2": "^2.0.1"
   }
 }

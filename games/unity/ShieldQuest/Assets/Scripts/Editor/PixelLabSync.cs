@@ -13,7 +13,7 @@ namespace ShieldQuest.Editor
         static readonly string RepoSrc = Path.GetFullPath(Path.Combine(Application.dataPath, "../../../../src/game"));
         const string Target = "Assets/Resources/PixelLab";
 
-        static PixelLabSync() => Sync();
+        static PixelLabSync() => EditorApplication.delayCall += Sync;
 
         [MenuItem("ShieldQuest/Sync PixelLab Assets")]
         public static void Sync()
@@ -24,6 +24,7 @@ namespace ShieldQuest.Editor
             foreach (var file in Directory.GetFiles(art, "*.png", SearchOption.AllDirectories))
                 changed |= Copy(file, Path.Combine(Target, Path.GetRelativePath(art, file)));
             changed |= Copy(Path.Combine(RepoSrc, "maps/neighbourhood.tmj"), Path.Combine(Target, "neighbourhood.json"));
+            changed |= Copy(Path.Combine(RepoSrc, "maps/amk-config.json"), Path.Combine(Target, "amk-config.json"));
             if (changed) AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }
 
@@ -58,6 +59,8 @@ namespace ShieldQuest.Editor
             importer.filterMode = FilterMode.Point;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.mipmapEnabled = false;
+            importer.isReadable = assetPath.Contains("generated/avatars/");
+            importer.maxTextureSize = 4096;
             importer.spritePixelsPerUnit = Iso.PixelsPerUnit;
             var settings = new TextureImporterSettings();
             importer.ReadTextureSettings(settings);

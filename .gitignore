@@ -451,3 +451,7 @@ assets-src/
 
 # Unity Web build output (produced by ShieldQuest/Build Web; large, regenerate or upload separately)
 apps/web/public/unity/
+
+# Unity package manifest and lockfile are required on fresh clones.
+!games/unity/ShieldQuest/Packages/
+!games/unity/ShieldQuest/Packages/*.json
