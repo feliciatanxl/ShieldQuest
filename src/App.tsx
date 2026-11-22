@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { ShopModal } from './components/ShopModal'
+import { purchaseItem, shopCatalog } from './state/shop'
 import { CharacterCustomizer } from './components/CharacterCustomizer'
 import { CluePanel, EvidenceBoard } from './components/EvidenceBoard'
 import { DefendYourCommunityChallenge } from './components/DefendYourCommunityChallenge'
@@ -40,7 +42,7 @@ import { guardians, type GuardianId } from './state/guardians'
 import type { AvailableAssessment } from './state/shield'
 
 type Screen = 'menu' | 'customise' | 'play'
-type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu' | 'friends'; fromMenu?: boolean }
+type PanelOverlay = { type: 'panel'; panel: GamePanelView | 'menu' | 'friends' | 'shop'; fromMenu?: boolean }
 type EvidenceOverlay = { type: 'evidence'; parent?: PanelOverlay }
 type Overlay =
   | PanelOverlay
@@ -268,6 +270,20 @@ export default function App() {
     if (changes.reducedMotion !== undefined) bridge.emit('motion', changes.reducedMotion)
   }
 
+  function buyShopItem(id: string, quantity: number) {
+    const previous = current.current
+    if (!previous) return {ok:false,message:'No active game.'}
+    const purchase = purchaseItem(previous.coins, previous.shop, id, quantity)
+    if (!purchase) return {ok:false,message:'Purchase unavailable. Check your balance and quantity.'}
+    const stored = persist({...previous,...purchase})
+    return {ok:true,message:stored ? 'Added to your collection.' : 'Added for this session. Browser storage is unavailable.'}
+  }
+
+  function wearShopItem(id:string) {
+    const previous=current.current,item=shopCatalog.find(item=>item.id===id)
+    if(previous&&item?.avatar&&previous.shop?.[id])update({avatar:{...item.avatar}})
+  }
+
   function saveCheckpoint() {
     return current.current ? persist(accountHouseTime(current.current)) : false
   }
@@ -417,7 +433,7 @@ export default function App() {
     return true
   }
 
-  function openPanel(panel: GamePanelView | 'menu' | 'friends', fromMenu = false) {
+  function openPanel(panel: PanelOverlay['panel'], fromMenu = false) {
     setOverlay(panel === 'pack' && current.current?.scene === 'House'
       ? { type: 'house-inventory', fromMenu }
       : { type: 'panel', panel, fromMenu })
@@ -565,6 +581,8 @@ export default function App() {
         onOpen={panel => openPanel(panel, true)} />
       : overlay.panel === 'friends'
       ? <FriendsPanel onClose={() => setOverlay(overlay.fromMenu ? { type: 'panel', panel: 'menu' } : null)} />
+      : overlay.panel === 'shop'
+      ? <ShopModal save={save} onBuy={buyShopItem} onWear={wearShopItem} onClose={() => setOverlay(overlay.fromMenu ? {type:'panel',panel:'menu'} : null)} />
       : <GamePanel panel={overlay.panel} save={save} onUpdate={update}
         onCollectGuardian={collectGuardian}
         onOpenBoard={() => setOverlay({ type: 'evidence', parent: overlay })}

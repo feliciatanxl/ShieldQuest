@@ -16,6 +16,7 @@ import {
   trafficLight, tree
 } from './worldArt'
 import { houseExterior, houseHExterior, houseIExterior } from './houseArt'
+import { geographicBuilding, geographicRoads } from './geography'
 
 const labels = {
   may: 'Talk to Auntie May', amir: 'Talk to Amir',
@@ -97,6 +98,8 @@ function street(scene: Phaser.Scene) {
     for (const x of [x0, x1 - .06]) floor(g, x, y0, .06, .85, yellow)
     groundLetters(g, 'BUS', x0 + length / 2, y0 + .425, .065, yellow, bay.south ? 1 : -1)
   }
+  // Legacy fictional estate only; geographical missions have data-driven entries.
+  if(neighbourhood.props.some(p=>p.kind==='geoRoad'))return
   // Door mats at the shop and the two SHIELD houses.
   floor(g, 13.01, 9.16, .44, .37, '#e5bd84')
   for (let i = 0; i < 8; i++) floor(g, 13.05 + .048 * i, 9.28, .018, .18, '#a37567')
@@ -135,6 +138,7 @@ function bicycles(g: Phaser.GameObjects.Graphics, p: MapProp) {
 
 function renderProp(scene: Phaser.Scene, p: MapProp) {
   const { kind, x, y, w, d, properties } = p
+  if (kind === 'geoBuilding') { geographicBuilding(scene, p); return }
   if (kind === 'parkedCar') {
     prop(scene, p, g => {
       floor(g, x + .05, y + .05, w + .12, d + .08, '#24312d', 0, .24)
@@ -190,6 +194,7 @@ function routePole(scene: Phaser.Scene, at: Point) {
 
 export function createWorld(scene: Phaser.Scene): WorldLayout {
   street(scene)
+  geographicRoads(scene, neighbourhood.props)
   detailAreas().forEach(area => bakeDetail(scene, area))
   const map = neighbourhood
   map.props.forEach(p => renderProp(scene, p))
@@ -212,6 +217,12 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   hotspots.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
   hotspots.push({ id: 'house-h-entrance', label: 'Enter Freeze Frame House', at: HOUSE_H_DOOR, radius: .95 })
   hotspots.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
+  for (const entry of map.props.filter(p => p.kind === 'entry')) {
+    const at = { x: entry.x, y: entry.y }
+    const screen = { x: (at.x-at.y)*32, y:(at.x+at.y)*16 }
+    scene.add.text(screen.x,screen.y-26,`◆ ${entry.properties.mission} · SHIELD`,{fontFamily:'Outfit',fontSize:12,color:'#ffdf88',backgroundColor:'#28463f',padding:{x:4,y:2}}).setOrigin(.5,1).setDepth(100000)
+  }
+  scene.add.text(12,scene.scale.height-24,'© OpenStreetMap contributors · ODbL 1.0 · Schematics: ShieldQuest',{fontFamily:'Outfit',fontSize:11,color:'#fff5d7',backgroundColor:'#263b48'}).setScrollFactor(0).setDepth(200000)
   const routes = map.props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1)
   const life = neighbourhoodLife(scene, map.props.filter(p => p.kind === 'busroute'), map.props.filter(p => p.kind === 'bus'), detailAreas())
   return { hotspots, collisions, size: map.size, routes, tick: life.tick, blocks: life.blocks }

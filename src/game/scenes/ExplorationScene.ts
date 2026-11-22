@@ -25,7 +25,7 @@ type KeyName = 'W' | 'A' | 'S' | 'D' | 'UP' | 'LEFT' | 'DOWN' | 'RIGHT' | 'SHIFT
 const WALK_SPEED = 3.05
 const RUN_SPEED = 5.25
 // Menu backdrop framings: the estate overview behind the title card, an HDB void deck behind the wardrobe.
-const PREVIEW_SPOTS = { menu: { x: 35, y: 295, zoom: 1.12 }, customise: { x: -230, y: 225, zoom: 1.4 } }
+const PREVIEW_SPOTS = { menu: { x: 0, y: 2450, zoom: .42 }, customise: { x: -200, y: 2500, zoom: .9 } }
 export type PreviewSpot = keyof typeof PREVIEW_SPOTS
 
 export abstract class ExplorationScene extends Phaser.Scene {

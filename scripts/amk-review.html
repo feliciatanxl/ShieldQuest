@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ShieldQuest · Ang Mo Kio correspondence review</title>
+<style>html,body,#game{margin:0;width:100%;height:100%;overflow:hidden;background:#263b48}nav{position:absolute;top:12px;left:12px;z-index:3;display:flex;gap:8px}button{padding:9px;background:#284c45;border:1px solid #acb9a9;color:#fff4d1}#status{position:absolute;bottom:36px;left:12px;color:white;background:#263b48;font:13px sans-serif;padding:8px;z-index:3}</style></head>
+<body><div id="game"></div><nav><button id="overview">District overview</button><button id="street">HDB street</button><button id="centre">724 town centre</button><button id="transport">AMK Hub / MRT</button><button id="bus-stop">Bus stop</button><button id="play">Play / follow</button></nav><output id="status">Loading geographical district…</output>
+<script type="module">
+import { mountGame } from '../src/game/main'
+import { GameBridge } from '../src/game/events'
+import { baseAvatar } from '../src/state/avatar'
+import { loadPlayerArt } from '../src/game/playerArt'
+import { START } from '../src/state/saveGame'
+import { neighbourhood } from '../src/game/maps'
+import { project } from '../src/game/isometric'
+const bridge=new GameBridge();await loadPlayerArt()
+const before=new URLSearchParams(location.search).has('before')
+mountGame(document.querySelector('#game'),{avatar:baseAvatar,name:'REVIEW',position:before?{x:10.6,y:10.55}:START,reducedMotion:false,bridge})
+let fixed='overview'
+const props=neighbourhood.props
+const center=p=>p?project(p.x+p.w/2,p.y+p.d/2):{x:0,y:800}
+const market=props.find(p=>p.kind==='geoBuilding'&&p.properties.number==='724')
+const hub=props.find(p=>p.name==='Ang Mo Kio Hub')
+const hdb=props.find(p=>p.kind==='geoBuilding'&&p.properties.number==='728')
+const stop=props.filter(p=>p.kind==='bus').sort((a,b)=>Math.hypot(a.x-(market?.x??0),a.y-(market?.y??0))-Math.hypot(b.x-(market?.x??0),b.y-(market?.y??0)))[0]
+const spots={overview:{x:0,y:1800,z:.24},street:{...center(hdb),z:.9},centre:{...center(market),z:1},transport:{...center(hub),z:.65},'bus-stop':{...center(stop),z:1.1}}
+const timer=setInterval(()=>{const s=window.__shieldGame?.scene.getScene('Neighbourhood');if(!s?.cameras?.main||!s.player)return;if(fixed){const p=spots[fixed];s.cameras.main.stopFollow();s.cameras.main.setZoom(p.z).centerOn(p.x,p.y-100)}document.querySelector('#status').textContent=`${neighbourhood.size.x} × ${neighbourhood.size.y} tiles · 5 m/tile · player ${s.player.position.x.toFixed(2)}, ${s.player.position.y.toFixed(2)} · ${Math.round(window.__shieldGame.loop.actualFps)} FPS`;window.__amkReady=true},100)
+for(const k of Object.keys(spots))document.getElementById(k).onclick=()=>fixed=k
+document.getElementById('play').onclick=()=>{fixed='';const s=window.__shieldGame.scene.getScene('Neighbourhood');s.follow();s.focusCamera(1.1)}
+window.__amkReview={bridge,spots,setView:k=>fixed=k}
+window.addEventListener('pagehide',()=>clearInterval(timer))
+</script></body></html>

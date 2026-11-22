@@ -1,0 +1,82 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "camera": {
+    "x": 0,
+    "y": 1700,
+    "zoom": 0.24
+  },
+  "errors": [],
+  "views": {
+    "overview": "167 × 144 tiles · 5 m/tile · player 99.68, 98.87 · 49 FPS",
+    "street": "167 × 144 tiles · 5 m/tile · player 99.68, 98.87 · 52 FPS",
+    "centre": "167 × 144 tiles · 5 m/tile · player 99.68, 98.87 · 52 FPS",
+    "transport": "167 × 144 tiles · 5 m/tile · player 99.68, 98.87 · 54 FPS",
+    "bus-stop": "167 × 144 tiles · 5 m/tile · player 99.68, 98.87 · 54 FPS"
+  },
+  "movement": {
+    "from": {
+      "x": 99.67864555162883,
+      "y": 98.86806956466205
+    },
+    "to": {
+      "x": 101.0099398837528,
+      "y": 99.94750731056976
+    },
+    "key": "ArrowDown"
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "status": "167 × 144 tiles · 5 m/tile · player 101.01, 99.95 · 55 FPS",
+    "menuButtons": [
+      " Start new game",
+      " Continue"
+    ]
+  },
+  "gameplay": {
+    "startFree": true,
+    "hotspots": [
+      {
+        "id": "may",
+        "free": false
+      },
+      {
+        "id": "amir",
+        "free": false
+      },
+      {
+        "id": "notice",
+        "free": true
+      },
+      {
+        "id": "enter",
+        "free": true
+      },
+      {
+        "id": "house-entrance",
+        "free": true
+      },
+      {
+        "id": "house-h-entrance",
+        "free": true
+      },
+      {
+        "id": "house-i-entrance",
+        "free": true
+      }
+    ],
+    "walkers": 12,
+    "renderTextures": 239,
+    "fps": 55.374755859375
+  },
+  "transitions": [
+    "Minimart",
+    "HouseH",
+    "HouseI"
+  ]
+}

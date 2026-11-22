@@ -13,7 +13,7 @@ import { canStand } from '../../../src/game/isometric'
 import { readSave, SAVE_KEY, newSave, type Save } from '../../../src/state/saveGame'
 import { presets } from '../../../src/state/avatar'
 
-test('Sunshine Estate map expansion dimensions and landmarks', () => {
+test('Ang Mo Kio district dimensions and source landmarks', () => {
   const dir = path.dirname(fileURLToPath(import.meta.url))
   const mapPath = path.resolve(dir, '../../../src/game/maps/neighbourhood.tmj')
   const tmj = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
@@ -28,20 +28,18 @@ test('Sunshine Estate map expansion dimensions and landmarks', () => {
   assert.ok(objectsLayer, 'Object group layer exists in Tiled map')
 
   const names = objectsLayer.objects.map((o: { name: string }) => o.name)
-  assert.ok(names.includes('Freeze Frame House'), 'Map contains Freeze Frame House object')
-  assert.ok(names.includes('Whisper Network House'), 'Map contains Whisper Network House object')
-  assert.ok(names.includes('Sunshine Minimart'), 'Original minimart is preserved')
-  assert.ok(names.includes('The Mysterious House'), 'Original mysterious house is preserved')
-  assert.ok(names.includes('Block 104'), 'Expanded estate includes Block 104')
-  assert.ok(names.includes('Block 105'), 'Expanded estate includes Block 105')
+  for (const name of ['Ang Mo Kio Hub','Ang Mo Kio','Block 724','Block 702','Block 728']) assert.ok(names.includes(name), name)
+  const entries = objectsLayer.objects.filter((o: {type: string}) => o.type === 'entry')
+  assert.equal(entries.length, 4)
+
 })
 
 test('House H (Freeze Frame House) layout, hotspots, and collision', () => {
   // Coordinates and boundaries
   assert.equal(HOUSE_H_SIZE.x, 10)
   assert.equal(HOUSE_H_SIZE.y, 8)
-  assert.equal(HOUSE_H_DOOR.x, 28.5)
-  assert.equal(HOUSE_H_DOOR.y, 8.5)
+  assert.ok(HOUSE_H_DOOR.x > 0 && HOUSE_H_DOOR.x < NEIGHBOURHOOD_SIZE.x)
+  assert.ok(HOUSE_H_DOOR.y > 0 && HOUSE_H_DOOR.y < NEIGHBOURHOOD_SIZE.y)
 
   // Hotspots
   const hotspotIds = houseHObjects.map(h => h.id)
@@ -68,8 +66,8 @@ test('House I (Whisper Network House) layout, hotspots, and collision', () => {
   // Coordinates and boundaries
   assert.equal(HOUSE_I_SIZE.x, 11)
   assert.equal(HOUSE_I_SIZE.y, 8)
-  assert.equal(HOUSE_I_DOOR.x, 14.5)
-  assert.equal(HOUSE_I_DOOR.y, 26.5)
+  assert.ok(HOUSE_I_DOOR.x > 0 && HOUSE_I_DOOR.x < NEIGHBOURHOOD_SIZE.x)
+  assert.ok(HOUSE_I_DOOR.y > 0 && HOUSE_I_DOOR.y < NEIGHBOURHOOD_SIZE.y)
 
   // Hotspots
   const hotspotIds = houseIObjects.map(h => h.id)

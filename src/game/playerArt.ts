@@ -1,4 +1,4 @@
-import { categories, type Avatar, type Facing } from '../state/avatar'
+import { categories, categoryKeys, type Avatar, type Facing } from '../state/avatar'
 
 /** PixelLab base bodies (one per hairstyle) recoloured and dressed at runtime. See docs/pixellab-assets.md. */
 export const CELL = 80
@@ -272,7 +272,7 @@ export function renderPlayer(avatar: Avatar, facing: Facing, frame: number): Ima
   if (!sheet) return null
   const row = sheetRow(sheet, facing)
   let col = Math.min(frame, sheet.width / CELL - 1)
-  const key = [...Object.values(avatar), facing, col].join(',')
+  const key = [...categoryKeys.map(key => avatar[key]), facing, col].join(',')
   const hit = cache.get(key)
   if (hit) return hit
 

@@ -3,6 +3,7 @@ import { depthAt, project, TILE_WIDTH } from './isometric'
 import { neighbourhood, type MapProp } from './maps'
 import { buildHdbBlock } from './hdbBlock'
 import { estateSurfaceKey, estateSurfaces } from './estateSurface'
+import { updateGeographicOcclusion, geographicallyCovered } from './geography'
 
 // PixelLab-generated art, shared with the Unity project (see docs/pixellab-assets.md).
 const urls = import.meta.glob('./assets/pixellab/**/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -30,7 +31,7 @@ const MARGIN = 14, CHUNK = 24
 export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number) {
   const height = tiles.length / width
   const estate = neighbourhood.props.filter(p => p.kind === 'detail' && p.properties.surface === 'estate')
-  if (estate.length) estateSurfaces(scene)
+  estateSurfaces(scene)
   for (let cy = -MARGIN; cy < height + MARGIN; cy += CHUNK) {
     for (let cx = -MARGIN; cx < width + MARGIN; cx += CHUNK) {
       const x1 = Math.min(cx + CHUNK, width + MARGIN), y1 = Math.min(cy + CHUNK, height + MARGIN)
@@ -50,12 +51,12 @@ export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number)
             // 0 grass, 1 pavement, 2 road: a road keeps going with a pavement kerb either side, everything else is verge.
             const road = (ex: number, ey: number) => kindAt(ex, ey) === 2
             const along = x < 0 || x >= width ? [[x, y - 1], [x, y + 1]] : [[x - 1, y], [x + 1, y]]
-            const kind = road(x, y) ? 2 : along.some(([ex, ey]) => road(ex, ey)) ? 1 : 0
+            const kind = neighbourhood.props.some(p=>p.kind==='geoRoad') ? Math.max(0,kindAt(x,y)) : road(x, y) ? 2 : along.some(([ex, ey]) => road(ex, ey)) ? 1 : 0
             tile = 1 + kind * 4 + ((x * 7 + y * 13) & 3)
           }
           if (!tile) continue
           const centre = project(x + .5, y + .5)
-          const calm = estate.some(p => x >= p.x && y >= p.y && x < p.x + p.w && y < p.y + p.d)
+          const calm = neighbourhood.props.some(p => p.kind === 'geoRoad') || estate.some(p => x >= p.x && y >= p.y && x < p.x + p.w && y < p.y + p.d)
           rt.batchDraw(calm ? estateSurfaceKey(scene, tile) : `pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
         }
       }
@@ -148,6 +149,7 @@ const OVERHANG = 1.5
 const roofKinds = new Set(['shelter', 'linkway', 'bus'])
 const roofs = new WeakMap<Phaser.Scene, { image: Phaser.GameObjects.Image; p: MapProp }[]>()
 export function updateRoofs(scene: Phaser.Scene, at: { x: number; y: number }) {
+  updateGeographicOcclusion(scene, at)
   for (const { image, p } of roofs.get(scene) ?? []) {
     image.setAlpha(at.x >= p.x - OVERHANG && at.x <= p.x + p.w && at.y >= p.y - OVERHANG && at.y <= p.y + p.d ? .45 : 1)
   }
@@ -188,6 +190,7 @@ const NEAR = 2.5
 /** Whether a character standing here is covered by a building: 'near' (right behind it, kept out), 'far' (further
  *  behind a tall one: walkable, the player shows as a ghost), or false. */
 export function hiddenByBuilding(scene: Phaser.Scene, at: { x: number; y: number }): 'near' | 'far' | false {
+  if(geographicallyCovered(scene,at))return 'far'
   const feet = project(at.x, at.y)
   let hidden: 'near' | 'far' | false = false
   for (const { image, p, mask, w } of solids.get(scene) ?? []) {
@@ -241,7 +244,7 @@ export function spriteProp(scene: Phaser.Scene, p: MapProp) {
   }
   if (fixed[p.kind]) {
     const [name, scale] = fixed[p.kind]
-    const size = p.properties.large ? 1.2 : 1
+    const size = p.properties.approximate && p.kind === 'tree' ? .5 : p.properties.large ? 1.2 : 1
     const at = project(p.x + p.w / 2, p.y + p.d / 2)
     const image = scene.add.image(at.x, at.y + 4, pick(name)).setOrigin(.5, 1).setScale(scale * size).setDepth(depth)
     if (p.kind === 'npc') image.setName('character')

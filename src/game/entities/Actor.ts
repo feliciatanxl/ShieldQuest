@@ -16,6 +16,7 @@ export class Actor {
   private shadow: Phaser.GameObjects.Ellipse
   private marker?: Phaser.GameObjects.Text
   private texture?: Phaser.Textures.CanvasTexture
+  private avatarRevision = 0
   private sheet = false
   private ghost?: Phaser.GameObjects.Image
   /** Navy copy masked by a block's upper floors: shows only the parts of the actor that building covers. */
@@ -33,14 +34,16 @@ export class Actor {
       this.sheet = scene.textures.get(staticTexture).frameTotal > 2
       this.sprite = scene.add.image(0, 0, staticTexture).setOrigin(.5, this.sheet ? FEET_Y / CELL : .97)
     } else {
-      const texture = scene.textures.createCanvas(key, CELL, CELL)
+      const texture = scene.textures.createCanvas(`${scene.scene.key}-${key}`, CELL, CELL)
       if (!texture) throw new Error('Could not create an avatar texture')
       this.texture = texture
       this.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
       this.sprite = scene.add.image(0, 0, texture).setOrigin(.5, FEET_Y / CELL)
-      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.textures.remove(texture.key))
+      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { if (this.texture) scene.textures.remove(this.texture.key) })
     }
     this.sprite.setName('character').setData('player', key === 'player')
+    // The geographical district uses 5 m cells; retain full-size avatars in interiors.
+    if(scene.scene.key === 'Neighbourhood'){this.sprite.setScale(.42);this.shadow.setScale(.42)}
     if (key === 'player') {
       this.marker = scene.add.text(0, 0, label || 'YOU', {
         fontFamily: 'Outfit, sans-serif', fontSize: '9px', fontStyle: 'bold',
@@ -53,6 +56,22 @@ export class Actor {
 
   setAvatar(avatar: Avatar) {
     this.avatar = avatar
+    if (this.texture) {
+      // Rebind every visible layer to a fresh texture when changing looks. This also
+      // avoids retaining a previous appearance in a cached WebGL texture/frame.
+      const previous = this.texture
+      const next = this.sprite.scene.textures.createCanvas(`${this.sprite.scene.scene.key}-avatar-${++this.avatarRevision}`, CELL, CELL)
+      if (next) {
+        next.setFilter(Phaser.Textures.FilterMode.NEAREST)
+        this.texture = next
+        this.repaint()
+        this.sprite.setTexture(next.key)
+        this.ghost?.setTexture(next.key)
+        this.silhouette?.setTexture(next.key)
+        this.sprite.scene.textures.remove(previous.key)
+        return
+      }
+    }
     this.repaint()
   }
 
@@ -61,6 +80,7 @@ export class Actor {
     if (on && !this.ghost) {
       this.ghost = this.sprite.scene.add.image(0, 0, this.sprite.texture.key, this.sprite.frame.name)
         .setOrigin(this.sprite.originX, this.sprite.originY).setAlpha(.5).setDepth(1e6 - 1)
+        .setScale(this.sprite.scaleX,this.sprite.scaleY)
       this.place()
     }
     this.ghost?.setVisible(on)

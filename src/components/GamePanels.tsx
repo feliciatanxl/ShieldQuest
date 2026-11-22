@@ -1,8 +1,10 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Backpack, Check, ClipboardList, CloudSun, MapPin, Network, Play } from 'lucide-react'
+import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Network, Play } from 'lucide-react'
 import type { ResidentId } from '../game/events'
 import { groundColors, neighbourhood } from '../game/maps'
 import { HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
+import district from '../game/maps/amk-config.json'
+import { footprint } from '../game/geoPolygon'
 import { houseFurniture, houseRooms, houseWalls } from '../game/houseLayout'
 import { shopFixtures } from '../game/minimartLayout'
 import { choiceIds, responses, type JunChoice } from '../state/investigation'
@@ -54,7 +56,7 @@ function AreaMap({ save }: { save: Save }) {
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
   const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
-  const tileWidth = Math.max(7, Math.floor(266 / size.x))
+  const tileWidth = map ? 4 : Math.max(7, Math.floor(420 / size.x))
   const width = tileWidth * size.x
   const height = tileWidth * size.y
 
@@ -70,22 +72,32 @@ function AreaMap({ save }: { save: Save }) {
       ctx.fillRect((i % size.x) * tileWidth, Math.floor(i / size.x) * tileWidth, tileWidth, tileWidth)
     })
 
-    // Roads and pedestrian thoroughfares
     if (map) {
-      // Main horizontal street
-      ctx.fillStyle = '#475569'
-      ctx.fillRect(0, 15 * tileWidth, 38 * tileWidth, 3 * tileWidth)
-      // Central North-South boulevard
-      ctx.fillRect(19 * tileWidth, 5 * tileWidth, 3 * tileWidth, 26 * tileWidth)
-      // South Boulevard
-      ctx.fillRect(8 * tileWidth, 28 * tileWidth, 27 * tileWidth, 3 * tileWidth)
-
-      // Zebra crossings (white stripes)
-      ctx.fillStyle = '#f8fafc'
-      ctx.fillRect(16 * tileWidth, 15 * tileWidth, 1.3 * tileWidth, 3 * tileWidth)
-      ctx.fillRect(28 * tileWidth, 15 * tileWidth, 1.3 * tileWidth, 3 * tileWidth)
-      ctx.fillRect(19 * tileWidth, 13 * tileWidth, 3 * tileWidth, 1.3 * tileWidth)
-      ctx.fillRect(19 * tileWidth, 26 * tileWidth, 3 * tileWidth, 1.3 * tileWidth)
+      for (const path of map.props.filter(p => p.kind === 'geoRoad' || p.kind === 'geoPath')) {
+        ctx.beginPath()
+        path.path?.forEach((p,i) => i ? ctx.lineTo(p.x*tileWidth,p.y*tileWidth) : ctx.moveTo(p.x*tileWidth,p.y*tileWidth))
+        ctx.strokeStyle = path.kind === 'geoRoad' ? '#6d7c79' : '#e4d5b6'
+        ctx.lineWidth = Math.max(1,Number(path.properties.width)*tileWidth)
+        ctx.lineJoin = 'round'; ctx.stroke()
+      }
+      for (const building of map.props.filter(p => p.kind === 'geoBuilding')) {
+        ctx.beginPath()
+        footprint(building).forEach((p,i) => i ? ctx.lineTo(p.x*tileWidth,p.y*tileWidth) : ctx.moveTo(p.x*tileWidth,p.y*tileWidth))
+        ctx.closePath();ctx.fillStyle='#a6b7a5';ctx.fill();ctx.strokeStyle='#627c70';ctx.lineWidth=1;ctx.stroke()
+      }
+      for (const [key,point] of Object.entries(district.entrances)) {
+        ctx.beginPath();ctx.arc(point.x*tileWidth,point.y*tileWidth,7,0,Math.PI*2)
+        ctx.fillStyle='#247c74';ctx.fill();ctx.strokeStyle='#fff8e8';ctx.lineWidth=2;ctx.stroke()
+        ctx.fillStyle='#fff8e8';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(({shop:'S',house:'M',houseH:'H',houseI:'I'} as Record<string,string>)[key],point.x*tileWidth,point.y*tileWidth+3)
+      }
+      for(const [name,label] of [['Ang Mo Kio Hub','AMK Hub'],['Ang Mo Kio','MRT'],['Block 724','724 Market']]) {
+        const p=map.props.find(p=>p.kind==='geoBuilding'&&p.name===name)
+        if(!p)continue
+        const x=(p.x+p.w/2)*tileWidth,y=(p.y+p.d/2)*tileWidth
+        ctx.font='bold 11px sans-serif';ctx.textAlign='center';const w=ctx.measureText(label).width+12
+        ctx.fillStyle='#28463f';ctx.fillRect(x-w/2,y-9,w,18);ctx.fillStyle='#fff8e8';ctx.fillText(label,x,y+4)
+      }
+      ctx.textAlign='start'
     }
 
     // World props & buildings
@@ -208,24 +220,23 @@ function AreaMap({ save }: { save: Save }) {
           ? 'Sunshine Minimart'
           : 'Sunshine Estate'}
       </p>
-      <canvas
+      <div className="area-map-stage"><span className="map-north" aria-label="North">N ↑</span><canvas
         ref={ref}
         width={width}
         height={height}
         aria-label="Area map with your location marked by a beacon"
         role="img"
-      />
+      /></div>
       <div className="map-legend">
         <span><i /> You</span>
         {map && (
           <>
-            <span><i className="block-key" /> Blocks 101–105</span>
-            <span><i className="shop-key" /> Minimart</span>
-            <span><i className="kopi-key" /> Kopi Corner</span>
-            <span><i className="mystery-key" /> Mystery (M)</span>
-            <span><i className="house-h-key" /> House H</span>
-            <span><i className="house-i-key" /> House I</span>
-            <span><i className="linkway-key" /> Linkway</span>
+            <span><i className="district-block-key" /> Buildings</span>
+            <span><i className="district-road-key" /> Roads</span>
+            <span><b>S</b> Minimart</span>
+            <span><b>M</b> Mystery</span>
+            <span><b>H</b> Freeze Frame</span>
+            <span><b>I</b> Whisper Network</span>
           </>
         )}
       </div>
@@ -246,12 +257,13 @@ export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoa
   if (panel === 'wardrobe') return <Modal title={title} onClose={onClose} wide>
     <CharacterCustomizer initial={save.avatar} initialName={save.name} wardrobe onBack={onClose} onConfirm={(avatar, name) => { onUpdate({ avatar, name }); onClose() }} />
   </Modal>
-  return <Modal title={title} onClose={onClose} className={panel === 'guardians' ? 'guardian-modal' : undefined}>
+  return <Modal title={title} onClose={onClose} eyebrow={panel === 'map' ? 'NEIGHBOURHOOD GUIDE' : 'YOUR ADVENTURE'} className={panel === 'guardians' ? 'guardian-modal' : `game-panel panel-${panel}`}>
     {panel === 'guardians' && <GuardianCollection save={save} onCollect={onCollectGuardian} />}
     {panel === 'missions' && <section className="mission-entry">
+      <span className="panel-kicker"><span className="status-dot" /> CURRENT OBJECTIVE</span>
       <h3>{currentObjective(save)}</h3>
       <p>{objectiveDetails(save)}</p>
-      {save.scene !== 'House' && save.investigation.entered && <Button className="secondary" onClick={onOpenBoard}><ClipboardList size={17} /> Evidence board</Button>}
+      {save.scene !== 'House' && save.investigation.entered && <Button className="secondary" onClick={onOpenBoard}><ClipboardList size={17} /> Evidence board <ArrowUpRight size={16} /></Button>}
     </section>}
     {panel === 'restart' && <>
       <p>Start the movement tutorial again from your current location.</p>
@@ -261,20 +273,19 @@ export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoa
       </div>
     </>}
     {panel === 'pack' && <div className="pack-items">
-      <Button className="secondary" onClick={onOpenBoard}><ClipboardList size={17} /> Evidence board</Button>
-      <p><Backpack size={18} /> Estate pocket guide</p>
-      <ul>
-        <li><strong>Kopi Corner</strong> · Look for the terracotta awning.</li>
-        <li><strong>Sunshine Minimart</strong> · The teal storefront beside Kopi Corner.</li>
-        <li><strong>Bus stop</strong> · Beside the pedestrian crossing.</li>
-      </ul>
+      <Button className="pack-board" onClick={onOpenBoard}><span className="panel-icon"><ClipboardList size={22} /></span><span><strong>Evidence board</strong><small>Review your clues and discoveries</small></span><ArrowUpRight size={18} /></Button>
+      <section className="pocket-guide"><h3><Backpack size={18} /> Neighbourhood pocket guide</h3>
+        <div className="guide-row"><span className="guide-marker">S</span><div><strong>Sunshine Minimart</strong><p>Find the SHIELD entrance at Block 702.</p></div></div>
+        <div className="guide-row"><span className="guide-marker">724</span><div><strong>Market &amp; food centre</strong><p>North-west of AMK Hub, near Avenue 6.</p></div></div>
+        <div className="guide-row"><MapPin size={18} /><div><strong>Find your way</strong><p>Open the area map for landmarks and mission entrances.</p></div></div>
+      </section>
     </div>}
     {panel === 'map' && <AreaMap save={save} />}
     {panel === 'settings' && <div className="settings-content">
-      <label className="setting-row"><span><strong>Reduced motion</strong><small>Instant camera follow and shorter animations</small></span>
-        <input type="checkbox" checked={save.reducedMotion} onChange={event => onUpdate({ reducedMotion: event.target.checked })} /></label>
-      <p><CloudSun size={18} /> In-game weather and time are fictional.</p>
-      <p><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> Move · <kbd>Shift</kbd> Run · <kbd>E</kbd> Interact</p>
+      <section><h3 className="panel-kicker">ACCESSIBILITY</h3><label className="setting-row"><span><strong>Reduced motion</strong><small>Instant camera follow and shorter animations.</small></span>
+        <input className="motion-toggle" role="switch" type="checkbox" checked={save.reducedMotion} onChange={event => onUpdate({ reducedMotion: event.target.checked })} /></label></section>
+      <section className="panel-controls"><h3 className="panel-kicker">QUICK CONTROLS</h3><dl><div><dt>Move</dt><dd><kbd>WASD</kbd><span>or</span><kbd>↑ ↓ ← →</kbd></dd></div><div><dt>Run</dt><dd><kbd>Shift</kbd></dd></div><div><dt>Interact</dt><dd><kbd>E</kbd></dd></div></dl></section>
+      <p className="panel-note"><CloudSun size={17} /><span>In-game weather and time are fictional.</span></p>
     </div>}
     {panel === 'controls' && <dl className="controls-list">
       <dt>Move</dt><dd><kbd>WASD</kbd>, arrow keys, or the on-screen joystick</dd>

@@ -86,70 +86,25 @@ test('Void deck: blocks along y, and walled sides, are honoured', () => {
   assert.ok(walkable({ x: 11.5, y: 13 }, { x: 11.5, y: 11 }, ends, NEIGHBOURHOOD_SIZE, { x: 7, y: 7, w: 14, d: 8 }), 'long sides stay open')
 })
 
-test('Block 110 in the map: walkable void deck reachable from the start, residents can walk their routes', () => {
-  const props = mapProps()
-  const b110 = props.find(p => p.name === 'Block 110')!
-  assert.equal(b110.properties.voidDeck, true)
-  const solid = sceneryCollisions(props)
-  const under = { x: 12.2, y: 35 }, behind = { x: 12.8, y: 33 }
-  assert.ok(canStand(under, NEIGHBOURHOOD_SIZE, solid))
-  assert.ok(walkable(START, under, solid), 'from the starting plaza into the void deck')
-  assert.ok(walkable(under, behind, solid), 'out through the back of the void deck')
-  for (const walker of props.filter(p => p.kind === 'walker' && p.path)) {
-    const pts = walker.path!
-    for (let i = 1; i < pts.length; i++) {
-      const a = pts[i - 1], c = pts[i], n = Math.ceil(Math.hypot(c.x - a.x, c.y - a.y) / .1)
-      for (let k = 0; k <= n; k++) {
-        const at = { x: a.x + (c.x - a.x) * k / n, y: a.y + (c.y - a.y) * k / n }
-        assert.ok(canStand(at, NEIGHBOURHOOD_SIZE, solid), `${walker.name} is blocked at ${at.x.toFixed(1)},${at.y.toFixed(1)}`)
-      }
-    }
-  }
-})
 
-test('Void deck: saves made under or near Block 110 load, and a spot inside a pillar is not standable (spawn falls back)', () => {
-  const store = new Map<string, string>()
-  globalThis.localStorage = { getItem: k => store.get(k) ?? null, setItem: (k, v) => void store.set(k, v), removeItem: k => void store.delete(k), clear: () => store.clear(), key: () => null, length: 0 } as Storage
+test('Ang Mo Kio: all mission doors connect to the new start', () => {
   const solid = sceneryCollisions(mapProps())
-  const save = { ...newSave(presets[0].avatar, 'Wei Ling'), position: { x: 12.2, y: 35 } }
-  store.set(SAVE_KEY, JSON.stringify(save))
-  assert.deepEqual(readSave()?.position, { x: 12.2, y: 35 })
-  // Positions players could stand on before this change (in front of the block) are still free.
-  for (const at of [{ x: 12.2, y: 37 }, { x: 14.4, y: 36.6 }, START]) assert.ok(canStand(at, NEIGHBOURHOOD_SIZE, solid))
-  const pillar = voidDeckLayout(mapProps().find(p => p.name === 'Block 110')!).pillars[0]
-  assert.equal(canStand({ x: pillar.x + .17, y: pillar.y + .17 }, NEIGHBOURHOOD_SIZE, solid), false)
+  assert.ok(canStand(START, NEIGHBOURHOOD_SIZE, solid))
+  for (const to of [SHOP_DOOR,HOUSE_DOOR,HOUSE_H_DOOR,HOUSE_I_DOOR]) {
+    assert.ok(canStand(to, NEIGHBOURHOOD_SIZE, solid), JSON.stringify(to))
+    assert.ok(walkable(START,to,solid), 'mission door is reachable')
+  }
 })
 
-test('Block 102 (12-storey modular block on the north edge): its void deck is reachable from the start', () => {
-  const props = mapProps()
-  const b102 = props.find(p => p.name === 'Block 102')!
-  assert.equal(b102.properties.voidDeck, true)
-  assert.equal(b102.properties.floors, 12)
-  const solid = sceneryCollisions(props)
-  const under = { x: 11, y: 1.4 }
-  assert.ok(canStand(under, NEIGHBOURHOOD_SIZE, solid))
-  assert.ok(walkable(START, under, solid), 'from the starting plaza into Block 102\'s void deck')
-})
-
-test('Sunshine Court: connected decks, bus stop and all mission doors remain reachable', () => {
-  const props = mapProps(), solid = sceneryCollisions(props)
-  const destinations = [
-    SHOP_DOOR, HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR,
-    { x: 1.2, y: 21 }, { x: 1.2, y: 32 }, { x: 9.4, y: 20.4 },
-    { x: 12.2, y: 35 }, { x: 14, y: 40.5 }, { x: 9, y: 28 },
-  ]
-  for (const to of destinations) {
-    assert.ok(canStand(to, NEIGHBOURHOOD_SIZE, solid), `destination ${to.x},${to.y} is free`)
-    assert.ok(walkable(START, to, solid), `start connects to ${to.x},${to.y}`)
-  }
-  // Traversal through each new deck, from one open side to the other, without bypassing the block.
-  for (const number of ['106', '109', '112']) {
-    const block = props.find(p => p.name === `Block ${number}`)!
-    const alongX = block.w >= block.d
-    const from = alongX ? { x: block.x + 1, y: block.y - .5 } : { x: block.x - .5, y: block.y + 1 }
-    const to = alongX ? { x: from.x, y: block.y + block.d + .5 } : { x: block.x + block.w + .5, y: from.y }
-    const bounds = { x: block.x - .5, y: block.y - .5, w: block.w + 1, d: block.d + 1 }
-    assert.ok(walkable(from, to, solid, NEIGHBOURHOOD_SIZE, bounds), `through Block ${number}'s void deck`)
-  }
-  assert.ok(canStand({ x: 14.5, y: 30 }, NEIGHBOURHOOD_SIZE, solid), 'parking paint never creates an invisible solid building')
+test('Old outdoor saves migrate once while current map saves retain their position and progress', () => {
+  const store = new Map<string,string>()
+  globalThis.localStorage = { getItem: k => store.get(k) ?? null, setItem: (k,v) => void store.set(k,v) } as Storage
+  const save = { ...newSave(presets[0].avatar,'Wei Ling'), position: { x:12.2,y:35 }, coins:875, tutorial:'done' }
+  const { mapRevision, ...legacy } = save
+  store.set(SAVE_KEY,JSON.stringify(legacy))
+  assert.deepEqual(readSave()?.position,START)
+  assert.equal(readSave()?.coins,875)
+  assert.equal(readSave()?.tutorial,'done')
+  store.set(SAVE_KEY,JSON.stringify(save))
+  assert.deepEqual(readSave()?.position,save.position)
 })

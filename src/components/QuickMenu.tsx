@@ -61,6 +61,7 @@ export function QuickMenu({ save, onClose, onOpen, onCheckpoint, onReturn, onRet
           : <Button onClick={() => onOpen('restart')}><RotateCcw size={16} /> Restart tutorial</Button>}
         <Button onClick={onReturn}><DoorOpen size={17} /> Return to title</Button>
       </div>
+      <a href="/map-data/attribution.html" target="_blank" rel="noreferrer">Map credits &amp; licence</a>
       <p className="quick-feedback" role="status">{feedback}</p>
       <Button className="quick-resume" onClick={onClose}><Play size={16} /> Resume game</Button>
     </footer>

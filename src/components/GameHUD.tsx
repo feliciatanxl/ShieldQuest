@@ -16,7 +16,7 @@ import { Button } from './ui'
 import { VirtualJoystick } from './VirtualJoystick'
 
 export type GameTool = 'wardrobe' | 'pack' | 'settings' | 'map'
-export type Panel = GameTool | 'menu'
+export type Panel = GameTool | 'menu' | 'shop'
 
 export function currentObjective(save: Save) {
   const { scene, tutorial, investigation } = save
@@ -54,7 +54,7 @@ export function objectiveDetails(save: Save) {
     case DEFEND_TITLE: return 'Lead the Right Choice — Completed. Build a plan to seek help safely and share what you know.'
     case STORY_TITLE: return 'Defend Your Community — Completed. You can keep exploring Sunshine Estate.'
     case 'Move around': return 'Explore the estate with the joystick, WASD, or the arrow keys.'
-    case 'Enter Sunshine Minimart': return 'Look for the teal storefront beside Kopi Corner. Use the prompt at its door.'
+    case 'Enter Sunshine Minimart': return 'Find the SHIELD entrance at Block 702 in Sunshine Estate. Use the prompt at its door.'
     case 'Explore the minimart': return 'Walk into the shop and look around the aisles.'
     case 'Inspect five clues': return `${save.investigation.clues.length} / ${clueIds.length} clues discovered. Look for gold floor markers near objects.`
     case 'Speak with Jun': return 'Look for Jun in the aisle beside the shelves.'
@@ -143,7 +143,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         </section>
       </div>
       <div className="hud-centre dark-panel">
-        <div className="coin-total" aria-label={save.coins + ' coins'}><Coins size={21} /><strong>{save.coins}</strong></div>
+        <button type="button" className="coin-total" onClick={() => onPanel('shop')} title="Open shop" aria-label={`Open shop, ${save.coins} coins`}><Coins size={21} /><strong>{save.coins}</strong></button>
         <button type="button" onClick={() => onPanel('wardrobe')} title="Wardrobe" aria-label="Wardrobe"><Shirt size={19} /><span>Wardrobe</span></button>
         <button type="button" onClick={() => onPanel('pack')} title={house ? 'House Inventory' : 'Pack'} aria-label={house ? 'House Inventory' : 'Pack'}>
           <Backpack size={19} /><span>{house ? 'Inventory' : 'Pack'}</span>
@@ -157,7 +157,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
         </div>
       </div>
     </div>
-    <div className="world-label dark-panel"><Sparkles size={14} /> {house ? 'THE MYSTERIOUS HOUSE' : save.scene === 'HouseH' ? 'FREEZE FRAME HOUSE' : save.scene === 'HouseI' ? 'WHISPER NETWORK HOUSE' : save.scene === 'FreezeFrame' ? 'FREEZE FRAME · INVESTIGATION' : indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>
+    {save.scene !== 'Neighbourhood' && <div className="world-label dark-panel"><Sparkles size={14} /> {house ? 'THE MYSTERIOUS HOUSE' : save.scene === 'HouseH' ? 'FREEZE FRAME HOUSE' : save.scene === 'HouseI' ? 'WHISPER NETWORK HOUSE' : save.scene === 'FreezeFrame' ? 'FREEZE FRAME · INVESTIGATION' : indoors ? 'SUNSHINE MINIMART' : 'SUNSHINE ESTATE'}</div>}
     <div className="hud-bottom">
       <VirtualJoystick blocked={blocked || transitioning} onMove={onMove} />
       {nearby && <button className="interact dark-panel" type="button" aria-label={nearby.label}

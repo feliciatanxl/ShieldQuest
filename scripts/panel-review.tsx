@@ -1,0 +1,11 @@
+import React, { useState } from 'react'
+import {createRoot} from 'react-dom/client'
+import '@fontsource/outfit/latin-400.css'
+import '@fontsource/outfit/latin-600.css'
+import '@fontsource/press-start-2p/latin-400.css'
+import '../src/styles/tokens.css'
+import '../src/styles/game.css'
+import {GamePanel} from '../src/components/GamePanels'
+import {newSave} from '../src/state/saveGame'
+import {presets} from '../src/state/avatar'
+function Preview(){const [save,setSave]=useState(()=>({...newSave(presets[0].avatar,'Review'),tutorial:'done' as const}));const panel=new URLSearchParams(location.search).get('panel') as 'map'|'settings'|'missions'|'pack';return <GamePanel panel={panel||'settings'} save={save} onClose={()=>document.querySelector('dialog')?.close()} onUpdate={changes=>setSave({...save,...changes})} onRestart={()=>{}} onOpenBoard={()=>{}} onCollectGuardian={()=>{}}/>}createRoot(document.getElementById('root')!).render(<Preview/>);

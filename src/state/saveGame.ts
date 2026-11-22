@@ -1,4 +1,6 @@
+import { readShopInventory, type ShopInventory } from './shop'
 import { normalizeAvatar, type Avatar } from './avatar'
+import district from '../game/maps/amk-config.json'
 import { NEIGHBOURHOOD_SIZE, HOUSE_SIZE, HOUSE_SPAWN, HOUSE_H_SIZE, HOUSE_H_SPAWN, HOUSE_I_SIZE, HOUSE_I_SPAWN, FREEZE_FRAME_SIZE, FREEZE_FRAME_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
 import { houseCollisions } from '../game/houseLayout'
 import { canStand } from '../game/isometric'
@@ -17,6 +19,7 @@ import { readName } from '../multiplayer/protocol'
 export type Point = { x: number; y: number }
 export type Save = {
   version: 3
+  mapRevision?: string
   name: string
   avatar: Avatar
   scene: Location
@@ -27,19 +30,20 @@ export type Save = {
   position: Point
   walked: number
   tutorial: 'active' | 'done' | 'skipped'
+  shop?: ShopInventory
   coins: number
   reducedMotion: boolean
 }
 
 export const SAVE_KEY = 'shieldquest.phase1'
 export const WALK_GOAL = 3
-export const START = { x: 10.6, y: 10.55 }
+export const START = district.start
 /** Shown for saves made before players chose a name. */
 export const DEFAULT_NAME = 'Player'
 
 export function newSave(avatar: Avatar, name: string): Save {
-  return { version: 3, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
-    position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
+  return { version: 3, mapRevision: district.revision, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
+    shop: {}, position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
 }
 
 export function readSave(): Save | null {
@@ -47,7 +51,10 @@ export function readSave(): Save | null {
     const data: (Partial<Omit<Save, 'version'>> & { version?: number }) | null =
       JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null')
     if (!data || (data.version !== 1 && data.version !== 2 && data.version !== 3) || !data.avatar || !data.position) return null
-    const { position, walked, coins, tutorial, reducedMotion } = data
+    const { walked, coins, tutorial, reducedMotion } = data
+    const position = data.scene === 'Neighbourhood' || data.version === 1
+      ? data.mapRevision === district.revision ? data.position : START
+      : data.position
     const avatar = normalizeAvatar(data.avatar)
     if (!avatar) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
@@ -81,8 +88,8 @@ export function readSave(): Save | null {
     const housePosition = scene === 'House' ? position : data.escapeRoom?.position
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
-    return { version: 3, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
-      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion }
+    return { version: 3, mapRevision: district.revision, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
+      position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion, shop: readShopInventory(data.shop) }
   } catch {
     return null
   }
@@ -90,7 +97,7 @@ export function readSave(): Save | null {
 
 export function writeSave(save: Save): boolean {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(save))
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, mapRevision: district.revision }))
     return true
   } catch {
     return false
