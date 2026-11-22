@@ -24,6 +24,9 @@ export type Launch = {
 type KeyName = 'W' | 'A' | 'S' | 'D' | 'UP' | 'LEFT' | 'DOWN' | 'RIGHT' | 'SHIFT'
 const WALK_SPEED = 3.05
 const RUN_SPEED = 5.25
+// Menu backdrop framings: the estate overview behind the title card, an HDB void deck behind the wardrobe.
+const PREVIEW_SPOTS = { menu: { x: 35, y: 295, zoom: 1.12 }, customise: { x: -230, y: 225, zoom: 1.4 } }
+export type PreviewSpot = keyof typeof PREVIEW_SPOTS
 
 export abstract class ExplorationScene extends Phaser.Scene {
   private world!: WorldLayout
@@ -38,6 +41,9 @@ export abstract class ExplorationScene extends Phaser.Scene {
   private releaseScene?: () => void
   private cameraFocus?: Phaser.GameObjects.Zone
   private walkers: Walker[] = []
+  private previewSpot: PreviewSpot = 'menu'
+  /** Tiles the camera centre keeps inside the map edge, so the view never runs past the scenery border. */
+  protected cameraInset = 0
 
   constructor(protected launch: Launch, private location: Location, private fallback: Point) {
     super(location)
@@ -126,6 +132,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
         if (!this.launch.reducedMotion) this.cameras.main.fadeIn(240, 25, 20, 31)
       }
     }
+    if (preview) cleanups.push(bridge.on('preview', spot => {
+      this.previewSpot = spot
+      this.previewCamera(true)
+    }))
     this.layout()
     const scale = this.scale
     const events = this.events
@@ -150,19 +160,27 @@ export abstract class ExplorationScene extends Phaser.Scene {
 
   private moveCamera() {
     if (!this.player || !this.cameraFocus) return
-    const point = project(this.player.position.x, this.player.position.y)
+    const { size } = this.world, inset = this.cameraInset
+    const point = project(Phaser.Math.Clamp(this.player.position.x, inset, size.x - inset), Phaser.Math.Clamp(this.player.position.y, inset, size.y - inset))
     this.cameraFocus.setPosition(point.x, point.y - 38)
   }
 
   protected layout() {
     const { width, height } = this.scale.gameSize
     const camera = this.cameras.main
-    if (this.launch.preview) {
-      const zoom = Math.max(width / 1180, height / 730) * 1.12
-      camera.setZoom(zoom).centerOn(35, 295)
-    } else if (this.cameraFocus) {
+    if (this.launch.preview) this.previewCamera()
+    else if (this.cameraFocus) {
       this.focusCamera(Phaser.Math.Clamp(Math.min(width / 920, height / 600), .87, 1.52))
     }
+  }
+
+  private previewCamera(animate = false) {
+    const { width, height } = this.scale.gameSize
+    const spot = PREVIEW_SPOTS[this.previewSpot], camera = this.cameras.main
+    const zoom = Math.max(width / 1180, height / 730) * spot.zoom
+    if (!animate || this.launch.reducedMotion) return camera.setZoom(zoom).centerOn(spot.x, spot.y)
+    camera.pan(spot.x, spot.y, 900, 'Sine.easeInOut', true)
+    camera.zoomTo(zoom, 900, 'Sine.easeInOut', true)
   }
 
   protected focusCamera(zoom: number) {
@@ -171,8 +189,9 @@ export abstract class ExplorationScene extends Phaser.Scene {
     this.follow()
   }
 
-  update(_time: number, delta: number) {
+  update(time: number, delta: number) {
     for (const walker of this.walkers) walker.update(delta, this.player?.position)
+    this.world.tick?.(time, delta, this.player?.position, this.launch.reducedMotion)
     const { player, keys } = this
     if (!player) return
     if (this.locked || this.transitioning) {
@@ -212,6 +231,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
   /** Clear of scenery, residents walking by, and spots where a building would hide the player. */
   private free(point: Point) {
     return canStand(point, this.world.size, this.world.collisions) && hiddenByBuilding(this, point) !== 'near'
+      && !this.world.blocks?.(point, this.player?.position)
       // Residents block the way, but never trap a player who is already next to one.
       && !this.walkers.some(({ position }) => {
         const gap = Math.hypot(position.x - point.x, position.y - point.y)

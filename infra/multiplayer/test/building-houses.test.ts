@@ -18,7 +18,7 @@ test('Sunshine Estate map expansion dimensions and landmarks', () => {
   const mapPath = path.resolve(dir, '../../../src/game/maps/neighbourhood.tmj')
   const tmj = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
 
-  // Sinar Town: 60x54, matching the size saves are validated against
+  // Sunshine Estate: 60x54, matching the size saves are validated against
   assert.equal(tmj.width, NEIGHBOURHOOD_SIZE.x)
   assert.equal(tmj.height, NEIGHBOURHOOD_SIZE.y)
   assert.ok(tmj.width * tmj.height >= 25 * 23 * 1.5, 'World map is at least 1.5x larger')

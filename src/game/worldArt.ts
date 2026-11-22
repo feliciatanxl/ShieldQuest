@@ -53,6 +53,21 @@ export function letterSign(g: Graphics, text: string, x: number, y: number, z: n
   })
 }
 
+/** Road lettering for a lane running along x, upright for its drivers (keep left: +1 drives east in the north lane,
+ *  -1 west in the south lane). (x, y) is the centre; unit is one glyph pixel in tiles. */
+export function groundLetters(g: Graphics, text: string, x: number, y: number, unit: number, color: string, heading: 1 | -1) {
+  const across = (text.length * 4 - 1) * unit
+  Array.from(text).forEach((letter, index) => {
+    Array.from(glyphs[letter] ?? '').forEach((bit, cell) => {
+      if (bit !== '1') return
+      const c = (index * 4 + cell % 3) * unit, r = Math.floor(cell / 3) * unit
+      // Letter tops point the way the traffic goes; reading runs from the driver's left to right.
+      const gx = x + heading * (2.5 * unit - r) - unit / 2, gy = y + heading * (c - across / 2) - (heading < 0 ? unit : 0)
+      floor(g, gx, gy, unit, unit, color)
+    })
+  })
+}
+
 export function prop(scene: Phaser.Scene, rect: Footprint, render: (g: Graphics) => void, offset = 0) {
   const g = scene.add.graphics().setDepth(depthAt(rect.x + rect.w, rect.y + rect.d) + offset)
   render(g)

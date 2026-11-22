@@ -29,7 +29,7 @@ namespace ShieldQuest
             ["house-i-entrance"] = ("Enter Whisper Network House", new Vector2(14.5f, 26.5f), .95f),
         };
         static readonly Dictionary<string, string> Residents = new() { ["may"] = "Talk to Auntie May", ["amir"] = "Talk to Amir" };
-        static readonly HashSet<string> NonSolid = new() { "shelter", "bus", "linkway", "sign", "bougainvillea" };
+        static readonly HashSet<string> NonSolid = new() { "shelter", "bus", "linkway", "sign", "bougainvillea", "road", "crossing", "detail", "walker", "busroute" };
 
         void Awake() => Build();
 
@@ -56,7 +56,10 @@ namespace ShieldQuest
                     Collisions.Add(new Footprint(p.X - .13f, p.Y - .13f, .26f, .26f, "npc", p.Kind));
                     Renderer(p.Name, Sprite("objects/npc-" + p.Kind), Iso.ToWorld(p.X, p.Y), 1, Iso.Sorting(p.X, p.Y));
                 }
-                if (p.W > 0 && p.D > 0 && !NonSolid.Contains(p.Kind)) Collisions.Add(new Footprint(p.X, p.Y, p.W, p.D, p.Kind, p.Name));
+                // A block with a void deck is walkable underneath: only its pillars, lift core and walls are solid.
+                var deck = VoidDeckOf(p);
+                if (deck != null) Collisions.AddRange(deck.Solids);
+                else if (p.W > 0 && p.D > 0 && !NonSolid.Contains(p.Kind)) Collisions.Add(new Footprint(p.X, p.Y, p.W, p.D, p.Kind, p.Name));
                 if (p.Kind is "shelter" or "bus")
                     foreach (var x in new[] { p.X, p.X + p.W - .13f })
                         foreach (var y in new[] { p.Y, p.Y + p.D - .13f }) Collisions.Add(new Footprint(x, y, .13f, .13f, p.Kind, p.Name));
@@ -74,8 +77,18 @@ namespace ShieldQuest
             for (var y = -Margin; y < height + Margin; y++)
                 for (var x = -Margin; x < width + Margin; x++)
                 {
+                    // Past the edge a road keeps going with a pavement kerb either side; everything else is verge
+                    // (mirrors groundTiles in src/game/pixellabArt.ts).
                     var inside = x >= 0 && y >= 0 && x < width && y < height;
-                    var tile = inside ? tiles[y * width + x] : 1 + ((x * 7 + y * 13) & 3);
+                    int Kind(int ex, int ey) { var t = tiles[Mathf.Clamp(ey, 0, height - 1) * width + Mathf.Clamp(ex, 0, width - 1)]; return t == 0 ? -1 : (t - 1) >> 2; }
+                    var tile = inside ? tiles[y * width + x] : 0;
+                    if (!inside)
+                    {
+                        var sideways = x < 0 || x >= width;
+                        var kerb = sideways ? Kind(x, y - 1) == 2 || Kind(x, y + 1) == 2 : Kind(x - 1, y) == 2 || Kind(x + 1, y) == 2;
+                        var kind = Kind(x, y) == 2 ? 2 : kerb ? 1 : 0;
+                        tile = 1 + kind * 4 + ((x * 7 + y * 13) & 3);
+                    }
                     if (tile == 0) continue;
                     var r = new GameObject().AddComponent<SpriteRenderer>();
                     r.transform.SetParent(root);
@@ -85,6 +98,11 @@ namespace ShieldQuest
                     if (inside) GroundTiles++;
                 }
         }
+
+        static VoidDeck.Layout VoidDeckOf(Prop p) =>
+            p.Kind == "block" && p.Properties.TryGetValue("voidDeck", out var on) && on.Type == JTokenType.Boolean && (bool)on
+                ? VoidDeck.Build(p.X, p.Y, p.W, p.D, key => p.Properties.TryGetValue(key, out var v) ? v.ToString() : null, p.Name)
+                : null;
 
         sealed class Prop
         {
@@ -97,9 +115,11 @@ namespace ShieldQuest
 
         static string FittedSprite(Prop p) => p.Kind switch
         {
-            "block" => new[] { "hdb-teal", "hdb-mondrian", "hdb-yellow" }[(int)char.GetNumericValue(((string)p.Properties.GetValueOrDefault("number") ?? "0").Last()) % 3],
-            "shop" => "minimart", "kopi" => "kopi", "play" => "playground", "garden" => "garden", "bikes" => "bikes", "planter" => "planter",
+            "block" => (string)p.Properties.GetValueOrDefault("sprite") ?? new[] { "hdb-teal", "hdb-mondrian", "hdb-yellow" }[(int)char.GetNumericValue(((string)p.Properties.GetValueOrDefault("number") ?? "0").Last()) % 3],
+            "shop" => "minimart", "kopi" => "kopi", "play" => "playground", "garden" => "garden", "planter" => "planter",
             "shelter" or "linkway" => "linkway", "bus" => "bus-shelter",
+            "hawker" => "hawker-centre", "fitness" => "fitness-corner", "pavilion" => "pavilion", "pond" => "pond",
+            "building" => (string)p.Properties.GetValueOrDefault("sprite"),
             "house" => p.Name.Contains("Freeze Frame") || p.Name.Contains("House H") ? "house-h"
                 : p.Name.Contains("Whisper Network") || p.Name.Contains("House I") ? "house-i" : "house-mysterious",
             _ => null,
@@ -107,10 +127,11 @@ namespace ShieldQuest
 
         static (string sprite, float scale)? FixedSprite(Prop p) => p.Kind switch
         {
-            "tree" => (Mathf.RoundToInt(p.X * 7 + p.Y * 3) % 4 == 0 ? "frangipani" : "rain-tree", .95f),
+            "tree" => (p.Properties.ContainsKey("palm") ? "rain-tree" : Mathf.RoundToInt(p.X * 7 + p.Y * 3) % 5 == 0 ? "frangipani" : "angsana", .9f),
             "npc" => ((string)p.Properties.GetValueOrDefault("sprite"), 1f),
             "lamp" => ("lamp", 1.05f), "trafficLight" => ("traffic-light", .95f), "sign" => ("street-sign", 1.05f),
             "bench" => ("bench", 1.25f), "bin" => ("bin", 1.1f), "kopitiam" => ("kopitiam-table", 1.15f), "bougainvillea" => ("planter", 1.2f),
+            "chess" => ("chess-table", 1f), "recycle" => ("recycling-bins", 1f), "bikes" => ("bikes", 1.1f),
             _ => null,
         };
 
@@ -119,6 +140,7 @@ namespace ShieldQuest
             "block" => ($"BLK {p.Properties.GetValueOrDefault("number")}", .16f, new Color32(0x1f, 0x3b, 0x4d, 255)),
             "shop" => ("SUNSHINE MINIMART", .3f, new Color32(0x1d, 0x6b, 0x45, 255)),
             "kopi" => ("KOPI CORNER", .38f, new Color32(0x7c, 0x2a, 0x22, 255)),
+            "building" => (((string)p.Properties.GetValueOrDefault("sign") ?? p.Name).Replace("|", " ").ToUpperInvariant(), .2f, new Color32(0x26, 0x36, 0x4b, 255)),
             "house" => (p.Name.Contains("Freeze") ? "FREEZE FRAME" : p.Name.Contains("Whisper") ? "WHISPER NETWORK" : "MYSTERY HOUSE", .12f, new Color32(0x2b, 0x22, 0x38, 255)),
             _ => null,
         };
@@ -135,7 +157,10 @@ namespace ShieldQuest
                 var bottom = Iso.ProjectPx(p.X + p.W, p.Y + p.D).y + 2;
                 var centre = Iso.ProjectPx(p.X + p.W / 2, p.Y + p.D / 2).x;
                 var r = Renderer(p.Name, sprite, new Vector3(centre / Iso.PixelsPerUnit, -bottom / Iso.PixelsPerUnit), scale, order);
-                r.flipX = p.Kind is "shelter" or "linkway" or "bus" && p.W > p.D;
+                // The facade stands on its void deck. Pillars, lift core and see-through window are Phaser-only for now.
+                if (VoidDeckOf(p) is { } deck) r.transform.position += Vector3.up * (deck.Height / Iso.PixelsPerUnit);
+                // Walkways and slab blocks are drawn running along y, so they mirror when laid along x (as in pixellabArt.ts).
+                r.flipX = (p.Kind is "shelter" or "linkway" or "bus" || fitted is "hdb-teal" or "hdb-mondrian") && p.W > p.D;
                 if (Sign(p) is { } s) Label(s.text, s.plate, r.transform.position + Vector3.up * (sprite.rect.height * scale / Iso.PixelsPerUnit * (1 - s.at)), order + 1);
                 return;
             }

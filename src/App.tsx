@@ -47,6 +47,7 @@ type Overlay =
   | { type: 'dialogue'; id: ResidentId }
   | { type: 'clue'; id: ClueId }
   | { type: 'house-entry' }
+  | { type: 'notice' }
   | { type: 'house-lobby'; mode: 'create' | 'join' }
   | { type: 'house-inspect'; object: HouseObject }
   | { type: 'house-inventory'; fromMenu?: boolean; fromCompletion?: boolean }
@@ -70,6 +71,7 @@ export default function App() {
   const current = useRef(save)
   const [storageAvailable, setStorageAvailable] = useState(true)
   const [confirm, setConfirm] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const [overlay, setOverlay] = useState<Overlay | null>(null)
   const [ffFacts, setFfFacts] = useState<FreezeHotspotId[]>([])
   const [ffQuestions, setFfQuestions] = useState<string[]>([])
@@ -162,7 +164,10 @@ export default function App() {
         const previous = current.current
         if (locked.current || !previous) return
         const investigation = previous.investigation
-        if (id === 'house-entrance' && previous.scene === 'Neighbourhood') {
+        if (id === 'notice') {
+          locked.current = true
+          setOverlay({ type: 'notice' })
+        } else if (id === 'house-entrance' && previous.scene === 'Neighbourhood') {
           locked.current = true
           setOverlay({ type: 'house-entry' })
         } else if (id === 'freeze-station') {
@@ -235,11 +240,24 @@ export default function App() {
     return () => cleanup.forEach(remove => remove())
   }, [bridge])
 
+  // The menu backdrop frames the estate behind the title card and a void deck behind the wardrobe.
+  useEffect(() => { if (screen !== 'play') bridge.emit('preview', screen === 'customise' ? 'customise' : 'menu') }, [screen, bridge])
+
+  /** Zooms into the estate and fades to the colour the neighbourhood fades in from, then starts playing. */
+  function enterEstate(go: () => void) {
+    if (leaving) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return go()
+    setLeaving(true)
+    window.setTimeout(() => { setLeaving(false); go() }, 420)
+  }
+
   function start(avatar: Avatar, name: string) {
-    const fresh = newSave(avatar, name)
-    fresh.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    persist(fresh)
-    setScreen('play')
+    enterEstate(() => {
+      const fresh = newSave(avatar, name)
+      fresh.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      persist(fresh)
+      setScreen('play')
+    })
   }
 
   function update(changes: Partial<Save>) {
@@ -407,6 +425,7 @@ export default function App() {
 
   if (screen === 'play' && save) return <main className={`game-shell ${save.reducedMotion ? 'reduce-motion' : ''} ${save.scene === 'Minimart' ? 'minimart-shell' : ''}`}>
     <GameCanvas launch={{ bridge, avatar: save.avatar, name: save.name, scene: save.scene, position: save.position, reducedMotion: save.reducedMotion }} />
+    <div className="tilt-shift" aria-hidden="true" />
     <GameHUD save={save} nearby={nearby} transitioning={transitioning} blocked={!!overlay}
       onAction={() => { if (!locked.current && !transitioning) bridge.emit('action', undefined) }}
       onMove={move} onPanel={openPanel}
@@ -428,6 +447,14 @@ export default function App() {
       onChoice={chooseResponse} onClose={() => setOverlay(null)}
       onOpenFreezeFrame={() => setOverlay({ type: 'freeze-frame', parent: overlay })}
       onOpenWhisperNetwork={() => setOverlay({ type: 'whisper-network', parent: overlay })} />}
+    {overlay?.type === 'notice' && <Modal title="Void deck noticeboard" eyebrow="RESIDENTS' NOTICES" onClose={() => { locked.current = false; setOverlay(null) }}>
+      <ul className="notice-list">
+        <li><strong>Scam alert</strong> No bank, agency or delivery company will ask for your OTP or password. Hang up, then call the number on their official website.</li>
+        <li><strong>Lift maintenance</strong> The left lift will be serviced on Tuesday morning. Please use the right lift.</li>
+        <li><strong>Residents' Committee</strong> Kopi and chat at the void deck, Saturday 9 am. All neighbours welcome.</li>
+        <li><strong>Lost cat</strong> Ginger, answers to Mochi. Last seen near the playground. Call the number on the poster.</li>
+      </ul>
+    </Modal>}
     {overlay?.type === 'clue' && <CluePanel id={overlay.id} onClose={() => setOverlay(null)} onOpenBoard={() => setOverlay({ type: 'evidence' })} />}
     {overlay?.type === 'evidence' && <EvidenceBoard discovered={save.investigation.clues} spotComplete={!!save.shield.S}
       onOpenSpot={() => openAssessment('S', overlay)} onClose={() => setOverlay(overlay.parent ?? null)} />}
@@ -546,11 +573,12 @@ export default function App() {
     {!storageAvailable && <p className="storage-warning" role="status">Browser storage is unavailable. Progress will last for this session.</p>}
   </main>
 
-  return <div className={'game-shell menu-shell ' + (screen === 'customise' ? 'character-shell' : '')}>
-    <GameCanvas launch={{ bridge, avatar: presets[0].avatar, position: START, preview: true, reducedMotion: true }} />
+  return <div className={'game-shell menu-shell ' + (screen === 'customise' ? 'character-shell ' : '') + (leaving ? 'leaving' : '')}>
+    <GameCanvas launch={{ bridge, avatar: presets[0].avatar, position: START, preview: true,
+      reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches }} />
     <div className="menu-veil" aria-hidden="true" />
     {screen === 'menu' ? <MainMenu canContinue={!!save} storageAvailable={storageAvailable}
-      onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && setScreen('play')} />
+      onStart={() => save ? setConfirm(true) : setScreen('customise')} onContinue={() => save && enterEstate(() => setScreen('play'))} />
       : <main className="custom-main"><CharacterCustomizer initial={baseAvatar} onBack={() => setScreen('menu')} onConfirm={start} /></main>}
     {confirm && save && <Modal title="Start a new game?" onClose={() => setConfirm(false)}>
       <p>Starting a new game may overwrite your current progress{save.name !== DEFAULT_NAME ? ` as ${save.name}` : ''}. Do you want to continue?</p>

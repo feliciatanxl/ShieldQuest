@@ -6,7 +6,8 @@ import type { ResidentId } from '../game/events'
 // The figure's box within the 80×80 cell, kept at the 4:5 shape the avatar CSS sizes expect.
 const CROP = { x: 14, y: 8, w: 52, h: 65 }
 
-export function AvatarSprite({ avatar, facing = 'front', className = '' }: { avatar: Avatar; facing?: Facing; className?: string }) {
+/** frame: 0 standing, 1..WALK_FRAMES the walk cycle, exactly as the gameplay sprite draws it. */
+export function AvatarSprite({ avatar, facing = 'front', frame = 0, className = '' }: { avatar: Avatar; facing?: Facing; frame?: number; className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const [ready, setReady] = useState(playerArtReady)
   useLayoutEffect(() => {
@@ -16,8 +17,8 @@ export function AvatarSprite({ avatar, facing = 'front', className = '' }: { ava
     const context = ref.current?.getContext('2d')
     if (!context || !ready) return
     context.clearRect(0, 0, CROP.w, CROP.h)
-    drawPlayer(context, avatar, facing, 0, -CROP.x, -CROP.y)
-  }, [avatar, facing, ready])
+    drawPlayer(context, avatar, facing, frame, -CROP.x, -CROP.y)
+  }, [avatar, facing, frame, ready])
 
   return <canvas ref={ref} width={CROP.w} height={CROP.h} className={'avatar-sprite ' + className} aria-hidden="true" />
 }

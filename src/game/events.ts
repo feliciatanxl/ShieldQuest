@@ -3,6 +3,7 @@ import type { Point } from '../state/saveGame'
 import type { ClueId } from '../state/investigation'
 import type { Location } from './locations'
 import type { HouseObjectId } from './houseLayout'
+import type { PreviewSpot } from './scenes/ExplorationScene'
 
 export type ResidentId = 'may' | 'amir' | 'jun' | 'cashier'
 export type HotspotId =
@@ -32,6 +33,7 @@ export type HotspotId =
   | 'whisper-jun'
   | 'whisper-terminal'
   | 'whisper-board'
+  | 'notice'
 export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number }
 
 type GameEvents = {
@@ -50,6 +52,7 @@ type GameEvents = {
   freezeToggle: boolean
   scenarioBranch: 'calm-refusal' | 'comply-lookout' | 'public-accusation' | 'staff-inquiry'
   stageChanged: number
+  preview: PreviewSpot
 }
 
 export class GameBridge {

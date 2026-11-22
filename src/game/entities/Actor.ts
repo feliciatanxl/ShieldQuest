@@ -2,7 +2,8 @@ import Phaser from 'phaser'
 import type { Avatar, Facing } from '../../state/avatar'
 import type { Point } from '../../state/saveGame'
 import { CELL, FEET_Y, RUN_START, WALK_FRAMES, drawPlayer, rows } from '../playerArt'
-import { depthAt, project } from '../isometric'
+import { project } from '../isometric'
+import { coverFor } from '../hdbBlock'
 
 // Eight 45° sectors of on-screen movement, clockwise from right (screen y points down, towards the viewer).
 const sectors: Facing[] = ['right', 'front-right', 'front', 'front-left', 'left', 'back-left', 'back', 'back-right']
@@ -17,6 +18,8 @@ export class Actor {
   private texture?: Phaser.Textures.CanvasTexture
   private sheet = false
   private ghost?: Phaser.GameObjects.Image
+  /** Navy copy masked by a block's upper floors: shows only the parts of the actor that building covers. */
+  private silhouette?: Phaser.GameObjects.Image
   private facing: Facing = 'front'
   private frame = 0
   private walked = 0
@@ -63,6 +66,16 @@ export class Actor {
     this.ghost?.setVisible(on)
   }
 
+  private cover(silhouette?: { mask: Phaser.Display.Masks.BitmapMask; depth: number }) {
+    if (!silhouette) { this.silhouette?.setVisible(false); return }
+    if (!this.silhouette) {
+      this.silhouette = this.sprite.scene.add.image(0, 0, this.sprite.texture.key, this.sprite.frame.name)
+        .setOrigin(this.sprite.originX, this.sprite.originY).setTintFill(0x22344a).setAlpha(.62)
+    }
+    if (this.silhouette.mask !== silhouette.mask) this.silhouette.setMask(silhouette.mask)
+    this.silhouette.setDepth(silhouette.depth).setVisible(true)
+  }
+
   setLabel(text: string) {
     this.marker?.setText(text)
   }
@@ -105,10 +118,12 @@ export class Actor {
 
   private place() {
     const { x, y } = project(this.position.x, this.position.y)
-    const depth = depthAt(this.position.x, this.position.y)
+    const cover = coverFor(this.sprite.scene, this.position), depth = cover.depth
+    this.cover(cover.silhouette)
     this.shadow.setPosition(x, y - 1).setDepth(depth - .01)
     this.sprite.setPosition(Math.round(x), Math.round(y)).setDepth(depth)
     this.ghost?.setPosition(this.sprite.x, this.sprite.y)
+    this.silhouette?.setPosition(this.sprite.x, this.sprite.y)
     // The name tag stays readable above roofs and trees in front of the player.
     this.marker?.setPosition(Math.round(x), Math.round(y + 4)).setDepth(1e6)
   }
@@ -116,6 +131,7 @@ export class Actor {
   private repaint() {
     if (this.sheet) this.sprite.setFrame(rows[this.facing] * (RUN_START + WALK_FRAMES) + this.frame)
     if (this.sheet) this.ghost?.setFrame(this.sprite.frame.name)
+    if (this.sheet) this.silhouette?.setFrame(this.sprite.frame.name)
     if (!this.texture) return
     this.texture.context.clearRect(0, 0, CELL, CELL)
     drawPlayer(this.texture.context, this.avatar, this.facing, this.frame)

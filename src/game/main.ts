@@ -20,7 +20,7 @@ export function mountGame(parent: HTMLElement, launch: Launch) {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent,
-    backgroundColor: '#9caf7c',
+    backgroundColor: '#263b48',
     pixelArt: true,
     antialias: false,
     roundPixels: true,
@@ -42,6 +42,8 @@ export function mountGame(parent: HTMLElement, launch: Launch) {
       },
     },
   })
+  // Dev-only handle for visual checks (scripts drive the camera through it); stripped from production builds.
+  if (import.meta.env.DEV) Object.assign(window, { __shieldGame: game })
   return () => {
     viewportObserver?.disconnect()
     neighbourhood.detach()

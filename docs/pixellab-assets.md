@@ -6,7 +6,7 @@ One generated asset set, drawn by both engines.
 |---|---|
 | `src/game/assets/pixellab/ground/tile_0..15.png` | 64×32 isometric floor tiles (in 64×64 canvases). Tiled gid *n* → `tile_{n-1}`: 1–4 grass, 5–8 pavement, 9–12 asphalt, 13–16 brick plaza. |
 | `src/game/assets/pixellab/objects/*.png` | Building and prop sprites, transparent edges trimmed, drawn bottom-centre-anchored. |
-| `src/game/maps/neighbourhood.tmj` | Gameplay source of truth: ground, roads, object footprints (= collisions), walking residents. See **Sinar Town map** below. |
+| `src/game/maps/neighbourhood.tmj` | Gameplay source of truth: ground, roads, object footprints (= collisions), walking residents. See **Sunshine Estate map** below. |
 
 ## Engines
 
@@ -71,15 +71,86 @@ Ground tile group: `641697e0-2993-4a06-a489-d64fe86e3b57` (10 generations).
 | npc-elderly | c5cbcf7d-e173-43c1-8d83-5f0e219cbb2a |
 | npc-office | 95900e8f-27ef-4e54-b7a6-aae80836550b |
 
-## Sinar Town map
+## Sunshine Estate map
 
-`neighbourhood.tmj` is a 60×54 HDB town laid out like a mature Singapore estate. All names are invented. It has a town centre (MRT, bus interchange, mall, community club, library), neighbourhood centres, slab and point blocks with void decks, a shophouse row, a hawker centre and market, a town garden and covered linkways. The original estate keeps its coordinates in the north-west, so door positions and saves still match.
+`neighbourhood.tmj` is Sunshine Estate, a fictional 60×54 HDB town inspired by Ang Mo Kio. All names are invented, and every sign, street and landmark uses the Sunshine name. It has a town centre (Sunshine MRT, bus interchange, Sunshine Point mall, CC, library), HDB precincts where slab and point blocks share a court with a playground, fitness corner or kopitiam, a hawker centre and market, a town garden, a park connector and a covered promenade. Covered linkways run from void decks to the bus stops. The original estate keeps its coordinates in the north-west, so door positions and saves still match. A saved position that now falls inside scenery respawns at the start (`ExplorationScene` checks every spawn).
+
+- Tall blocks hide what stands behind them, so precinct blocks sit on the north or west side of their court, at least 3 tiles clear of a walkway behind them. Low things (playgrounds, kopitiams, pavilions) go in front.
+- Each `bus` stop that faces a road gets a painted bus bay and an SBS-style route pole on the kerb (`world.ts`). The pole is solid.
+- Past the map edge, roads carry on with a pavement kerb either side, and everything else is verge (`groundTiles`). The road rectangles extend 14 tiles past the edge so their markings continue too. The camera centre stays 5 tiles inside the edge (`cameraInset`), so the view never reaches the end of that border.
 
 - `road` and `crossing` rectangles drive the road markings in `world.ts`: kerbs, double yellow lines and lane dashes, broken at junctions, plus zebra crossings.
 - `building` objects name their sprite and optional sign text, with lines split by `|`. `block` objects may override the sprite chosen from their number.
 - Footprints follow each sprite's base proportions. A building's depth is taken from its nearest front wall, so anyone along either front wall draws in front of it.
 - The **Beyond the edge** layer is scenery past the playable edge: blocks behind the north and west edges, trees in front.
 - Characters can't stand right behind a building (within 2.5 tiles), so nobody walks under one. Further behind a tall building the player can walk and shows as a see-through ghost (`hiddenByBuilding` in `pixellabArt.ts`).
+
+## Detail areas and neighbourhood life
+
+A `detail` rectangle in the map (the first is **Block 110 precinct**) gets ground detail the shared tiles can't carry: worn asphalt with tyre tracks and patch repairs, raised kerbs, covered drains, jointed paving, grass variation, tactile strips at crossings, paved aprons round HDB blocks and contact shadows (`detail.ts`). Each area is baked once into a single render texture. Trees inside an area have their crowns split off so they shift a pixel or two in the breeze, eight times a second (`ambient.ts`).
+
+- `voidDeck: true` on a `block` makes it walkable underneath (`hdbLayout.ts` for the layout, `hdbBlock.ts` for drawing). The facade art is raised onto a void deck built in code at character scale: tiled floor, solid pillars and a lift-lobby core with lift doors and letterboxes. Only those parts collide (`collisions.ts`, mirrored in Unity's `VoidDeck.cs`). Optional properties: `pillarSpacing` (tiles, default 2.5), `lobbyAt` (0–1 along the block, default 0.5), `closedSides` (any of start, end, back, front) and `deckHeight` (px of headroom, default 96).
+- Anything under or behind a void-deck block is drawn in a narrow depth band just beneath its upper floors, in normal isometric order, so pillars pass in front of and behind people correctly. The upper floors stay opaque, and only a shaded oval window opens around the player while the block would hide them. A void-deck block has no "can't stand right behind it" zone; the window replaces it.
+- `notice` objects draw a noticeboard that players can read (hotspot `notice`).
+- `busroute` polylines in the **Traffic** layer carry box-built buses that keep left, stop at any `bus` shelter on their side of the road and wait for a player in the lane. Draw each lane 0.75 tiles in from its kerb, on the driver's left.
+- Buses, the breeze and the tilt-shift blur (desktop only) all switch off with reduced motion.
+
+To extend the style, add `detail` rectangles (or one covering the map) and `voidDeck` to more blocks. Unity ignores all of this except collisions, so Unity's estate stays plainer.
+
+## Modular HDB blocks
+
+A `block` with `voidDeck: true` is built from modules instead of one sprite (`hdbModules.ts` plans it, `hdbBlock.ts` draws it, `hdbLayout.ts` lays out its void deck). Footprints are whole bays: `bay: 2`, and a depth of 2 tiles. Properties: `floors`, `accent` (panel colour), `number`, and the void-deck options above. Block 110 (4 storeys, precinct) and Block 102 (12 storeys, north edge) are the two demonstrations. Both use the same modules.
+
+### Proportions (tested against the 62 px player)
+Storey heights of 40, 48 and 64 px were each shown at 4, 8 and 12 floors, with the player in front, inside and behind the block at the default zoom. Height above ground, with a 104 px void deck and 14 px roof:
+
+| Storey | 4 floors | 8 floors | 12 floors |
+|---|---|---|---|
+| 40 px | 278 px, hides 9 tiles | 438 px, 14 tiles | 598 px, 19 tiles |
+| 48 px | 310 px, 10 tiles | 502 px, 16 tiles | 694 px, 22 tiles |
+| 64 px | 374 px, 12 tiles | 630 px, 20 tiles | 886 px, 28 tiles |
+
+"Hides" is how many tiles of ground behind the block its full height can cover (each tile further back rises 32 px on screen). The map is 54 tiles deep.
+
+**Chosen: 64 px storeys and a 104 px void deck.** A storey is about one character tall. The deck is about 1.7 characters of headroom and 1.6 storeys, the closest of the options to a real void deck. At 48 or 40 px the deck reads as stilts and the windows as toys. Height is managed by placement instead:
+- Precinct blocks have about 4 storeys and hide about 12 tiles.
+- Blocks of 8 to 12 storeys stand only on the north and west map edges, where what they hide is off the map.
+
+### Occlusion
+Characters under or behind a modular block draw in a narrow depth band just beneath its upper floors, so pillars overlap them naturally. The upper floors are one container drawn as an opaque mass. Where they cover part of a character, a navy silhouette of just that part is drawn over the building, using a mask made from the building itself. A character at the open front of the void deck is fully visible. At the back, only the head behind the slab becomes silhouette, and behind the block the whole figure does. One mask per block is shared by every character it hides.
+
+### PixelLab production manifest: first batch
+Templates at the exact canvas sizes, exported from the game's temporary modules, are in `docs/hdb-templates/`. Use them as the base or reference image so geometry and anchors are locked.
+
+Every module must follow these rules:
+- **Projection:** the 64×32 grid. One tile along x is (+32, +16) px on screen, along y is (−32, +16).
+- **Lighting:** sun from the screen left. Draw every face lit, as a face turned towards the lower left. The code mirrors a module and darkens it to 82% for faces turned to the lower right, so blocks in either orientation use the same image.
+- **Transparency:** fully transparent outside the face outline, with hard 1-pixel edges (alpha 0 or 255 only).
+- **Recolourable panels:** none in the base layer. A second layer of the same canvas holds the panel shapes in pure white (`*-panel.png`), and the code tints it per block.
+
+| Module | Canvas | Face outline (pixel corners) | Anchor → grid point | Repeat requirements |
+|---|---|---|---|---|
+| Typical-floor bay (`bay`, `bay-panel`) | 64 × 96 | (0,0) (64,32) (64,96) (0,64) | (0,64): start of the bay at slab level | Next bay at +64,+32 and the storey above at −64. Left 4-px column is the pilaster (panel layer), so seams fall on it. Bottom 2 px is the slab line, continuous across bays. Windows at least 4 px from every edge. |
+| End wall (`end`, `end-panel`) | 64 × 96 | (0,0) (64,32) (64,96) (0,64) | (0,64): far end of the block at slab level | Stacks at −64 per storey. Its left edge meets the last bay's right edge at the corner, so the wall tones must match. Keep the upper middle plain: the block number is painted there in code. |
+| Void-deck pillar (`pillar`) | 24 × 112 | Footprint (0,105) (12,99) (24,105) (12,111); column top at y = 2 | (12,99): back corner of the footprint | Not mirrored. Draw the front face lit and the right face in shade. Keep the glazed tile band in the lower 26 px. |
+| Roof bay (`roof`, `roof-tank`) | 128 × 90 | Roof (64,26) (128,58) (64,90) (0,58), parapet 10 px plus 2 px coping on the lower-left edge | (64,26): back corner of the bay at roof level | Neighbouring roof bays meet at the left and right corners with a continuous parapet. The tank variant uses the 26 px headroom. |
+
+**Workflow (no credits spent yet; confirm tool options with PixelLab's free `search_help` before generating):**
+1. Generate the bay base layer at its exact canvas, with the template as the base image, so the face outline stays fixed. Use edit or inpaint within the face, or generate an object at 64×96 and reference the template.
+2. Clean it up in the free pixel-art workbench: hard alpha, trim to the outline, then tile it 3×3 (+64,+32 and −64) to check the seams.
+3. Paint the panel layer: select the accent pixels and turn them white, as a separate file.
+4. Do the same for the end wall, then the pillar and roof, using the cleaned bay as the style reference.
+5. Load each PNG in place of the code-drawn texture of the same name (`moduleTexture` in `hdbBlock.ts`). Placement, mirroring, shading, tinting and stacking are already wired and tested.
+
+Second batch, once these are approved:
+- lift-lobby front
+- void-deck floor tile
+- corridor-side bay variant
+- ground-floor shop bay
+- roof lift-motor room
+- staircase core
+
+Unity mirrors the void-deck collisions (`VoidDeck.cs`) and raises the old sprite by the deck height, but does not build the modules yet.
 
 ## Walking residents
 

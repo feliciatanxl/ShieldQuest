@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { depthAt, project, TILE_WIDTH } from './isometric'
 import type { MapProp } from './maps'
+import { buildHdbBlock } from './hdbBlock'
 
 // PixelLab-generated art, shared with the Unity project (see docs/pixellab-assets.md).
 const urls = import.meta.glob('./assets/pixellab/**/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -21,7 +22,8 @@ export function preloadPixelLab(scene: Phaser.Scene) {
 const object = (name: string) => `pl-objects-${name}`
 
 // Ground gids 1-16 map 1:1 onto ground/tile_0..15 (grass, pavement, road, plaza; 4 variants each).
-// A grass border of MARGIN cells hides the void past the playable edge. Baked in chunks of CHUNK cells so no
+// A border of MARGIN cells hides the void past the playable edge: each edge cell carries on outwards, so roads and
+// pavements run off the map instead of stopping at a grass field (plaza continues as plain pavement). Baked in chunks of CHUNK cells so no
 // render texture outgrows what a phone GPU allows.
 const MARGIN = 14, CHUNK = 24
 export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number) {
@@ -36,7 +38,18 @@ export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number)
       for (let y = cy; y < y1; y++) {
         for (let x = cx; x < x1; x++) {
           const inside = x >= 0 && y >= 0 && x < width && y < height
-          const tile = inside ? tiles[y * width + x] : 1 + ((x * 7 + y * 13) & 3)
+          const kindAt = (ex: number, ey: number) => {
+            const t = tiles[Phaser.Math.Clamp(ey, 0, height - 1) * width + Phaser.Math.Clamp(ex, 0, width - 1)]
+            return t ? (t - 1) >> 2 : -1
+          }
+          let tile = inside ? tiles[y * width + x] : 0
+          if (!inside) {
+            // 0 grass, 1 pavement, 2 road: a road keeps going with a pavement kerb either side, everything else is verge.
+            const road = (ex: number, ey: number) => kindAt(ex, ey) === 2
+            const along = x < 0 || x >= width ? [[x, y - 1], [x, y + 1]] : [[x - 1, y], [x + 1, y]]
+            const kind = road(x, y) ? 2 : along.some(([ex, ey]) => road(ex, ey)) ? 1 : 0
+            tile = 1 + kind * 4 + ((x * 7 + y * 13) & 3)
+          }
           if (!tile) continue
           const centre = project(x + .5, y + .5)
           rt.batchDraw(`pl-ground-tile_${tile - 1}`, centre.x - left - TILE_WIDTH / 2, centre.y - top - TILE_WIDTH / 2)
@@ -81,13 +94,13 @@ const signs: Record<string, Sign> = {
   'house-i': { x: 55, y: 135, slope: .5, w: 58, h: 24, size: 7, colour: '#ffe7a8', plate: '#2b2238', lines: () => ['WHISPER', 'NETWORK'] },
   'hawker-centre': { x: 96, y: 130, slope: .5, w: 120, h: 20, size: 9, colour: '#fff2c4', plate: '#1f5a3a', lines: () => ['SUNSHINE FOOD CENTRE'] },
   'hdb-point': { x: 125, y: 112, slope: -.5, w: 30, h: 34, size: 13, colour: '#c0582b', lines: blk },
-  'mrt-station': { x: 295, y: 32, slope: .5, w: 58, h: 30, size: 10, colour: '#ffffff', plate: '#1d3b6e', lines: () => ['SINAR', 'MRT'] },
-  'town-mall': { x: 128, y: 55, slope: .5, w: 90, h: 46, size: 15, colour: '#1f6f8b', lines: () => ['SINAR', 'POINT'] },
-  'community-club': { x: 89, y: 130, slope: .5, w: 34, h: 26, size: 8, colour: '#a8323a', lines: () => ['SINAR', 'CC'] },
-  'neighbourhood-centre': { x: 130, y: 92, slope: .5, w: 88, h: 14, size: 8, colour: '#fff2c4', plate: '#2f5d50', lines: () => ['SINAR CENTRE'] },
+  'mrt-station': { x: 295, y: 32, slope: .5, w: 58, h: 30, size: 10, colour: '#ffffff', plate: '#1d3b6e', lines: () => ['SUNSHINE', 'MRT'] },
+  'town-mall': { x: 128, y: 55, slope: .5, w: 90, h: 46, size: 15, colour: '#1f6f8b', lines: () => ['SUNSHINE', 'POINT'] },
+  'community-club': { x: 89, y: 130, slope: .5, w: 34, h: 26, size: 8, colour: '#a8323a', lines: () => ['SUNSHINE', 'CC'] },
+  'neighbourhood-centre': { x: 130, y: 92, slope: .5, w: 88, h: 14, size: 8, colour: '#fff2c4', plate: '#2f5d50', lines: () => ['SUNSHINE CENTRE'] },
   library: { x: 205, y: 118, slope: -.5, w: 70, h: 18, size: 9, colour: '#fff3dc', lines: () => ['LIBRARY'] },
-  'bus-interchange': { x: 115, y: 100, slope: .5, w: 120, h: 16, size: 9, colour: '#ffffff', plate: '#2b4a6f', lines: () => ['SINAR BUS INTERCHANGE'] },
-  school: { x: 246, y: 165, slope: -.4, w: 30, h: 16, size: 6, colour: '#1e3a8a', lines: () => ['SINAR', 'PRI SCH'] },
+  'bus-interchange': { x: 115, y: 100, slope: .5, w: 120, h: 16, size: 9, colour: '#ffffff', plate: '#2b4a6f', lines: () => ['SUNSHINE BUS INTERCHANGE'] },
+  school: { x: 246, y: 165, slope: -.4, w: 30, h: 16, size: 6, colour: '#1e3a8a', lines: () => ['SUNSHINE', 'PRI SCH'] },
   'house-mysterious': { x: 157, y: 178, slope: -.5, w: 44, h: 26, size: 6, colour: '#f1e6c8', plate: '#2a2a2e', lines: () => ['MYSTERY', 'HOUSE'] },
 }
 
@@ -135,6 +148,10 @@ export function updateRoofs(scene: Phaser.Scene, at: { x: number; y: number }) {
     image.setAlpha(at.x >= p.x - OVERHANG && at.x <= p.x + p.w && at.y >= p.y - OVERHANG && at.y <= p.y + p.d ? .45 : 1)
   }
 }
+
+// Trees per scene, so detail areas can make their crowns stir (ambient.ts).
+const trees = new WeakMap<Phaser.Scene, { image: Phaser.GameObjects.Image; p: MapProp }[]>()
+export const treeImages = (scene: Phaser.Scene) => trees.get(scene) ?? []
 
 // Buildings per scene, with the opaque pixels of their sprite, so nobody can walk where a building would hide them.
 type Solid = { image: Phaser.GameObjects.Image; p: MapProp; mask: Uint8Array; w: number }
@@ -188,6 +205,14 @@ export function hiddenByBuilding(scene: Phaser.Scene, at: { x: number; y: number
 export function spriteProp(scene: Phaser.Scene, p: MapProp) {
   const depth = depthAt(p.x + p.w, p.y + p.d)
   const pick = (name: string | ((p: MapProp) => string)) => object(typeof name === 'function' ? name(p) : name)
+  // A block with a void deck is a modular, walkable HDB block rather than one flat sprite.
+  if (p.kind === 'block' && p.properties.voidDeck) {
+    const override = import.meta.env.DEV ? (window as { __hdbOverride?: Record<string, Record<string, unknown>> }).__hdbOverride?.[p.name] : undefined
+    // Dev-only visual checks: override properties, or a footprint (drawing only; collisions still come from the map).
+    const { footprint, ...props } = (override ?? {}) as { footprint?: Partial<MapProp> }
+    buildHdbBlock(scene, override ? { ...p, ...footprint, properties: { ...p.properties, ...props } } : p)
+    return true
+  }
   if (fitted[p.kind]) {
     const name = typeof fitted[p.kind] === 'function' ? (fitted[p.kind] as (p: MapProp) => string)(p) : fitted[p.kind] as string
     const image = scene.add.image(0, 0, object(name))
@@ -205,6 +230,7 @@ export function spriteProp(scene: Phaser.Scene, p: MapProp) {
       // A long building's front corner is far forward, so sorting by it hides anyone standing along its front walls.
       // Everything in front of either visible wall is at least this deep; anything behind is kept out (hiddenByBuilding).
       image.setDepth(depthAt(p.x, p.y + Math.min(p.w, p.d)) - .5)
+      // A block with a void deck is walkable underneath: it reveals the player through its upper floors instead.
       perScene(solids, scene).push({ image, p, mask: alphaMask(scene, image.texture.key), w: image.width })
     }
     return true
@@ -215,6 +241,7 @@ export function spriteProp(scene: Phaser.Scene, p: MapProp) {
     const at = project(p.x + p.w / 2, p.y + p.d / 2)
     const image = scene.add.image(at.x, at.y + 4, pick(name)).setOrigin(.5, 1).setScale(scale * size).setDepth(depth)
     if (p.kind === 'npc') image.setName('character')
+    if (p.kind === 'tree') perScene(trees, scene).push({ image, p })
     return true
   }
   return false

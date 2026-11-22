@@ -28,11 +28,21 @@ namespace ShieldQuest.Tests
         [Test]
         public void BuildsTheWholeEstateFromSharedArt()
         {
-            Assert.That(estate.Size, Is.EqualTo(new Vector2(38, 32)));
-            Assert.That(estate.GroundTiles, Is.EqualTo(38 * 32));
+            Assert.That(estate.Size, Is.EqualTo(new Vector2(60, 54)));
+            Assert.That(estate.GroundTiles, Is.EqualTo(60 * 54));
             Assert.That(estate.MissingSprites, Is.Empty, "sprites missing: " + string.Join(", ", estate.MissingSprites));
-            Assert.That(estate.Collisions.Count(c => c.Kind == "block"), Is.EqualTo(5));
+            Assert.That(estate.Collisions.Count(c => c.Kind == "block"), Is.EqualTo(28), "10 solid estate blocks and 18 beyond the edge; Blocks 102 and 110 have void decks");
             CollectionAssert.IsSubsetOf(new[] { "enter", "house-entrance", "house-h-entrance", "house-i-entrance", "may", "amir" }, estate.Hotspots.Select(h => h.Id).ToList());
+        }
+
+        [Test]
+        public void Block110VoidDeckIsWalkableBetweenSolidPillars()
+        {
+            Assert.That(Iso.CanStand(new Vector2(12.2f, 35f), estate.Size, estate.Collisions), Is.True, "under the upper floors");
+            var pillars = estate.Collisions.Where(c => c.Kind == "pillar" && c.Name == "Block 110").ToList();
+            Assert.That(pillars.Count, Is.EqualTo(10), "a pillar on each of the five bay lines, front and back");
+            foreach (var pillar in pillars)
+                Assert.That(Iso.CanStand(new Vector2(pillar.X + pillar.W / 2, pillar.Y + pillar.D / 2), estate.Size, estate.Collisions), Is.False);
         }
 
         [Test]
