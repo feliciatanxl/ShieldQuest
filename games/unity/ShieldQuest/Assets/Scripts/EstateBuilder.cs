@@ -82,7 +82,7 @@ namespace ShieldQuest
                     if (kind == "bus") foreach (var xx in new[] { x, x + w - .13f }) foreach (var yy in new[] { y, y + d - .13f }) Collisions.Add(new Footprint(xx, yy, .13f, .13f, "pillar", name));
                 }
             }
-            foreach (var (id, door) in Doors) Hotspots.Add(new Hotspot(id, door.label, door.at, door.radius));
+            if(SharedGame.Definitions["entrances"] is JArray entries)foreach(var e in entries){var at=SharedGame.Point(e["at"]);Hotspots.Add(new Hotspot((string)e["id"],(string)e["label"],at,(float)e["radius"],e["approach"] as JArray,e["building"] as JObject));Label("E · "+e["label"],at,22,30001);}else foreach (var (id, door) in Doors) Hotspots.Add(new Hotspot(id, door.label, door.at, door.radius));
             var ui = GetComponent<UnityInterface>() ?? gameObject.AddComponent<UnityInterface>(); ui.Init(this);
             var climate = GetComponent<SingaporeEnvironment>() ?? gameObject.AddComponent<SingaporeEnvironment>(); climate.Init(this);
             if (Player == null) { Player = new GameObject("Player").AddComponent<PlayerController>(); Player.transform.SetParent(transform); Player.Init(this); }
@@ -97,18 +97,19 @@ namespace ShieldQuest
             if (area == "Neighbourhood") Build();
             else
             {
-                var data = SharedGame.Definitions["interiors"][area]; if (data == null) return;
+                var variant=area=="Building"?((string)SharedGame.Save["building"]?["kind"]=="shop"?"BuildingShop":(string)SharedGame.Save["building"]?["kind"]=="station"?"BuildingStation":"Building"):area;var data = SharedGame.Definitions["interiors"][variant]; if (data == null) return;
                 ClearOwned();
                 if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
                 content = new GameObject(area + " · shared Phaser layers").transform; content.SetParent(transform);
                 Collisions.Clear(); Hotspots.Clear(); Buildings.Clear(); Scenery.Clear(); Props.Clear(); Area = area;
                 Size = SharedGame.Point(data["size"]);
-                foreach (var r in data["layers"]) Image(area + " layer " + r["id"], $"generated/interiors/{area}/{r["id"]}", (float)r["x"], (float)r["y"], Mathf.Clamp(Mathf.RoundToInt((float)r["depth"] * 4), -30000, 28000));
+                foreach (var r in data["layers"]) Image(area + " layer " + r["id"], $"generated/interiors/{variant}/{r["id"]}", (float)r["x"], (float)r["y"], Mathf.Clamp(Mathf.RoundToInt((float)r["depth"] * 4), -30000, 28000));
                 foreach (var r in data["collisions"]) Collisions.Add(new Footprint((float)r["x"], (float)r["y"], (float)r["w"], (float)r["d"]));
-                foreach (var h in data["hotspots"]) Hotspots.Add(new Hotspot((string)h["id"], (string)h["label"], SharedGame.Point(h["at"]), (float)h["radius"]));
+                foreach (var h in data["hotspots"]) Hotspots.Add(new Hotspot((string)h["id"], (string)h["id"]=="building-exit"?"Leave "+SharedGame.Save["building"]?["name"]:(string)h["label"], SharedGame.Point(h["at"]), (float)h["radius"]));
+                if(area=="Building")Label((string)SharedGame.Save["building"]?["name"],new Vector2(6,0),100,30000);
                 var traffic = GetComponent<EstateTraffic>(); if (traffic != null) {traffic.enabled=false;Destroy(traffic);}
             }
-            SharedGame.Save["scene"] = area; Player.Teleport(CanStand(spawn) ? spawn : SharedGame.Point(SharedGame.Definitions["locations"][area == "House" ? "HOUSE_SPAWN" : area == "HouseH" ? "HOUSE_H_SPAWN" : area == "HouseI" ? "HOUSE_I_SPAWN" : "SHOP_SPAWN"]));
+            SharedGame.Save["scene"] = area; Player.Teleport(CanStand(spawn) ? spawn : SharedGame.Point(SharedGame.Definitions["locations"][area == "Building"?"BUILDING_SPAWN":area == "House" ? "HOUSE_SPAWN" : area == "HouseH" ? "HOUSE_H_SPAWN" : area == "HouseI" ? "HOUSE_I_SPAWN" : "SHOP_SPAWN"]));
             if (area == "Minimart") SharedGame.Save["investigation"]["entered"] = true;
             Player.RefreshLook(); Player.ResetView(); SharedGame.Persist();
         }

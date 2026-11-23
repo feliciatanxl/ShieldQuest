@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { BUILDING_SPAWN, hotspotDistance, type BuildingVisit } from '../buildingEntrances'
 import type { Avatar } from '../../state/avatar'
 import type { Point } from '../../state/saveGame'
 import { Actor } from '../entities/Actor'
@@ -14,6 +15,7 @@ import { hiddenByBuilding, preloadPixelLab, updateRoofs, walkerKey } from '../pi
 export type Launch = {
   avatar: Avatar
   name?: string
+  building?: BuildingVisit
   scene?: Location
   bridge: GameBridge
   position: Point
@@ -61,7 +63,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
     this.releaseScene?.()
   }
 
-  create(data?: { position?: Point }) {
+  create(data?: { position?: Point; building?: BuildingVisit }) {
+    if(data?.building)this.launch.building=data.building
     this.player = undefined
     this.keys = undefined
     this.cameraFocus = undefined
@@ -241,7 +244,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
 
   private checkpoint() {
     if (!this.player) return
-    this.launch.bridge.emit('checkpoint', { scene: this.location, position: this.player.position, distance: this.travelled })
+    this.launch.bridge.emit('checkpoint', { scene: this.location, position: this.player.position, distance: this.travelled, building: this.location==='Building'?this.launch.building:undefined })
     this.travelled = 0
     this.checkpointTime = 0
   }
@@ -252,7 +255,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     let closest: Hotspot | null = null
     let distance = Infinity
     for (const hotspot of this.world.hotspots) {
-      const candidate = Math.hypot(hotspot.at.x - x, hotspot.at.y - y)
+      const candidate = hotspotDistance(hotspot, { x, y })
       if (candidate <= hotspot.radius && candidate < distance) {
         closest = hotspot
         distance = candidate
@@ -268,7 +271,11 @@ export abstract class ExplorationScene extends Phaser.Scene {
     if (this.locked || this.transitioning || !this.nearby) return
     if (this.travelled) this.checkpoint()
     const { id } = this.nearby
-    if (id === 'enter') this.changeLocation('Minimart', SHOP_SPAWN)
+    if (this.nearby.building && this.player) {
+      this.launch.building={...this.nearby.building,returnAt:{...this.player.position}}
+      this.changeLocation('Building',BUILDING_SPAWN)
+    } else if(id==='building-exit')this.changeLocation('Neighbourhood',this.launch.building?.returnAt ?? SHOP_DOOR)
+    else if (id === 'enter') this.changeLocation('Minimart', SHOP_SPAWN)
     else if (id === 'exit') this.changeLocation('Neighbourhood', SHOP_DOOR)
     else if (id === 'house-h-entrance') this.changeLocation('HouseH', HOUSE_H_SPAWN)
     else if (id === 'exit-house-h') this.changeLocation('Neighbourhood', HOUSE_H_DOOR)

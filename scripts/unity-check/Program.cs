@@ -44,7 +44,10 @@ class Program
         corrupt=SharedGame.Fresh();corrupt["position"]["x"]="NaN";Check(SharedGame.Validate(corrupt)==null,"invalid coordinate rejected");
         corrupt=SharedGame.Fresh();corrupt["investigation"]["walked"]=-1;Check(SharedGame.Validate(corrupt)==null,"invalid investigation rejected");
         var legacy=SharedGame.Fresh();legacy["version"]=1;foreach(string added in new[]{"glasses","topStyle","bottomStyle","shoeStyle"})((JObject)legacy["avatar"]).Remove(added);legacy["avatar"]["accessory"]=2;var upgraded=SharedGame.Validate(legacy);Check(upgraded!=null&&(int)upgraded["avatar"]["glasses"]==1&&(int)upgraded["avatar"]["accessory"]==0,"legacy glasses migration");
-        var payload=new JObject{["assessments"]=saves,["save"]=SharedGame.Save.DeepClone()};File.WriteAllText(args[1],payload.ToString());
+        var buildingSave=SharedGame.Fresh();buildingSave["scene"]="Building";buildingSave["position"]=SharedGame.Definitions["locations"]["BUILDING_SPAWN"].DeepClone();
+        var entry=SharedGame.Definitions["entrances"].First(e=>(string)e["building"]?["name"]=="BBQ Box (AMK Hub)");var visit=(JObject)entry["building"].DeepClone();visit["returnAt"]=entry["at"].DeepClone();buildingSave["building"]=visit;
+        var restored=SharedGame.Validate(buildingSave);Check(restored!=null&&(string)restored["scene"]=="Building","native building save");Check(JToken.DeepEquals(restored["building"],visit),"native building return point");
+        var payload=new JObject{["assessments"]=saves,["save"]=SharedGame.Save.DeepClone(),["buildingSave"]=buildingSave};File.WriteAllText(args[1],payload.ToString());
         Console.WriteLine($"Passed {checks} native C# checks. Exported results for Phaser validation.");
     }
 }

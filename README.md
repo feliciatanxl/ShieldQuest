@@ -59,6 +59,8 @@ Sunshine Estate is an authentic, distinctly Singaporean 2D/2.5D life-simulation 
 
 ## Explore Sunshine Minimart
 
+Buildings throughout the playable AMK district now have E-key entrances. Approach a doorway or facade and press **E**, or select the interaction prompt. Ordinary buildings open shared shop, residential-lobby or station interiors; their exit returns you to the point where you entered. The four SHIELD mission buildings retain their dedicated interiors. Building names, door locations and room layouts are gameplay approximations, not surveyed real-world interiors.
+
 Find the teal minimart beside Kopi Corner. Approach its door and press E or select **Enter Sunshine Minimart**. Inside, look for gold floor markers to inspect five clues, check the **Evidence board** from your Pack, and speak to Jun and the cashier. Follow the green mat to the **Leave Sunshine Minimart** prompt to return to the estate.
 
 Continue restores your saved location, clues, and response to Jun. Existing Phase 1 and Phase 2 saves migrate automatically.

@@ -17,10 +17,11 @@ for(let i=0;i<data.looks.length;i++)image('generated/avatars/'+i,1040,640);
 image('generated/ground-atlas',256,256);
 for(const heading of ['east','west','north','south'])image('generated/buses/'+heading,160,120);
 for(const g of data.guardians)image('generated/guardians/'+g.id,96,96);
-for(const name of ['Minimart','House','HouseH','HouseI','FreezeFrame']){
+for(const name of ['Minimart','House','HouseH','HouseI','FreezeFrame','Building','BuildingShop','BuildingStation']){
  const room=data.interiors[name];assert.ok(room.hotspots.length&&room.collisions.length&&room.layers.length,name);
  for(const layer of room.layers)image(`generated/interiors/${name}/${layer.id}`,layer.width,layer.height);
 }
+assert.equal(data.entrances.length,117);assert.equal(new Set(data.entrances.map(e=>e.id)).size,117);
 assert.equal(data.houseObjects.length,12);assert.equal(Object.keys(data.assessments).length,6);
 for(const font of ['Body','Pixel']){assert.ok(fs.statSync(`${root}/fonts/${font}.ttf`).size>1000);assert.ok(fs.existsSync(`${root}/fonts/${font}-LICENSE.txt`));}
-console.log(`Unity shared exports verified: ${buildings.length} buildings, 5 interiors, ${images} PNGs, ${Object.keys(data.sourceHashes).length} source hashes.`);
+console.log(`Unity shared exports verified: ${buildings.length} buildings, 8 interiors, ${images} PNGs, ${Object.keys(data.sourceHashes).length} source hashes.`);

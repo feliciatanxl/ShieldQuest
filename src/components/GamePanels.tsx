@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Network, Play } from 'lucide-react'
 import type { ResidentId } from '../game/events'
+import { BUILDING_SIZE, buildingCollisions } from '../game/buildingEntrances'
 import { groundColors, neighbourhood } from '../game/maps'
 import { HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
 import district from '../game/maps/amk-config.json'
@@ -52,10 +53,10 @@ export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, 
 
 function AreaMap({ save }: { save: Save }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const inside = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
+  const inside = save.scene === 'Building' || save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
-  const size = house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
+  const size = save.scene==='Building'?BUILDING_SIZE:house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
   const tileWidth = map ? 4 : Math.max(7, Math.floor(420 / size.x))
   const width = tileWidth * size.x
   const height = tileWidth * size.y
@@ -165,7 +166,7 @@ function AreaMap({ save }: { save: Save }) {
 
     if (inside) {
       ctx.fillStyle = '#8b6e6a'
-      for (const fixture of shopFixtures) {
+      for (const fixture of save.scene==='Building'?buildingCollisions:shopFixtures) {
         ctx.fillRect(fixture.x * tileWidth, fixture.y * tileWidth, fixture.w * tileWidth, fixture.d * tileWidth)
       }
     }
@@ -208,7 +209,7 @@ function AreaMap({ save }: { save: Save }) {
     <div className="map-content">
       <p>
         <MapPin size={17} />{' '}
-        {house
+        {save.scene==='Building' ? save.building?.name ?? 'Building' : house
           ? 'The Mysterious House'
           : save.scene === 'HouseH'
           ? 'Freeze Frame House'

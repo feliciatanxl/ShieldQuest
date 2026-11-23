@@ -1,3 +1,4 @@
+import { BUILDING_SIZE, BUILDING_SPAWN, readBuildingVisit, type BuildingVisit } from '../game/buildingEntrances'
 import {newPlayerProfile,readPlayerProfile,type PlayerProfile} from './profile'
 import { readShopInventory, type ShopInventory } from './shop'
 import { normalizeAvatar, type Avatar } from './avatar'
@@ -22,6 +23,7 @@ export type Save = {
   version: 3
   mapRevision?: string
   name: string
+  building?: BuildingVisit
   avatar: Avatar
   scene: Location
   investigation: Investigation
@@ -60,10 +62,13 @@ export function readSave(): Save | null {
     const avatar = normalizeAvatar(data.avatar)
     if (!avatar) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
-    if (scene !== 'Neighbourhood' && scene !== 'Minimart' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && !(data.version === 3 && scene === 'House')) return null
+    if (scene !== 'Building' && scene !== 'Neighbourhood' && scene !== 'Minimart' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && !(data.version === 3 && scene === 'House')) return null
     const investigation = data.version === 1 ? newInvestigation() : data.investigation
     if (!validInvestigation(investigation)) return null
-    const size = scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : scene === 'HouseH' ? HOUSE_H_SIZE : scene === 'HouseI' ? HOUSE_I_SIZE : scene === 'FreezeFrame' ? FREEZE_FRAME_SIZE : NEIGHBOURHOOD_SIZE
+    const building=readBuildingVisit(data.building)
+    if(scene==='Building'&&!building)return null
+    if(building&&data.mapRevision!==district.revision)building.returnAt={...START}
+    const size = scene === 'Building' ? BUILDING_SIZE : scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : scene === 'HouseH' ? HOUSE_H_SIZE : scene === 'HouseI' ? HOUSE_I_SIZE : scene === 'FreezeFrame' ? FREEZE_FRAME_SIZE : NEIGHBOURHOOD_SIZE
     if (scene !== 'House' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
         position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y)) return null
     if (typeof walked !== 'number' || !Number.isFinite(walked) || walked < 0 || walked > WALK_GOAL) return null
@@ -90,7 +95,7 @@ export function readSave(): Save | null {
     const housePosition = scene === 'House' ? position : data.escapeRoom?.position
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
-    return { version: 3, mapRevision: district.revision, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
+    return { version: 3, mapRevision: district.revision, building: scene==='Building'?building:undefined, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
       position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion, shop: readShopInventory(data.shop), profile: readPlayerProfile(data.profile) }
   } catch {
     return null

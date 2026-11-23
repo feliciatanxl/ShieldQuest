@@ -1,8 +1,9 @@
+import { buildingEntrances } from './buildingEntrances'
 import type Phaser from 'phaser'
 import type { Hotspot } from './events'
 import type { Point } from '../state/saveGame'
 import { HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_I_DOOR, SHOP_DOOR } from './locations'
-import { type Footprint } from './isometric'
+import { project, type Footprint } from './isometric'
 import { neighbourhood, type MapProp } from './maps'
 import { groundTiles, spriteProp } from './pixellabArt'
 import { bakeDetail, detailAreas, noticeboard } from './detail'
@@ -214,14 +215,25 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   for (const board of map.props.filter(p => p.kind === 'notice')) {
     hotspots.push({ id: 'notice', label: 'Read the noticeboard', at: { x: board.x + board.w / 2, y: board.y + board.d + .45 }, radius: .8 })
   }
-  hotspots.push({ id: 'enter', label: 'Enter Sunshine Minimart', at: SHOP_DOOR, radius: .82 })
-  hotspots.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
-  hotspots.push({ id: 'house-h-entrance', label: 'Enter Freeze Frame House', at: HOUSE_H_DOOR, radius: .95 })
-  hotspots.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
+  const missionEntrances: Hotspot[] = []
+  missionEntrances.push({ id: 'enter', label: 'Enter Sunshine Minimart', at: SHOP_DOOR, radius: .82 })
+  missionEntrances.push({ id: 'house-entrance', label: 'Visit The Mysterious House', at: HOUSE_DOOR, radius: .93 })
+  missionEntrances.push({ id: 'house-h-entrance', label: 'Enter Freeze Frame House', at: HOUSE_H_DOOR, radius: .95 })
+  missionEntrances.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
+  const entrances = buildingEntrances(map.props, collisions, map.size, missionEntrances)
+  hotspots.push(...entrances)
+  for (const entrance of entrances) {
+    const at = project(entrance.at.x, entrance.at.y)
+    const marker = scene.add.graphics().setDepth(100001)
+    marker.fillStyle(0x263b48,.95).fillRoundedRect(at.x-9,at.y-28,18,28,3)
+    marker.lineStyle(2,0xffdc84,1).strokeRoundedRect(at.x-9,at.y-28,18,28,3)
+    marker.fillStyle(0xffdc84).fillCircle(at.x+4,at.y-13,1.5)
+    marker.lineStyle(2,0x3bc4ad,.9).strokeEllipse(at.x,at.y+2,26,12)
+  }
   for (const entry of map.props.filter(p => p.kind === 'entry')) {
     const at = { x: entry.x, y: entry.y }
     const screen = { x: (at.x-at.y)*32, y:(at.x+at.y)*16 }
-    scene.add.text(screen.x,screen.y-26,`◆ ${entry.properties.mission} · SHIELD`,{fontFamily:'Outfit',fontSize:12,color:'#ffdf88',backgroundColor:'#28463f',padding:{x:4,y:2}}).setOrigin(.5,1).setDepth(100000)
+    scene.add.text(screen.x,screen.y-26,`◆ ${entry.properties.mission==='shop'?'Sunshine Minimart':entry.properties.mission==='house'?'The Mysterious House':entry.properties.mission==='houseH'?'Freeze Frame House':'Whisper Network House'} · E`,{fontFamily:'Outfit',fontSize:12,color:'#ffdf88',backgroundColor:'#28463f',padding:{x:4,y:2}}).setOrigin(.5,1).setDepth(100000)
   }
   const routes = map.props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1)
   const life = neighbourhoodLife(scene, map.props.filter(p => p.kind === 'busroute'), map.props.filter(p => p.kind === 'bus'), detailAreas())

@@ -1,3 +1,4 @@
+import type { BuildingVisit } from './buildingEntrances'
 import type { Avatar } from '../state/avatar'
 import type { Point } from '../state/saveGame'
 import type { ClueId } from '../state/investigation'
@@ -10,6 +11,8 @@ export type HotspotId =
   | ResidentId
   | ClueId
   | HouseObjectId
+  | `building-${number}`
+  | 'building-exit'
   | 'enter'
   | 'exit'
   | 'house-entrance'
@@ -34,12 +37,12 @@ export type HotspotId =
   | 'whisper-terminal'
   | 'whisper-board'
   | 'notice'
-export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number }
+export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number; approach?: Point[]; building?: Omit<BuildingVisit, 'returnAt'> }
 
 type GameEvents = {
   proximity: Hotspot | null
   interact: HotspotId
-  checkpoint: { scene: Location; position: Point; distance: number }
+  checkpoint: { scene: Location; position: Point; distance: number; building?: BuildingVisit }
   transition: boolean
   ready: undefined
   lock: boolean

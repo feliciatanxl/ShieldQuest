@@ -115,7 +115,10 @@ namespace ShieldQuest
         void Jun(){Text("Jun asks you to watch the shop entrance. How do you respond?");foreach(var choice in ((JObject)SharedGame.Definitions["choices"]).Properties())if(Click((string)choice.Value["label"])){SharedGame.Save["investigation"]["spokeToJun"]=true;SharedGame.Save["investigation"]["choice"]=choice.Name;SharedGame.Persist();message=(string)choice.Value["consequence"];}if(Click("SHIELD challenges"))Open("Missions");}
         public void Interact(Hotspot spot)
         {
-            string id=spot.Id;if(estate.Area=="House"&&SharedGame.Definitions["houseObjects"].Any(x=>(string)x["id"]==id)){inspectId=id;code="";sequence.Clear();Open("House object");return;}var loc=SharedGame.Definitions["locations"];
+            string id=spot.Id;
+            if(spot.Building!=null){var visit=(JObject)spot.Building.DeepClone();visit["returnAt"]=SharedGame.Point(estate.Player.Position);SharedGame.Save["building"]=visit;estate.Travel("Building",SharedGame.Point(SharedGame.Definitions["locations"]["BUILDING_SPAWN"]));panel="";return;}
+            if(id=="building-exit"){estate.Travel("Neighbourhood",SharedGame.Point(SharedGame.Save["building"]?["returnAt"]));panel="";return;}
+            if(estate.Area=="House"&&SharedGame.Definitions["houseObjects"].Any(x=>(string)x["id"]==id)){inspectId=id;code="";sequence.Clear();Open("House object");return;}var loc=SharedGame.Definitions["locations"];
             var enter=new Dictionary<string,(string,string)>{{"enter",("Minimart","SHOP_SPAWN")},{"house-entrance",("House","HOUSE_SPAWN")},{"house-h-entrance",("HouseH","HOUSE_H_SPAWN")},{"house-i-entrance",("HouseI","HOUSE_I_SPAWN")},{"freeze-station",("FreezeFrame","FREEZE_FRAME_SPAWN")}};
             if(enter.TryGetValue(id,out var room)){estate.Travel(room.Item1,SharedGame.Point(loc[room.Item2]));panel="";return;}
             if(id.StartsWith("exit")||id=="house-exit"){if(id=="exit-freeze-frame")estate.Travel("HouseH",SharedGame.Point(loc["HOUSE_H_SPAWN"]));else{string key=estate.Area=="House"?"house-entrance":estate.Area=="HouseH"?"house-h-entrance":estate.Area=="HouseI"?"house-i-entrance":"enter";estate.Travel("Neighbourhood",EstateBuilder.Doors[key].at);}panel="";return;}

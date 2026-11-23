@@ -23,6 +23,12 @@ namespace ShieldQuest
         /// Same ordering as depthAt(); larger draws in front.
         public static int Sorting(float x, float y) => Mathf.RoundToInt((x + y) * TileHeight / 2 * 4);
 
+        public static float HotspotDistance(Hotspot spot,Vector2 at)
+        {
+            float distance=Vector2.Distance(spot.At,at);if(spot.Approach==null)return distance;
+            if(EstateBuilder.Inside(at,spot.Approach))return Mathf.Min(distance,.45f);
+            for(int i=0;i<spot.Approach.Count;i++){var a=SharedGame.Point(spot.Approach[i]);var b=SharedGame.Point(spot.Approach[(i+1)%spot.Approach.Count]);var d=b-a;float t=Mathf.Clamp01(Vector2.Dot(at-a,d)/Mathf.Max(.00001f,d.sqrMagnitude));distance=Mathf.Min(distance,Vector2.Distance(at,a+d*t)+.45f);}return distance;
+        }
         public static bool CanStand(Vector2 p, Vector2 size, IReadOnlyList<Footprint> scenery)
         {
             if (p.x < PlayerRadius || p.y < PlayerRadius || p.x > size.x - PlayerRadius || p.y > size.y - PlayerRadius) return false;
@@ -44,6 +50,8 @@ namespace ShieldQuest
         public string Id, Label;
         public Vector2 At;
         public float Radius;
-        public Hotspot(string id, string label, Vector2 at, float radius) { Id = id; Label = label; At = at; Radius = radius; }
+        public Newtonsoft.Json.Linq.JArray Approach;
+        public Newtonsoft.Json.Linq.JObject Building;
+        public Hotspot(string id, string label, Vector2 at, float radius, Newtonsoft.Json.Linq.JArray approach=null, Newtonsoft.Json.Linq.JObject building=null) { Id = id; Label = label; At = at; Radius = radius; Approach=approach;Building=building; }
     }
 }

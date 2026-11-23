@@ -48,7 +48,7 @@ namespace ShieldQuest
         void Sync()
         {
             transform.position=Iso.ToWorld(Position.x,Position.y);body.sortingOrder=Iso.Sorting(Position.x,Position.y)+1;
-            Nearby=null;float nearest=float.MaxValue;foreach(var h in estate.Hotspots){float gap=Vector2.Distance(h.At,Position);if(gap<=h.Radius&&gap<nearest){Nearby=h;nearest=gap;}}
+            Nearby=null;float nearest=float.MaxValue;foreach(var h in estate.Hotspots){float gap=Iso.HotspotDistance(h,Position);if(gap<=h.Radius&&gap<nearest){Nearby=h;nearest=gap;}}
             SharedGame.Save["position"]=SharedGame.Point(Position);
         }
         void LateUpdate()

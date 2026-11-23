@@ -23,6 +23,7 @@ namespace ShieldQuest.Tests
             Assert.That(estate.CanStand(EstateBuilder.Start),Is.True);
         }
         [Test]public void GeographicPillarsRemainSolid(){var pillars=estate.Collisions.Where(c=>c.Kind=="pillar").ToArray();Assert.That(pillars.Length,Is.GreaterThan(20));foreach(var p in pillars)Assert.That(Iso.CanStand(new Vector2(p.X+p.W/2,p.Y+p.D/2),estate.Size,estate.Collisions),Is.False,p.Name);}
+        [Test]public void AllPlayableBuildingsHaveEntrances(){Assert.That(estate.Hotspots.Count(h=>h.Approach!=null),Is.EqualTo(117));Assert.That(estate.Hotspots.Count(h=>h.Building!=null),Is.EqualTo(113));}
         [Test]public void EveryEntranceLoadsItsInteriorAndReturns(){
             foreach(var (id,door) in EstateBuilder.Doors){Assert.That(estate.CanStand(door.at),Is.True,id+" blocked");estate.Player.Teleport(door.at);Assert.That(estate.Player.Nearby?.Id,Is.EqualTo(id));Assert.That(estate.Player.Interact(),Is.True);Assert.That(estate.Area,Is.Not.EqualTo("Neighbourhood"));Assert.That(estate.CanStand(estate.Player.Position),Is.True);Assert.That(estate.MissingSprites,Is.Empty);estate.Travel("Neighbourhood",EstateBuilder.Start);}
         }

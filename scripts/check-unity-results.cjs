@@ -11,4 +11,6 @@ global.localStorage={getItem:key=>key==='shieldquest.phase1'?JSON.stringify(payl
 const restored=require(path.resolve('src/state/saveGame.ts')).readSave();assert.ok(restored,'Phaser rejected native save');
 assert.deepEqual(restored.shield,payload.save.shield,'assessment results lost on import');
 assert.deepEqual(restored.escapeRoom,payload.save.escapeRoom,'house progress changed on import');
+global.localStorage={getItem:()=>JSON.stringify(payload.buildingSave)};
+const building=require(path.resolve('src/state/saveGame.ts')).readSave();assert.ok(building);assert.equal(building.scene,'Building');assert.deepEqual(building.building,payload.buildingSave.building,'building identity or return point changed');
 console.log('Phaser accepted all 6 native assessment results and the completed house save.');

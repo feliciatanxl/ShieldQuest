@@ -6,7 +6,7 @@ Open `ShieldQuest` in Unity **6000.6.10f1**, open `Assets/Scenes/SunshineEstate.
 
 | Area | Current implementation |
 | --- | --- |
-| District | Same 167×144 Tiled map, OSM footprints, 5 m cells, start point and four mission entrances. 167 individually exported building sprites with separate lit-window layers; native geographic collisions and void-deck pillars. |
+| District | Same 167×144 Tiled map, OSM footprints, 5 m cells, start point and four mission entrances. 117 interactable building entrances in the playable area, including shared shop/lobby/station interiors and return-to-entry exits. The other 50 masses are outside the playable boundary. 167 individually exported building sprites with separate lit-window layers; native geographic collisions and void-deck pillars. |
 | Interiors | Minimart, Mysterious House, Freeze Frame House, Whisper Network House and Freeze Frame room. Source artwork exported as separate layers, with source collisions and hotspots. NPCs are captured in standing poses. |
 | Movement | Same walk/run speeds, eight facings, six walking/running frames, reduced motion, keyboard, interaction prompts, camera zoom and a basic touch pad. |
 | Avatar | Seven shared preset/base looks, immediate on-map refresh, name editing and purchased preset outfits. |
@@ -38,7 +38,7 @@ npm run unity:check
 
 The exporter starts a temporary Vite server on port 5174, renders the original Phaser objects in headless Chrome, copies shared art and converts the existing font files. Chrome defaults to the normal Windows installation; set `CHROME_PATH` for another executable. Exports are checked in so Unity does not require Node, Chrome or Vite just to open the project.
 
-`unity:check` verifies copied map/config data, source hashes, every generated image's dimensions, fonts, five rooms and the building inventory. Re-export after changing shared source or artwork. `ShieldQuest > Sync PixelLab Assets` copies raw source art/map/config only; it does not regenerate procedural building/interior/character exports.
+`unity:check` verifies copied map/config data, source hashes, every generated image's dimensions, fonts, eight interior variants and the building inventory. Re-export after changing shared source or artwork. `ShieldQuest > Sync PixelLab Assets` copies raw source art/map/config only; it does not regenerate procedural building/interior/character exports.
 
 ## Validation
 
@@ -46,7 +46,7 @@ The exporter starts a temporary Vite server on port 5174, renders the original P
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-unity-csharp.ps1
 ```
 
-This requires .NET 10 and the installed Unity editor assemblies (override `-EditorPath` if needed). It compiles native runtime/editor C# using C# 9, runs 67 pure C# gameplay checks, then passes the actual native passing/failing assessment results and completed house save through Phaser's own readers. It does **not** start Unity or prove that rendering, input, web requests or scene travel work in PlayMode.
+This requires .NET 10 and the installed Unity editor assemblies (override `-EditorPath` if needed). It compiles native runtime/editor C# using C# 9, runs 69 pure C# gameplay checks, then passes the actual native passing/failing assessment results and completed house save through Phaser's own readers. It does **not** start Unity or prove that rendering, input, web requests or scene travel work in PlayMode.
 
 PlayMode tests are in `Assets/Tests/PlayMode/EstateTests.cs`. Run them through Unity Test Runner after activating an editor license. The batch run attempted during this update exited with code 198 because no valid Unity Editor license was available; PlayMode and visual checks remain unverified.
 

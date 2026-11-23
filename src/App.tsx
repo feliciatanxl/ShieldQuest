@@ -149,10 +149,12 @@ export default function App() {
       bridge.on('transition', setTransitioning),
       bridge.on('freezeToggle', state => setIsSceneFrozen(Boolean(state))),
       bridge.on('ready', () => bridge.emit('lock', locked.current)),
-      bridge.on('checkpoint', ({ scene, position, distance }) => {
+      bridge.on('checkpoint', ({ scene, position, distance, building }) => {
         const previous = current.current
         if (!previous) return
-        if (scene === 'House') {
+        if(scene==='Building'){
+          persist({...previous,scene,position,building})
+        } else if (scene === 'House') {
           const timed = accountHouseTime(previous)
           persist({ ...timed, scene, position, escapeRoom: { ...timed.escapeRoom, position } })
         } else if (scene === 'Minimart') {
@@ -161,7 +163,7 @@ export default function App() {
             walked: Math.min(EXPLORE_GOAL, previous.investigation.walked + distance),
           } })
         } else {
-          persist({ ...previous, scene, position, walked: Math.min(WALK_GOAL, previous.walked + distance) })
+          persist({ ...previous, scene, position, building: undefined, walked: Math.min(WALK_GOAL, previous.walked + distance) })
         }
       }),
       bridge.on('interact', id => {
@@ -367,6 +369,7 @@ export default function App() {
     const previous = current.current
     if (!previous || transitioning) return
     if (target === 'Neighbourhood') {
+      if(previous.scene==='Building'&&previous.building){bridge.emit('houseTravel',{target:'Neighbourhood',position:previous.building.returnAt});setOverlay(null);return}
       if (previous.scene === 'HouseH') {
         bridge.emit('houseTravel', { target: 'Neighbourhood', position: HOUSE_H_DOOR })
         setOverlay(null)
@@ -442,7 +445,7 @@ export default function App() {
   }
 
   if (screen === 'play' && save) return <main className={`game-shell ${save.reducedMotion ? 'reduce-motion' : ''} ${save.scene === 'Minimart' ? 'minimart-shell' : ''}`}>
-    <GameCanvas launch={{ bridge, avatar: save.avatar, name: save.name, scene: save.scene, position: save.position, reducedMotion: save.reducedMotion }} />
+    <GameCanvas launch={{ bridge, avatar: save.avatar, name: save.name, scene: save.scene, building: save.building, position: save.position, reducedMotion: save.reducedMotion }} />
     <div className="tilt-shift" aria-hidden="true" />
     <GameHUD save={save} nearby={nearby} transitioning={transitioning} blocked={!!overlay}
       onAction={() => { if (!locked.current && !transitioning) bridge.emit('action', undefined) }}
