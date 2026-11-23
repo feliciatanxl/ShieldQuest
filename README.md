@@ -15,6 +15,8 @@ Developed by **Team SecurePi** from **Nanyang Polytechnic**, ShieldQuest transfo
 
 ## Run the Phase 1 prototype
 
+For the native Unity project, shared-export commands, validation and remaining differences from Phaser, see the [Unity guide](games/unity/README.md).
+
 Use Node.js 22 or newer and run these commands from the checkout.
 
 ```sh

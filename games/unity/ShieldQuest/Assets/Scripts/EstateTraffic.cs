@@ -27,6 +27,7 @@ namespace ShieldQuest
         (Vector2,string) At(Route r,float distance){float rest=distance;for(int i=1;i<r.Path.Count;i++){var a=SharedGame.Point(r.Path[i-1]);var b=SharedGame.Point(r.Path[i]);var d=b-a;float length=d.magnitude;if(rest<=length||i==r.Path.Count-1)return(Vector2.Lerp(a,b,rest/Mathf.Max(.001f,length)),Mathf.Abs(d.x)>Mathf.Abs(d.y)?d.x>0?"east":"west":d.y>0?"south":"north");rest-=length;}return(r.At,"east");}
         public bool Blocks(Vector2 point,Vector2 from)
         {
+            if(!enabled)return false;
             bool Hit(Vector2 p)=>routes.Any(r=>r.Bus&&r.Active&&Mathf.Abs(p.x-r.At.x)<(r.Heading=="east"||r.Heading=="west"?1.75f:.57f)&&Mathf.Abs(p.y-r.At.y)<(r.Heading=="east"||r.Heading=="west"?.57f:1.75f));return Hit(point)&&!Hit(from);
         }
         void Update()

@@ -455,3 +455,4 @@ apps/web/public/unity/
 # Unity package manifest and lockfile are required on fresh clones.
 !games/unity/ShieldQuest/Packages/
 !games/unity/ShieldQuest/Packages/*.json
+!games/unity/ShieldQuest/Assets/**/*.meta

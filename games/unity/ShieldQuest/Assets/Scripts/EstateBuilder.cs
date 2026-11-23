@@ -32,15 +32,19 @@ namespace ShieldQuest
             }
         }
         Transform content;
+        readonly List<UnityEngine.Object> owned = new();
+        void ClearOwned(){foreach(var asset in owned)if(asset!=null)Destroy(asset);owned.Clear();GroundMaterial=null;}
+        void OnDestroy()=>ClearOwned();
         static readonly HashSet<string> NonSolid = new() { "geoBuilding", "geoRoad", "geoPath", "geoGreen", "entry", "shelter", "bus", "linkway", "sign", "bougainvillea", "road", "crossing", "detail", "walker", "busroute", "parking" };
         void Awake() { SharedGame.Load(); Build(); }
         public void Build()
         {
+            ClearOwned();
             if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
             Collisions.Clear(); Hotspots.Clear(); Props.Clear(); Buildings.Clear(); Scenery.Clear(); MissingSprites.Clear(); GroundTiles = 0;
             string savedScene = (string)SharedGame.Save["scene"];
             var savedPosition = SharedGame.Point(SharedGame.Save["position"]);
-            if (GetComponent<EstateTraffic>() is {} oldTraffic) Destroy(oldTraffic);
+            if (GetComponent<EstateTraffic>() is {} oldTraffic) {oldTraffic.enabled=false;Destroy(oldTraffic);}
             Area = "Neighbourhood"; content = new GameObject("Editable geographic world").transform; content.SetParent(transform);
             var map = JObject.Parse(Resources.Load<TextAsset>(ResourceRoot + "neighbourhood").text);
             Size = new Vector2((int)map["width"], (int)map["height"]);
@@ -94,6 +98,7 @@ namespace ShieldQuest
             else
             {
                 var data = SharedGame.Definitions["interiors"][area]; if (data == null) return;
+                ClearOwned();
                 if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
                 content = new GameObject(area + " · shared Phaser layers").transform; content.SetParent(transform);
                 Collisions.Clear(); Hotspots.Clear(); Buildings.Clear(); Scenery.Clear(); Props.Clear(); Area = area;
@@ -101,7 +106,7 @@ namespace ShieldQuest
                 foreach (var r in data["layers"]) Image(area + " layer " + r["id"], $"generated/interiors/{area}/{r["id"]}", (float)r["x"], (float)r["y"], Mathf.Clamp(Mathf.RoundToInt((float)r["depth"] * 4), -30000, 28000));
                 foreach (var r in data["collisions"]) Collisions.Add(new Footprint((float)r["x"], (float)r["y"], (float)r["w"], (float)r["d"]));
                 foreach (var h in data["hotspots"]) Hotspots.Add(new Hotspot((string)h["id"], (string)h["label"], SharedGame.Point(h["at"]), (float)h["radius"]));
-                var traffic = GetComponent<EstateTraffic>(); if (traffic != null) Destroy(traffic);
+                var traffic = GetComponent<EstateTraffic>(); if (traffic != null) {traffic.enabled=false;Destroy(traffic);}
             }
             SharedGame.Save["scene"] = area; Player.Teleport(CanStand(spawn) ? spawn : SharedGame.Point(SharedGame.Definitions["locations"][area == "House" ? "HOUSE_SPAWN" : area == "HouseH" ? "HOUSE_H_SPAWN" : area == "HouseI" ? "HOUSE_I_SPAWN" : "SHOP_SPAWN"]));
             if (area == "Minimart") SharedGame.Save["investigation"]["entered"] = true;
@@ -138,7 +143,7 @@ namespace ShieldQuest
         }
         void MeshObject(string name, Material material, int order)
         {
-            if (vertices.Count == 0) return; var mesh = new Mesh { indexFormat = IndexFormat.UInt32 }; mesh.SetVertices(vertices); mesh.SetUVs(0, uv); mesh.SetColors(colors); mesh.SetTriangles(triangles, 0); mesh.RecalculateBounds();
+            if (vertices.Count == 0) return; var mesh = new Mesh { indexFormat = IndexFormat.UInt32 }; owned.Add(mesh);if(!owned.Contains(material))owned.Add(material);mesh.SetVertices(vertices); mesh.SetUVs(0, uv); mesh.SetColors(colors); mesh.SetTriangles(triangles, 0); mesh.RecalculateBounds();
             var go = new GameObject(name); go.transform.SetParent(content); go.AddComponent<MeshFilter>().sharedMesh = mesh; var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = material; r.sortingOrder = order;
             vertices.Clear(); uv.Clear(); colors.Clear(); triangles.Clear();
         }
@@ -172,7 +177,7 @@ namespace ShieldQuest
         SpriteRenderer Image(string name, string asset, float left, float top, int order)
         {
             var texture = Resources.Load<Texture2D>(ResourceRoot + asset); var r = new GameObject(name).AddComponent<SpriteRenderer>(); r.transform.SetParent(content); if (texture == null) { MissingSprites.Add(asset); return r; }
-            r.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 1), 32); r.transform.position = new Vector3(left / 32, -top / 32); r.sortingOrder = order; return r;
+            r.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 1), 32,0,SpriteMeshType.FullRect);owned.Add(r.sprite);r.transform.position = new Vector3(left / 32, -top / 32); r.sortingOrder = order; return r;
         }
         void Label(string text, Vector2 at, float lift, int order)
         {

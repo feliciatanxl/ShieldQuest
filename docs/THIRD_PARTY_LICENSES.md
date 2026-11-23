@@ -4,6 +4,8 @@ Dependency inventory from the root and multiplayer package lockfiles. Package na
 
 Project source, assets, geographical data and design-reference credits are documented in [CREDITS.md](../CREDITS.md).
 
+Unity export tooling added in November 2026 uses `playwright` 1.65.1 (Apache-2.0), `playwright-core` 1.65.1 (Apache-2.0), `wawoff2` 2.0.1 (MIT), and `argparse` 2.0.1 (Python-2.0). These are development tools; their installed packages contain the full notices. Exported Outfit and Press Start 2P fonts retain their copied font licence files under the Unity Resources folder.
+
 | Package | Version | Declared licence |
 | --- | --- | --- |
 | [@aws-cdk/asset-awscli-v1](https://www.npmjs.com/package/@aws-cdk/asset-awscli-v1/v/2.2.292) | 2.2.292 | Apache-2.0 |

@@ -43,7 +43,7 @@ namespace ShieldQuest
             foreach(var b in estate.Buildings){float a=b.day.color.a;b.day.color=new Color(tint.r,tint.g,tint.b,a);b.light.color=new Color(1,.96f,.85f,Darkness*a);}
             foreach(var s in estate.Scenery)if(s!=null)s.color=tint;
             if(estate.GroundMaterial!=null)estate.GroundMaterial.color=tint;
-            foreach(var r in estate.GetComponentsInChildren<MeshRenderer>())if(r.sharedMaterial!=null&&r.sharedMaterial.shader.name=="Sprites/Default")r.material.color=tint;
+            foreach(var r in estate.GetComponentsInChildren<MeshRenderer>())if(r.sharedMaterial!=null&&r.sharedMaterial.shader.name=="Sprites/Default")r.sharedMaterial.color=tint;
         }
     }
 }

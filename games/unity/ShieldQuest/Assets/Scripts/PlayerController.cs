@@ -69,5 +69,6 @@ namespace ShieldQuest
         }
         void OnApplicationPause(bool pause){if(pause)SharedGame.Persist();}
         void OnApplicationQuit()=>SharedGame.Persist();
+        void OnDestroy(){if(frames!=null)foreach(var sprite in frames)if(sprite!=null)Destroy(sprite);}
     }
 }

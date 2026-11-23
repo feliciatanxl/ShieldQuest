@@ -1,76 +1,36 @@
 using System.Collections;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-
 namespace ShieldQuest.Tests
 {
     public class EstateTests
     {
-        EstateBuilder estate;
-
-        [UnitySetUp]
-        public IEnumerator Boot()
-        {
-            yield return null; // Bootstrap builds the estate after the test scene loads
-            estate = Object.FindFirstObjectByType<EstateBuilder>() ?? new GameObject("Sunshine Estate").AddComponent<EstateBuilder>();
+        EstateBuilder estate;string backup;
+        [OneTimeSetUp]public void PreserveSave(){backup=PlayerPrefs.GetString(SharedGame.SaveKey,"");}
+        [OneTimeTearDown]public void RestoreSave(){if(backup=="")PlayerPrefs.DeleteKey(SharedGame.SaveKey);else PlayerPrefs.SetString(SharedGame.SaveKey,backup);PlayerPrefs.Save();}
+        [UnitySetUp]public IEnumerator Boot(){
+            SharedGame.Load();SharedGame.Import(SharedGame.Fresh().ToString());
+            estate=Object.FindAnyObjectByType<EstateBuilder>();if(estate==null)estate=new GameObject("Test estate").AddComponent<EstateBuilder>();else estate.Build();
+            estate.GetComponent<UnityInterface>().Open("");yield return null;
         }
-
-        [UnityTearDown]
-        public IEnumerator Clear()
-        {
-            foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Where(g => g.transform.parent == null && g.GetComponent<Camera>() == null))
-                Object.Destroy(go);
-            yield return null;
+        [UnityTearDown]public IEnumerator Clear(){if(estate!=null)Object.Destroy(estate.gameObject);yield return null;}
+        [Test]public void BuildsCurrentGeographicMap(){
+            Assert.That(estate.Size,Is.EqualTo(new Vector2(167,144)));Assert.That(estate.GroundTiles,Is.EqualTo(167*144));Assert.That(estate.BuildingCount,Is.EqualTo(167));Assert.That(estate.MissingSprites,Is.Empty);
+            CollectionAssert.IsSubsetOf(new[]{"enter","house-entrance","house-h-entrance","house-i-entrance","may","amir"},estate.Hotspots.Select(h=>h.Id).ToList());
+            Assert.That(estate.CanStand(EstateBuilder.Start),Is.True);
         }
-
-        [Test]
-        public void BuildsTheWholeEstateFromSharedArt()
-        {
-            Assert.That(estate.Size, Is.EqualTo(new Vector2(60, 54)));
-            Assert.That(estate.GroundTiles, Is.EqualTo(60 * 54));
-            Assert.That(estate.MissingSprites, Is.Empty, "sprites missing: " + string.Join(", ", estate.MissingSprites));
-            Assert.That(estate.Collisions.Count(c => c.Kind == "block"), Is.EqualTo(28), "10 solid estate blocks and 18 beyond the edge; Blocks 102 and 110 have void decks");
-            CollectionAssert.IsSubsetOf(new[] { "enter", "house-entrance", "house-h-entrance", "house-i-entrance", "may", "amir" }, estate.Hotspots.Select(h => h.Id).ToList());
+        [Test]public void GeographicPillarsRemainSolid(){var pillars=estate.Collisions.Where(c=>c.Kind=="pillar").ToArray();Assert.That(pillars.Length,Is.GreaterThan(20));foreach(var p in pillars)Assert.That(Iso.CanStand(new Vector2(p.X+p.W/2,p.Y+p.D/2),estate.Size,estate.Collisions),Is.False,p.Name);}
+        [Test]public void EveryEntranceLoadsItsInteriorAndReturns(){
+            foreach(var (id,door) in EstateBuilder.Doors){Assert.That(estate.CanStand(door.at),Is.True,id+" blocked");estate.Player.Teleport(door.at);Assert.That(estate.Player.Nearby?.Id,Is.EqualTo(id));Assert.That(estate.Player.Interact(),Is.True);Assert.That(estate.Area,Is.Not.EqualTo("Neighbourhood"));Assert.That(estate.CanStand(estate.Player.Position),Is.True);Assert.That(estate.MissingSprites,Is.Empty);estate.Travel("Neighbourhood",EstateBuilder.Start);}
         }
-
-        [Test]
-        public void Block110VoidDeckIsWalkableBetweenSolidPillars()
-        {
-            Assert.That(Iso.CanStand(new Vector2(12.2f, 35f), estate.Size, estate.Collisions), Is.True, "under the upper floors");
-            var pillars = estate.Collisions.Where(c => c.Kind == "pillar" && c.Name == "Block 110").ToList();
-            Assert.That(pillars.Count, Is.EqualTo(10), "a pillar on each of the five bay lines, front and back");
-            foreach (var pillar in pillars)
-                Assert.That(Iso.CanStand(new Vector2(pillar.X + pillar.W / 2, pillar.Y + pillar.D / 2), estate.Size, estate.Collisions), Is.False);
+        [Test]public void PlayerMovesAndNeverCrossesStaticCollisions(){
+            float best=0;foreach(var direction in new[]{Vector2.right,Vector2.left,Vector2.up,Vector2.down}){estate.Player.Teleport(EstateBuilder.Start);for(int i=0;i<40;i++){estate.Player.Step(direction,1/30f,true);Assert.That(estate.CanStand(estate.Player.Position),Is.True);}best=Mathf.Max(best,Vector2.Distance(estate.Player.Position,EstateBuilder.Start));}Assert.That(best,Is.GreaterThan(.3f));
         }
-
-        [Test]
-        public void EveryDoorIsStandableAndInteractive()
-        {
-            foreach (var (id, door) in EstateBuilder.Doors)
-            {
-                Assert.That(Iso.CanStand(door.at, estate.Size, estate.Collisions), Is.True, id + " door is blocked");
-                estate.Player.Teleport(door.at);
-                Assert.That(estate.Player.Interact(), Is.True, id);
-                Assert.That(estate.Player.LastInteraction, Is.EqualTo(id));
-            }
-        }
-
-        [UnityTest]
-        public IEnumerator PlayerWalksButCannotEnterBuildings()
-        {
-            var player = estate.Player;
-            Assert.That(player.Position, Is.EqualTo(EstateBuilder.Start));
-            for (var i = 0; i < 30; i++) { player.Step(Vector2.right, 1 / 30f); yield return null; }
-            Assert.That(Vector2.Distance(player.Position, EstateBuilder.Start), Is.GreaterThan(1.5f), "player should move");
-            // Run north-east into the HDB blocks for 4 seconds: collision must hold the whole way.
-            for (var i = 0; i < 120; i++)
-            {
-                player.Step(new Vector2(1, -1), 1 / 30f, run: true);
-                Assert.That(Iso.CanStand(player.Position, estate.Size, estate.Collisions), Is.True);
-            }
-            yield return null;
-        }
+        [Test]public void WardrobeRefreshChangesMapTexture(){var renderer=estate.Player.GetComponent<SpriteRenderer>();var before=renderer.sprite.texture;SharedGame.Save["avatar"]=SharedGame.Definitions["looks"][0]["avatar"].DeepClone();if(SharedGame.LookIndex(SharedGame.Save["avatar"])==SharedGame.LookIndex(SharedGame.Definitions["defaultSave"]["avatar"]))SharedGame.Save["avatar"]=SharedGame.Definitions["looks"][2]["avatar"].DeepClone();estate.Player.RefreshLook();Assert.That(renderer.sprite.texture,Is.Not.SameAs(before));}
+        [Test]public void CluesUnlockFirstAssessment(){estate.Travel("Minimart",SharedGame.Point(SharedGame.Definitions["locations"]["SHOP_SPAWN"]));foreach(var clue in ((JObject)SharedGame.Definitions["clues"]).Properties())estate.GetComponent<UnityInterface>().Interact(estate.Hotspots.First(h=>h.Id==clue.Name));Assert.That(NativeAssessments.CanStart("S"),Is.True);Assert.That(((JArray)SharedGame.Save["investigation"]["clues"]).Count,Is.EqualTo(5));}
+        [Test]public void SolarLightingUsesSingaporeDayAndNight(){Assert.That(SingaporeEnvironment.NightStrength(new System.DateTime(2026,11,22,4,0,0,System.DateTimeKind.Utc)),Is.LessThan(.05f));Assert.That(SingaporeEnvironment.NightStrength(new System.DateTime(2026,11,22,16,0,0,System.DateTimeKind.Utc)),Is.GreaterThan(.95f));}
     }
 }

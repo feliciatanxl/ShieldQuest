@@ -8,7 +8,7 @@ namespace ShieldQuest
     /// Native IMGUI counterpart of the shared Friends/Guardians modal language.
     public class UnityInterface:MonoBehaviour
     {
-        EstateBuilder estate;string panel="",message="",selected="park-bench",tab="Front page",search="",quantity="1",bio="",playerName="",assessment="";bool editBio; string inspectId="",puzzleId="",code=""; readonly List<string> sequence=new();
+        EstateBuilder estate;string panel="",message="",selected="park-bench",tab="Front page",search="",quantity="1",bio="",playerName="",assessment="";bool editBio,retryAssessment; string inspectId="",puzzleId="",code=""; readonly List<string> sequence=new();
         Vector2 scroll;Rect window;GUIStyle label,title,card,button,small,heading;Texture2D cream,navy,paper,teal;bool styled;
         readonly Dictionary<string,string> answers=new();
         public bool Blocked=>panel!="";
@@ -33,6 +33,7 @@ namespace ShieldQuest
         {
             if(!SharedGame.Ready||estate?.Player==null)return;Style();float scale=Mathf.Clamp(Screen.width/1100f,.7f,1.3f);GUI.matrix=Matrix4x4.Scale(Vector3.one*scale);float w=Screen.width/scale,h=Screen.height/scale;
             var save=SharedGame.Save;var climate=estate.GetComponent<SingaporeEnvironment>();
+            GUI.enabled=panel=="";
             GUI.DrawTexture(new Rect(12,12,220,68),navy);GUI.color=Color.white;
             if(GUI.Button(new Rect(12,12,220,68),$"{save["name"]}\nLEVEL 01  ·  {Mathf.RoundToInt((float)save["walked"]/3*20)}/100 XP",button))Open("User profile");
             if(GUI.Button(new Rect(w/2-140,12,95,44),$"◉ {save["coins"]}",button))Open("Sunshine Shop");
@@ -40,6 +41,7 @@ namespace ShieldQuest
             GUI.Box(new Rect(w-280,12,268,55),$"{climate.SingaporeNow:h:mm tt} SGT  ·  {climate.SingaporeNow:ddd}\n{climate.WeatherLine}",card);
             if(GUI.Button(new Rect(w-280,73,84,35),"Settings",button))Open("Settings");if(GUI.Button(new Rect(w-190,73,84,35),"Area map",button))Open("Area map");if(GUI.Button(new Rect(w-100,73,88,35),"Menu",button))Open("Menu");
             if(estate.Player.Nearby is {} spot&&panel==""&&GUI.Button(new Rect(w/2-185,h-62,370,42),"E · "+spot.Label,button))estate.Player.Interact();
+            GUI.enabled=true;
             if(Event.current.type==EventType.KeyDown&&Event.current.keyCode==KeyCode.Escape){panel="";estate.Player.TouchDirection=Vector2.zero;Event.current.Use();}
             if(panel!=""){
                 estate.Player.TouchDirection=Vector2.zero;var previous=GUI.color;GUI.color=new Color(.08f,.15f,.23f,.78f);GUI.DrawTexture(new Rect(0,0,w,h),Texture2D.whiteTexture);GUI.color=previous;
@@ -75,7 +77,8 @@ namespace ShieldQuest
             GUILayout.BeginHorizontal();foreach(var t in new[]{"Front page","Furniture","Clothing","Your collection"})if(Click(t)){tab=t;search="";}GUILayout.EndHorizontal();Text("Balance: "+SharedGame.Save["coins"]+" coins");
             if(tab=="Front page"){GUILayout.Label("Make yourself at home.",heading);Text("Discover furniture and curated outfits for your collection.");if(Click("Browse furniture"))tab="Furniture";if(Click("Shop clothing"))tab="Clothing";return;}
             search=GUILayout.TextField(search);var catalog=(JArray)SharedGame.Definitions["shop"];var items=catalog.Where(i=>(tab=="Your collection"?(int?)SharedGame.Save["shop"]?[(string)i["id"]]>0:tab=="Clothing"?i["avatar"]!=null:i["avatar"]==null)&&((string)i["name"]).IndexOf(search,StringComparison.OrdinalIgnoreCase)>=0).ToList();
-            GUILayout.BeginHorizontal();GUILayout.BeginVertical(GUILayout.Width(320));foreach(var item in items)if(Click($"{item["name"]} · {item["price"]} coins"))selected=(string)item["id"];GUILayout.EndVertical();GUILayout.BeginVertical(card);var chosen=catalog.First(i=>(string)i["id"]==selected);if(chosen["avatar"]!=null)DrawAvatar(chosen["avatar"],100);else{var t=Resources.Load<Texture2D>("PixelLab/objects/"+chosen["asset"]);GUILayout.Label(t,GUILayout.Height(130));}GUILayout.Label((string)chosen["name"],heading);Text((string)chosen["description"]);int owned=(int?)SharedGame.Save["shop"]?[selected]??0;Text("Owned: "+owned);
+            if(items.Count==0){Text("No items found in this collection.");return;}if(!items.Any(x=>(string)x["id"]==selected))selected=(string)items[0]["id"];
+            GUILayout.BeginHorizontal();GUILayout.BeginVertical(GUILayout.Width(Mathf.Min(320,window.width*.4f)));foreach(var item in items)if(Click($"{item["name"]} · {item["price"]} coins"))selected=(string)item["id"];GUILayout.EndVertical();GUILayout.BeginVertical(card);var chosen=catalog.First(i=>(string)i["id"]==selected);if(chosen["avatar"]!=null)DrawAvatar(chosen["avatar"],100);else{var t=Resources.Load<Texture2D>("PixelLab/objects/"+chosen["asset"]);GUILayout.Label(t,GUILayout.Height(130));}GUILayout.Label((string)chosen["name"],heading);Text((string)chosen["description"]);int owned=(int?)SharedGame.Save["shop"]?[selected]??0;Text("Owned: "+owned);
             if(chosen["avatar"]!=null&&owned>0){if(Click("Wear this look")){SharedGame.Save["avatar"]=chosen["avatar"].DeepClone();estate.Player.RefreshLook();SharedGame.Persist();message="Outfit equipped.";}}
             else{GUILayout.Label("Quantity",small);quantity=GUILayout.TextField(quantity,2);if(Click("Buy with coins")){int.TryParse(quantity,out var q);message=SharedGame.Buy(selected,q)?"Added to your collection.":"Purchase unavailable. Check balance and quantity.";}}
             GUILayout.EndVertical();GUILayout.EndHorizontal();
@@ -100,14 +103,14 @@ namespace ShieldQuest
         }
         void Missions()
         {
-            Text("Explore Sunshine Estate, visit the Minimart at Block 702 and inspect all five clues.");foreach(var key in NativeAssessments.Order){bool ready=NativeAssessments.CanStart(key);GUI.enabled=ready;var result=SharedGame.Save["shield"][key];if(Click(key+" · "+SharedGame.Definitions["assessments"][key]["title"]+(result!=null?" · Completed":""))){assessment=key;answers.Clear();Open("Assessment");}GUI.enabled=true;}
+            Text("Explore Sunshine Estate, visit the Minimart at Block 702 and inspect all five clues.");foreach(var key in NativeAssessments.Order){bool ready=NativeAssessments.CanStart(key);GUI.enabled=ready;var result=SharedGame.Save["shield"][key];if(Click(key+" · "+SharedGame.Definitions["assessments"][key]["title"]+(result!=null?" · Completed":""))){assessment=key;answers.Clear();retryAssessment=false;Open("Assessment");}GUI.enabled=true;}
         }
         void Assessment()
         {
             GUILayout.Label((string)SharedGame.Definitions["assessments"][assessment]["title"],heading);var existing=SharedGame.Save["shield"][assessment];
-            if(existing!=null){Text("Completed · "+existing["numberCorrect"]+" correct · "+((bool)existing["passed"]?"Passed":"Keep practising"));if(Click("Try again"))SharedGame.Save["shield"][assessment]=null;return;}
+            if(existing!=null&&!retryAssessment){Text("Completed · "+existing["numberCorrect"]+" correct · "+((bool)existing["passed"]?"Passed":"Keep practising"));if(Click("Try again")){retryAssessment=true;answers.Clear();}return;}
             foreach(var q in NativeAssessments.Questions(assessment)){GUILayout.BeginVertical(card);Text((string)q["question"]);foreach(var option in ((JObject)q["options"]).Properties()){string text=option.Value.Type==JTokenType.Object?(string)option.Value["text"]:option.Value.ToString();bool active=answers.TryGetValue((string)q["id"],out var answer)&&answer==option.Name;if(Click((active?"✓ ":"")+text))answers[(string)q["id"]]=option.Name;}GUILayout.EndVertical();}
-            if(Click("Submit answers")){var result=NativeAssessments.Score(assessment,answers);if(result==null){message="Answer every question. In Evaluate Consequences each option is used once per stage.";return;}SharedGame.Save["shield"][assessment]=result;SharedGame.Persist();message="Result saved.";}
+            if(Click("Submit answers")){var result=NativeAssessments.Score(assessment,answers);if(result==null){message="Answer every question. In Evaluate Consequences each option is used once per stage.";return;}SharedGame.Save["shield"][assessment]=result;retryAssessment=false;SharedGame.Persist();message="Result saved.";}
         }
         void Jun(){Text("Jun asks you to watch the shop entrance. How do you respond?");foreach(var choice in ((JObject)SharedGame.Definitions["choices"]).Properties())if(Click((string)choice.Value["label"])){SharedGame.Save["investigation"]["spokeToJun"]=true;SharedGame.Save["investigation"]["choice"]=choice.Name;SharedGame.Persist();message=(string)choice.Value["consequence"];}if(Click("SHIELD challenges"))Open("Missions");}
         public void Interact(Hotspot spot)
@@ -155,5 +158,6 @@ namespace ShieldQuest
             var at=Point(SharedGame.Point(estate.Player.Position));GUI.DrawTexture(new Rect(at.x-4,at.y-4,8,8),teal);Note("You · Sunshine Estate · north ↑");
         }
         void Line(Vector2 a,Vector2 b,Color c,float thickness){var matrix=GUI.matrix;var color=GUI.color;GUI.color=c;GUIUtility.RotateAroundPivot(Mathf.Atan2(b.y-a.y,b.x-a.x)*Mathf.Rad2Deg,a);GUI.DrawTexture(new Rect(a.x,a.y,Vector2.Distance(a,b),thickness),Texture2D.whiteTexture);GUI.matrix=matrix;GUI.color=color;}
+        void OnDestroy(){foreach(var texture in new[]{cream,navy,paper,teal})if(texture!=null)Destroy(texture);}
     }
 }

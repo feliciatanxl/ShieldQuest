@@ -33,17 +33,34 @@ namespace ShieldQuest
         }
         public static JObject Validate(JObject raw)
         {
+            try{return ValidateParsed(raw);}catch{return null;}
+        }
+        static JObject ValidateParsed(JObject raw)
+        {
             if (raw == null || (int?)raw["version"] is not (1 or 2 or 3)) return null;
             var data = Fresh(); foreach (var p in raw.Properties()) data[p.Name] = p.Value.DeepClone();
             if (data["avatar"] is not JObject avatar) return null;
+            bool legacyGlasses=avatar["glasses"]==null&&(int?)avatar["accessory"]==2;
+            foreach(string key in new[]{"topStyle","bottomStyle","shoeStyle","glasses"})avatar[key]??=0;
+            if(legacyGlasses){avatar["glasses"]=1;avatar["accessory"]=0;}
             foreach (var p in ((JObject)Definitions["categories"]).Properties())
-                if ((int?)avatar[p.Name] is not int v || v < 0 || v >= ((JArray)p.Value["options"]).Count) return null;
-            if ((int?)data["coins"] is not int coins || coins < 0) return null;
+                if (avatar[p.Name]?.Type!=JTokenType.Integer || (int?)avatar[p.Name] is not int v || v < 0 || v >= ((JArray)p.Value["options"]).Count) return null;
+            if (data["coins"]?.Type!=JTokenType.Integer || (int?)data["coins"] is not int coins || coins < 0) return null;
+            double walked=(double)data["walked"];if(double.IsNaN(walked)||double.IsInfinity(walked)||walked<0||walked>3||data["reducedMotion"]?.Type!=JTokenType.Boolean)return null;
+            if(!new[]{"active","done","skipped"}.Contains((string)data["tutorial"]))return null;
+            if((int)raw["version"]==1){data["scene"]="Neighbourhood";data["investigation"]=Definitions["defaultSave"]["investigation"].DeepClone();}
             var scene = (string)data["scene"];
             if (scene != "Neighbourhood" && Definitions["interiors"]?[scene] == null) scene = "Neighbourhood";
             data["scene"] = scene;
             if ((string)data["mapRevision"] != (string)Config["revision"] && scene == "Neighbourhood") data["position"] = Config["start"].DeepClone();
             data["mapRevision"] = Config["revision"].DeepClone(); data["version"] = 3;
+            if(data["position"] is not JObject position||position["x"]?.Type is not (JTokenType.Integer or JTokenType.Float)||position["y"]?.Type is not (JTokenType.Integer or JTokenType.Float))return null;
+            double x=(double)position["x"],y=(double)position["y"];if(double.IsNaN(x)||double.IsNaN(y)||double.IsInfinity(x)||double.IsInfinity(y))return null;
+            if(data["investigation"] is not JObject investigation||investigation["clues"] is not JArray clues||investigation["entered"]?.Type!=JTokenType.Boolean||investigation["spokeToJun"]?.Type!=JTokenType.Boolean)return null;
+            double explored=(double)investigation["walked"];if(double.IsNaN(explored)||double.IsInfinity(explored)||explored<0||explored>1.5||clues.Any(c=>c.Type!=JTokenType.String||Definitions["clues"][(string)c]==null)||clues.Values<string>().Distinct().Count()!=clues.Count)return null;
+            if(investigation["choice"]?.Type!=JTokenType.Null&&Definitions["choices"][(string)investigation["choice"]]==null)return null;
+            if(data["profile"] is not JObject)data["profile"]=Fresh()["profile"].DeepClone();
+            string bio=(string)data["profile"]["bio"]??"";data["profile"]["bio"]=bio.Substring(0,Math.Min(160,bio.Length));
             var clean = new JObject();
             foreach (var item in (JArray)Definitions["shop"])
             {
@@ -51,8 +68,9 @@ namespace ShieldQuest
                 if (count > 0 && count <= 999) clean[(string)item["id"]] = item["avatar"] != null ? 1 : count;
             }
             data["shop"] = clean;
-            if (data["shield"] is not JObject) data["shield"] = new JObject();
-            if (data["collectedGuardians"] is not JArray) data["collectedGuardians"] = new JArray();
+            var shield=new JObject();if((int)raw["version"]==3&&data["shield"] is JObject stored)foreach(var key in NativeAssessments.Order){var result=stored[key];if(result is JObject&&(string)result["competency"]==key&&(string)result["status"]=="completed"&&result["passed"]?.Type==JTokenType.Boolean&&result["numberCorrect"]?.Type==JTokenType.Integer&&DateTimeOffset.TryParse((string)result["submittedAt"],out _))shield[key]=result.DeepClone();}data["shield"]=shield;
+            var collected=data["collectedGuardians"] as JArray??new JArray();data["collectedGuardians"]=new JArray(Definitions["guardians"].Where(g=>shield[(string)g["competency"]]!=null&&collected.Any(id=>(string)id==(string)g["id"])).Select(g=>g["id"]));
+            if(data["escapeRoom"] is not JObject escape||escape["inventory"] is not JArray||escape["puzzleStates"] is not JObject||escape["hints"] is not JObject||escape["drawerUnlocked"]?.Type!=JTokenType.Boolean||escape["exitUnlocked"]?.Type!=JTokenType.Boolean||escape["elapsedMs"]?.Type!=JTokenType.Integer||((long?)escape["elapsedMs"]??-1)<0)data["escapeRoom"]=Definitions["defaultSave"]["escapeRoom"].DeepClone();
             return data;
         }
         public static void Persist()
