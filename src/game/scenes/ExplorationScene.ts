@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { BUILDING_SPAWN, hotspotDistance, type BuildingVisit } from '../buildingEntrances'
+import { BUILDING_SPAWN, type BuildingVisit } from '../buildingEntrances'
 import type { Avatar } from '../../state/avatar'
 import type { Point } from '../../state/saveGame'
 import { Actor } from '../entities/Actor'
@@ -8,7 +8,7 @@ import { type GameBridge, type Hotspot } from '../events'
 import { canStand, project, screenMovement } from '../isometric'
 import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
-import { FREEZE_FRAME_SPAWN, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
+import { FREEZE_FRAME_SPAWN, HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
 import { hiddenByBuilding, preloadPixelLab, updateRoofs, walkerKey } from '../pixellabArt'
 
@@ -84,7 +84,14 @@ export abstract class ExplorationScene extends Phaser.Scene {
     }
     if (!preview) {
       const requested = data?.position ?? this.launch.position
-      const spawn = this.free(requested) ? requested : this.fallback
+      const missionDoor = this.location === 'Neighbourhood' && [
+        { id: 'enter', at: SHOP_DOOR },
+        { id: 'house-entrance', at: HOUSE_DOOR },
+        { id: 'house-h-entrance', at: HOUSE_H_DOOR },
+        { id: 'house-i-entrance', at: HOUSE_I_DOOR },
+      ].find(({ at }) => requested.x === at.x && requested.y === at.y)
+      const arrival = (missionDoor && this.world.hotspots.find(({ id }) => id === missionDoor.id)?.at) || requested
+      const spawn = this.free(arrival) ? arrival : this.fallback
       this.player = new Actor(this, 'player', this.launch.avatar, spawn, undefined, this.launch.name)
       updateRoofs(this, spawn)
       this.player.setGhost(hiddenByBuilding(this, spawn) === 'far')
@@ -255,7 +262,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     let closest: Hotspot | null = null
     let distance = Infinity
     for (const hotspot of this.world.hotspots) {
-      const candidate = hotspotDistance(hotspot, { x, y })
+      const candidate = Math.hypot(hotspot.at.x - x, hotspot.at.y - y)
       if (candidate <= hotspot.radius && candidate < distance) {
         closest = hotspot
         distance = candidate

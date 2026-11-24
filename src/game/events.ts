@@ -37,7 +37,7 @@ export type HotspotId =
   | 'whisper-terminal'
   | 'whisper-board'
   | 'notice'
-export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number; approach?: Point[]; building?: Omit<BuildingVisit, 'returnAt'> }
+export type Hotspot = { id: HotspotId; label: string; at: Point; radius: number; building?: Omit<BuildingVisit, 'returnAt'> }
 
 type GameEvents = {
   proximity: Hotspot | null

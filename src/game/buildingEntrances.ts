@@ -25,15 +25,11 @@ export function boundaryDistance(at: Point, polygon: Point[]) {
   return distance
 }
 
-export function hotspotDistance(hotspot: Hotspot, at: Point) {
-  const point = Math.hypot(hotspot.at.x - at.x, hotspot.at.y - at.y)
-  if (!hotspot.approach) return point
-  return Math.min(point, insidePolygon(at, hotspot.approach) ? .45 : boundaryDistance(at, hotspot.approach) + .45)
-}
-
 /** Gameplay entrances are approximations; the OSM extract supplies footprints, not verified door positions. */
-export function buildingEntrances(props: MapProp[], collisions: Footprint[], size: Point, missions: Hotspot[]): Hotspot[] {
+export function buildingEntrances(props: MapProp[], collisions: Footprint[], size: Point, missions: Hotspot[], isVisible: (at: Point) => boolean): Hotspot[] {
   const buildings = props.filter(p => p.kind === 'geoBuilding')
+  const footprints = new Map(buildings.map(p => [p, footprint(p)]))
+  if (!buildings.length) return missions
   const assigned = new Map<MapProp, Hotspot>()
   for (const mission of missions) {
     const nearest = (mission.id === 'enter' ? buildings.find(p => String(p.properties.number) === '702') : undefined)
@@ -41,23 +37,31 @@ export function buildingEntrances(props: MapProp[], collisions: Footprint[], siz
     if (nearest) assigned.set(nearest, mission)
   }
   return buildings.flatMap(p => {
-    const polygon = footprint(p), mission = assigned.get(p)
-    if (mission) return [{ ...mission, radius: 1.65, approach: polygon }]
-    const candidates: { at: Point; score: number }[] = []
+    const polygon = footprints.get(p)!, mission = assigned.get(p)
+    const candidates: { at: Point; score: number; visible: boolean }[] = []
     for (let i = 0; i < polygon.length; i++) {
       const a = polygon[i], b = polygon[(i + 1) % polygon.length], dx = b.x - a.x, dy = b.y - a.y
       const length = Math.hypot(dx, dy), steps = Math.max(1, Math.ceil(length))
       for (let j = 0; j < steps; j++) for (const side of [-1, 1]) {
         const t = (j + .5) / steps
         const at = { x: a.x + dx * t - dy / (length || 1) * side * .85, y: a.y + dy * t + dx / (length || 1) * side * .85 }
-        if (!insidePolygon(at, polygon) && canStand(at, size, collisions)) candidates.push({ at, score: (a.x + a.y + b.x + b.y) / 2 - Math.abs(t - .5) * 2 })
+        if (!canStand(at, size, collisions) || buildings.some(building =>
+          at.x >= building.x && at.x <= building.x + building.w &&
+          at.y >= building.y && at.y <= building.y + building.d &&
+          insidePolygon(at, footprints.get(building)!))) continue
+        const score = mission
+          ? -Math.hypot(at.x - mission.at.x, at.y - mission.at.y)
+          : (a.x + a.y + b.x + b.y) / 2 - Math.abs(t - .5) * 2
+        candidates.push({ at, score, visible: isVisible(at) })
       }
     }
-    candidates.sort((a, b) => b.score - a.score)
+    candidates.sort((a, b) => Number(b.visible) - Number(a.visible) || b.score - a.score)
     if (!candidates.length) return []
+    const { at } = candidates[0]
+    if (mission) return [{ ...mission, at, radius: 1.65 }]
     const id = Number(p.properties.osmId), name = p.name || 'Neighbourhood building'
     const kind: BuildingKind = p.properties.residential ? 'home' : name === 'Ang Mo Kio' || /mrt|station/i.test(name) ? 'station' : 'shop'
-    return [{ id: `building-${id}` as HotspotId, label: `Enter ${name}`, at: candidates[0].at, radius: 1.65, approach: polygon, building: { id, name, kind } }]
+    return [{ id: `building-${id}` as HotspotId, label: `Enter ${name}`, at, radius: 1.65, building: { id, name, kind } }]
   })
 }
 

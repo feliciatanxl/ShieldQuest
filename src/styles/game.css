@@ -2409,8 +2409,15 @@
 .game-panel .map-content { justify-items: stretch; gap: 16px; }
 .game-panel .map-content > p { margin: 0; gap: 8px; font-size: 14px; font-weight: 500; color: #586c60; }
 .area-map-stage { position: relative; padding: 12px; overflow: hidden; background: #e9e5d4; border: 1px solid #d6d7c4; border-radius: 13px; }
-.game-panel .map-content canvas { display: block; width: 100%; max-height: 42dvh; height: auto; object-fit: contain; border: 0; border-radius: 6px; box-shadow: none; }
-.map-north { position: absolute; top: 12px; right: 14px; padding: 5px 7px; border-radius: 5px; background: #fff9e9e8; color: #496659; font-size: 11px; font-weight: 600; }
+.area-map-viewport { margin-inline: auto; overflow: auto; scrollbar-width: none; border-radius: 6px; }
+.area-map-viewport.is-zoomed { cursor: grab; }
+.area-map-viewport.is-zoomed:active { cursor: grabbing; }
+.game-panel .area-map-viewport canvas { display: block; height: auto; border: 0; border-radius: 0; box-shadow: none; }
+.map-north { position: absolute; top: 12px; right: 14px; padding: 5px 7px; border-radius: 5px; background: #fff9e9e8; color: #496659; font-size: 11px; font-weight: 600; pointer-events: none; }
+.map-zoom-controls { position: absolute; z-index: 1; bottom: 14px; right: 14px; display: flex; gap: 3px; padding: 3px; border: 1px solid #d7ba83; border-radius: 8px; background: #fff9e9; }
+.map-zoom-controls button { display: grid; place-items: center; min-width: 36px; min-height: 36px; padding: 0 5px; border: 0; border-radius: 5px; background: #f5e7cb; color: #26364b; font: inherit; font-size: .8rem; cursor: pointer; }
+.map-zoom-controls button:hover:not(:disabled) { background: #ebd3a4; }
+.map-zoom-controls button:disabled { opacity: .55; cursor: default; }
 .game-panel .map-legend { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); justify-items: start; gap: 12px 8px; font-size: 12px; color: #657367; }
 .game-panel .map-legend > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .game-panel .map-legend b { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; background: #247c74; color: #fff8e8; }

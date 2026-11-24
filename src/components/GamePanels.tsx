@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef } from 'react'
-import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Network, Play } from 'lucide-react'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Minus, Network, Play, Plus } from 'lucide-react'
 import type { ResidentId } from '../game/events'
 import { BUILDING_SIZE, buildingCollisions } from '../game/buildingEntrances'
 import { groundColors, neighbourhood } from '../game/maps'
@@ -53,6 +53,28 @@ export function DialogueBox({ id, choice, onChoice, onClose, onOpenFreezeFrame, 
 
 function AreaMap({ save }: { save: Save }) {
   const ref = useRef<HTMLCanvasElement>(null)
+  const viewport = useRef<HTMLDivElement>(null)
+  const zoomCenter = useRef({ x: .5, y: .5 })
+  const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null)
+  const [zoom, setZoom] = useState(1)
+
+  function changeZoom(next: number) {
+    const view = viewport.current
+    if (!view || next === zoom) return
+    zoomCenter.current = {
+      x: (view.scrollLeft + view.clientWidth / 2) / view.scrollWidth,
+      y: (view.scrollTop + view.clientHeight / 2) / view.scrollHeight,
+    }
+    setZoom(next)
+  }
+
+  useLayoutEffect(() => {
+    const view = viewport.current
+    if (!view) return
+    view.scrollLeft = zoomCenter.current.x * view.scrollWidth - view.clientWidth / 2
+    view.scrollTop = zoomCenter.current.y * view.scrollHeight - view.clientHeight / 2
+  }, [zoom])
+
   const inside = save.scene === 'Building' || save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
@@ -221,13 +243,43 @@ function AreaMap({ save }: { save: Save }) {
           ? 'Sunshine Minimart'
           : 'Sunshine Estate'}
       </p>
-      <div className="area-map-stage"><span className="map-north" aria-label="North">N ↑</span><canvas
-        ref={ref}
-        width={width}
-        height={height}
-        aria-label="Area map with your location marked by a beacon"
-        role="img"
-      /></div>
+      <div className="area-map-stage">
+        <span className="map-north" aria-label="North">N ↑</span>
+        <div className="map-zoom-controls" role="group" aria-label="Map zoom">
+          <button type="button" aria-label="Zoom out" disabled={zoom === 1} onClick={() => changeZoom(zoom - .5)}><Minus size={16} /></button>
+          <button type="button" aria-label={`Reset map zoom, currently ${zoom * 100}%`} disabled={zoom === 1} onClick={() => changeZoom(1)}>{zoom * 100}%</button>
+          <button type="button" aria-label="Zoom in" disabled={zoom === 3} onClick={() => changeZoom(zoom + .5)}><Plus size={16} /></button>
+        </div>
+        <div
+          ref={viewport}
+          className={`area-map-viewport${zoom > 1 ? ' is-zoomed' : ''}`}
+          style={{ width: `min(100%, calc(42dvh * ${width / height}))`, aspectRatio: width / height }}
+          role="region"
+          aria-label="Map view"
+          tabIndex={zoom > 1 ? 0 : undefined}
+          onPointerDown={event => {
+            if (zoom === 1 || event.pointerType !== 'mouse' || event.button !== 0) return
+            const view = event.currentTarget
+            drag.current = { x: event.clientX, y: event.clientY, left: view.scrollLeft, top: view.scrollTop }
+            view.setPointerCapture(event.pointerId)
+          }}
+          onPointerMove={event => {
+            if (!drag.current || event.pointerType !== 'mouse') return
+            event.currentTarget.scrollLeft = drag.current.left + drag.current.x - event.clientX
+            event.currentTarget.scrollTop = drag.current.top + drag.current.y - event.clientY
+          }}
+          onLostPointerCapture={() => { drag.current = null }}
+        >
+          <canvas
+            ref={ref}
+            width={width}
+            height={height}
+            style={{ width: `${zoom * 100}%` }}
+            aria-label="Area map with your location marked by a beacon"
+            role="img"
+          />
+        </div>
+      </div>
       <div className="map-legend">
         <span><i /> You</span>
         {map && (

@@ -13,6 +13,14 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
    await p.keyboard.press('e');await p.waitForFunction(()=>window.__shieldGame.scene.isActive('Neighbourhood')&&window.__shieldGame.scene.getScene('Neighbourhood').player?.sprite.active);
    const at=await p.evaluate(()=>window.__shieldGame.scene.getScene('Neighbourhood').player.position);assert.ok(Math.hypot(at.x-entry.at.x,at.y-entry.at.y)<.001,'wrong exit destination');console.log('E enter/exit passed:',entry.name);
   }
+  const missionDoors = await p.evaluate(async () => {
+   const { geographicallyCovered } = await import('/src/game/geography.ts');
+   const s = window.__shieldGame.scene.getScene('Neighbourhood');
+   return s.world.hotspots.filter(h => ['enter', 'house-entrance', 'house-h-entrance', 'house-i-entrance'].includes(h.id))
+    .map(h => ({ id: h.id, clear: s.free(h.at) && !geographicallyCovered(s, h.at, 28) }));
+  });
+  assert.equal(missionDoors.length, 4);
+  assert.deepEqual(missionDoors.filter(door => !door.clear), []);
   await p.evaluate(()=>{const s=window.__shieldGame.scene.getScene('Neighbourhood'),e=s.world.hotspots.find(h=>h.id==='enter');s.player.move({...e.at},0,{x:0,y:0});s.updateProximity()});await p.keyboard.press('e');await p.waitForFunction(()=>window.__shieldGame.scene.isActive('Minimart'));console.log('Original Sunshine Minimart E entrance passed.');
  }catch(e){console.error(e);throw e}finally{if(browser)await Promise.race([browser.close(),new Promise(r=>setTimeout(r,3000))]);server.httpServer?.closeAllConnections();await Promise.race([server.close(),new Promise(r=>setTimeout(r,3000))])}
 })().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1)});

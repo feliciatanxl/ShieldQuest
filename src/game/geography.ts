@@ -17,12 +17,12 @@ export function updateGeographicLighting(scene:Phaser.Scene,strength:number){
     mass.lights.setVisible(visible).setAlpha(strength*r.alpha)
   }
 }
-function obscures(m:Mass,at:Point){
+function obscures(m:Mass,at:Point,lift=12){
   if(depthAt(at.x,at.y)>m.graphics.depth)return false
   const feet=project(at.x,at.y)
-  return m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-12},poly))
+  return m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-lift},poly))
 }
-export const geographicallyCovered=(scene:Phaser.Scene,at:Point)=>(geographicMasses.get(scene)??[]).some(m=>obscures(m,at))
+export const geographicallyCovered=(scene:Phaser.Scene,at:Point,lift?:number)=>(geographicMasses.get(scene)??[]).some(m=>obscures(m,at,lift))
 export function updateGeographicOcclusion(scene: Phaser.Scene, at: Point) {
   for(const mass of geographicMasses.get(scene)??[]){
     mass.graphics.setAlpha(obscures(mass,at)?.65:1)
