@@ -9,8 +9,8 @@ export function Button({ className = '', ...props }: ButtonHTMLAttributes<HTMLBu
   return <button type="button" {...props} className={'button ' + className} />
 }
 
-export function Modal({ title, onClose, children, wide = false, eyebrow, className = '' }: {
-  title: string; onClose: () => void; children: ReactNode; wide?: boolean; eyebrow?: string; className?: string
+export function Modal({ title, onClose, children, wide = false, eyebrow, back, className = '' }: {
+  title: string; onClose: () => void; children: ReactNode; wide?: boolean; eyebrow?: string; back?: ReactNode; className?: string
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   useLayoutEffect(() => {
@@ -22,8 +22,9 @@ export function Modal({ title, onClose, children, wide = false, eyebrow, classNa
   return (
     <dialog ref={ref} tabIndex={-1} className={`modal standard-modal ${wide ? 'wide' : ''} ${className}`} aria-label={title}
       onCancel={event => { event.preventDefault(); onClose() }}>
-      {!wide && <header className="modal-heading">
-        <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>
+      {!wide && <header className={'modal-heading' + (back ? ' has-back' : '')}>
+        {back}
+        <div className="modal-title">{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>
         <button className="close" type="button" onClick={onClose} aria-label="Close"><X size={22} /></button>
       </header>}
       {children}

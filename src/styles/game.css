@@ -419,6 +419,9 @@
   overscroll-behavior: contain;
 }
 .modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 11px; margin-bottom: 12px; }
+/* Back link shares the row with close; the title drops below. */
+.modal-heading.has-back { flex-wrap: wrap; }
+.modal-heading.has-back .modal-title { order: 3; flex-basis: 100%; }
 .modal-heading h2 { font-family: var(--pixel); line-height: 1.65; font-size: .93rem; }
 .close { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; color: var(--navy); background: #f6e8ce; border: 1px solid #e5cda5; border-radius: 7px; }
 .close:hover { background: #f4dbac; }

@@ -286,7 +286,7 @@ export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoa
       <section><h3 className="panel-kicker">ACCESSIBILITY</h3><label className="setting-row"><span><strong>Reduced motion</strong><small>Instant camera follow and shorter animations.</small></span>
         <input className="motion-toggle" role="switch" type="checkbox" checked={save.reducedMotion} onChange={event => onUpdate({ reducedMotion: event.target.checked })} /></label></section>
       <section className="panel-controls"><h3 className="panel-kicker">QUICK CONTROLS</h3><dl><div><dt>Move</dt><dd><kbd>WASD</kbd><span>or</span><kbd>↑ ↓ ← →</kbd></dd></div><div><dt>Run</dt><dd><kbd>Shift</kbd></dd></div><div><dt>Interact</dt><dd><kbd>E</kbd></dd></div></dl></section>
-      <p className="panel-note"><CloudSun size={17} /><span>Singapore time (SGT). Local temperature and Ang Mo Kio forecasts from NEA / data.gov.sg.</span></p>
+      <p className="panel-note"><CloudSun size={17} /><span>Singapore time (SGT). Local temperature from NEA / data.gov.sg.</span></p>
     </div>}
     {panel === 'controls' && <dl className="controls-list">
       <dt>Move</dt><dd><kbd>WASD</kbd>, arrow keys, or the on-screen joystick</dd>

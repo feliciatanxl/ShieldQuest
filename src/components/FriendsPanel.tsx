@@ -165,14 +165,13 @@ export function FriendsPanel({ onClose }: { onClose: () => void }) {
     setNotice('Friend removed from your local list.')
   }
 
-  return <Modal title={selectedFriend ? selectedFriend.name : 'Friends'} eyebrow="COMMUNITY" className="friends-modal" onClose={onClose}>
+  return <Modal title={selectedFriend ? selectedFriend.name : 'Friends'} eyebrow="COMMUNITY" className="friends-modal" onClose={onClose}
+    back={selectedFriend && <button type="button" className="text-button friends-back-btn" onClick={() => setSelectedFriend(null)}>
+      <ArrowLeft size={16} /> Back to Friends
+    </button>}>
     {selectedFriend ? (
       /* Friend Profile Preview */
       <div className="friends-profile-view">
-        <button type="button" className="text-button friends-back-btn" onClick={() => setSelectedFriend(null)}>
-          <ArrowLeft size={16} /> Back to Friends
-        </button>
-
         <div className="friends-profile-card">
           <div className="friends-profile-stage">
             <FriendPortrait friend={selectedFriend} />
