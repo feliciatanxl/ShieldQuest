@@ -40,6 +40,11 @@ export const categories = {
   ] },
 } as const
 
+// Gender is read from the hairstyle (each hairstyle has its own base body), so saves and multiplayer need no new field.
+export type Gender = 'boy' | 'girl'
+export const genderStyles: Record<Gender, number[]> = { boy: [0, 4], girl: [1, 2, 3, 5, 6, 7] }
+export const genderOf = (style: number): Gender => genderStyles.boy.includes(style) ? 'boy' : 'girl'
+
 export type Category = keyof typeof categories
 export type Avatar = Record<Category, number>
 /** Which way a character faces on screen: 'front' looks at the player, 'back-right' walks up and to the right. */

@@ -1,9 +1,9 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import {
   ArrowLeft, Briefcase, Check, Footprints, Glasses, HardHat, Pause, Pencil, Play, RotateCcw, RotateCw, Save, Scissors, Shirt,
-  Shuffle, Smile, Trash2, Undo2, UserRound, Wand2, X,
+  Shuffle, Smile, Trash2, Undo2, UserRound, Users, Wand2, X,
 } from 'lucide-react'
-import { baseAvatar, categories, presets, randomAvatar, sameAvatar, type Avatar, type Category, type Facing } from '../state/avatar'
+import { baseAvatar, categories, genderOf, genderStyles, presets, randomAvatar, sameAvatar, type Avatar, type Category, type Facing } from '../state/avatar'
 import { OUTFIT_NAME_LENGTH, outfitName, readOutfits, writeOutfits, type Outfit } from '../state/outfits'
 import { WALK_FRAMES } from '../game/playerArt'
 import { AvatarSprite } from './AvatarSprite'
@@ -12,7 +12,7 @@ import { Button } from './ui'
 
 type Focus = 'head' | 'torso' | 'legs' | 'feet' | 'full'
 /** One sidebar entry: a garment shape (style) and/or its colour, both real options the gameplay sprite draws. */
-type Part = { label: string; icon: ReactNode; style?: Category; colour?: Category; only?: number[]; focus: Focus; note?: string }
+type Part = { label: string; icon: ReactNode; style?: Category; colour?: Category; only?: number[]; gender?: boolean; focus: Focus; note?: string }
 type Section = { label: string; icon: ReactNode; parts: Part[] }
 
 const Trousers = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
@@ -22,8 +22,9 @@ const Trousers = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="non
 const ONE_ACCESSORY = 'One accessory at a time: picking one here replaces any bag, lanyard, clip or hat you wear.'
 const sections: Section[] = [
   { label: 'Face & Body', icon: <Smile size={17} />, parts: [
+    { label: 'Gender', icon: <Users size={20} />, gender: true, focus: 'full', note: 'Choose a boy or girl. Hairstyles under Head match your choice.' },
     { label: 'Skin tone', icon: <Smile size={20} />, colour: 'skin', focus: 'head',
-      note: 'Body shapes come with each hairstyle, under Head.' },
+      note: 'Choose a skin tone for your character.' },
   ] },
   { label: 'Head', icon: <UserRound size={17} />, parts: [
     { label: 'Hair', icon: <Scissors size={20} />, style: 'style', colour: 'hair', focus: 'head' },
@@ -63,11 +64,22 @@ function roving(event: KeyboardEvent<HTMLElement>, count: number, current: numbe
 }
 
 function Items({ part, avatar, onPick }: { part: Part; avatar: Avatar; onPick: (category: Category, index: number) => void }) {
+  if (part.gender) return <div className="looks-items" role="group" aria-label="Gender">
+    {(['boy', 'girl'] as const).map(gender => {
+      const current = genderOf(avatar.style) === gender
+      const style = current ? avatar.style : genderStyles[gender][0]
+      return <button key={gender} type="button" className="looks-item" title={gender === 'boy' ? 'Boy' : 'Girl'} aria-label={gender === 'boy' ? 'Boy' : 'Girl'}
+        aria-pressed={current} onClick={() => onPick('style', style)}>
+        <Thumb avatar={{ ...avatar, style }} focus="full" />
+      </button>
+    })}
+  </div>
   // Colour-only parts (skin) still show real sprite thumbnails, one per colour.
   const style = part.style ?? part.colour
   if (!style) return <div className="looks-empty"><Smile size={30} aria-hidden="true" /><p>{part.note}</p></div>
   const options = categories[style].options.map((option, index) => ({ name: option[0], index }))
     .filter(({ index }) => !part.only || part.only.includes(index))
+    .filter(({ index }) => style !== 'style' || genderOf(index) === genderOf(avatar.style))
   return <div className="looks-items" role="group" aria-label={categories[style].label}>
     {options.map(({ name, index }) => {
       const none = name === 'None'
@@ -184,7 +196,7 @@ export function CharacterCustomizer({ initial, initialName = '', wardrobe = fals
   const section = sections[tab]
   const part = section?.parts[parts[tab]]
   const shown = part?.style ?? part?.colour
-  const selectedName = shown ? categories[shown].options[avatar[shown]][0] : undefined
+  const selectedName = part?.gender ? (genderOf(avatar.style) === 'boy' ? 'Boy' : 'Girl') : shown ? categories[shown].options[avatar[shown]][0] : undefined
   const colourName = part?.colour ? categories[part.colour].options[avatar[part.colour]][0] : undefined
 
   return <section className={'looks ' + (wardrobe ? 'in-game' : 'new-game')} aria-labelledby="custom-title">
@@ -210,14 +222,14 @@ export function CharacterCustomizer({ initial, initialName = '', wardrobe = fals
           </nav>
           <div className="looks-grid">
             <h2>{part.label}{selectedName && <small aria-live="polite">{selectedName}</small>}</h2>
-            {shown && <p className="looks-hint">{part.note ?? categories[shown].hint}</p>}
+            {(part.note || shown) && <p className="looks-hint">{part.note ?? categories[shown!].hint}</p>}
             <Items part={part} avatar={avatar} onPick={pick} />
           </div>
           <div className="looks-colours">
             <h2>Colour{colourName && <small aria-live="polite">{colourName}</small>}</h2>
             {part.colour
               ? <>{categories[part.colour].hint && <p className="looks-hint">{categories[part.colour].hint}</p>}<Palette category={part.colour} avatar={avatar} onPick={pick} /></>
-              : <p className="looks-hint">This item comes in one colour.</p>}
+              : <p className="looks-hint">{part.gender ? 'Pick colours for skin, hair and clothes in their own sections.' : 'This item comes in one colour.'}</p>}
           </div>
         </>}
       </div>
