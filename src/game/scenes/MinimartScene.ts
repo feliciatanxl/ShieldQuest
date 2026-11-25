@@ -1,3 +1,4 @@
+import { pixelZoom } from '../isometric'
 import { SHOP_BACKGROUND, SHOP_SPAWN } from '../locations'
 import { createMinimart } from '../minimart'
 import { ExplorationScene, type Launch } from './ExplorationScene'
@@ -23,9 +24,7 @@ export class MinimartScene extends ExplorationScene {
     const shortLandscape = touch && width > height && height <= 500
     const top = shortLandscape ? 76 : compact ? (width < 520 ? 122 : 105) : 151
     const bottom = shortLandscape ? 73 : touch ? 132 : compact ? 80 : 65
-    const fit = Math.min((width - 24) / CUTAWAY_WIDTH, (height - top - bottom) / CUTAWAY_HEIGHT, 2)
-    // Whole-number zoom keeps the baked pixel art square (docs/isometric-art-spec.md); tiny screens still shrink to fit.
-    const zoom = fit >= 1 ? Math.floor(fit) : Math.max(.18, fit)
+    const zoom = pixelZoom(Math.min((width - 24) / CUTAWAY_WIDTH, (height - top - bottom) / CUTAWAY_HEIGHT, 2))
     const camera = this.cameras.main
     // Fit the cutaway and reserve space for the HUD above it and the prompt below.
     const x = CUTAWAY_CENTER.x

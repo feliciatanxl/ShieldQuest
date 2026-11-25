@@ -1,7 +1,7 @@
 import type Phaser from 'phaser'
 import { clues, isClue } from '../state/investigation'
 import type { Hotspot } from './events'
-import { depthAt, type Footprint } from './isometric'
+import { depthAt, project, type Footprint } from './isometric'
 import { bakeGraphics } from './pixelBake'
 import { SHOP_SIZE } from './locations'
 import { bag, baskets, checkout, display, fridge, fruitStand, iceFreezer, plants, shelfRows, shopFixtures } from './minimartLayout'
@@ -129,7 +129,11 @@ export function createMinimart(scene: Phaser.Scene): WorldLayout {
     front(g, bag.x + .12, bag.y + bag.d, .10, 11, 3, '#f1be80')
   })
   plants.forEach(plant => prop(scene, plant, g => planter(g, plant.x, plant.y, plant.w)))
-  prop(scene, fruitStand, g => {
+  if (scene.textures.exists('pl-estate-fruit-stand')) {
+    // PixelLab fruit display (docs/pixellab-assets.md), standing on the fruit-stand footprint.
+    const p = project(fruitStand.x + fruitStand.w / 2, fruitStand.y + fruitStand.d)
+    scene.add.image(Math.round(p.x), Math.round(p.y) + 4, 'pl-estate-fruit-stand').setOrigin(.5, 1).setDepth(depthAt(fruitStand.x + fruitStand.w, fruitStand.y + fruitStand.d))
+  } else prop(scene, fruitStand, g => {
     const { x, y, w, d } = fruitStand
     box(g, x, y, w, d, 14, ['#c99a62', '#a87a4a', '#875d36'])
     ;['#e5793e', '#d9483b', '#f2d64e'].forEach((fruit, i) => {

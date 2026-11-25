@@ -78,10 +78,13 @@ export class Painter {
 }
 
 /** Rasterises the painter's faces in order (painter's algorithm) and applies outline and seams. */
-export function rasterise(painter: Painter, outline = true) {
-  const all = painter.faces.flatMap(f => f.pts)
-  const minX = Math.min(...all.map(p => p.x)) - 1, minY = Math.min(...all.map(p => p.y)) - 1
-  const W = Math.max(...all.map(p => p.x)) - minX + 2, H = Math.max(...all.map(p => p.y)) - minY + 2
+/** outline: true for silhouette + seams, 'seams' for seams only (ground chunks, whose edges must tile seamlessly).
+ *  frame: a fixed pixel rectangle to rasterise into (faces outside it are clipped); by default the faces' bounds. */
+export function rasterise(painter: Painter, outline: boolean | 'seams' = true, frame?: { x: number; y: number; W: number; H: number }) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+  for (const f of painter.faces) for (const p of f.pts) { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y) }
+  minX = frame ? frame.x : minX - 1; minY = frame ? frame.y : minY - 1
+  const W = frame ? frame.W : maxX - minX + 2, H = frame ? frame.H : maxY - minY + 2
   const rgba = new Uint8ClampedArray(W * H * 4), ids = new Int32Array(W * H).fill(-1)
   painter.faces.forEach((face, id) => {
     const pts = face.pts.map(p => ({ x: p.x - minX, y: p.y - minY }))
@@ -104,6 +107,7 @@ export function rasterise(painter: Painter, outline = true) {
             rgba[o + 3] = Math.max(rgba[o + 3], a * 255)
           }
           if (face.seam) ids[i] = id
+          else if (face.alpha >= 1) ids[i] = -1
         }
       }
     }
@@ -114,9 +118,9 @@ export function rasterise(painter: Painter, outline = true) {
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const i = y * W + x, o = i * 4
       if (!solid(i)) continue
-      const edge = x === 0 || y === 0 || x === W - 1 || y === H - 1 || !solid(i - 1) || !solid(i + 1) || !solid(i - W) || !solid(i + W)
+      const edge = outline === true && (x === 0 || y === 0 || x === W - 1 || y === H - 1 || !solid(i - 1) || !solid(i + 1) || !solid(i - W) || !solid(i + W))
       // Silhouette: one dark pixel; seam: a face boundary seen from below or right gets a softer line.
-      const f = edge ? .34 : ids[i] >= 0 && ((ids[i - W] >= 0 && ids[i - W] !== ids[i]) || (ids[i - 1] >= 0 && ids[i - 1] !== ids[i])) ? .8 : 1
+      const f = edge ? .34 : ids[i] >= 0 && ((i >= W && ids[i - W] >= 0 && ids[i - W] !== ids[i]) || (x > 0 && ids[i - 1] >= 0 && ids[i - 1] !== ids[i])) ? .8 : 1
       if (f < 1) { out[o] = rgba[o] * f + (edge ? 10 : 0); out[o + 1] = rgba[o + 1] * f + (edge ? 8 : 0); out[o + 2] = rgba[o + 2] * f + (edge ? 22 : 0) }
     }
     rgba.set(out)

@@ -3,6 +3,7 @@ import {newPlayerProfile,readPlayerProfile,type PlayerProfile} from './profile'
 import { readShopInventory, type ShopInventory } from './shop'
 import { normalizeAvatar, type Avatar } from './avatar'
 import district from '../game/maps/amk-config.json'
+import { ESTATE_REVISION, toEstate } from '../game/estateScale'
 import { NEIGHBOURHOOD_SIZE, HOUSE_SIZE, HOUSE_SPAWN, HOUSE_H_SIZE, HOUSE_H_SPAWN, HOUSE_I_SIZE, HOUSE_I_SPAWN, FREEZE_FRAME_SIZE, FREEZE_FRAME_SPAWN, SHOP_SIZE, type Location } from '../game/locations'
 import { houseCollisions } from '../game/houseLayout'
 import { canStand } from '../game/isometric'
@@ -41,12 +42,12 @@ export type Save = {
 
 export const SAVE_KEY = 'shieldquest.phase1'
 export const WALK_GOAL = 3
-export const START = district.start
+export const START = toEstate(district.start)
 /** Shown for saves made before players chose a name. */
 export const DEFAULT_NAME = 'Player'
 
 export function newSave(avatar: Avatar, name: string): Save {
-  return { version: 3, mapRevision: district.revision, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
+  return { version: 3, mapRevision: ESTATE_REVISION, name, avatar, scene: 'Neighbourhood', investigation: newInvestigation(), shield: {}, collectedGuardians: [], escapeRoom: newEscapeRoom(),
     profile: newPlayerProfile(), shop: {}, position: START, walked: 0, tutorial: 'active', coins: 240, reducedMotion: false }
 }
 
@@ -56,9 +57,10 @@ export function readSave(): Save | null {
       JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null')
     if (!data || (data.version !== 1 && data.version !== 2 && data.version !== 3) || !data.avatar || !data.position) return null
     const { walked, coins, tutorial, reducedMotion } = data
-    const position = data.scene === 'Neighbourhood' || data.version === 1
-      ? data.mapRevision === district.revision ? data.position : START
-      : data.position
+    // Outdoor positions follow the map revision: current saves as stored, saves from the 5 m source map scaled into
+    // gameplay tiles (estateScale.ts), anything older back to the start. Nothing else in the save changes.
+    const outdoor = (p: Point) => data.mapRevision === ESTATE_REVISION ? p : data.mapRevision === district.revision ? toEstate(p) : START
+    const position = data.scene === 'Neighbourhood' || data.version === 1 ? outdoor(data.position) : data.position
     const avatar = normalizeAvatar(data.avatar)
     if (!avatar) return null
     const scene = data.version === 1 ? 'Neighbourhood' : data.scene
@@ -67,7 +69,7 @@ export function readSave(): Save | null {
     if (!validInvestigation(investigation)) return null
     const building=readBuildingVisit(data.building)
     if(scene==='Building'&&!building)return null
-    if(building&&data.mapRevision!==district.revision)building.returnAt={...START}
+    if(building)building.returnAt=outdoor(building.returnAt)
     const size = scene === 'Building' ? BUILDING_SIZE : scene === 'Minimart' ? SHOP_SIZE : scene === 'House' ? HOUSE_SIZE : scene === 'HouseH' ? HOUSE_H_SIZE : scene === 'HouseI' ? HOUSE_I_SIZE : scene === 'FreezeFrame' ? FREEZE_FRAME_SIZE : NEIGHBOURHOOD_SIZE
     if (scene !== 'House' && scene !== 'HouseH' && scene !== 'HouseI' && scene !== 'FreezeFrame' && (!Number.isFinite(position.x) || !Number.isFinite(position.y) ||
         position.x < 0 || position.y < 0 || position.x >= size.x || position.y >= size.y)) return null
@@ -95,7 +97,7 @@ export function readSave(): Save | null {
     const housePosition = scene === 'House' ? position : data.escapeRoom?.position
     if (housePosition && Number.isFinite(housePosition.x) && Number.isFinite(housePosition.y) &&
         canStand(housePosition, HOUSE_SIZE, houseCollisions)) escapeRoom.position = housePosition
-    return { version: 3, mapRevision: district.revision, building: scene==='Building'?building:undefined, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
+    return { version: 3, mapRevision: ESTATE_REVISION, building: scene==='Building'?building:undefined, name: readName(data.name) ?? DEFAULT_NAME, avatar, scene, investigation, shield, collectedGuardians, escapeRoom,
       position: scene === 'House' ? escapeRoom.position ?? HOUSE_SPAWN : scene === 'HouseH' ? HOUSE_H_SPAWN : scene === 'HouseI' ? HOUSE_I_SPAWN : scene === 'FreezeFrame' ? FREEZE_FRAME_SPAWN : position, walked, tutorial, coins, reducedMotion, shop: readShopInventory(data.shop), profile: readPlayerProfile(data.profile) }
   } catch {
     return null
@@ -104,7 +106,7 @@ export function readSave(): Save | null {
 
 export function writeSave(save: Save): boolean {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, mapRevision: district.revision }))
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ ...save, mapRevision: ESTATE_REVISION }))
     return true
   } catch {
     return false

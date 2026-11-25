@@ -30,8 +30,8 @@ type KeyName = 'W' | 'A' | 'S' | 'D' | 'UP' | 'LEFT' | 'DOWN' | 'RIGHT' | 'SHIFT
 const WALK_SPEED = 3.05
 const RUN_SPEED = 5.25
 // Menu backdrop framings: the estate overview behind the title card, an HDB void deck behind the wardrobe.
-const PREVIEW_SPOTS = { menu: { x: 0, y: 2450, zoom: .42 }, customise: { x: -200, y: 2500, zoom: .9 } }
-export type PreviewSpot = keyof typeof PREVIEW_SPOTS
+export type PreviewSpot = 'menu' | 'customise'
+type Spot = { x: number; y: number; zoom: number }
 
 export abstract class ExplorationScene extends Phaser.Scene {
   private world!: WorldLayout
@@ -52,7 +52,9 @@ export abstract class ExplorationScene extends Phaser.Scene {
   /** Gameplay zoom multiplier per scene; zoomable scenes also take wheel and +/- zoom between overview and close-up. */
   protected zoomScale = 1
   protected zoomable = false
-  private userZoom = 1
+  protected userZoom = 1
+  /** Menu backdrop framings in world pixels (scenes shown behind the menu override this). */
+  protected previewSpots(): Record<PreviewSpot, Spot> { return { menu: { x: 0, y: 0, zoom: 1 }, customise: { x: 0, y: 0, zoom: 1 } } }
 
   constructor(protected launch: Launch, private location: Location, private fallback: Point) {
     super(location)
@@ -101,7 +103,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
       const spawn = this.free(arrival) ? arrival : this.fallback
       this.player = new Actor(this, 'player', this.launch.avatar, spawn, undefined, this.launch.name)
       updateRoofs(this, spawn)
-      this.player.setGhost(hiddenByBuilding(this, spawn) === 'far')
+      this.player.setGhost(this.hidden(spawn))
       if (this.location !== 'Minimart') this.cameraFocus = this.add.zone(0, 0, 1, 1)
       this.moveCamera()
       const keys = this.input.keyboard
@@ -199,7 +201,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
 
   private previewCamera(animate = false) {
     const { width, height } = this.scale.gameSize
-    const spot = PREVIEW_SPOTS[this.previewSpot], camera = this.cameras.main
+    const spot = this.previewSpots()[this.previewSpot], camera = this.cameras.main
     const zoom = Math.max(width / 1180, height / 730) * spot.zoom
     if (!animate || this.launch.reducedMotion) return camera.setZoom(zoom).centerOn(spot.x, spot.y)
     camera.pan(spot.x, spot.y, 900, 'Sine.easeInOut', true)
@@ -240,7 +242,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     player.move(next, moved, { x: sx, y: sy }, speed > WALK_SPEED)
     if (moved) {
       updateRoofs(this, next)
-      player.setGhost(hiddenByBuilding(this, next) === 'far')
+      player.setGhost(this.hidden(next))
     }
     if (moved) {
       this.travelled += moved
@@ -249,6 +251,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
       this.checkpointTime += delta
     }
     if (this.travelled && (this.checkpointTime >= 120 || !moved)) this.checkpoint()
+  }
+
+  private hidden(at: Point) {
+    return this.world.hides ? this.world.hides(at) : hiddenByBuilding(this, at) === 'far'
   }
 
   /** Clear of scenery, residents walking by, and spots where a building would hide the player. */

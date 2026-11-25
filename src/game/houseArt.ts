@@ -2,6 +2,7 @@ import type Phaser from 'phaser'
 import type { Footprint } from './isometric'
 import { box, floor, front, letterSign, planter, poly, prop, side } from './worldArt'
 import { houseCollisions, houseFurniture, houseObjects, houseRooms, houseWalls } from './houseLayout'
+import { recordGraphics } from './pixelBake'
 import { HOUSE_SIZE } from './locations'
 import type { WorldLayout } from './world'
 
@@ -208,7 +209,7 @@ function drawFurniture(g: Graphics, f: typeof houseFurniture[number]) {
 }
 
 export function createHouse(scene: Phaser.Scene): WorldLayout {
-  const g = scene.add.graphics().setDepth(-2000)
+  const g = recordGraphics(scene, -2000)
   box(g, -.07, -.07, 12.14, 10.14, 10, ['#fee5b3', '#ac7e71', '#835e6d'], -10)
   for (const room of houseRooms) {
     for (let x = room.x; x < room.x + room.w; x++) {

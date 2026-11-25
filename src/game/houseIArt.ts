@@ -3,12 +3,13 @@ import type { Footprint } from './isometric'
 import type { WorldLayout } from './world'
 import { box, floor, front, letterSign, planter, poly, prop, side } from './worldArt'
 import { HOUSE_I_SIZE } from './locations'
+import { recordGraphics } from './pixelBake'
 import { houseICollisions, houseIFurniture, houseIObjects } from './houseILayout'
 
 type Graphics = Phaser.GameObjects.Graphics
 
 export function createHouseI(scene: Phaser.Scene): WorldLayout {
-  const g = scene.add.graphics().setDepth(-1000)
+  const g = recordGraphics(scene, -1000)
   const { x: w, y: d } = HOUSE_I_SIZE
 
   // Foundation & floor drop shadow

@@ -42,8 +42,6 @@ export class Actor {
       scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { if (this.texture) scene.textures.remove(this.texture.key) })
     }
     this.sprite.setName('character').setData('player', key === 'player')
-    // The geographical district uses 5 m cells; retain full-size avatars in interiors.
-    if(scene.scene.key === 'Neighbourhood'){this.sprite.setScale(.42);this.shadow.setScale(.42)}
     if (key === 'player') {
       this.marker = scene.add.text(0, 0, label || 'YOU', {
         fontFamily: 'Outfit, sans-serif', fontSize: '9px', fontStyle: 'bold',

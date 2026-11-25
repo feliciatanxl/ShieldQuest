@@ -1,3 +1,4 @@
+import { pixelZoom } from '../isometric'
 import { ExplorationScene } from './ExplorationScene'
 import type { Launch } from './ExplorationScene'
 import { BUILDING_SIZE, BUILDING_SPAWN, buildingCollisions } from '../buildingEntrances'
@@ -10,7 +11,7 @@ export class BuildingScene extends ExplorationScene {
   constructor(launch: Launch) { super(launch, 'Building', BUILDING_SPAWN) }
   protected layout() {
     const { width, height } = this.scale.gameSize
-    const zoom = Math.max(.18, Math.min((width - 24) / 760, (height - 190) / 480, 1.25))
+    const zoom = pixelZoom(Math.min((width - 24) / 760, (height - 190) / 480, 2))
     this.cameras.main.stopFollow().setZoom(zoom).centerOn(32, 140 - 20 / zoom)
   }
   protected createWorld(): WorldLayout {

@@ -31,6 +31,8 @@ export type WorldLayout = {
   hotspots: Hotspot[]; collisions: Footprint[]; size: Point; routes?: MapProp[]
   tick?: (time: number, delta: number, player: Point | undefined, still: boolean) => void
   blocks?: (point: Point, from?: Point) => boolean
+  /** Whether scenery covers a character standing here (the player then shows as a see-through silhouette). */
+  hides?: (point: Point) => boolean
 }
 
 /** The road a bus stop faces (across the kerb on either long side) and its route pole on the kerb past the shelter. */

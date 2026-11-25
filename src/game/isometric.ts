@@ -47,3 +47,6 @@ export function canStand(point: Point, size: Point, scenery: Footprint[]) {
 export function depthAt(x: number, y: number) {
   return (x + y) * TILE_HEIGHT / 2
 }
+
+/** Camera zoom for pixel art: whole steps when the view fits at 1× or more (square pixels), else shrink to fit. */
+export const pixelZoom = (fit: number) => fit >= 1 ? Math.floor(fit) : Math.max(.18, fit)

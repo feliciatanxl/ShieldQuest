@@ -41,6 +41,14 @@ export function registerOverhang(scene: Phaser.Scene, p: Footprint, top: number)
   return (x: number, y: number) => interior(o, x, y)
 }
 
+// Solid blocks a character can stand behind: anyone not in front of either visible face whose sprite overlaps the
+// block on screen draws beneath it, whatever their feet depth (a long block's one depth key cannot cover them all).
+const blockers = new WeakMap<Phaser.Scene, { p: Footprint; depth: number; l: number; r: number; t: number; b: number }[]>()
+export function registerBlocker(scene: Phaser.Scene, p: Footprint, depth: number, height: number) {
+  if (!blockers.has(scene)) { blockers.set(scene, []); scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => blockers.delete(scene)) }
+  blockers.get(scene)!.push({ p, depth, l: project(p.x, p.y + p.d).x, r: project(p.x + p.w, p.y).x, t: project(p.x, p.y).y - height, b: project(p.x + p.w, p.y + p.d).y })
+}
+
 export type Cover = { depth: number; silhouette?: { mask: Phaser.Display.Masks.BitmapMask; depth: number } }
 /** Where a character at this point draws, and the silhouette to show if a block's upper floors cover part of it. */
 export function coverFor(scene: Phaser.Scene, at: Point): Cover {
@@ -54,6 +62,13 @@ export function coverFor(scene: Phaser.Scene, at: Point): Cover {
     }
   }
   for (const o of overhangs.get(scene) ?? []) if (under(o.p, at)) return { depth: Math.min(natural, interior(o, at.x, at.y)) }
+  const list = blockers.get(scene)
+  if (list) {
+    const feet = project(at.x, at.y)
+    let depth = natural
+    for (const k of list) if (at.x < k.p.x + k.p.w && at.y < k.p.y + k.p.d && !under(k.p, at) && feet.x > k.l && feet.x < k.r && feet.y > k.t && feet.y - 64 < k.b) depth = Math.min(depth, k.depth - 1)
+    return { depth }
+  }
   return { depth: natural }
 }
 export const depthFor = (scene: Phaser.Scene, at: Point) => coverFor(scene, at).depth

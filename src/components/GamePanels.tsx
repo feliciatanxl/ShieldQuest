@@ -3,6 +3,7 @@ import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Minus, 
 import type { ResidentId } from '../game/events'
 import { BUILDING_SIZE, buildingCollisions } from '../game/buildingEntrances'
 import { groundColors, neighbourhood } from '../game/maps'
+import { ESTATE_SCALE } from '../game/estateScale'
 import { HOUSE_I_SIZE, HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
 import district from '../game/maps/amk-config.json'
 import { footprint } from '../game/geoPolygon'
@@ -260,7 +261,7 @@ function AreaMap({ save }: { save: Save }) {
             <canvas ref={ref} width={width} height={height} aria-label="Area map" role="img" />
             <span
               className="area-map-player"
-              style={{ left: `${save.position.x / size.x * 100}%`, top: `${save.position.y / size.y * 100}%` }}
+              style={{ left: `${save.position.x / (map ? ESTATE_SCALE : 1) / size.x * 100}%`, top: `${save.position.y / (map ? ESTATE_SCALE : 1) / size.y * 100}%` }}
               aria-label="Your location"
               role="img"
             >YOU</span>

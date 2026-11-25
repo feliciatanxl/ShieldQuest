@@ -7,6 +7,7 @@ import {
   HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_H_SIZE,
   HOUSE_I_DOOR, HOUSE_I_SPAWN, HOUSE_I_SIZE, NEIGHBOURHOOD_SIZE,
 } from '../../../src/game/locations'
+import { ESTATE_SCALE } from '../../../src/game/estateScale'
 import { houseHCollisions, houseHObjects } from '../../../src/game/houseHLayout'
 import { houseICollisions, houseIObjects } from '../../../src/game/houseILayout'
 import { canStand } from '../../../src/game/isometric'
@@ -18,9 +19,9 @@ test('Ang Mo Kio district dimensions and source landmarks', () => {
   const mapPath = path.resolve(dir, '../../../src/game/maps/neighbourhood.tmj')
   const tmj = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
 
-  // Sunshine Estate: 60x54, matching the size saves are validated against
-  assert.equal(tmj.width, NEIGHBOURHOOD_SIZE.x)
-  assert.equal(tmj.height, NEIGHBOURHOOD_SIZE.y)
+  // Saves are validated against gameplay tiles: the 5 m source map scaled by ESTATE_SCALE (estateScale.ts)
+  assert.equal(Math.ceil(tmj.width * ESTATE_SCALE), NEIGHBOURHOOD_SIZE.x)
+  assert.equal(Math.ceil(tmj.height * ESTATE_SCALE), NEIGHBOURHOOD_SIZE.y)
   assert.ok(tmj.width * tmj.height >= 25 * 23 * 1.5, 'World map is at least 1.5x larger')
 
   // Verify object layers and essential landmarks

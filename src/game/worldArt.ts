@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { depthAt, project, type Footprint } from './isometric'
 import { glyphs } from './glyphs'
+import { bakeProp } from './pixelBake'
 
 type Colors = readonly [string, string, string]
 type Vertex = [number, number, number?]
@@ -59,10 +60,9 @@ export function groundLetters(g: Graphics, text: string, x: number, y: number, u
   })
 }
 
+/** A depth-sorted prop, baked into an outlined pixel sprite (docs/isometric-art-spec.md). */
 export function prop(scene: Phaser.Scene, rect: Footprint, render: (g: Graphics) => void, offset = 0) {
-  const g = scene.add.graphics().setDepth(depthAt(rect.x + rect.w, rect.y + rect.d) + offset)
-  render(g)
-  return g
+  return bakeProp(scene, render, depthAt(rect.x + rect.w, rect.y + rect.d) + offset)
 }
 
 export function tree(g: Graphics, x: number, y: number, large = false, hue = 0) {

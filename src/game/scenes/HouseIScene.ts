@@ -1,3 +1,4 @@
+import { pixelZoom } from '../isometric'
 import { HOUSE_I_BACKGROUND, HOUSE_I_SPAWN } from '../locations'
 import { createHouseI } from '../houseIArt'
 import { Actor } from '../entities/Actor'
@@ -133,7 +134,7 @@ export class HouseIScene extends ExplorationScene {
 
   protected layout() {
     const { width, height } = this.scale.gameSize
-    const zoom = Math.min(height / 420, width / 410, 1.25)
+    const zoom = pixelZoom(Math.min(height / 420, width / 410, 2))
     const viewWidth = width / zoom
     const viewHeight = height / zoom
     const boundsWidth = Math.max(780, viewWidth)
