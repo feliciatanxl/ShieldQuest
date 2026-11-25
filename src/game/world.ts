@@ -83,6 +83,15 @@ function street(scene: Phaser.Scene) {
     if (acrossY) for (const x of [c.x - .35, c.x + c.w + .15]) floor(g, x, c.y + .05, .16, c.d - .1, '#ffffff')
     else for (const y of [c.y - .35, c.y + c.d + .15]) floor(g, c.x + .05, y, c.w - .1, .16, '#ffffff')
   }
+  // Bus stop platforms (warm paving with a yellow tactile strip at the kerb) and soft rubber playground flooring.
+  for (const stop of neighbourhood.props.filter(p => p.kind === 'bus')) {
+    floor(g, stop.x - .35, stop.y - .3, stop.w + .7, stop.d + .6, '#e2c9a2')
+    floor(g, stop.x - .35, stop.y + stop.d + .18, stop.w + .7, .12, yellow)
+  }
+  for (const play of neighbourhood.props.filter(p => p.kind === 'play' && p.properties.sunshine)) {
+    floor(g, play.x - .3, play.y - .3, play.w + .6, play.d + .6, '#6fa07a')
+    floor(g, play.x - .15, play.y - .15, play.w + .3, play.d + .3, '#d4704f')
+  }
   // Bus bays: a dashed yellow box along the kerb in front of each stop, stopping short of any crossing, with BUS
   // painted upright for drivers in that lane (traffic keeps left, so the north lane runs east).
   for (const stop of neighbourhood.props.filter(p => p.kind === 'bus')) {

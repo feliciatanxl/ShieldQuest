@@ -32,7 +32,7 @@ export function buildingEntrances(props: MapProp[], collisions: Footprint[], siz
   if (!buildings.length) return missions
   const assigned = new Map<MapProp, Hotspot>()
   for (const mission of missions) {
-    const nearest = (mission.id === 'enter' ? buildings.find(p => String(p.properties.number) === '702') : undefined)
+    const nearest = (mission.id === 'enter' ? buildings.find(p => String(p.properties.number) === '101') : undefined)
       ?? [...buildings].sort((a, b) => boundaryDistance(mission.at, footprint(a)) - boundaryDistance(mission.at, footprint(b)))[0]
     if (nearest) assigned.set(nearest, mission)
   }
@@ -60,7 +60,7 @@ export function buildingEntrances(props: MapProp[], collisions: Footprint[], siz
     const { at } = candidates[0]
     if (mission) return [{ ...mission, at, radius: 1.65 }]
     const id = Number(p.properties.osmId), name = p.name || 'Neighbourhood building'
-    const kind: BuildingKind = p.properties.residential ? 'home' : name === 'Ang Mo Kio' || /mrt|station/i.test(name) ? 'station' : 'shop'
+    const kind: BuildingKind = p.properties.residential ? 'home' : name === 'Sunshine MRT' || /mrt|station/i.test(name) ? 'station' : 'shop'
     return [{ id: `building-${id}` as HotspotId, label: `Enter ${name}`, at, radius: 1.65, building: { id, name, kind } }]
   })
 }

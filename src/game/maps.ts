@@ -1,6 +1,8 @@
 import town from './maps/neighbourhood.tmj?raw'
 import legacyReview from '../../docs/geography/before.tmj?raw'
 import type { Footprint } from './isometric'
+import district from './maps/amk-config.json'
+import { dressEstate, fictionalise } from './sunshineEstate'
 
 type MapObject = { name: string; type: string; x: number; y: number; width: number; height: number; polyline?: { x: number; y: number }[]; polygon?: {x:number;y:number}[];
   properties?: { name: string; value: string | number | boolean }[] }
@@ -21,7 +23,10 @@ function loadMap(source: string) {
       ...(object.polygon ? { polygon:JSON.stringify(object.polygon.map(p=>({x:(object.x+p.x)/map.tileheight,y:(object.y+p.y)/map.tileheight}))) } : {}) },
     path: object.polyline?.map(point => ({ x: (object.x + point.x) / map.tileheight, y: (object.y + point.y) / map.tileheight })),
   }))
-  return { size: { x: map.width, y: map.height }, tiles, props }
+  if (!props.some(p => p.kind === 'geoRoad')) return { size: { x: map.width, y: map.height }, tiles, props }
+  fictionalise(props)
+  const clear = [district.start, ...Object.values(district.entrances)]
+  return { size: { x: map.width, y: map.height }, tiles, props: dressEstate(props, tiles, map.width, clear, district.start) as MapProp[] }
 }
 
 // Read-only development comparison. Dead-code eliminated from production.

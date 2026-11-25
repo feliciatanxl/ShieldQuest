@@ -56,7 +56,7 @@ export function objectiveDetails(save: Save) {
     case DEFEND_TITLE: return 'Lead the Right Choice — Completed. Build a plan to seek help safely and share what you know.'
     case STORY_TITLE: return 'Defend Your Community — Completed. You can keep exploring Sunshine Estate.'
     case 'Move around': return 'Explore the estate with the joystick, WASD, or the arrow keys.'
-    case 'Enter Sunshine Minimart': return 'Find the SHIELD entrance at Block 702 in Sunshine Estate. Use the prompt at its door.'
+    case 'Enter Sunshine Minimart': return 'Find the SHIELD entrance at Block 101 in Sunshine Estate. Use the prompt at its door.'
     case 'Explore the minimart': return 'Walk into the shop and look around the aisles.'
     case 'Inspect five clues': return `${save.investigation.clues.length} / ${clueIds.length} clues discovered. Look for gold floor markers near objects.`
     case 'Speak with Jun': return 'Look for Jun in the aisle beside the shelves.'
@@ -102,7 +102,7 @@ export function GameHUD({ save, nearby, transitioning, blocked, onAction, onPane
   const clock=singaporeClock(now),conditions=weatherDisplay(weather,now),night=nightStrength(now)>.5
   const WeatherIcon=/thunder/i.test(conditions.condition)?CloudLightning:/rain|shower/i.test(conditions.condition)?CloudRain:/cloud|hazy|mist/i.test(conditions.condition)?Cloud:night?Moon:CloudSun
   const observed=weather.observedAt?singaporeClock(new Date(weather.observedAt)).time:'unavailable'
-  const weatherTitle=`Singapore time (SGT). Temperature: ${weather.station??'unavailable'}, observed ${observed}${conditions.delayed?' (delayed)':''}. Ang Mo Kio 2-hour forecast: ${conditions.condition}. Source: NEA / data.gov.sg.`
+  const weatherTitle=`Singapore time (SGT). Temperature: ${weather.station??'unavailable'}, observed ${observed}${conditions.delayed?' (delayed)':''}. Local 2-hour forecast: ${conditions.condition}. Source: NEA / data.gov.sg.`
   const xp = Math.round(save.walked / WALK_GOAL * 20)
   const indoors = save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'

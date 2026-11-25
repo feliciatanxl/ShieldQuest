@@ -2,12 +2,15 @@ import Phaser from 'phaser'
 
 // Calm, seamless placeholder surfaces until an approved PixelLab batch replaces them.
 // Same 64x64 canvas / 64x32 diamond as the existing ground atlas; four shared variants per material.
+// Sunshine Estate: soft grass, warm light-grey paving, asphalt and terracotta shopfront brick.
 const palette = [
-  ['#7d9567', '#80986a', '#7b9365', '#7f9668'],
-  ['#bfc0b5', '#c0c1b7', '#bdbfb4', '#c1c2b8'],
-  ['#62696a', '#646b6c', '#616869', '#636a6b'],
-  ['#ad8c79', '#af8e7b', '#ac8b78', '#ae8d7a'],
+  ['#93b46f', '#96b772', '#90b16c', '#95b570'],
+  ['#d8d3c6', '#dad5c8', '#d5d0c3', '#d9d4c7'],
+  ['#5d6266', '#5f6468', '#5b6064', '#5e6367'],
+  ['#d29a78', '#d49c7a', '#cf9775', '#d39b79'],
 ]
+// Joint lines across each diamond: paving slabs on concrete, staggered courses on brick.
+const joints = [undefined, '#b9b2a2', undefined, '#a8694f']
 
 export function estateSurfaceKey(scene: Phaser.Scene, tile: number) {
   const kind = (tile - 1) >> 2
@@ -33,6 +36,21 @@ export function estateSurfaces(scene: Phaser.Scene) {
       ctx.fillStyle = i % 2 ? '#ffffff' : '#1f3029'; ctx.globalAlpha = kind === 0 ? .09 : .045
       ctx.fillRect(x, y, 1, 1)
     }
+    ctx.globalAlpha = .55
+    if (joints[kind]) {
+      ctx.strokeStyle = joints[kind]!; ctx.lineWidth = 1
+      ctx.beginPath()
+      // Lines parallel to the diamond's edges split it into 2x2 slabs (concrete) or 4x2 bricks (brick).
+      for (const t of kind === 3 ? [.25, .5, .75] : [.5]) { ctx.moveTo(t * 32, 32 - t * 16); ctx.lineTo(32 + t * 32, 48 - t * 16) }
+      ctx.moveTo(16, 24); ctx.lineTo(48, 40)
+      ctx.stroke()
+    }
+    if (kind === 0) for (let i = 0; i < 14; i++) {
+      // A few darker blades and tiny flowers so lawns don't read as flat paint.
+      const x = (i * 23 + variant * 17) % 56 + 4, y = 20 + (i * 13 + variant * 5) % 24
+      ctx.fillStyle = i % 7 === 3 ? '#f4e3a1' : '#6f9452'; ctx.fillRect(x, y, 1, i % 7 === 3 ? 1 : 2)
+    }
+    ctx.globalAlpha = 1
     ctx.restore(); texture.setFilter(Phaser.Textures.FilterMode.NEAREST); texture.refresh()
   }
 }

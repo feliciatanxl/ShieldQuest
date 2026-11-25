@@ -115,7 +115,7 @@ function AreaMap({ save }: { save: Save }) {
         ctx.fillStyle='#247c74';ctx.fill();ctx.strokeStyle='#fff8e8';ctx.lineWidth=2;ctx.stroke()
         ctx.fillStyle='#fff8e8';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(({shop:'S',house:'M',houseH:'H',houseI:'I'} as Record<string,string>)[key],point.x*tileWidth,point.y*tileWidth+3)
       }
-      for(const [name,label] of [['Ang Mo Kio Hub','AMK Hub'],['Ang Mo Kio','MRT'],['Block 724','724 Market']]) {
+      for(const [name,label] of [['Sunshine Mall','Sunshine Mall'],['Sunshine MRT','MRT'],['Block 105','Kopi Corner']]) {
         const p=map.props.find(p=>p.kind==='geoBuilding'&&p.name===name)
         if(!p)continue
         const x=(p.x+p.w/2)*tileWidth,y=(p.y+p.d/2)*tileWidth
@@ -311,8 +311,8 @@ export function GamePanel({ panel, save, onClose, onUpdate, onRestart, onOpenBoa
     {panel === 'pack' && <div className="pack-items">
       <Button className="pack-board" onClick={onOpenBoard}><span className="panel-icon"><ClipboardList size={22} /></span><span><strong>Evidence board</strong><small>Review your clues and discoveries</small></span><ArrowUpRight size={18} /></Button>
       <section className="pocket-guide"><h3><Backpack size={18} /> Neighbourhood pocket guide</h3>
-        <div className="guide-row"><span className="guide-marker">S</span><div><strong>Sunshine Minimart</strong><p>Find the SHIELD entrance at Block 702.</p></div></div>
-        <div className="guide-row"><span className="guide-marker">724</span><div><strong>Market &amp; food centre</strong><p>North-west of AMK Hub, near Avenue 6.</p></div></div>
+        <div className="guide-row"><span className="guide-marker">S</span><div><strong>Sunshine Minimart</strong><p>Find the SHIELD entrance at Block 101.</p></div></div>
+        <div className="guide-row"><span className="guide-marker">105</span><div><strong>Kopi Corner</strong><p>Market &amp; food centre north-west of Sunshine Mall, near Sunshine Avenue 6.</p></div></div>
         <div className="guide-row"><MapPin size={18} /><div><strong>Find your way</strong><p>Open the area map for landmarks and mission entrances.</p></div></div>
       </section>
     </div>}
