@@ -5,11 +5,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const p=await browser.newPage({viewport:{width:1280,height:850}});
   p.on('pageerror',e=>{throw e});await p.goto('http://127.0.0.1:5175/scripts/amk-review.html');await p.waitForFunction(()=>window.__amkReady,null,{timeout:90000});console.log('AMK scene ready');
   await p.evaluate(()=>{window.__amkReview.setView('');for(const s of window.__shieldGame.scene.scenes)s.launch.reducedMotion=true;window.__shieldGame.scene.getScene('Neighbourhood').follow();window.__amkReview.bridge.on('checkpoint',data=>window.__buildingCheckpoint=data)});
-  for(const target of ['BBQ Box (AMK Hub)','Ang Mo Kio Hub','home','Ang Mo Kio']){
+  for(const target of ['Grill Box','Sunshine Mall','home','Sunshine MRT']){
    const entry=await p.evaluate(target=>{const s=window.__shieldGame.scene.getScene('Neighbourhood'),e=s.world.hotspots.find(h=>target==='home'?h.building?.kind==='home':h.building?.name===target);if(!e)throw Error('Missing '+target);s.player.move({...e.at},0,{x:0,y:0});s.moveCamera();s.updateProximity();return{id:s.nearby.id,expected:e.id,at:e.at,name:e.building.name}},target);assert.equal(entry.id,entry.expected);
    console.log('Pressing E');await p.keyboard.press('e');await p.waitForFunction(()=>window.__shieldGame.scene.isActive('Building')&&window.__shieldGame.scene.getScene('Building').player?.sprite.active);
    console.log('Entered Building');const checkpoint=await p.evaluate(()=>window.__buildingCheckpoint);assert.equal(checkpoint.scene,'Building');assert.equal(checkpoint.building.name,entry.name);assert.deepEqual(checkpoint.building.returnAt,entry.at);
-   if(target==='BBQ Box (AMK Hub)')await p.screenshot({path:path.join(os.tmpdir(),'shieldquest-building-shop.png')});
+   if(target==='Grill Box')await p.screenshot({path:path.join(os.tmpdir(),'shieldquest-building-shop.png')});
    await p.keyboard.press('e');await p.waitForFunction(()=>window.__shieldGame.scene.isActive('Neighbourhood')&&window.__shieldGame.scene.getScene('Neighbourhood').player?.sprite.active);
    const at=await p.evaluate(()=>window.__shieldGame.scene.getScene('Neighbourhood').player.position);assert.ok(Math.hypot(at.x-entry.at.x,at.y-entry.at.y)<.001,'wrong exit destination');console.log('E enter/exit passed:',entry.name);
   }

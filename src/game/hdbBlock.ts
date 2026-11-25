@@ -1,3 +1,4 @@
+import { geographicCoverDepth } from './geography'
 import Phaser from 'phaser'
 import type { Point } from '../state/saveGame'
 import { depthAt, project, TILE_HEIGHT, TILE_WIDTH, type Footprint } from './isometric'
@@ -33,7 +34,7 @@ const under = (p: Footprint, at: Point) => at.x >= p.x && at.y >= p.y && !inFron
 export type Cover = { depth: number; silhouette?: { mask: Phaser.Display.Masks.BitmapMask; depth: number } }
 /** Where a character at this point draws, and the silhouette to show if a block's upper floors cover part of it. */
 export function coverFor(scene: Phaser.Scene, at: Point): Cover {
-  const natural = depthAt(at.x, at.y)
+  const natural = Math.min(depthAt(at.x, at.y), geographicCoverDepth(scene, at))
   for (const deck of decks.get(scene) ?? []) {
     if (inFront(deck.p, at)) continue
     const covered = coversCharacter(deck.p, deck.outline, at)

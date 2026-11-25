@@ -12,7 +12,7 @@ const FACADES=[['#f4e3c3','#d9c29c','#d0714c'],['#f6d9c6','#dcb8a2','#3f8f8a'],[
 const SHOPS=['#f6e6cf','#dcc3a2','#e0a55a']
 const AWNINGS=['#d9644a','#f2c14e','#4f9d8f','#e58f65','#7a9fd1']
 const LAUNDRY=['#e46f6f','#f6d36b','#7fb7e0','#ffffff','#9ad09a']
-type Mass={p:MapProp;graphics:Phaser.GameObjects.RenderTexture;silhouettes:Point[][];lights:Phaser.GameObjects.Graphics}
+type Mass={p:MapProp;footprint:Point[];graphics:Phaser.GameObjects.RenderTexture;silhouettes:Point[][];lights:Phaser.GameObjects.Graphics}
 const geographicMasses = new WeakMap<Phaser.Scene, Mass[]>()
 export function updateGeographicLighting(scene:Phaser.Scene,strength:number){
   const view=scene.cameras.main.worldView
@@ -22,12 +22,28 @@ export function updateGeographicLighting(scene:Phaser.Scene,strength:number){
     mass.lights.setVisible(visible).setAlpha(strength*r.alpha)
   }
 }
-function obscures(m:Mass,at:Point,lift=12){
-  if(depthAt(at.x,at.y)>m.graphics.depth)return false
-  const feet=project(at.x,at.y)
-  return m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-lift},poly))
+// Behind (or under) a footprint: stepping towards the viewer (+x,+y) from the feet lands inside it.
+function behind(m:Mass,at:Point){
+  const reach=m.p.w+m.p.d
+  for(let t=0;t<=reach;t+=.4)if(insidePolygon({x:at.x+t,y:at.y+t},m.footprint))return true
+  return false
 }
-export const geographicallyCovered=(scene:Phaser.Scene,at:Point,lift?:number)=>(geographicMasses.get(scene)??[]).some(m=>obscures(m,at,lift))
+function obscures(m:Mass,at:Point,lift=12){
+  const r=m.p
+  if(at.x>r.x+r.w+1||at.y>r.y+r.d+1||at.x+at.y<r.x+r.y-2)return false
+  const feet=project(at.x,at.y)
+  if(!m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-lift},poly)))return false
+  return behind(m,at)
+}
+/** Characters behind a block draw beneath it, so they never appear to walk across its roof or walls. */
+export function geographicCoverDepth(scene:Phaser.Scene,at:Point){
+  let depth=Infinity
+  for(const m of geographicMasses.get(scene)??[])if(obscures(m,at,28))depth=Math.min(depth,m.graphics.depth-.02)
+  return depth
+}
+// Door placement keeps its original rule (depth-sorted silhouette overlap) so mission doors stay where they were.
+const sortedBehind=(m:Mass,at:Point,lift=12)=>depthAt(at.x,at.y)<=m.graphics.depth&&m.silhouettes.some(poly=>{const f=project(at.x,at.y);return insidePolygon(f,poly)||insidePolygon({x:f.x,y:f.y-lift},poly)})
+export const geographicallyCovered=(scene:Phaser.Scene,at:Point,lift?:number)=>(geographicMasses.get(scene)??[]).some(m=>sortedBehind(m,at,lift))
 export function updateGeographicOcclusion(scene: Phaser.Scene, at: Point) {
   for(const mass of geographicMasses.get(scene)??[]){
     mass.graphics.setAlpha(obscures(mass,at)?.65:1)
@@ -61,13 +77,15 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
     poly(ground,'#3a2f25',points.map(a=>[a.x+.6,a.y+.15]),.2)
   }
   // Render faces from back to front. Shared materials and screen-left sunlight.
+  const variant=Math.abs(Number(p.properties.osmId)||0)%3
   const faces=points.map((a,i)=>({a,b:points[(i+1)%points.length]})).sort((u,v)=>(u.a.x+u.a.y+u.b.x+u.b.y)-(v.a.x+v.a.y+v.b.x+v.b.y))
+  const longest=Math.max(...faces.map(({a,b})=>Math.hypot(b.x-a.x,b.y-a.y)))
   for(const {a,b} of faces){
     const length=Math.hypot(b.x-a.x,b.y-a.y)
     if(length<.1)continue
     const face=(s:number,t:number,low:number,high:number,color:string)=>poly(g,color,[[a.x+(b.x-a.x)*s,a.y+(b.y-a.y)*s,low],[a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,low],[a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,high],[a.x+(b.x-a.x)*s,a.y+(b.y-a.y)*s,high]])
     face(0,1,z,height,Math.abs(b.x-a.x)>Math.abs(b.y-a.y)?lit:shade)
-    const bays=Math.max(1,Math.floor(length/.85))
+    const bays=Math.max(1,Math.floor(length/(variant===1?.95:.85)))
     const outward=(b.y-a.y)-(b.x-a.x), front=(winding>0?outward:-outward)>0
     if(!deck){
       // Ground-floor shopfronts: glass, mullions and a striped awning per bay.
@@ -93,13 +111,25 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
         // Laundry on bamboo poles and potted plants along the corridor: the lived-in bits.
         if(deck&&(bay*5+level*3+Math.floor(p.y))%7===0)face(s+.1/bays,t-.1/bays,low+6,low+9,LAUNDRY[(bay+level)%LAUNDRY.length])
         if(deck&&(bay*3+level)%6===2)face(s,s+.12/bays,low+3,low+8,'#5f9b5a')
+        // Facade variants so neighbouring blocks don't repeat: accent panels, or aircon ledges.
+        if(deck&&variant===1&&bay%2===0)face(t,Math.min(1,(bay+1.18)/bays),low+8,low+23,accent)
+        if(deck&&variant===2&&(bay+level)%3===1){face(t-.02/bays,t+.12/bays,low+11,low+17,'#c3c7c1');face(t,t+.1/bays,low+12,low+16,'#8d938f')}
       }
     }
     // Accent trim: a coloured band under the roof and a stair-core stripe at each corner.
     face(0,1,height-6,height,accent)
     face(0,Math.min(.5,.35/length),z,height,accent)
     if(deck){
-      for(let n=0;n<length;n+=2.5){const t=n/length;box(g,a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,.22,.22,z,['#f3ead8','#d8cbb2','#b3a68e'])}
+      // Void deck edge matching the collision wall (collisions.ts): a low planter wall with the same openings, pillars every 1.5 tiles.
+      const openings=length<4?0:Math.max(1,Math.round(length/7))
+      const gap=(n:number)=>openings>0&&Array.from({length:openings},(_,k)=>(k+.5)*length/openings).some(c=>Math.abs(n-c)<.9)
+      for(let n=0;n<length;n+=.3)if(!gap(n)){face(n/length,Math.min(1,(n+.3)/length),0,9,'#cfc3a8');face(n/length,Math.min(1,(n+.3)/length),9,11,'#7fa86a')}
+      for(let n=0;n<length;n+=1.5){const t=n/length;box(g,a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,.22,.22,z,['#f3ead8','#d8cbb2','#b3a68e'])}
+      if(length===longest){
+        // Lift lobby and stair core: a full-height tower in the accent colour, glass lobby at the void deck.
+        face(.46,.54,0,height+10,accent);face(.475,.525,2,z-6,'#46606a');face(.48,.5,4,z-8,'#8fb4b8')
+        for(let level=0;level<levels;level++)face(.47,.53,z+level*STOREY+10,z+level*STOREY+20,'#e9e1cc')
+      }
     }
   }
   poly(g,deck?'#efe6d2':'#f1e6d1',points.map(a=>[a.x,a.y,height]))
@@ -113,7 +143,7 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
   const baked=scene.add.renderTexture(left,top,right-left,bottom-top).setOrigin(0).setDepth(depth)
   baked.draw(g,-left,-top);g.destroy()
   const silhouettes=[points.map(a=>project(a.x,a.y,height)),...faces.map(({a,b})=>[project(a.x,a.y,z),project(b.x,b.y,z),project(b.x,b.y,height),project(a.x,a.y,height)])]
-  geographicMasses.get(scene)!.push({p,graphics:baked,silhouettes,lights})
+  geographicMasses.get(scene)!.push({p,footprint:points,graphics:baked,silhouettes,lights})
   const at=project(p.x+p.w/2,p.y+p.d/2,height+8)
   // Landmarks get a warm signboard; HDB blocks a small block-number plate in their accent colour.
   const block=/^Block (\S+)$/.exec(p.name)?.[1]
@@ -156,6 +186,12 @@ export function geographicRoads(scene: Phaser.Scene, props: MapProp[]) {
         // Sheltered walkway: warm tiled path, cream edges and green posts every few metres.
         strip(-.45,.9,'#c98f6a');strip(-.45,.08,'#efe3c8');strip(.37,.08,'#efe3c8')
         for(let n=0;n<len;n+=2)for(const o of [-.42,.34])box(g,a.x+dx*n/len-dy/len*o,a.y+dy*n/len+dx/len*o,.08,.08,22,['#5f8f6e','#4b7458','#3a5c46'])
+        // Linkway roof: drawn per segment at its front depth, see-through enough to keep people beneath readable.
+        const roof=scene.add.graphics().setDepth(depthAt(Math.max(a.x,b.x),Math.max(a.y,b.y))).setAlpha(.6)
+        const nx=-dy/len,ny=dx/len,edge=(o:number,h:number)=>[[a.x+nx*o,a.y+ny*o,h],[b.x+nx*o,b.y+ny*o,h]] as [number,number,number][]
+        poly(roof,'#4f8a6a',[...edge(-.55,24),...edge(.55,24).reverse()])
+        poly(roof,'#6fae86',[...edge(-.5,26),...edge(.5,26).reverse()])
+        poly(roof,'#3d6b52',[...edge(.55,22),...edge(.55,24).reverse()])
       } else strip(-.3,.6,'#e7dcc6')
     }
   }

@@ -14,9 +14,14 @@ export function sceneryCollisions(props: Prop[]): Footprint[] {
   for (const p of props.filter(p => p.kind === 'geoBuilding')) {
     const points = footprint(p)
     if (p.properties.residential) {
+      // Solid outer wall; long sides keep void-deck openings (1.8 tiles) every ~7 tiles so the deck stays walkable.
       for (let i=0;i<points.length;i++) {
         const a=points[i],b=points[(i+1)%points.length],length=Math.hypot(b.x-a.x,b.y-a.y)
-        for(let n=0;n<length;n+=2.5)solid.push({x:a.x+(b.x-a.x)*n/length,y:a.y+(b.y-a.y)*n/length,w:.22,d:.22})
+        const openings=length<4?0:Math.max(1,Math.round(length/7))
+        for(let n=0;n<length;n+=.3){
+          const gap=openings&&Array.from({length:openings},(_,k)=>(k+.5)*length/openings).some(c=>Math.abs(n-c)<.9)
+          if(!gap)solid.push({x:a.x+(b.x-a.x)*n/length-.15,y:a.y+(b.y-a.y)*n/length-.15,w:.3,d:.3})
+        }
       }
       const center = {x:p.x+p.w/2,y:p.y+p.d/2}
       if(insidePolygon(center,points))solid.push({...center,w:.5,d:.5})

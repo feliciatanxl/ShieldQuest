@@ -59,8 +59,9 @@ export function dressEstate(props: Prop[], tiles: number[], width: number, keepC
     at.x > p.x - margin && at.x < p.x + p.w + margin && at.y > p.y - margin && at.y < p.y + p.d + margin &&
     (insidePolygon(at, points) || edgeDistance(at, points) < margin))
   // Small approximate canopy trees crowding a building face or a door.
+  let filler = 0
   const kept = props.filter(p => !(p.kind === 'tree' && p.properties.approximate &&
-    (covered({ x: p.x, y: p.y }, 1.5) || keepClear.some(c => near(c, p, 3)))))
+    (covered({ x: p.x, y: p.y }, 1.5) || keepClear.some(c => near(c, p, 3)) || filler++ % 2 === 1)))
   const placed: Prop[] = []
   const lanes = props.filter(p => (p.kind === 'geoPath' || p.kind === 'geoRoad') && p.path)
     .flatMap(p => p.path!.slice(1).map((b, i) => ({ points: [p.path![i], b], clear: Number(p.properties.width || 1) / 2 + .35 })))
@@ -79,9 +80,19 @@ export function dressEstate(props: Prop[], tiles: number[], width: number, keepC
     const at = { x: Math.round(start.x + Math.cos(a / 24 * Math.PI * 2) * r), y: Math.round(start.y + Math.sin(a / 24 * Math.PI * 2) * r) }
     if (free(at, 3, 2.5, true)) { add('play', at, 3, 2.5); add('bench', { x: at.x + 3.6, y: at.y + 1 }, .5, .3); break search }
   }
+  // A fitness corner, and kopitiam tables on the paving outside Kopi Corner (Block 105).
+  const spot = (kind: string, from: Point, w: number, d: number) => {
+    for (let r = 2; r < 40; r++) for (let a = 0; a < 24; a++) {
+      const at = { x: Math.round(from.x + Math.cos(a / 24 * Math.PI * 2) * r), y: Math.round(from.y + Math.sin(a / 24 * Math.PI * 2) * r) }
+      if (free(at, w, d, true)) { add(kind, at, w, d); return at }
+    }
+  }
+  spot('fitness', { x: start.x + 12, y: start.y - 12 }, 2.5, 2)
+  const kopi = props.find(p => p.kind === 'geoBuilding' && p.name === 'Block 105')
+  if (kopi) for (let i = 0; i < 3; i++) spot('kopitiam', { x: kopi.x + kopi.w + .5, y: kopi.y + kopi.d / 2 + i }, .6, .6)
   // Residential void decks get a little street life on the paving out front.
-  const rotation = ['bench', 'planter', 'bikes', 'lamp'] as const
-  const sizes = { bench: [.5, .3], planter: [.9, .4], bikes: [.6, 1.4], lamp: [.12, .12] }
+  const rotation = ['bench', 'bin', 'bikes', 'planter', 'lamp', 'chess', 'recycle'] as const
+  const sizes = { bench: [.5, .3], planter: [.9, .4], bikes: [.6, 1.4], lamp: [.12, .12], bin: [.3, .3], chess: [.7, .7], recycle: [.9, .4] }
   let n = 0
   for (const { p, points } of buildings.filter(b => b.p.properties.residential)) {
     const cx = p.x + p.w / 2, cy = p.y + p.d / 2
