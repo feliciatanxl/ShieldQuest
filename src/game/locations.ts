@@ -1,7 +1,7 @@
 import type { Point } from '../state/saveGame'
 import district from './maps/amk-config.json'
 
-export type Location = 'Building' | 'Neighbourhood' | 'Minimart' | 'House' | 'HouseH' | 'HouseI' | 'FreezeFrame'
+export type Location = 'Building' | 'Neighbourhood' | 'Minimart' | 'House' | 'HouseH' | 'HouseI' | 'FreezeFrame' | 'Precinct'
 export const NEIGHBOURHOOD_SIZE: Point = { x: district.width, y: district.height }
 export const SHOP_DOOR: Point = district.entrances.shop
 export const SHOP_SPAWN: Point = { x: 7.72, y: 7.22 }

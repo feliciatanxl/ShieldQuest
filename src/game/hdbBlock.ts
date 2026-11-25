@@ -31,6 +31,16 @@ function interior(deck: { p: Footprint; top: number }, x: number, y: number) {
 const inFront = (p: Footprint, at: Point) => at.x >= p.x + p.w || at.y >= p.y + p.d
 const under = (p: Footprint, at: Point) => at.x >= p.x && at.y >= p.y && !inFront(p, at)
 
+// Simpler walkable overhangs (the vertical-slice void deck): no silhouettes, just the same depth band.
+const overhangs = new WeakMap<Phaser.Scene, { p: Footprint; top: number }[]>()
+/** Registers a walkable overhang whose upper floors draw at depth top; returns the band depth for things under it. */
+export function registerOverhang(scene: Phaser.Scene, p: Footprint, top: number) {
+  if (!overhangs.has(scene)) { overhangs.set(scene, []); scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => overhangs.delete(scene)) }
+  const o = { p, top }
+  overhangs.get(scene)!.push(o)
+  return (x: number, y: number) => interior(o, x, y)
+}
+
 export type Cover = { depth: number; silhouette?: { mask: Phaser.Display.Masks.BitmapMask; depth: number } }
 /** Where a character at this point draws, and the silhouette to show if a block's upper floors cover part of it. */
 export function coverFor(scene: Phaser.Scene, at: Point): Cover {
@@ -43,6 +53,7 @@ export function coverFor(scene: Phaser.Scene, at: Point): Cover {
       return { depth: Math.min(natural, interior(deck, at.x, at.y)), silhouette: covered ? { mask: deck.silhouette, depth: deck.top + .01 } : undefined }
     }
   }
+  for (const o of overhangs.get(scene) ?? []) if (under(o.p, at)) return { depth: Math.min(natural, interior(o, at.x, at.y)) }
   return { depth: natural }
 }
 export const depthFor = (scene: Phaser.Scene, at: Point) => coverFor(scene, at).depth

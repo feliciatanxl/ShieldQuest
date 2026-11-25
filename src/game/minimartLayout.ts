@@ -12,4 +12,9 @@ export const plants = [
   { x: 9.29, y: 7.09, w: .57, d: .58 },
 ]
 
-export const shopFixtures = [...shelfRows, fridge, checkout, display, bag, ...plants]
+// Set dressing (no hotspots): fruit stand by the left wall, ice-cream freezer by the sign, a stack of baskets by the door.
+export const fruitStand = { x: .35, y: 3.1, w: .8, d: 1.5 }
+export const iceFreezer = { x: 8.6, y: .9, w: 1.2, d: .6 }
+export const baskets = { x: 6.1, y: 6.75, w: .42, d: .36 }
+
+export const shopFixtures = [...shelfRows, fridge, checkout, display, bag, ...plants, fruitStand, iceFreezer, baskets]

@@ -1,11 +1,12 @@
 import type Phaser from 'phaser'
 import { clues, isClue } from '../state/investigation'
 import type { Hotspot } from './events'
-import type { Footprint } from './isometric'
+import { depthAt, type Footprint } from './isometric'
+import { bakeGraphics } from './pixelBake'
 import { SHOP_SIZE } from './locations'
-import { bag, checkout, display, fridge, plants, shelfRows, shopFixtures } from './minimartLayout'
+import { bag, baskets, checkout, display, fridge, fruitStand, iceFreezer, plants, shelfRows, shopFixtures } from './minimartLayout'
 import type { WorldLayout } from './world'
-import { box, floor, front, letterSign, planter, prop, side } from './worldArt'
+import { box, floor, front, letterSign, planter, side } from './worldArt'
 
 const hotspots = ([
   { id: 'shelf', at: { x: 2.76, y: 3.02 }, radius: .73, label: '' },
@@ -19,8 +20,15 @@ const hotspots = ([
 ] satisfies Hotspot[]).map(spot => isClue(spot.id) ? { ...spot, label: 'Inspect ' + clues[spot.id].title.toLowerCase() } : spot)
 
 const merchandise = ['#ed9e83', '#eec167', '#90bc9f', '#b4a0cb', '#f1d6a7', '#aed188']
+// Fixtures are baked into outlined pixel sprites (docs/isometric-art-spec.md); keys are stable so revisits reuse them.
+let baked = 0
+const prop = (scene: Phaser.Scene, rect: Footprint, render: (g: Phaser.GameObjects.Graphics) => void) =>
+  bakeGraphics(scene, `mm-${baked++}`, render, depthAt(rect.x + rect.w, rect.y + rect.d))
+
 function room(scene: Phaser.Scene) {
-  const g = scene.add.graphics().setDepth(-1000)
+  bakeGraphics(scene, 'mm-room', drawRoom, -1000)
+}
+function drawRoom(g: Phaser.GameObjects.Graphics) {
   const { x: w, y: d } = SHOP_SIZE
   floor(g, -.03, .25, w + .49, d + .19, '#100e16', -8)
   box(g, -.06, -.06, w + .12, d + .12, 11, ['#f0c6a3', '#ae786e', '#8a626c'], -11)
@@ -94,6 +102,7 @@ function stockedUnit(scene: Phaser.Scene, footprint: Footprint, theme: number, c
 }
 
 export function createMinimart(scene: Phaser.Scene): WorldLayout {
+  baked = 0
   room(scene)
   stockedUnit(scene, fridge, 3, true)
   shelfRows.forEach((shelf, i) => stockedUnit(scene, shelf, i))
@@ -120,6 +129,27 @@ export function createMinimart(scene: Phaser.Scene): WorldLayout {
     front(g, bag.x + .12, bag.y + bag.d, .10, 11, 3, '#f1be80')
   })
   plants.forEach(plant => prop(scene, plant, g => planter(g, plant.x, plant.y, plant.w)))
+  prop(scene, fruitStand, g => {
+    const { x, y, w, d } = fruitStand
+    box(g, x, y, w, d, 14, ['#c99a62', '#a87a4a', '#875d36'])
+    ;['#e5793e', '#d9483b', '#f2d64e'].forEach((fruit, i) => {
+      box(g, x + .05, y + .08 + i * .48, w - .1, .42, 6, ['#d8ad75', '#b88a58', '#956a40'], 14 + (2 - i) * 4)
+      for (let k = 0; k < 6; k++) floor(g, x + .12 + (k % 3) * .2, y + .14 + i * .48 + (k > 2 ? .17 : 0), .12, .1, fruit, 21 + (2 - i) * 4)
+    })
+    front(g, x + .1, y + d, w - .2, 4, 6, '#fff3cb')
+  })
+  prop(scene, iceFreezer, g => {
+    const { x, y, w, d } = iceFreezer
+    box(g, x, y, w, d, 26, ['#f4f6f8', '#e2e7eb', '#b9c2c9'])
+    floor(g, x + .08, y + .08, w - .16, d - .16, '#9fd4e6', 26)
+    floor(g, x + .1, y + .1, .4, .2, '#d9f0f8', 26)
+    front(g, x + .1, y + d, w - .2, 8, 12, '#2f6f9f')
+    letterSign(g, 'ICE', x + .22, y + d, 9, 2, '#ffffff')
+  })
+  prop(scene, baskets, g => {
+    for (let i = 0; i < 4; i++) box(g, baskets.x, baskets.y, baskets.w, baskets.d, 5, ['#e0554a', '#c23f36', '#9c2f29'], i * 5)
+    front(g, baskets.x + .1, baskets.y + baskets.d / 2, baskets.w - .2, 20, 6, '#3a3a46')
+  })
   const hints = scene.add.graphics().setDepth(-1)
   for (const { id, at: { x, y } } of hotspots) {
     if (isClue(id)) {

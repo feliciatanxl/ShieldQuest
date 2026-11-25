@@ -10,6 +10,7 @@ import { joystickSpeed } from '../joystick'
 import { isResident, residents } from '../residentData'
 import { FREEZE_FRAME_SPAWN, HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DOOR, HOUSE_I_SPAWN, SHOP_DOOR, SHOP_SPAWN, type Location } from '../locations'
 import type { WorldLayout } from '../world'
+import { PRECINCT_DOOR } from '../precinctLayout'
 import { hiddenByBuilding, preloadPixelLab, updateRoofs, walkerKey } from '../pixellabArt'
 
 export type Launch = {
@@ -21,6 +22,8 @@ export type Launch = {
   position: Point
   preview?: boolean
   reducedMotion: boolean
+  /** The outdoor scene Sunshine Minimart was entered from (the vertical-slice precinct or the estate). */
+  shopReturn?: Location
 }
 
 type KeyName = 'W' | 'A' | 'S' | 'D' | 'UP' | 'LEFT' | 'DOWN' | 'RIGHT' | 'SHIFT'
@@ -292,8 +295,11 @@ export abstract class ExplorationScene extends Phaser.Scene {
       this.launch.building={...this.nearby.building,returnAt:{...this.player.position}}
       this.changeLocation('Building',BUILDING_SPAWN)
     } else if(id==='building-exit')this.changeLocation('Neighbourhood',this.launch.building?.returnAt ?? SHOP_DOOR)
-    else if (id === 'enter') this.changeLocation('Minimart', SHOP_SPAWN)
-    else if (id === 'exit') this.changeLocation('Neighbourhood', SHOP_DOOR)
+    else if (id === 'enter') { this.launch.shopReturn = this.location; this.changeLocation('Minimart', SHOP_SPAWN) }
+    else if (id === 'exit') {
+      if (this.launch.shopReturn === 'Precinct') this.changeLocation('Precinct', PRECINCT_DOOR)
+      else this.changeLocation('Neighbourhood', SHOP_DOOR)
+    }
     else if (id === 'house-h-entrance') this.changeLocation('HouseH', HOUSE_H_SPAWN)
     else if (id === 'exit-house-h') this.changeLocation('Neighbourhood', HOUSE_H_DOOR)
     else if (id === 'freeze-station') this.changeLocation('FreezeFrame', FREEZE_FRAME_SPAWN)

@@ -1,0 +1,125 @@
+import { project } from './isometric'
+import { glyphs as GLYPHS } from './glyphs'
+
+/**
+ * Habbo-style sprite baker (docs/isometric-art-spec.md). Shapes are rasterised at 1 px = 1 screen pixel at zoom 1
+ * with hard edges (no anti-aliasing), then every sprite gets the same treatment: a dark silhouette outline and a
+ * darker seam wherever two faces meet. The camera then scales by whole numbers, so every object in the scene
+ * shares one pixel grid and one outline weight.
+ */
+type V = [number, number, number?]
+type Face = { pts: { x: number; y: number }[]; rgb: number; alpha: number; seam: boolean }
+
+const hex = (c: string) => Number.parseInt(c.slice(1), 16)
+const scale = (rgb: number, f: number) => {
+  const ch = (s: number) => Math.max(0, Math.min(255, Math.round(((rgb >> s) & 255) * f)))
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0)
+}
+/** Three tones from one base colour, lit from the upper left: [top, left (y) face, right (x) face]. */
+export const tones = (base: string): [string, string, string] => {
+  const c = hex(base), s = (f: number) => '#' + scale(c, f).toString(16).padStart(6, '0')
+  return [s(1.14), base, s(.76)]
+}
+
+export class Painter {
+  readonly faces: Face[] = []
+  /** Any polygon in world space: tile x, tile y, height in pixels. */
+  poly(color: string, vertices: V[], alpha = 1, seam = true) {
+    this.faces.push({ pts: vertices.map(([x, y, h = 0]) => { const p = project(x, y, h); return { x: Math.round(p.x), y: Math.round(p.y) } }), rgb: hex(color), alpha, seam })
+    return this
+  }
+  floor(x: number, y: number, w: number, d: number, color: string, z = 0, alpha = 1) {
+    return this.poly(color, [[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]], alpha, alpha === 1)
+  }
+  /** The face looking down the y axis (lower left on screen). */
+  front(x: number, y: number, w: number, z: number, h: number, color: string) {
+    return this.poly(color, [[x, y, z], [x + w, y, z], [x + w, y, z + h], [x, y, z + h]])
+  }
+  /** The face looking down the x axis (lower right on screen). */
+  side(x: number, y: number, d: number, z: number, h: number, color: string) {
+    return this.poly(color, [[x, y, z], [x, y + d, z], [x, y + d, z + h], [x, y, z + h]])
+  }
+  box(x: number, y: number, w: number, d: number, h: number, colors: string | readonly [string, string, string], z = 0) {
+    const [top, left, right] = typeof colors === 'string' ? tones(colors) : colors
+    this.side(x + w, y, d, z, h, right)
+    this.front(x, y + d, w, z, h, left)
+    return this.floor(x, y, w, d, top, z + h)
+  }
+  /** Soft ground shadow (no seams, blended). */
+  shadow(x: number, y: number, w: number, d: number, alpha = .22) {
+    return this.floor(x, y, w, d, '#1c2430', 0, alpha)
+  }
+  /** Screen-aligned pixel rectangle anchored at a world point: lamps, fruit, leaves. */
+  dot(x: number, y: number, z: number, dx: number, dy: number, w: number, h: number, color: string) {
+    const p = project(x, y, z), l = Math.round(p.x + dx), t = Math.round(p.y + dy)
+    this.faces.push({ pts: [{ x: l, y: t }, { x: l + w, y: t }, { x: l + w, y: t + h }, { x: l, y: t + h }], rgb: hex(color), alpha: 1, seam: true })
+    return this
+  }
+  /** Screen-space ellipse anchored at a world point: canopies, shrubs, shadows. */
+  blob(x: number, y: number, z: number, dx: number, dy: number, rx: number, ry: number, color: string, alpha = 1) {
+    const p = project(x, y, z), pts = []
+    for (let i = 0; i < 20; i++) {
+      const a = i / 20 * Math.PI * 2
+      pts.push({ x: Math.round(p.x + dx + Math.cos(a) * rx), y: Math.round(p.y + dy + Math.sin(a) * ry) })
+    }
+    this.faces.push({ pts, rgb: hex(color), alpha, seam: alpha >= 1 })
+    return this
+  }
+  /** 3x5 pixel lettering on a front (y) face or, with onSide, a side (x) face; unit is one letter pixel in tiles. */
+  letters(text: string, x: number, y: number, z: number, unit: number, px: number, color: string, onSide = false) {
+    Array.from(text).forEach((letter, index) => Array.from(GLYPHS[letter] ?? '').forEach((bit, cell) => {
+      if (bit !== '1') return
+      const along = (index * 4 + cell % 3) * unit, up = z + (4 - Math.floor(cell / 3)) * px
+      if (onSide) this.side(x, y + along, unit, up, px, color)
+      else this.front(x + along, y, unit, up, px, color)
+    }))
+    return this
+  }
+}
+
+/** Rasterises the painter's faces in order (painter's algorithm) and applies outline and seams. */
+export function rasterise(painter: Painter, outline = true) {
+  const all = painter.faces.flatMap(f => f.pts)
+  const minX = Math.min(...all.map(p => p.x)) - 1, minY = Math.min(...all.map(p => p.y)) - 1
+  const W = Math.max(...all.map(p => p.x)) - minX + 2, H = Math.max(...all.map(p => p.y)) - minY + 2
+  const rgba = new Uint8ClampedArray(W * H * 4), ids = new Int32Array(W * H).fill(-1)
+  painter.faces.forEach((face, id) => {
+    const pts = face.pts.map(p => ({ x: p.x - minX, y: p.y - minY }))
+    const top = Math.max(0, Math.min(...pts.map(p => p.y))), bottom = Math.min(H, Math.max(...pts.map(p => p.y)))
+    const r = (face.rgb >> 16) & 255, g = (face.rgb >> 8) & 255, b = face.rgb & 255
+    for (let row = top; row < bottom; row++) {
+      const cy = row + .5, xs: number[] = []
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], c = pts[(i + 1) % pts.length]
+        if ((a.y <= cy) !== (c.y <= cy)) xs.push(a.x + (cy - a.y) / (c.y - a.y) * (c.x - a.x))
+      }
+      xs.sort((m, n) => m - n)
+      for (let k = 0; k + 1 < xs.length; k += 2) {
+        for (let col = Math.max(0, Math.ceil(xs[k] - .5)); col < Math.min(W, Math.ceil(xs[k + 1] - .5)); col++) {
+          const i = row * W + col, o = i * 4
+          if (face.alpha >= 1) { rgba[o] = r; rgba[o + 1] = g; rgba[o + 2] = b; rgba[o + 3] = 255 }
+          else {
+            const a = face.alpha
+            rgba[o] = rgba[o] * (1 - a) + r * a; rgba[o + 1] = rgba[o + 1] * (1 - a) + g * a; rgba[o + 2] = rgba[o + 2] * (1 - a) + b * a
+            rgba[o + 3] = Math.max(rgba[o + 3], a * 255)
+          }
+          if (face.seam) ids[i] = id
+        }
+      }
+    }
+  })
+  if (outline) {
+    const out = new Uint8ClampedArray(rgba)
+    const solid = (i: number) => rgba[i * 4 + 3] > 200
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, o = i * 4
+      if (!solid(i)) continue
+      const edge = x === 0 || y === 0 || x === W - 1 || y === H - 1 || !solid(i - 1) || !solid(i + 1) || !solid(i - W) || !solid(i + W)
+      // Silhouette: one dark pixel; seam: a face boundary seen from below or right gets a softer line.
+      const f = edge ? .34 : ids[i] >= 0 && ((ids[i - W] >= 0 && ids[i - W] !== ids[i]) || (ids[i - 1] >= 0 && ids[i - 1] !== ids[i])) ? .8 : 1
+      if (f < 1) { out[o] = rgba[o] * f + (edge ? 10 : 0); out[o + 1] = rgba[o + 1] * f + (edge ? 8 : 0); out[o + 2] = rgba[o + 2] * f + (edge ? 22 : 0) }
+    }
+    rgba.set(out)
+  }
+  return { rgba, W, H, x: minX, y: minY }
+}
