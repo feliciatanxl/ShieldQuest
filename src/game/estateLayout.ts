@@ -215,14 +215,15 @@ export function buildEstate(map: SourceMap): Estate {
   // Each wing is clipped to the map; wings off the map, or too thin once clipped, are dropped.
   const clip = (r: Footprint) => { const x = Math.max(.5, r.x), y = Math.max(.5, r.y); return { x, y, w: Math.min(size.x - .5, r.x + r.w) - x, d: Math.min(size.y - .5, r.y + r.d) - y } }
   const drafts = geo.flatMap(p => wings(footprint(p).map(sc)).map((r, part) => ({ p, part, r: clip(r) })))
-    .filter(({ r }) => r.w >= 3 && r.d >= 3).sort((a, b) => Number(!missionOf.has(b.p)) - Number(!missionOf.has(a.p)) || b.r.w * b.r.d - a.r.w * a.r.d)
+    .filter(({ r }) => r.w >= 3 && r.d >= 3).sort((a, b) => Number(!missionOf.has(a.p)) - Number(!missionOf.has(b.p)) || b.r.w * b.r.d - a.r.w * a.r.d)
   // No straightened block may swallow another mapped building's centre.
   const centres = geo.map(p => { const pts = footprint(p).map(sc); return { p, x: pts.reduce((n, q) => n + q.x, 0) / pts.length, y: pts.reduce((n, q) => n + q.y, 0) / pts.length } })
   let unitCount = 0
   for (const { p, part, r } of drafts) {
     // Clear of main roads and neighbours: slide up to 3 tiles, then shrink about the centre (wings may be dropped,
     // a block's main wing is kept even if it still grazes a neighbour's margin).
-    const clear = (q: Footprint) => !onRoad(q, .3, true) && !buildings.some(o => overlaps(o, q, 1.2)) && inMap(q) &&
+    // Mission buildings keep a forecourt: neighbours stay 4 tiles clear so their doors and signs stay in view.
+    const clear = (q: Footprint) => !onRoad(q, .3, true) && !buildings.some(o => overlaps(o, q, o.mission || missionOf.has(p) ? 4 : 1.2)) && inMap(q) &&
       !centres.some(c => c.p !== p && c.x > q.x - 1 && c.x < q.x + q.w + 1 && c.y > q.y - 1 && c.y < q.y + q.d + 1)
     let rect = trim(r)
     for (let i = 0; i < 14 && !clear(rect); i++) {

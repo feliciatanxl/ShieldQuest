@@ -219,6 +219,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
     this.world.tick?.(time, delta, this.player?.position, this.launch.reducedMotion)
     const { player, keys } = this
     if (!player) return
+    // Scenery streams in around the player, so whether it covers them is re-checked every frame, not only on moves.
+    if (this.world.hides) player.setGhost(this.hidden(player.position))
     if (this.locked || this.transitioning) {
       player.move(player.position, 0, this.touch)
       return

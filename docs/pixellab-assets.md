@@ -200,3 +200,31 @@ Fourth run: west walks for 7 bases (7), a 4-direction walk for the high bun (4),
 Fifth run: 8-direction copies of all 8 bases (v3 with the existing rotations as references, 8), diagonal walk and run for each (64), and the tudung north-east run redone after it drifted side-on (1). 73 generations. Total 201.
 Sixth run: the 3 HDB blocks, kopitiam, minimart and 3 houses regenerated at 260–400px as Singapore slab blocks, a void-deck kopitiam, a provision shop, two Peranakan shophouses and a black-and-white bungalow (8). Total 209.
 Seventh run: 6 walking residents (standard 8-direction characters, 6) with 8-direction walks (48); hawker centre, chess table, fitness corner, pavilion, recycling bins (5); bus stop and linkway at higher resolution (2); Sinar Town buildings (MRT, bus interchange, mall, neighbourhood centre, community club, car park, school, library, point block, 9), a pond and 9 street props (lamp, bench, palm, angsana, traffic light, bikes, bin, planter), 10. 79 generations. Total 288.
+
+## Habbo-style estate batch (2026-11-25)
+
+`src/game/assets/pixellab/estate/*.png`, loaded with everything else by `preloadPixelLab` (texture key `pl-estate-<name>`) and
+placed by `estateWorld.ts` anchored on each sprite's lowest opaque pixel (trunk or feet), at 1× with nearest filtering.
+Prompted for the house style (2:1 isometric, light from the upper left, single dark outline, no ground); see
+`docs/isometric-art-spec.md`. Budget approved: 25 generations. **Used: 16** (balance 1,689 → 1,673); the rate-limited
+calls were not charged.
+
+| Sprite | Object id | Use |
+|---|---|---|
+| rain-tree-a | dff5954e-1b0b-4247-8ee1-c48cd96ec952 | Lawn tree (has a small planting base, so lawns only) |
+| rain-tree-b | 2ceeb642-6596-410d-b1cb-ba91264ebdd8 | Tree anywhere |
+| tembusu | 82a48a73-94dd-4095-8ccf-881f2c27c155 | Tree anywhere |
+| flame-tree | 79c8b363-2d44-428b-b23f-942040e300cf | Lawn tree |
+| frangipani | 4fe1b91d-5fc7-4db8-8eb2-eb0e9fe6db7e | Lawn tree (planting base) |
+| palm | e10ca725-d7c7-4608-8320-d8015f99085c | Tree anywhere |
+| angsana | 96455e41-70e4-472d-8725-90d94c6f8f98 | Came out without a trunk: used as a large hedge mound on lawns |
+| bougainvillea | 9530e082-83f7-4699-98bb-39f6e46ac46f | Shrub |
+| ixora | 0666c144-d27b-4116-a1f6-880e5c56a43c | Shrub |
+| kopitiam-set | edeb33c2-8a2c-44a2-b78b-7b8220be99a1 | Kopitiam tables outside Kopi Corner |
+| playground-tower | 2c6845b7-d147-472d-9668-736feed50d98 | Playground tower and slide |
+| swing-set | 4ea975f6-55b5-47d8-94ad-58634ddf213b | Playground swings |
+| fruit-stand | f5bd2176-00af-4b94-a1f9-e4a31be8094c | Sunshine Minimart interior fruit display |
+
+Not used (kept in `docs/estate-migration/pixellab-unused/`): potted-plants (0cf94015-…, square deck base),
+fitness-station (f9914850-…, dark plinth) and its retry fitness-b (0ff664c2-…, grass base). The fitness corner stays procedural.
+The other tree and shrub variants are procedural (`estateArt.ts`), mixed in by variant so no two neighbouring canopies match.
