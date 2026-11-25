@@ -14,7 +14,7 @@ export function GuardianCollection({ save, onCollect }: { save: Save; onCollect:
         const collected = save.collectedGuardians.includes(id)
         const unlocked = !!save.shield[competency]
         return <li key={id} className={`guardian-card ${unlocked ? '' : 'guardian-locked'}`}>
-          <img src={`${import.meta.env.BASE_URL}assets/guardians/${id}.svg`} width={76} height={76} alt="" />
+          <img src={`${import.meta.env.BASE_URL}assets/guardians/${id}.png`} width={82} height={82} alt="" />
           <h3>{name}</h3>
           <p>{competency} · {challenge}</p>
           {unlocked
