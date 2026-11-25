@@ -18,7 +18,8 @@ import {
 } from './worldArt'
 import { estateLighting } from './estateLighting'
 import { houseExterior, houseHExterior, houseIExterior } from './houseArt'
-import { geographicBuilding, geographicallyCovered, geographicRoads } from './geography'
+import { geographicBuilding, geographicallyCovered, geographicRoads, geographicWallDepth } from './geography'
+import { footprint } from './geoPolygon'
 
 const labels = {
   may: 'Talk to Auntie May', amir: 'Talk to Amir',
@@ -231,19 +232,49 @@ export function createWorld(scene: Phaser.Scene): WorldLayout {
   missionEntrances.push({ id: 'house-i-entrance', label: 'Enter Whisper Network House', at: HOUSE_I_DOOR, radius: .95 })
   const entrances = buildingEntrances(map.props, collisions, map.size, missionEntrances, at => !geographicallyCovered(scene, at, 28))
   hotspots.push(...entrances)
+  const buildings = map.props.filter(p => p.kind === 'geoBuilding').map(p => ({ p, points: footprint(p) }))
   for (const entrance of entrances) {
+    const mission = missionEntrances.some(m => m.id === entrance.id)
+    // The doorway sits on the nearest wall; the hotspot stays where it was, just outside it.
+    let best = { d: Infinity, wall: entrance.at, along: { x: 1, y: 0 }, owner: undefined as MapProp | undefined }
+    for (const { p, points } of buildings) {
+      if (Math.abs(p.x + p.w / 2 - entrance.at.x) > p.w / 2 + 3 || Math.abs(p.y + p.d / 2 - entrance.at.y) > p.d / 2 + 3) continue
+      points.forEach((a, i) => {
+        const b = points[(i + 1) % points.length], dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1
+        const t = Math.max(.1, Math.min(.9, ((entrance.at.x - a.x) * dx + (entrance.at.y - a.y) * dy) / l2))
+        const wall = { x: a.x + dx * t, y: a.y + dy * t }, d = Math.hypot(wall.x - entrance.at.x, wall.y - entrance.at.y)
+        if (d < best.d) best = { d, wall, along: { x: dx / Math.sqrt(l2), y: dy / Math.sqrt(l2) }, owner: p }
+      })
+    }
+    const ground = scene.add.graphics().setDepth(-1998)
+    const { wall, along, owner } = best
+    const out = { x: entrance.at.x - wall.x, y: entrance.at.y - wall.y }
+    // Doormat and a soft interaction ring on the pavement.
+    poly(ground, mission ? '#e5bd84' : '#c9b48f', [[wall.x - along.x * .35 + out.x * .05, wall.y - along.y * .35 + out.y * .05], [wall.x + along.x * .35 + out.x * .05, wall.y + along.y * .35 + out.y * .05], [wall.x + along.x * .35 + out.x * .55, wall.y + along.y * .35 + out.y * .55], [wall.x - along.x * .35 + out.x * .55, wall.y - along.y * .35 + out.y * .55]])
     const at = project(entrance.at.x, entrance.at.y)
-    const depth = depthAt(entrance.at.x, entrance.at.y) + .01
-    const marker = scene.add.graphics().setDepth(depth)
-    marker.fillStyle(0x263b48,.95).fillRoundedRect(at.x-9,at.y-28,18,28,3)
-    marker.lineStyle(2,0xffdc84,1).strokeRoundedRect(at.x-9,at.y-28,18,28,3)
-    marker.fillStyle(0xffdc84).fillCircle(at.x+4,at.y-13,1.5)
-    marker.lineStyle(2,0x3bc4ad,.9).strokeEllipse(at.x,at.y+2,26,12)
-    if (missionEntrances.some(mission => mission.id === entrance.id)) {
+    ground.lineStyle(2, mission ? 0xffdc84 : 0x3bc4ad, .55).strokeEllipse(at.x, at.y + 2, 24, 11)
+    if (owner && out.x + out.y > 0 && best.d < 1.5) {
+      // Visible wall: a framed glass doorway on the facade, just above the building in depth. 30 px tall: about 1.25x the
+      // 0.42-scale avatar (docs/ang-mo-kio-overhaul.md, world scale).
+      const door = scene.add.graphics().setDepth((geographicWallDepth(scene, owner) ?? depthAt(wall.x, wall.y)) + .01)
+      const q = (s0: number, s1: number, z0: number, z1: number, colour: string) => poly(door, colour,
+        [[wall.x + along.x * s0, wall.y + along.y * s0, z0], [wall.x + along.x * s1, wall.y + along.y * s1, z0], [wall.x + along.x * s1, wall.y + along.y * s1, z1], [wall.x + along.x * s0, wall.y + along.y * s0, z1]])
+      q(-.34, .34, 0, 30, '#5b4636'); q(-.28, .28, 1, 27, '#9fcac6'); q(-.28, 0, 2, 26, '#c7e2dc'); q(-.015, .015, 1, 27, '#5b4636')
+      if (mission) q(-.42, .42, 30, 36, '#2f6b55')
+      if (entrance.id === 'enter') {
+        // Sunshine Minimart frontage: green signboard (named by the mission label), striped awning and fruit crates either side of the door.
+        q(-1.6, 1.6, 41, 51, '#2f7a4f'); q(-1.6, 1.6, 36, 40, '#f2c14e'); for (let i = -1.6; i < 1.6; i += .4) q(i, i + .2, 36, 40, '#d9644a')
+        for (const side of [-1, 1]) for (let k = 0; k < 2; k++) {
+          const cx = wall.x + along.x * side * (.65 + k * .45) + out.x * .35, cy = wall.y + along.y * side * (.65 + k * .45) + out.y * .35
+          box(door, cx - .18, cy - .15, .36, .3, 7, [['#e5793e', '#f2c14e', '#8cbf4f', '#d9483b'][k + (side + 1)], '#a3774f', '#7d5a3b'])
+        }
+      }
+    }
+    if (mission) {
       const name = entrance.label.replace(/^(Enter|Visit) /, '')
-      scene.add.text(at.x, at.y - 28, `◆ ${name} · E`, {
+      scene.add.text(at.x, at.y - 30, `◆ ${name} · E`, {
         fontFamily: 'Outfit', fontSize: 12, color: '#ffdf88', backgroundColor: '#28463f', padding: { x: 4, y: 2 },
-      }).setOrigin(.5, 1).setDepth(depth)
+      }).setOrigin(.5, 1).setDepth(depthAt(entrance.at.x, entrance.at.y) + 1000)
     }
   }
   const routes = map.props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1)

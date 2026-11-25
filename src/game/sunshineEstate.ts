@@ -103,5 +103,29 @@ export function dressEstate(props: Prop[], tiles: number[], width: number, keepC
     }
   }
   if (import.meta.env?.DEV) console.assert(placed.every(o => !covered(o, 0)), 'Sunshine dressing placed inside a building')
+  // Community gardens beside every fourth residential block.
+  buildings.filter(b => b.p.properties.residential).forEach(({ p }, i) => {
+    if (i % 4 === 0) spot('garden', { x: p.x - 2.5, y: p.y + p.d / 2 }, 2, 1.5)
+  })
+  // Street trees on the verges of main avenues, about every 7 tiles; alternating sizes so rows don't look stamped.
+  const roads = props.filter(p => p.kind === 'geoRoad' && p.path && !/^(service|residential|construction|proposed)$/.test(p.name) && Number(p.properties.width) >= 1.6)
+  const trees: Point[] = []
+  let planted = 0
+  for (const r of roads) for (let i = 1; i < r.path!.length; i++) {
+    const a = r.path![i - 1], b = r.path![i], len = Math.hypot(b.x - a.x, b.y - a.y), off = Number(r.properties.width) / 2 + .7
+    if (!len) continue
+    for (let n = 3; n < len - 2; n += 7) for (const side of [-1, 1]) {
+      const at = { x: a.x + (b.x - a.x) * n / len - (b.y - a.y) / len * off * side, y: a.y + (b.y - a.y) * n / len + (b.x - a.x) / len * off * side }
+      if (covered(at, .9) || onLane(at) || keepClear.some(c => near(c, at, 3)) || trees.some(t => near(t, at, 4)) || placed.some(o => near(o, at, 1.5))) continue
+      trees.push(at)
+      placed.push({ kind: 'tree', name: 'Street tree', x: at.x - .2, y: at.y - .2, w: .4, d: .4, properties: { sunshine: true, large: planted++ % 3 === 0 } })
+    }
+  }
+  // Park canopy: break up the mapped grid with a deterministic jitter and a few large rain trees.
+  for (const t of kept) if (t.kind === 'tree' && t.properties.approximate) {
+    const j = Math.sin(t.x * 12.9898 + t.y * 78.233) * 43758.5453, r = j - Math.floor(j)
+    t.x += (r - .5) * 1.2; t.y += (((r * 7) % 1) - .5) * 1.2
+    if (r > .8) { t.properties = { ...t.properties, approximate: false, palm: true } }
+  }
   return [...kept, ...placed]
 }

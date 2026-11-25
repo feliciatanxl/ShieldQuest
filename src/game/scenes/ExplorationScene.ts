@@ -46,6 +46,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
   private previewSpot: PreviewSpot = 'menu'
   /** Tiles the camera centre keeps inside the map edge, so the view never runs past the scenery border. */
   protected cameraInset = 0
+  /** Gameplay zoom multiplier per scene; zoomable scenes also take wheel and +/- zoom between overview and close-up. */
+  protected zoomScale = 1
+  protected zoomable = false
+  private userZoom = 1
 
   constructor(protected launch: Launch, private location: Location, private fallback: Point) {
     super(location)
@@ -100,6 +104,12 @@ export abstract class ExplorationScene extends Phaser.Scene {
       const keys = this.input.keyboard
       if (keys) {
         this.keys = keys.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT,SHIFT') as Record<KeyName, Phaser.Input.Keyboard.Key>
+        if (this.zoomable) {
+          const zoom = (factor: number) => { this.userZoom = Phaser.Math.Clamp(this.userZoom * factor, .5, 1.5); this.layout() }
+          keys.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS).on('down', () => zoom(1.15))
+          keys.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS).on('down', () => zoom(1 / 1.15))
+          this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => { if (!this.locked) zoom(dy > 0 ? 1 / 1.1 : 1.1) })
+        }
         keys.addKey('E').on('down', (_key: Phaser.Input.Keyboard.Key, event: KeyboardEvent) => {
           if (!event.repeat) this.interact()
         })
@@ -180,7 +190,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const camera = this.cameras.main
     if (this.launch.preview) this.previewCamera()
     else if (this.cameraFocus) {
-      this.focusCamera(Phaser.Math.Clamp(Math.min(width / 920, height / 600), .87, 1.52))
+      this.focusCamera(Phaser.Math.Clamp(Math.min(width / 920, height / 600), .87, 1.52) * this.zoomScale * this.userZoom)
     }
   }
 

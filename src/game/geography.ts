@@ -4,6 +4,8 @@ import type { MapProp } from './maps'
 import { project, depthAt } from './isometric'
 import { poly, box, floor } from './worldArt'
 import { LANDMARK_TITLES } from './sunshineEstate'
+import { bakeIntoGround } from './pixellabArt'
+import { voidDeckOpenings } from './collisions'
 
 export { footprint, insidePolygon } from './geoPolygon'
 import { footprint, insidePolygon } from './geoPolygon'
@@ -28,19 +30,26 @@ function behind(m:Mass,at:Point){
   for(let t=0;t<=reach;t+=.4)if(insidePolygon({x:at.x+t,y:at.y+t},m.footprint))return true
   return false
 }
-function obscures(m:Mass,at:Point,lift=12){
+const overlaps=(m:Mass,at:Point,lift:number)=>{
   const r=m.p
   if(at.x>r.x+r.w+1||at.y>r.y+r.d+1||at.x+at.y<r.x+r.y-2)return false
   const feet=project(at.x,at.y)
-  if(!m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-lift},poly)))return false
-  return behind(m,at)
+  return m.silhouettes.some(poly=>insidePolygon(feet,poly)||insidePolygon({x:feet.x,y:feet.y-lift},poly))
 }
-/** Characters behind a block draw beneath it, so they never appear to walk across its roof or walls. */
-export function geographicCoverDepth(scene:Phaser.Scene,at:Point){
-  let depth=Infinity
-  for(const m of geographicMasses.get(scene)??[])if(obscures(m,at,28))depth=Math.min(depth,m.graphics.depth-.02)
-  return depth
+const obscures=(m:Mass,at:Point,lift=12)=>overlaps(m,at,lift)&&behind(m,at)
+/** Ground-contact depth sorting against buildings: a character behind (or under) a block draws beneath it, one standing
+ *  in front of a wall that overlaps them on screen draws above it, whatever the block's own centre depth is. */
+export function geographicDepth(scene:Phaser.Scene,at:Point,natural:number){
+  let below=Infinity,above=-Infinity
+  for(const m of geographicMasses.get(scene)??[]){
+    if(!overlaps(m,at,28))continue
+    if(behind(m,at))below=Math.min(below,m.graphics.depth-.02)
+    else above=Math.max(above,m.graphics.depth+.02)
+  }
+  return below<Infinity?Math.min(natural,below):Math.max(natural,above)
 }
+/** Depth of the building whose wall is nearest a point, for features drawn onto that wall (doors). */
+export const geographicWallDepth=(scene:Phaser.Scene,p:MapProp)=>(geographicMasses.get(scene)??[]).find(m=>m.p===p)?.graphics.depth
 // Door placement keeps its original rule (depth-sorted silhouette overlap) so mission doors stay where they were.
 const sortedBehind=(m:Mass,at:Point,lift=12)=>depthAt(at.x,at.y)<=m.graphics.depth&&m.silhouettes.some(poly=>{const f=project(at.x,at.y);return insidePolygon(f,poly)||insidePolygon({x:f.x,y:f.y-lift},poly)})
 export const geographicallyCovered=(scene:Phaser.Scene,at:Point,lift?:number)=>(geographicMasses.get(scene)??[]).some(m=>sortedBehind(m,at,lift))
@@ -52,7 +61,10 @@ export function updateGeographicOcclusion(scene: Phaser.Scene, at: Point) {
 
 /** Exact OSM outlines with original, temporary architectural artwork. No map imagery. */
 export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
-  const points=footprint(p), levels=Number(p.properties.levels), deck=Boolean(p.properties.residential)
+  // Controlled height compression (docs/ang-mo-kio-overhaul.md): storeys above five count 60%, so a 12-storey slab
+  // shows 9 and a 25-storey point block 17. Towers keep their presence without walling off every street.
+  const mapped=Number(p.properties.levels)||1,levels=mapped<=5?mapped:Math.round(5+(mapped-5)*.6)
+  const points=footprint(p), deck=Boolean(p.properties.residential)
   const z=deck?DECK:0, height=levels*STOREY+z
   const depth=depthAt(p.x+p.w/2,p.y+p.d/2)
   const g=scene.make.graphics({},false)
@@ -76,9 +88,11 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
     poly(ground,'#b97a5e',apron(1.25));poly(ground,'#d29a78',apron(1.1))
     poly(ground,'#3a2f25',points.map(a=>[a.x+.6,a.y+.15]),.2)
   }
+  bakeIntoGround(scene,ground)
   // Render faces from back to front. Shared materials and screen-left sunlight.
   const variant=Math.abs(Number(p.properties.osmId)||0)%3
   const faces=points.map((a,i)=>({a,b:points[(i+1)%points.length]})).sort((u,v)=>(u.a.x+u.a.y+u.b.x+u.b.y)-(v.a.x+v.a.y+v.b.x+v.b.y))
+  const openings=deck?voidDeckOpenings(points):[]
   const longest=Math.max(...faces.map(({a,b})=>Math.hypot(b.x-a.x,b.y-a.y)))
   for(const {a,b} of faces){
     const length=Math.hypot(b.x-a.x,b.y-a.y)
@@ -121,8 +135,8 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
     face(0,Math.min(.5,.35/length),z,height,accent)
     if(deck){
       // Void deck edge matching the collision wall (collisions.ts): a low planter wall with the same openings, pillars every 1.5 tiles.
-      const openings=length<4?0:Math.max(1,Math.round(length/7))
-      const gap=(n:number)=>openings>0&&Array.from({length:openings},(_,k)=>(k+.5)*length/openings).some(c=>Math.abs(n-c)<.9)
+      const gaps=openings[points.indexOf(a)]??[]
+      const gap=(n:number)=>gaps.some(c=>Math.abs(n-c)<.9)
       for(let n=0;n<length;n+=.3)if(!gap(n)){face(n/length,Math.min(1,(n+.3)/length),0,9,'#cfc3a8');face(n/length,Math.min(1,(n+.3)/length),9,11,'#7fa86a')}
       for(let n=0;n<length;n+=1.5){const t=n/length;box(g,a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,.22,.22,z,['#f3ead8','#d8cbb2','#b3a68e'])}
       if(length===longest){
@@ -132,13 +146,28 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
       }
     }
   }
-  poly(g,deck?'#efe6d2':'#f1e6d1',points.map(a=>[a.x,a.y,height]))
-  poly(g,deck?'#d5c7ab':'#d9c6a6',points.map(a=>[a.x,a.y,height+3]),.55)
+  // Roof: parapet walls and lip around a darker deck, then rooftop structures, so it never reads as a flat slab.
+  const cx=points.reduce((s,a)=>s+a.x,0)/points.length,cy=points.reduce((s,a)=>s+a.y,0)/points.length
+  const inner=points.map(a=>{const l=Math.hypot(a.x-cx,a.y-cy)||1,k=Math.min(.3,l*.3)/l;return [a.x+(cx-a.x)*k,a.y+(cy-a.y)*k,height+4] as [number,number,number]})
+  for(const {a,b} of faces)poly(g,Math.abs(b.x-a.x)>Math.abs(b.y-a.y)?lit:shade,[[a.x,a.y,height],[b.x,b.y,height],[b.x,b.y,height+4],[a.x,a.y,height+4]])
+  poly(g,deck?'#f4eee0':'#eef0ea',points.map(a=>[a.x,a.y,height+4]))
+  poly(g,deck?'#c9bfa8':'#b9beb3',inner)
   const c={x:p.x+p.w/2,y:p.y+p.d/2}
   if(deck&&insidePolygon(c,points))box(g,c.x,c.y,.5,.5,z,['#f3ead8','#d8cbb2','#b3a68e'])
-  if(insidePolygon(c,points)&&levels>3)box(g,c.x-.4,c.y-.4,.8,.8,12,['#f1ead9','#cfc4ad','#a99c84'],height+3)
+  if(deck){
+    // Lift motor rooms over the lift core and a water tank: the familiar HDB rooftop silhouette.
+    const {a,b}=faces.reduce((m,f)=>Math.hypot(f.b.x-f.a.x,f.b.y-f.a.y)>Math.hypot(m.b.x-m.a.x,m.b.y-m.a.y)?f:m)
+    const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2},l=Math.hypot(cx-mid.x,cy-mid.y)||1,core={x:mid.x+(cx-mid.x)/l*.9,y:mid.y+(cy-mid.y)/l*.9}
+    if(insidePolygon(core,points))box(g,core.x-.45,core.y-.45,.9,.9,18,[lit,shade,accent],height+4)
+    if(insidePolygon(c,points)&&levels>3)box(g,c.x-.4,c.y-.4,.8,.8,12,['#dfe6e6','#a9b6b8','#869597'],height+4)
+  } else {
+    // Shop roofs: a grid of air-con condensers and one skylight strip.
+    for(let y=Math.ceil(p.y)+1;y<p.y+p.d-1;y+=3.6)for(let x=Math.ceil(p.x)+1+(Math.round(y)%2)*1.8;x<p.x+p.w-1;x+=3.6)
+      if(insidePolygon({x,y},points)&&insidePolygon({x:x+.6,y:y+.5},points))box(g,x,y,.5,.4,6,['#eceeea','#c3c8c2','#9da39d'],height+4)
+    if(insidePolygon(c,points))floor(g,c.x-.8,c.y-.25,1.6,.5,'#9fc2c9',height+4.5)
+  }
   const projected=points.map(a=>project(a.x,a.y))
-  const left=Math.floor(Math.min(...projected.map(a=>a.x)))-3,top=Math.floor(Math.min(...projected.map(a=>a.y))-height-20)
+  const left=Math.floor(Math.min(...projected.map(a=>a.x)))-3,top=Math.floor(Math.min(...projected.map(a=>a.y))-height-34)
   const right=Math.ceil(Math.max(...projected.map(a=>a.x)))+3,bottom=Math.ceil(Math.max(...projected.map(a=>a.y)))+3
   const baked=scene.add.renderTexture(left,top,right-left,bottom-top).setOrigin(0).setDepth(depth)
   baked.draw(g,-left,-top);g.destroy()
@@ -152,48 +181,82 @@ export function geographicBuilding(scene: Phaser.Scene, p: MapProp) {
   return baked
 }
 
+const MINOR=/^(service|residential|construction|proposed)$/
+type Seg={a:Point;b:Point;dx:number;dy:number;len:number;width:number;way:MapProp}
+const segments=(ways:MapProp[])=>ways.flatMap(way=>(way.path??[]).slice(1).map((b,i):Seg=>{const a=way.path![i],dx=b.x-a.x,dy=b.y-a.y;return{a,b,dx,dy,len:Math.hypot(dx,dy),width:Number(way.properties.width)||1,way}})).filter(s=>s.len>0)
+
+/** Roads are drawn in passes over the whole network (verge, kerb, asphalt, then markings) so junctions and
+ *  bends join into one continuous surface instead of showing kerb seams and holes between overlapping segments. */
 export function geographicRoads(scene: Phaser.Scene, props: MapProp[]) {
   const g=scene.add.graphics().setDepth(-1999.5)
-  // Paths first so carriageways cover them; zebras last so no later road segment hides one.
-  const ways=props.filter(p=>p.kind==='geoRoad'||p.kind==='geoPath').sort((a,b)=>Number(a.kind==='geoRoad')-Number(b.kind==='geoRoad'))
-  const zebras:(()=>void)[]=[]
-  // Footpath segments, for zebra crossings where one crosses a named road.
-  const walks=ways.filter(w=>w.kind==='geoPath'&&!w.properties.covered).flatMap(w=>(w.path??[]).slice(1).map((b,i)=>[w.path![i],b] as const))
-  for(const r of ways){
-    const path=r.path??[],width=Number(r.properties.width)
-    for(let i=1;i<path.length;i++){
-      const a=path[i-1],b=path[i],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)
-      if(!len)continue
-      const strip=(offset:number,thickness:number,color:string,start=0,end=1)=>{
-        const nx=-dy/len,ny=dx/len
-        poly(g,color,[[a.x+dx*start+nx*offset,a.y+dy*start+ny*offset],[a.x+dx*end+nx*offset,a.y+dy*end+ny*offset],[a.x+dx*end+nx*(offset+thickness),a.y+dy*end+ny*(offset+thickness)],[a.x+dx*start+nx*(offset+thickness),a.y+dy*start+ny*(offset+thickness)]])
+  const roads=segments(props.filter(p=>p.kind==='geoRoad')),paths=segments(props.filter(p=>p.kind==='geoPath'))
+  const strip=(s:Seg,offset:number,thickness:number,color:string,start=0,end=1)=>{
+    const {a,dx,dy,len}=s,nx=-dy/len,ny=dx/len
+    poly(g,color,[[a.x+dx*start+nx*offset,a.y+dy*start+ny*offset],[a.x+dx*end+nx*offset,a.y+dy*end+ny*offset],[a.x+dx*end+nx*(offset+thickness),a.y+dy*end+ny*(offset+thickness)],[a.x+dx*start+nx*(offset+thickness),a.y+dy*start+ny*(offset+thickness)]])
+  }
+  const disc=(c:Point,r:number,color:string)=>poly(g,color,Array.from({length:10},(_,i)=>[c.x+Math.cos(i/10*Math.PI*2)*r,c.y+Math.sin(i/10*Math.PI*2)*r] as [number,number]))
+  const main=(s:Seg)=>!MINOR.test(s.way.name)&&s.width>=1.6
+  // Footpaths underneath everything; sheltered linkways get tiles, posts and a roof.
+  for(const s of paths){
+    if(!s.way.properties.covered){strip(s,-.3,.6,'#e7dcc6');continue}
+    const {a,b,dx,dy,len}=s
+    strip(s,-.45,.9,'#c98f6a');strip(s,-.45,.08,'#efe3c8');strip(s,.37,.08,'#efe3c8')
+    for(let n=0;n<len;n+=2)for(const o of [-.42,.34])box(g,a.x+dx*n/len-dy/len*o,a.y+dy*n/len+dx/len*o,.08,.08,22,['#5f8f6e','#4b7458','#3a5c46'])
+    // Roof at the segment's front depth, see-through enough to keep people beneath readable.
+    const roof=scene.add.graphics().setDepth(depthAt(Math.max(a.x,b.x),Math.max(a.y,b.y))).setAlpha(.6)
+    const nx=-dy/len,ny=dx/len,edge=(o:number,h:number)=>[[a.x+nx*o,a.y+ny*o,h],[b.x+nx*o,b.y+ny*o,h]] as [number,number,number][]
+    poly(roof,'#4f8a6a',[...edge(-.55,24),...edge(.55,24).reverse()])
+    poly(roof,'#6fae86',[...edge(-.5,26),...edge(.5,26).reverse()])
+    poly(roof,'#3d6b52',[...edge(.55,22),...edge(.55,24).reverse()])
+  }
+  // Grass verges along main avenues, then one kerb surface, then one asphalt surface with rounded joints.
+  for(const s of roads.filter(main)){strip(s,-s.width/2-1.15,.9,'#8fb06a');strip(s,s.width/2+.25,.9,'#8fb06a');disc(s.a,s.width/2+1.15,'#8fb06a');disc(s.b,s.width/2+1.15,'#8fb06a')}
+  for(const s of roads){strip(s,-s.width/2-.25,s.width+.5,'#d6cfbf');disc(s.a,s.width/2+.25,'#d6cfbf');disc(s.b,s.width/2+.25,'#d6cfbf')}
+  for(const s of roads){strip(s,-s.width/2,s.width,'#5d6266');disc(s.a,s.width/2,'#5d6266');disc(s.b,s.width/2,'#5d6266')}
+  // Junctions: vertices shared by more than one way. Markings stop short of them so they never cross a side road.
+  const count=new Map<string,number>(),key=(p:Point)=>`${Math.round(p.x*2)},${Math.round(p.y*2)}`
+  for(const way of props.filter(p=>p.kind==='geoRoad'))for(const k of new Set((way.path??[]).map(key)))count.set(k,(count.get(k)??0)+1)
+  const junctions=[...count].filter(([,n])=>n>1).map(([k])=>{const [x,y]=k.split(',').map(Number);return{x:x/2,y:y/2}})
+  const nearJunction=(p:Point,r:number)=>junctions.some(j=>Math.abs(j.x-p.x)<r&&Math.abs(j.y-p.y)<r&&Math.hypot(j.x-p.x,j.y-p.y)<r)
+  // Asphalt lookup (4-tile buckets): an edge line is painted only where the carriageway really ends, not where a
+  // parallel or crossing way continues the asphalt (dual carriageways mapped as several OSM ways).
+  const buckets=new Map<string,Seg[]>()
+  for(const s of roads){const r=s.width/2+.5;for(let y=Math.floor((Math.min(s.a.y,s.b.y)-r)/4);y<=Math.floor((Math.max(s.a.y,s.b.y)+r)/4);y++)for(let x=Math.floor((Math.min(s.a.x,s.b.x)-r)/4);x<=Math.floor((Math.max(s.a.x,s.b.x)+r)/4);x++){const k=`${x},${y}`;(buckets.get(k)??buckets.set(k,[]).get(k)!).push(s)}}
+  const onAsphalt=(p:Point,self:Seg)=>(buckets.get(`${Math.floor(p.x/4)},${Math.floor(p.y/4)}`)??[]).some(o=>{
+    if(o===self)return false
+    const t=Math.max(0,Math.min(1,((p.x-o.a.x)*o.dx+(p.y-o.a.y)*o.dy)/(o.len*o.len)))
+    return Math.hypot(p.x-o.a.x-o.dx*t,p.y-o.a.y-o.dy*t)<o.width/2
+  })
+  for(const s of roads){
+    if(MINOR.test(s.way.name))continue
+    const clear=s.width/2+.8,nx=-s.dy/s.len,ny=s.dx/s.len
+    for(let n=0;n<s.len;n+=.5){
+      const at={x:s.a.x+s.dx*n/s.len,y:s.a.y+s.dy*n/s.len}
+      if(nearJunction(at,clear))continue
+      const t0=n/s.len,t1=Math.min(1,(n+.5)/s.len)
+      for(const side of [-1,1]){
+        const beyond={x:at.x+nx*side*(s.width/2+.3),y:at.y+ny*side*(s.width/2+.3)}
+        if(!onAsphalt(beyond,s))strip(s,side<0?-s.width/2+.08:s.width/2-.13,.05,'#e9e4d6',t0,t1)
       }
-      if(r.kind==='geoRoad'){
-        strip(-width/2-.25,width+.5,'#d6cfbf')
-        strip(-width/2,width,'#5d6266')
-        strip(-width/2,.06,'#e9e4d6');strip(width/2-.06,.06,'#e9e4d6')
-        if(!r.properties.oneway)for(let n=0;n<len;n+=1.5)strip(-.025,.05,'#f2e7c9',n/len,Math.min(1,(n+.65)/len))
-        if(!/^(service|residential|construction|proposed)$/.test(r.name)&&width>1.2)for(const [c,d] of walks){
-          // Segment intersection: t along the road, u along the footpath.
-          const ex=d.x-c.x,ey=d.y-c.y,den=dx*ey-dy*ex
-          if(Math.abs(den)<1e-6)continue
-          const t=((c.x-a.x)*ey-(c.y-a.y)*ex)/den,u=((c.x-a.x)*dy-(c.y-a.y)*dx)/den
-          if(t<=0||t>=1||u<=0||u>=1)continue
-          const half=.6/len
-          zebras.push(()=>{for(let o=-width/2+.15;o<width/2-.2;o+=.42)strip(o,.24,'#f4f1e6',t-half,t+half)})
-        }
-      } else if(r.properties.covered){
-        // Sheltered walkway: warm tiled path, cream edges and green posts every few metres.
-        strip(-.45,.9,'#c98f6a');strip(-.45,.08,'#efe3c8');strip(.37,.08,'#efe3c8')
-        for(let n=0;n<len;n+=2)for(const o of [-.42,.34])box(g,a.x+dx*n/len-dy/len*o,a.y+dy*n/len+dx/len*o,.08,.08,22,['#5f8f6e','#4b7458','#3a5c46'])
-        // Linkway roof: drawn per segment at its front depth, see-through enough to keep people beneath readable.
-        const roof=scene.add.graphics().setDepth(depthAt(Math.max(a.x,b.x),Math.max(a.y,b.y))).setAlpha(.6)
-        const nx=-dy/len,ny=dx/len,edge=(o:number,h:number)=>[[a.x+nx*o,a.y+ny*o,h],[b.x+nx*o,b.y+ny*o,h]] as [number,number,number][]
-        poly(roof,'#4f8a6a',[...edge(-.55,24),...edge(.55,24).reverse()])
-        poly(roof,'#6fae86',[...edge(-.5,26),...edge(.5,26).reverse()])
-        poly(roof,'#3d6b52',[...edge(.55,22),...edge(.55,24).reverse()])
-      } else strip(-.3,.6,'#e7dcc6')
+      // Centre dashes only where this way is the whole carriageway, not one lane of a wider mapped road.
+      if(onAsphalt({x:at.x+nx*(s.width/2+.3),y:at.y+ny*(s.width/2+.3)},s)||onAsphalt({x:at.x-nx*(s.width/2+.3),y:at.y-ny*(s.width/2+.3)},s))continue
+      // Two-way roads: dashed centre line (traffic keeps left either side of it).
+      if(!s.way.properties.oneway&&n%1.5<.5)strip(s,-.025,.05,'#f2e7c9',t0,Math.min(1,(n+.3)/s.len))
     }
   }
-  zebras.forEach(draw=>draw())
+  // Zebra crossings only where a mapped footpath crosses a main road away from junctions, at most one per 6 tiles.
+  const crossings:Point[]=[]
+  for(const s of roads.filter(main))for(const w of paths){
+    if(w.way.properties.covered)continue
+    const den=s.dx*w.dy-s.dy*w.dx
+    if(Math.abs(den)<1e-6)continue
+    const t=((w.a.x-s.a.x)*w.dy-(w.a.y-s.a.y)*w.dx)/den,u=((w.a.x-s.a.x)*s.dy-(w.a.y-s.a.y)*s.dx)/den
+    if(t<=0||t>=1||u<=0||u>=1)continue
+    const at={x:s.a.x+s.dx*t,y:s.a.y+s.dy*t}
+    if(nearJunction(at,s.width)||crossings.some(c=>Math.hypot(c.x-at.x,c.y-at.y)<6))continue
+    crossings.push(at)
+    const half=.6/s.len
+    for(let o=-s.width/2+.15;o<s.width/2-.2;o+=.42)strip(s,o,.24,'#f4f1e6',t-half,t+half)
+  }
+  bakeIntoGround(scene,g)
 }

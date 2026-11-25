@@ -28,6 +28,14 @@ const object = (name: string) => `pl-objects-${name}`
 // pavements run off the map instead of stopping at a grass field (plaza continues as plain pavement). Baked in chunks of CHUNK cells so no
 // render texture outgrows what a phone GPU allows.
 const MARGIN = 14, CHUNK = 24
+const groundChunks = new WeakMap<Phaser.Scene, Phaser.GameObjects.RenderTexture[]>()
+/** Flattens ground-level drawing (roads, void-deck floors) into the ground chunks so it costs nothing per frame. */
+export function bakeIntoGround(scene: Phaser.Scene, g: Phaser.GameObjects.Graphics) {
+  const chunks = groundChunks.get(scene)
+  if (!chunks) return
+  for (const rt of chunks) rt.draw(g, -rt.x, -rt.y)
+  g.destroy()
+}
 export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number) {
   const height = tiles.length / width
   const estate = neighbourhood.props.filter(p => p.kind === 'detail' && p.properties.surface === 'estate')
@@ -38,6 +46,8 @@ export function groundTiles(scene: Phaser.Scene, tiles: number[], width: number)
       const left = project(cx, y1).x - TILE_WIDTH / 2, right = project(x1, cy).x + TILE_WIDTH / 2
       const top = project(cx, cy).y - TILE_WIDTH, bottom = project(x1, y1).y + TILE_WIDTH
       const rt = scene.add.renderTexture(left, top, right - left, bottom - top).setOrigin(0).setDepth(-2001)
+      if (!groundChunks.has(scene)) { groundChunks.set(scene, []); scene.events.once('shutdown', () => groundChunks.delete(scene)) }
+      groundChunks.get(scene)!.push(rt)
       rt.beginDraw()
       for (let y = cy; y < y1; y++) {
         for (let x = cx; x < x1; x++) {

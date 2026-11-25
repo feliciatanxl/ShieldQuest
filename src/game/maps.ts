@@ -31,4 +31,5 @@ function loadMap(source: string) {
 
 // Read-only development comparison. Dead-code eliminated from production.
 export const neighbourhood = loadMap(import.meta.env.DEV && new URLSearchParams(location.search).has('before') ? legacyReview : town)
-export const groundColors = ["#a8bd83","#acc187","#aec28b","#a4b980","#d8cbbb","#dfd2bd","#dbcfbe","#d7c9b6","#878b98","#8a8e9b","#8d909d","#868a98","#dab8a5","#e2c3ab","#dcbba7","#e0bdac"]
+// Minimap colours: the estate ground palette (estateSurface.ts), four variants per material.
+export const groundColors = ["#93b46f","#96b772","#90b16c","#95b570","#d8d3c6","#dad5c8","#d5d0c3","#d9d4c7","#5d6266","#5f6468","#5b6064","#5e6367","#d29a78","#d49c7a","#cf9775","#d39b79"]

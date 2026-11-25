@@ -1,6 +1,107 @@
 # Sunshine Estate: Ang Mo Kio-inspired precinct
 
-## Scope and status
+## Current world (25 November 2026 overhaul)
+
+Everything below this section up to "Historical" describes the live game. The sections after it record the earlier
+60×54 Sunshine Court prototype and remain for provenance only.
+
+### Engine and pipeline
+
+- **Active renderer:** React + Phaser 3.90 (`src/game/main.ts`), `pixelArt: true`, `roundPixels: true`. The Unity project
+  under `games/unity` is a parity export, not what localhost renders. NYC_20Nov (Doc 01) names Phaser; "ver 3" proposes
+  Unity 6. Phaser stays the implementation target; the Unity export is stale (`npm run unity:check` fails, as it did
+  before this work) and needs `npm run unity:export` with a browser.
+- **World source:** `src/game/maps/neighbourhood.tmj`, 167×144 tiles at 5 m/tile, OSM geometry © OpenStreetMap
+  contributors (ODbL). The file is never edited by hand. At load, `src/game/sunshineEstate.ts` renames places
+  (`fictionalise`), thins canopy and places street furniture (`dressEstate`). Re-importing OSM data keeps all of it.
+- **Rendering:** `geography.ts` draws buildings from footprints and roads in network-wide passes; ground-level drawing is
+  baked into the ground render-texture chunks (`bakeIntoGround`), so it costs nothing per frame.
+
+### World scale (master specification)
+
+| Quantity | Value | Notes |
+| --- | --- | --- |
+| Ground tile | 64×32 px diamond = 5 m | +x=(32,16), +y=(−32,16) |
+| Storey | 30 px ≈ 2.8 m | Void deck datum 38 px |
+| Displayed storeys | first 5 as mapped, above that 60% | 12-storey slab → 9; 25-storey point block → 17. Geographic adaptation for readability |
+| Avatar (neighbourhood) | 0.42 × 80 px frame ≈ 25 px tall | Slightly larger than true scale, as is usual for readable characters |
+| Doorway | 30 px tall, 0.68 tiles wide | ≈1.25× avatar height |
+| Void deck pillars | 0.22 tiles, every 1.5 tiles | Low planter wall between, matching the collision wall |
+| Camera | `min(w/920,h/600)` clamped .87–1.52, × 1.45 in the neighbourhood | Wheel and +/− zoom 0.5–1.5× of that, between overview and close-up |
+
+### Collision, navigation and depth
+
+- **Ground footprints only.** Collision comes from OSM footprints, never sprite bounds (`collisions.ts`). Shops and
+  malls are rasterised solid at 0.5 tiles. HDB blocks have a continuous 0.3-tile wall with 1.8-tile void-deck openings
+  from `voidDeckOpenings()`, one per ~7 tiles on edges that fit one; a block with only short notched edges opens its two
+  longest. The drawn void-deck wall uses the same function.
+- **Depth uses feet.** `geographicDepth()`: a character whose screen silhouette overlaps a block draws beneath it when
+  standing behind or under it, and above it when standing in front, whatever the block's centre depth. Previously
+  NPCs behind a long slab were drawn on top of its facade, and players in front of a wall could vanish under it.
+- **Occlusion.** A block hiding the player fades to 65% only while it hides them; linkway roofs are 60% opaque.
+- **NPCs** walk the 12 mapped routes; all route points are verified walkable and outside every footprint.
+
+### Geographic adaptations (recorded)
+
+- Storey compression as above. Footprints, road centrelines and relative positions are unchanged.
+- Real names replaced by fictional ones at load time (Sunshine Mall, Sunshine MRT, Sunshine Plaza, Kopi Corner, Masjid
+  Sinar Pagi, Block 101–1xx …). Mission blocks keep low numbers: minimart Block 101 (OSM 702), mission houses 102–104,
+  Kopi Corner market 105 (OSM 724).
+- Canopy trees: the mapped park grid is jittered, a fifth become large rain trees, half the filler trees and any
+  crowding a building or door are removed; street trees are added along main-avenue verges every ~7 tiles.
+
+### Art direction specification (current)
+
+| Property | Rule |
+| --- | --- |
+| Light | Screen-left sun; lit face = the face more aligned with x, shaded face = y |
+| HDB facades | Five pastel schemes (lit, shaded, accent). Accent stair-core stripe and roof band. Three facade variants by OSM id: standard, paired windows with accent panels, aircon ledges. Every floor: white corridor parapet, framed windows, laundry and pot plants at intervals |
+| HDB ground | Open void deck: checkered warm tiles, pillars, low planter wall, glass lift lobby under a full-height lift-core tower |
+| HDB roof | Parapet and lip, darker deck, lift motor room over the core, water tank |
+| Shops / malls | Cream walls, glass shopfront bays, striped awnings, brick apron, roof AC condensers and a skylight |
+| Ground | Grass with blades and flowers; light warm paving with slab joints; asphalt; terracotta brick |
+| Roads | Verge, kerb, asphalt (rounded joints), then edge lines and centre dashes stopping at junctions; zebra crossings only where a mapped footpath crosses a main road away from junctions, at most one per 6 tiles |
+| Pedestrian | Light footpaths; sheltered linkways with warm tiles, green posts and green roofs |
+| Doors | Framed glass doorway on the wall + doormat + soft ring; mission doors add a green sign plate and label |
+| Outlines | None; edges by value contrast, as the existing PixelLab sprites |
+
+### Status
+
+| Item | Status |
+| --- | --- |
+| NPC/player depth against buildings, solid HDB walls, void-deck openings | Implemented, tested |
+| Road passes, junction-aware markings, verges, zebra rules | Implemented, visually checked |
+| HDB facade, roof, void deck, lift core variety; height compression | Implemented |
+| Integrated doorways, minimart frontage (sign band, awning, fruit crates) | Implemented |
+| Street trees, park jitter, gardens, benches, bins, bikes, chess, recycling, fitness corner, kopitiam tables | Implemented (data-driven placement) |
+| Camera zoom and wheel / +/− zoom | Implemented (desktop). Mobile pinch zoom: not implemented |
+| Minimap matching world colours, linkways, trees, homes vs shops | Implemented |
+| Ambient NPC routines (waiting at stops, sitting, shopping) | Not implemented; NPCs walk mapped routes |
+| Full UI restyle of menus, panels and mini-game interfaces | Not done in this pass |
+| Bus bays aligned to geographic roads | Not done: bus bays only exist for the legacy rectangle roads |
+| New PixelLab art | None generated; no PixelLab tool in this session. See proposal below |
+
+### PixelLab proposal (needs approval, nothing spent)
+
+Highest impact, in order: (1) two HDB facade-bay modules (slab corridor bay, point-block bay) at 64×64;
+(2) a void-deck/lift-lobby module; (3) a geographic-road bus-stop shelter facing both iso directions.
+Estimate about 40 generations with no retries, using the batch-01 tooling and acceptance gates. Not started.
+
+### Verification
+
+- `npm run typecheck`, `npm run build`: pass (existing bundle-size warning).
+- `npm test`: 69 pass. New `infra/multiplayer/test/sunshine-world.test.ts` covers walls, void-deck openings, routes,
+  dressing placement and all 117 doors. `building-entrances.test.ts` was repaired (it imported a helper removed in
+  7fbdd03).
+- `node scripts/check-building-entries.cjs`: browser E enter/exit for a shop, the mall, a home block, the MRT and the
+  minimart.
+- `node scripts/capture-world.cjs docs/world-shots <label> [desktop|mobile]`: real-game screenshots at gameplay zoom,
+  Singapore noon plus one 9 pm shot; prints FPS and zoom. `before-*` and `after-*` are in `docs/world-shots/`.
+  Headless desktop FPS at the five spots: before 42/28/21/17/15, after 54/55/57/58/59.
+
+## Historical: Sunshine Court prototype (60×54 map)
+
+### Scope and status
 
 The existing branch now contains a first playable **Sunshine Court** precinct in the western part of the 60×54 map. This is a layout and environment consistency pass with existing assets and procedural placeholders. It is not the finished PixelLab art pass or an overhaul of every district. The approved first facade-bay edit is now integrated (10 generations used); no commit or push has been made.
 

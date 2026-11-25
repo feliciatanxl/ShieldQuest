@@ -101,14 +101,18 @@ function AreaMap({ save }: { save: Save }) {
       for (const path of map.props.filter(p => p.kind === 'geoRoad' || p.kind === 'geoPath')) {
         ctx.beginPath()
         path.path?.forEach((p,i) => i ? ctx.lineTo(p.x*tileWidth,p.y*tileWidth) : ctx.moveTo(p.x*tileWidth,p.y*tileWidth))
-        ctx.strokeStyle = path.kind === 'geoRoad' ? '#6d7c79' : '#e4d5b6'
-        ctx.lineWidth = Math.max(1,Number(path.properties.width)*tileWidth)
+        // Same reading as the world: asphalt roads, green-roofed sheltered linkways, light footpaths.
+        ctx.strokeStyle = path.kind === 'geoRoad' ? '#5d6266' : path.properties.covered ? '#4f8a6a' : '#e7dcc6'
+        ctx.lineWidth = Math.max(path.properties.covered ? 2 : 1,Number(path.properties.width)*tileWidth)
         ctx.lineJoin = 'round'; ctx.stroke()
       }
+      // Street and park trees as small canopy dots, so green spaces read on the map too.
+      ctx.fillStyle = '#5f9b5a'
+      for (const t of map.props.filter(p => p.kind === 'tree')) { ctx.beginPath(); ctx.arc((t.x + t.w / 2) * tileWidth, (t.y + t.d / 2) * tileWidth, Math.max(1.5, tileWidth * .5), 0, Math.PI * 2); ctx.fill() }
       for (const building of map.props.filter(p => p.kind === 'geoBuilding')) {
         ctx.beginPath()
         footprint(building).forEach((p,i) => i ? ctx.lineTo(p.x*tileWidth,p.y*tileWidth) : ctx.moveTo(p.x*tileWidth,p.y*tileWidth))
-        ctx.closePath();ctx.fillStyle='#a6b7a5';ctx.fill();ctx.strokeStyle='#627c70';ctx.lineWidth=1;ctx.stroke()
+        ctx.closePath();ctx.fillStyle=building.properties.residential?'#efe3c8':'#e2b08f';ctx.fill();ctx.strokeStyle=building.properties.residential?'#a99c84':'#a8694f';ctx.lineWidth=1;ctx.stroke()
       }
       for (const [key,point] of Object.entries(district.entrances)) {
         ctx.beginPath();ctx.arc(point.x*tileWidth,point.y*tileWidth,7,0,Math.PI*2)
