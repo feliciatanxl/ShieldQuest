@@ -3,7 +3,7 @@ import { ArrowUpRight, Backpack, Check, ClipboardList, CloudSun, MapPin, Minus, 
 import type { ResidentId } from '../game/events'
 import { BUILDING_SIZE, buildingCollisions } from '../game/buildingEntrances'
 import { groundColors, neighbourhood } from '../game/maps'
-import { HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
+import { HOUSE_I_SIZE, HOUSE_SIZE, SHOP_SIZE } from '../game/locations'
 import district from '../game/maps/amk-config.json'
 import { footprint } from '../game/geoPolygon'
 import { houseFurniture, houseRooms, houseWalls } from '../game/houseLayout'
@@ -78,7 +78,9 @@ function AreaMap({ save }: { save: Save }) {
   const inside = save.scene === 'Building' || save.scene === 'Minimart' || save.scene === 'HouseH' || save.scene === 'HouseI' || save.scene === 'FreezeFrame'
   const house = save.scene === 'House'
   const map = inside || house ? null : neighbourhood
-  const size = save.scene==='Building'?BUILDING_SIZE:house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
+  const size = save.scene === 'Building' ? BUILDING_SIZE
+    : save.scene === 'HouseI' ? HOUSE_I_SIZE
+    : house ? HOUSE_SIZE : map?.size ?? SHOP_SIZE
   const tileWidth = map ? 4 : Math.max(7, Math.floor(420 / size.x))
   const width = tileWidth * size.x
   const height = tileWidth * size.y
@@ -205,27 +207,7 @@ function AreaMap({ save }: { save: Save }) {
         ctx.fillRect(fixture.x * tileWidth, fixture.y * tileWidth, fixture.w * tileWidth, fixture.d * tileWidth)
       }
     }
-
-    // Player position beacon with pulsing gold halo
-    const position = save.position
-    const beaconX = position.x * tileWidth
-    const beaconY = position.y * tileWidth
-
-    // Gold halo
-    ctx.beginPath()
-    ctx.arc(beaconX, beaconY, 8, 0, Math.PI * 2)
-    ctx.fillStyle = 'rgba(245, 158, 11, 0.45)'
-    ctx.fill()
-
-    // Inner bright white beacon
-    ctx.beginPath()
-    ctx.arc(beaconX, beaconY, 4, 0, Math.PI * 2)
-    ctx.fillStyle = '#ffffff'
-    ctx.fill()
-    ctx.strokeStyle = '#0f172a'
-    ctx.lineWidth = 1.5
-    ctx.stroke()
-  }, [map, inside, house, width, height, tileWidth, save.position, size])
+  }, [map, inside, house, width, height, tileWidth, save.scene, size])
 
   return (
     <div className="map-content">
@@ -270,18 +252,19 @@ function AreaMap({ save }: { save: Save }) {
           }}
           onLostPointerCapture={() => { drag.current = null }}
         >
-          <canvas
-            ref={ref}
-            width={width}
-            height={height}
-            style={{ width: `${zoom * 100}%` }}
-            aria-label="Area map with your location marked by a beacon"
-            role="img"
-          />
+          <div className="area-map-image" style={{ width: `${zoom * 100}%` }}>
+            <canvas ref={ref} width={width} height={height} aria-label="Area map" role="img" />
+            <span
+              className="area-map-player"
+              style={{ left: `${save.position.x / size.x * 100}%`, top: `${save.position.y / size.y * 100}%` }}
+              aria-label="Your location"
+              role="img"
+            >YOU</span>
+          </div>
         </div>
       </div>
       <div className="map-legend">
-        <span><i /> You</span>
+        <span><i className="map-player-key" /> You</span>
         {map && (
           <>
             <span><i className="district-block-key" /> Buildings</span>

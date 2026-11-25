@@ -2412,7 +2412,24 @@
 .area-map-viewport { margin-inline: auto; overflow: auto; scrollbar-width: none; border-radius: 6px; }
 .area-map-viewport.is-zoomed { cursor: grab; }
 .area-map-viewport.is-zoomed:active { cursor: grabbing; }
-.game-panel .area-map-viewport canvas { display: block; height: auto; border: 0; border-radius: 0; box-shadow: none; }
+.area-map-image { position: relative; }
+.game-panel .area-map-viewport canvas { display: block; width: 100%; height: auto; border: 0; border-radius: 0; box-shadow: none; }
+.area-map-player {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #fff8e8;
+  border-radius: 50%;
+  background: #26364c;
+  color: #fff8e8;
+  box-shadow: 0 0 0 1px #26364c, 0 2px 5px #26364c66;
+  font-size: 10px;
+  font-weight: 800;
+  pointer-events: none;
+}
 .map-north { position: absolute; top: 12px; right: 14px; padding: 5px 7px; border-radius: 5px; background: #fff9e9e8; color: #496659; font-size: 11px; font-weight: 600; pointer-events: none; }
 .map-zoom-controls { position: absolute; z-index: 1; bottom: 14px; right: 14px; display: flex; gap: 3px; padding: 3px; border: 1px solid #d7ba83; border-radius: 8px; background: #fff9e9; }
 .map-zoom-controls button { display: grid; place-items: center; min-width: 36px; min-height: 36px; padding: 0 5px; border: 0; border-radius: 5px; background: #f5e7cb; color: #26364b; font: inherit; font-size: .8rem; cursor: pointer; }
@@ -2421,6 +2438,7 @@
 .game-panel .map-legend { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); justify-items: start; gap: 12px 8px; font-size: 12px; color: #657367; }
 .game-panel .map-legend > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .game-panel .map-legend b { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: 9px; background: #247c74; color: #fff8e8; }
+.game-panel .map-legend .map-player-key { background: #26364c; border-color: #fff8e8; box-shadow: 0 0 0 1px #26364c; }
 .game-panel .map-legend .district-block-key { border-radius: 2px; background: #a6b7a5; border-color: #627c70; }
 .game-panel .map-legend .district-road-key { border: 0; border-radius: 2px; width: 13px; height: 4px; background: #6d7c79; }
 @media(max-width:540px) {
