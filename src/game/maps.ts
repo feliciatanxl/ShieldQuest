@@ -1,0 +1,24 @@
+import town from './maps/neighbourhood.tmj?raw'
+import type { Footprint } from './isometric'
+
+type MapObject = { name: string; type: string; x: number; y: number; width: number; height: number;
+  properties?: { name: string; value: string | number | boolean }[] }
+type MapLayer = { type: 'tilelayer'; data: number[] } | { type: 'objectgroup'; objects: MapObject[] }
+type TiledMap = { orientation: 'isometric'; width: number; height: number; tileheight: number; layers: MapLayer[] }
+export type MapProp = Footprint & { kind: string; name: string; properties: Record<string, unknown> }
+
+function loadMap(source: string) {
+  const map: TiledMap = JSON.parse(source)
+  const tiles = map.layers.find(layer => layer.type === 'tilelayer')?.data ?? []
+  const objects = map.layers.flatMap(layer => layer.type === 'objectgroup' ? layer.objects : [])
+  const props: MapProp[] = objects.map(object => ({
+    kind: object.type, name: object.name,
+    x: object.x / map.tileheight, y: object.y / map.tileheight,
+    w: object.width / map.tileheight, d: object.height / map.tileheight,
+    properties: Object.fromEntries((object.properties ?? []).map(property => [property.name, property.value])),
+  }))
+  return { size: { x: map.width, y: map.height }, tiles, props }
+}
+
+export const neighbourhood = loadMap(town)
+export const groundColors = ["#a8bd83","#acc187","#aec28b","#a4b980","#d8cbbb","#dfd2bd","#dbcfbe","#d7c9b6","#878b98","#8a8e9b","#8d909d","#868a98","#dab8a5","#e2c3ab","#dcbba7","#e0bdac"]
