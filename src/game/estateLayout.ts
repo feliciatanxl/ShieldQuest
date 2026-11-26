@@ -21,6 +21,10 @@ export type Building = Footprint & {
   residential: boolean; mission?: Mission; unit?: string; deck: boolean
   /** 0 for a block's main wing (which carries its entrance); 1, 2 for the other wings of L, T and U-shaped blocks. */
   wing: number
+  /** Void-deck furniture against the back wall (drawn and depth-sorted with the deck, not with street things). */
+  furniture?: Thing[]
+  /** Inside the handcrafted Sunshine Minimart precinct: drawn to the locked art direction (docs/art-direction.md). */
+  showcase?: boolean
 }
 export type Thing = Footprint & { kind: string; variant: number; alongY?: boolean }
 export type EstateHotspot = { id: HotspotId; label: string; at: Point; radius: number; building?: { id: number; name: string; kind: 'shop' | 'home' | 'station' }; mission?: boolean }
@@ -31,13 +35,21 @@ export type Estate = {
   routes: { sheet: string; path: Point[] }[]; hotspots: EstateHotspot[]; collisions: Footprint[]; start: Point; doors: Record<Mission, Point>
   /** 0 paving, 1 grass, 2 road, 3 footpath; one byte per tile. */
   ground: Uint8Array
+  /** The handcrafted precinct (docs/art-direction.md §15): the new standard applies here first. */
+  showcase: Footprint
+  /** Painted bus bays on the carriageway in front of precinct bus stops. */
+  bays: Footprint[]
 }
 
 const MISSION_LABELS: Record<Mission, [HotspotId, string]> = {
   shop: ['enter', 'Enter Sunshine Minimart'], house: ['house-entrance', 'Visit The Mysterious House'],
   houseH: ['house-h-entrance', 'Enter Freeze Frame House'], houseI: ['house-i-entrance', 'Enter Whisper Network House'],
 }
-const UNITS = ['PROVISION SHOP', 'CLINIC', 'BAKERY', 'HAIR SALON', 'PHARMACY', 'TAILOR', 'STATIONERY', 'FLORIST']
+/** The Sunshine Minimart precinct, in gameplay tiles: Block 101, Block 113, the plaza and the bus stop to the south. */
+export const SHOWCASE: Footprint = { x: 224, y: 214, w: 56, d: 88 }
+const DECK_SETS = [['bench', 'chess', 'bench'], ['bikes', 'bin', 'plant', 'plant'], ['chess', 'plant', 'bench', 'bin'], ['bench', 'plant', 'bikes']]
+const DECK_SIZE: Record<string, [number, number]> = { pots: [1, .6], stone: [1.5, 1.5], recycle: [.5, .5], box: [.55, .45], cat: [.4, .3], cat2: [.55, .35], bench: [1.4, .45], chess: [1.4, 1.4], bikes: [1.8, 1.4], bin: [.36, .36], plant: [.5, .5] }
+const UNITS =['PROVISION SHOP', 'CLINIC', 'BAKERY', 'HAIR SALON', 'PHARMACY', 'TAILOR', 'STATIONERY', 'FLORIST']
 const sc = (p: Point): Point => ({ x: p.x * S, y: p.y * S })
 const hash = (x: number, y: number) => { const j = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return j - Math.floor(j) }
 const segDist = (p: Point, a: Point, b: Point) => {
@@ -233,12 +245,14 @@ export function buildEstate(map: SourceMap): Estate {
       rect = { x: c.x - w / 2, y: c.y - d / 2, w, d }
     }
     if (buildings.some(o => overlaps(o, rect, .2)) || onRoad(rect, 0, true) || !inMap(rect) || (part && !clear(rect))) continue
-    const s = style(p, rect.w * rect.d), levels = Number(p.properties.levels ?? 1), mission = part ? undefined : missionOf.get(p)
+    // Block 101 (Sunshine Minimart) is drawn as the town-centre HDB block it stands for: flats over a void deck, the
+    // minimart its ground-floor shop (same footprint, same door).
+    const s = missionOf.get(p) === 'shop' && !part ? 'hdb' : style(p, rect.w * rect.d), levels = Number(p.properties.levels ?? 1), mission = part ? undefined : missionOf.get(p)
     const number = String(p.properties.number ?? ''), alongX = rect.w >= rect.d
     const deck = s === 'hdb' && Math.min(rect.w, rect.d) >= 4 && Math.max(rect.w, rect.d) >= 10
     const unit = !deck ? undefined : part ? undefined : mission === 'shop' ? 'SUNSHINE MINIMART' : p.name === 'Block 105' ? 'KOPI CORNER' : hash(rect.x, rect.y) < .4 ? UNITS[unitCount++ % UNITS.length] : undefined
-    const storeys = s === 'hdb' ? Math.max(2, Math.min(5, Math.round(levels / 4) + 1)) : s === 'mall' ? 3 : s === 'small' ? 1 : s === 'shops' ? Math.min(3, Math.max(2, levels)) : 2
-    buildings.push({ ...rect, id: Number(p.properties.osmId) * (part ? 10 : 1) + part, wing: part, name: p.name || 'Neighbourhood building', number, style: s, storeys, palette: Math.floor(hash(rect.y, rect.x) * 5), alongX, residential: Boolean(p.properties.residential), mission, unit, deck })
+    const storeys = missionOf.get(p) === 'shop' && !part ? 4 : s === 'hdb' ? Math.max(2, Math.min(5, Math.round(levels / 4) + 1)) : s === 'mall' ? 3 : s === 'small' ? 1 : s === 'shops' ? Math.min(3, Math.max(2, levels)) : 2
+    buildings.push({ ...rect, id: Number(p.properties.osmId) * (part ? 10 : 1) + part, wing: part, name: p.name || 'Neighbourhood building', number, style: s, storeys, palette: Math.floor(hash(rect.y, rect.x) * 5), alongX, residential: Boolean(p.properties.residential) || s === 'hdb', mission, unit, deck, showcase: overlaps(rect, SHOWCASE) })
   }
 
   // Driveways end where a block now stands; the rest of each minor road stays. Then all roads are one ground class.
@@ -279,6 +293,25 @@ export function buildEstate(map: SourceMap): Estate {
   for (let i = 0; i < ground.length; i++) if (ground[i] === 0 && hard[i] >= 3) ground[i] = 1
 
   const collisions: Footprint[] = buildings.flatMap(buildingSolids)
+  // Void-deck furniture: each block gets one of four arrangements along its back wall, clear of the stair core, the
+  // lift lobby (letterboxes, lifts, noticeboard) and any shop unit, so the deck stays open between the pillars.
+  for (const b of buildings.filter(b => b.deck)) {
+    const f = blockFrame(b), unit = b.unit ? Math.min(5, f.length / 3) : 0, mid = f.length / 2 - unit / 2
+    // The precinct's deck is lived in like the reference: potted plants, the stone table set, the green recycling bin,
+    // a cardboard box someone left by the letterboxes and the block's cats.
+    const set = b.showcase ? ['pots', 'stone', 'recycle', 'box', 'cat', 'bench', 'cat2'] : DECK_SETS[Math.floor(hash(b.x + 7, b.y + 3) * DECK_SETS.length)], items: Thing[] = []
+    let k = 0
+    for (const [from, to] of [[3.2, mid - 5.6], [mid + 4.9, f.length - unit - .6]]) {
+      for (let t = from; items.length < (b.showcase ? set.length : 6); k++) {
+        const kind = set[k % set.length], [len, depth] = DECK_SIZE[kind]
+        if (t + len > to) break
+        items.push({ ...f.rect(t, .75, len, depth), kind, variant: k, alongY: !b.alongX })
+        t += len + .7 + hash(t, b.x) * .8
+      }
+    }
+    b.furniture = items
+    collisions.push(...items.map(({ x, y, w, d }) => ({ x, y, w, d })))
+  }
   const blocked = (p: Point, r = .3) => p.x < r || p.y < r || p.x > size.x - r || p.y > size.y - r || collisions.some(c => p.x > c.x - r && p.x < c.x + c.w + r && p.y > c.y - r && p.y < c.y + c.d + r)
   const inBuilding = (p: Point, m = 0) => buildings.some(b => p.x > b.x - m && p.x < b.x + b.w + m && p.y > b.y - m && p.y < b.y + b.d + m)
   const things: Thing[] = []
@@ -305,6 +338,8 @@ export function buildEstate(map: SourceMap): Estate {
         : p.kind === 'garden' ? [{ x: f.x, y: f.y, w: 1.6, d: f.d }, { x: f.x + 1.8, y: f.y, w: 1.6, d: f.d }] : f
     place({ ...f, kind: p.kind, variant: Math.floor(hash(f.x, f.y) * 4) }, solid)
   }
+  // The precinct's walkway between Blocks 113 and 101 is a covered linkway, as town-centre walkways are.
+  for (const p of paths) if (!p.covered && p.pts.length >= 2 && p.pts.every(q => q.x > 243 && q.x < 251 && q.y > 217 && q.y < 253)) p.covered = true
   // Covered linkways: roof pieces with a post at each corner (kept off the carriageway).
   const roofs: Estate['roofs'] = []
   for (const p of paths.filter(p => p.covered)) for (let i = 1; i < p.pts.length; i++) {
@@ -344,14 +379,20 @@ export function buildEstate(map: SourceMap): Estate {
   }
   for (const t of props.filter(p => p.kind === 'tree')) plantTree(sc(centre(t)), t.properties.large || t.properties.palm ? 1.2 : 1)
   // Lawns and parks get a loose canopy, never in neat rows.
-  for (let y = 2; y < size.y - 2; y += 5.5) for (let x = 2; x < size.x - 2; x += 5.5) {
+  for (let y = 2; y < size.y - 2; y += 4.6) for (let x = 2; x < size.x - 2; x += 4.6) {
     const p = { x: x + (hash(x, y) - .5) * 4, y: y + (hash(y, x) - .5) * 4 }
     if (at(p) === 1 && hash(p.x + 3, p.y) < .8) plantTree(p, hash(p.x, 1) > .7 ? 1.2 : 1)
   }
   for (let y = 3; y < size.y - 2; y += 3.3) for (let x = 3; x < size.x - 2; x += 3.3) {
     const p = { x: x + (hash(x, y) - .5) * 2, y: y + (hash(y, x) - .5) * 2 }
     const f = { x: p.x - .3, y: p.y - .3, w: .6, d: .6 }
-    if (at(p) === 1 && hash(p.y, p.x) < .35 && !inBuilding(p, 1.5) && free(f, .3)) place({ ...f, kind: 'shrub', variant: Math.floor(hash(p.x + 1, p.y) * 4) }, null)
+    if (at(p) === 1 && hash(p.y, p.x) < .5 && !inBuilding(p, 1.5) && free(f, .3)) place({ ...f, kind: 'shrub', variant: Math.floor(hash(p.x + 1, p.y) * 4) }, null)
+  }
+  // Layered tropical planting: an understorey of shrubs round each lawn tree, so canopies sit in beds, not on bare grass.
+  for (const t of trees) for (let k = 0; k < 3; k++) {
+    const a = hash(t.x + k, t.y) * Math.PI * 2, r = 1.1 + hash(t.y, t.x + k) * .8, p = { x: t.x + Math.cos(a) * r, y: t.y + Math.sin(a) * r }
+    const f = { x: p.x - .3, y: p.y - .3, w: .6, d: .6 }
+    if (at(p) === 1 && !inBuilding(p, 1.5) && free(f, .15)) place({ ...f, kind: 'shrub', variant: Math.floor(hash(p.x, p.y + 1) * 4) }, null)
   }
 
   // Interaction anchors: residents and the noticeboard keep their mapped spots, moved clear if a block now stands there.
@@ -382,7 +423,9 @@ export function buildEstate(map: SourceMap): Estate {
     if (b.wing) continue
     let door: Point | undefined
     const f = blockFrame(b), unit = b.unit ? Math.min(5, f.length / 3) : 0
-    if (b.deck) door = b.unit && (b.mission === 'shop' || b.unit === 'KOPI CORNER') ? f.point(f.length - unit / 2, f.depth + .9) : f.point(f.length / 2 - unit / 2, 1.4)
+    // The minimart's door is on its end wall, facing the plaza; other units open onto the deck's long side.
+    if (b.deck && b.mission === 'shop') door = b.alongX ? { x: b.x + b.w + .9, y: b.y + b.d / 2 } : { x: b.x + b.w / 2, y: b.y + b.d + .9 }
+    else if (b.deck) door = b.unit === 'KOPI CORNER' ? f.point(f.length - unit / 2, f.depth + .9) : f.point(f.length / 2 - unit / 2, 1.4)
     else {
       const c = centre(b)
       const options = [{ x: c.x, y: b.y + b.d + .9 }, { x: b.x + b.w + .9, y: c.y }, { x: c.x, y: b.y - .9 }, { x: b.x - .9, y: c.y }]
@@ -397,6 +440,42 @@ export function buildEstate(map: SourceMap): Estate {
       const kind = b.residential ? 'home' : b.style === 'station' ? 'station' : 'shop'
       hotspots.push({ id: `building-${b.id}` as HotspotId, label: `Enter ${b.name}`, at: door, radius: 1.4, building: { id: b.id, name: b.name, kind } })
     }
+  }
+  // Sunshine Minimart spills onto its walkway like any provision shop: fruit stand, crates and a drinks fridge either
+  // side of the door, never in the doorway itself.
+  const mart = buildings.find(b => b.mission === 'shop'), martDoor = doors.shop
+  if (mart && martDoor) {
+    const onFront = martDoor.y >= mart.y + mart.d
+    for (const [kind, along, w, d] of [['fruit', -2.4, 1.2, .8], ['fridge', 1.5, .7, .55], ['snacks', 2.5, .6, .5], ['bluecrates', -3.6, .9, .45]] as const) {
+      const f = onFront ? { x: martDoor.x + along - w / 2, y: mart.y + mart.d + .35, w, d } : { x: mart.x + mart.w + .35, y: martDoor.y + along - w / 2, w: d, d: w }
+      const corners = [{ x: f.x, y: f.y }, { x: f.x + f.w, y: f.y }, { x: f.x, y: f.y + f.d }, { x: f.x + f.w, y: f.y + f.d }]
+      if (onFront ? f.x < mart.x || f.x + f.w > mart.x + mart.w : f.y < mart.y || f.y + f.d > mart.y + mart.d) continue
+      if (corners.some(p => blocked(p, .05) || at(p) === 2) || things.some(t => overlaps(t, f, .2))) continue
+      place({ ...f, kind, variant: things.length, alongY: !onFront })
+    }
+  }
+  // Precinct bus stop: pedestrian guardrails along the kerb either side of the shelter (docs/art-direction.md §8).
+  // The kerb is found by walking from the shelter towards whichever side the carriageway is on; the bus bay is painted
+  // on the road beyond it.
+  const bays: Footprint[] = []
+  for (const f of busStops.filter(f => overlaps(f, SHOWCASE))) {
+    const cx = f.x + f.w / 2, side = [1, -1].find(s => [1, 2, 3, 4].some(k => at({ x: cx, y: s > 0 ? f.y + f.d + k : f.y - k }) === 2))
+    if (!side) continue
+    let kerb = side > 0 ? f.y + f.d : f.y
+    while (at({ x: cx, y: kerb + side * .1 }) !== 2 && Math.abs(kerb - f.y) < 6) kerb += side * .1
+    bays.push({ x: f.x - .6, y: side > 0 ? kerb + .3 : kerb - 2.3, w: f.w + 1.2, d: 2 })
+    for (const x of [f.x - 3.6, f.x + f.w + .8]) {
+      const r = { x, y: kerb - side * .45 - .05, w: 3, d: .1 }
+      if (at({ x: x + 1.5, y: r.y }) !== 2 && free(r, .2)) place({ ...r, kind: 'rail', variant: 0 })
+    }
+  }
+  // Precinct planting (docs/art-direction.md §9): raised beds on the plaza, each holding a mature tree with shrubs, so
+  // no tree stands alone on paving; potted plants by the minimart. Placed by hand, each only where it is clear.
+  for (const [x, y, w, d, tree] of [[245.6, 256.4, 2.8, 1.6, 2], [258.4, 258.8, 2.8, 1.6, 7], [249.4, 263.4, 3.2, 1.6, 8], [262.6, 252.6, 2.2, 1.4, 0]] as const) {
+    const f = { x, y, w, d }
+    if (!free(f, .3) || blocked({ x: x + w / 2, y: y + d / 2 }, .5) || [doors.shop, doors.shop && { x: doors.shop.x + .6, y: doors.shop.y + 1.6 }].some(p => p && Math.hypot(p.x - x - w / 2, p.y - y - d / 2) < 2.6)) continue
+    place({ ...f, kind: 'bed', variant: tree }, f)
+    things.push({ x: x + w / 2 - .12, y: y + d / 2 - .12, w: .24, d: .24, kind: 'tree', variant: tree })
   }
   // Residents stroll their mapped routes, cut short where a route now meets a wall.
   const routes = props.filter(p => p.kind === 'walker' && p.path && p.path.length > 1).flatMap(p => {
@@ -413,11 +492,28 @@ export function buildEstate(map: SourceMap): Estate {
     const length = out.slice(1).reduce((sum, q, i) => sum + Math.hypot(q.x - out[i].x, q.y - out[i].y), 0)
     return length > 4 ? [{ sheet: String(p.properties.sheet), path: out }] : []
   })
+  // Precinct residents (existing PixelLab sheets): walks laid by hand along the covered walkway, across the plaza,
+  // through Block 101's void deck and up its east side, each cut short where it would meet anything solid.
+  for (const [sheet, pts] of [
+    ['auntie', [{ x: 247.6, y: 236 }, { x: 247.8, y: 251.6 }, { x: 252.6, y: 255.2 }]],
+    ['kopi-uncle', [{ x: 251.8, y: 260.8 }, { x: 257.6, y: 261.6 }]],
+    ['makcik', [{ x: 257.4, y: 223 }, { x: 257.4, y: 240.5 }]],
+    ['student', [{ x: 262, y: 221 }, { x: 262.2, y: 237 }]],
+  ] as const) {
+    const path: Point[] = [pts[0]]
+    if (blocked(pts[0], .35)) continue
+    walk: for (let i = 1; i < pts.length; i++) {
+      const a = path[path.length - 1], b = pts[i], n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / .2)
+      for (let k = 1; k <= n; k++) if (blocked({ x: a.x + (b.x - a.x) * k / n, y: a.y + (b.y - a.y) * k / n }, .35)) { if (k > 1) path.push({ x: a.x + (b.x - a.x) * (k - 1) / n, y: a.y + (b.y - a.y) * (k - 1) / n }); break walk }
+      path.push(b)
+    }
+    if (path.slice(1).reduce((sum, q, i) => sum + Math.hypot(q.x - path[i].x, q.y - path[i].y), 0) > 4) routes.push({ sheet, path })
+  }
   // Players begin outside Sunshine Minimart, a couple of tiles out from its door.
   const shopDoor = hotspots.find(h => h.id === 'enter')?.at
   const start = nudge(shopDoor ? { x: shopDoor.x + .6, y: shopDoor.y + 1.6 } : sc(district.start))
   for (const m of Object.keys(MISSION_LABELS) as Mission[]) doors[m] ??= nudge(sc(district.entrances[m]))
-  return { size, roads, paths, greens, buildings, things, busStops, roofs, routes, hotspots, collisions, start, doors, ground }
+  return { size, roads, paths, greens, buildings, things, busStops, roofs, routes, hotspots, collisions, start, doors, ground, showcase: SHOWCASE, bays }
 }
 
 /** Whether a gameplay point is clear for a standing character. */

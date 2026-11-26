@@ -12,6 +12,7 @@ import { FREEZE_FRAME_SPAWN, HOUSE_DOOR, HOUSE_H_DOOR, HOUSE_H_SPAWN, HOUSE_I_DO
 import type { WorldLayout } from '../world'
 import { PRECINCT_DOOR } from '../precinctLayout'
 import { hiddenByBuilding, preloadPixelLab, updateRoofs, walkerKey } from '../pixellabArt'
+import { AMBIENT_LINES, Bubble, RESIDENT_LINES } from '../entities/Bubble'
 
 export type Launch = {
   avatar: Avatar
@@ -46,6 +47,8 @@ export abstract class ExplorationScene extends Phaser.Scene {
   private releaseScene?: () => void
   private cameraFocus?: Phaser.GameObjects.Zone
   private walkers: Walker[] = []
+  private walkerSheets: string[] = []
+  private bubble?: Bubble
   private previewSpot: PreviewSpot = 'menu'
   /** Tiles the camera centre keeps inside the map edge, so the view never runs past the scenery border. */
   protected cameraInset = 0
@@ -86,8 +89,10 @@ export abstract class ExplorationScene extends Phaser.Scene {
     const { bridge, preview } = this.launch
     const cleanups: Array<() => void> = []
     this.world = this.createWorld()
-    this.walkers = (this.world.routes ?? []).filter(route => this.textures.exists(walkerKey(String(route.properties.sheet))))
-      .map((route, i) => new Walker(this, String(i), walkerKey(String(route.properties.sheet)), route.path!))
+    const routes = (this.world.routes ?? []).filter(route => this.textures.exists(walkerKey(String(route.properties.sheet))))
+    this.walkers = routes.map((route, i) => new Walker(this, String(i), walkerKey(String(route.properties.sheet)), route.path!))
+    this.walkerSheets = routes.map(route => String(route.properties.sheet))
+    this.bubble = preview ? undefined : new Bubble(this)
     for (const { id, at } of this.world.hotspots) {
       if (isResident(id)) new Actor(this, 'resident-' + id, residents[id], at, 'pl-objects-npc-' + id)
     }
@@ -221,6 +226,7 @@ export abstract class ExplorationScene extends Phaser.Scene {
     if (!player) return
     // Scenery streams in around the player, so whether it covers them is re-checked every frame, not only on moves.
     if (this.world.hides) player.setGhost(this.hidden(player.position))
+    this.updateBubble(time)
     if (this.locked || this.transitioning) {
       player.move(player.position, 0, this.touch)
       return
@@ -275,6 +281,19 @@ export abstract class ExplorationScene extends Phaser.Scene {
     this.launch.bridge.emit('checkpoint', { scene: this.location, position: this.player.position, distance: this.travelled, building: this.location==='Building'?this.launch.building:undefined })
     this.travelled = 0
     this.checkpointTime = 0
+  }
+
+  /** One speech bubble at a time: a mission resident's invitation while the player is in range (E still opens their
+   *  dialogue), otherwise the nearest walking resident's everyday line. */
+  private updateBubble(time: number) {
+    if (!this.bubble || !this.player) return
+    const me = this.player.position, invite = this.nearby && RESIDENT_LINES[this.nearby.id]
+    if (invite && !this.locked) return this.bubble.show(invite, this.nearby!.at, me)
+    let best = -1, gap = 2.2
+    this.walkers.forEach((w, i) => { const d = Math.hypot(w.position.x - me.x, w.position.y - me.y); if (d < gap && AMBIENT_LINES[this.walkerSheets[i]]) { gap = d; best = i } })
+    if (best < 0 || this.locked) return this.bubble.hide()
+    const lines = AMBIENT_LINES[this.walkerSheets[best]]
+    this.bubble.show(lines[(best + Math.floor(time / 9000)) % lines.length], this.walkers[best].position, me)
   }
 
   private updateProximity() {

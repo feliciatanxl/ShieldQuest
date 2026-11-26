@@ -211,8 +211,16 @@ calls were not charged.
 
 | Sprite | Object id | Use |
 |---|---|---|
-| rain-tree-a | dff5954e-1b0b-4247-8ee1-c48cd96ec952 | Lawn tree (has a small planting base, so lawns only) |
+| rain-tree-a | dff5954e-1b0b-4247-8ee1-c48cd96ec952 | Tree anywhere (its small planting base is cropped off in code, `BASE` in estateWorld.ts) |
 | rain-tree-b | 2ceeb642-6596-410d-b1cb-ba91264ebdd8 | Tree anywhere |
+| rain-tree-c | 15a3460b-f713-4a04-9352-30b9ffbe042d | Mature rain tree, broad umbrella canopy, no base (SG authenticity batch 1, 2026-11-26) |
+| heliconia | caa1d22c-3c82-4e91-bee4-80d544d1681d | Heliconia and red cordyline clump for planting beds (batch 1) |
+| angsana-b | 17ec7dd3-5415-4b37-823f-e322f1e3ee82 | Branching angsana (precinct batch 2); grass base cropped in code (`BASE`) |
+| cat-sit | ea466e99-ced1-4830-8553-95fe203bbdbb | Void-deck cat, sitting (batch 2) |
+| cat-lie | d498d878-7d8e-49c5-8104-746afa42a404 | Void-deck cat, lying (batch 2) |
+| pot-cluster | f9f42161-1e63-445c-bd0d-5f3e27146538 | Terracotta pots with fern and palm (batch 2) |
+| snack-rack | ee92c226-4bbc-4f30-a0c2-c15cc17c0c76 | Minimart wire snack rack (batch 2) |
+| drinks-fridge | c5dcb52e-e443-4f44-9ef8-1ba7f3874318 | Minimart glass-door drinks fridge (batch 2); plinth cropped in code |
 | tembusu | 82a48a73-94dd-4095-8ccf-881f2c27c155 | Tree anywhere |
 | flame-tree | 79c8b363-2d44-428b-b23f-942040e300cf | Lawn tree |
 | frangipani | 4fe1b91d-5fc7-4db8-8eb2-eb0e9fe6db7e | Lawn tree (planting base) |

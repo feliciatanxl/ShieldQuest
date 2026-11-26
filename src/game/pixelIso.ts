@@ -52,7 +52,7 @@ export class Painter {
   /** Screen-aligned pixel rectangle anchored at a world point: lamps, fruit, leaves. */
   dot(x: number, y: number, z: number, dx: number, dy: number, w: number, h: number, color: string) {
     const p = project(x, y, z), l = Math.round(p.x + dx), t = Math.round(p.y + dy)
-    this.faces.push({ pts: [{ x: l, y: t }, { x: l + w, y: t }, { x: l + w, y: t + h }, { x: l, y: t + h }], rgb: hex(color), alpha: 1, seam: true })
+    this.faces.push({ pts: [{ x: l, y: t }, { x: l + w, y: t }, { x: l + w, y: t + h }, { x: l, y: t + h }], rgb: hex(color), alpha: 1, seam: false })
     return this
   }
   /** Screen-space ellipse anchored at a world point: canopies, shrubs, shadows. */
@@ -65,16 +65,57 @@ export class Painter {
     this.faces.push({ pts, rgb: hex(color), alpha, seam: alpha >= 1 })
     return this
   }
+  /** Pixel-font sign text (textBitmap) on a front face, or a side face with onSide; each font pixel is unit tiles
+   *  along and px pixels up, z is the bottom of the text. Returns false (and draws nothing) before the font loads. */
+  sign(text: string, x: number, y: number, z: number, unit: number, px: number, color: string, onSide = false) {
+    const bm = textBitmap(text)
+    if (!bm) return false
+    const width = bm.w * unit
+    bm.rows.forEach((runs, row) => runs.forEach(([start, n]) => {
+      const up = z + (8 - row) * px
+      if (onSide) this.side(x, y + width - (start + n) * unit, n * unit, up, px, color)
+      else this.front(x + start * unit, y, n * unit, up, px, color)
+    }))
+    return true
+  }
   /** 3x5 pixel lettering on a front (y) face or, with onSide, a side (x) face; unit is one letter pixel in tiles. */
   letters(text: string, x: number, y: number, z: number, unit: number, px: number, color: string, onSide = false) {
+    // A side face reads left to right towards -y on screen, so its text runs back from the far end of [y, y + width].
+    const width = (text.length * 4 - 1) * unit
     Array.from(text).forEach((letter, index) => Array.from(GLYPHS[letter] ?? '').forEach((bit, cell) => {
       if (bit !== '1') return
       const along = (index * 4 + cell % 3) * unit, up = z + (4 - Math.floor(cell / 3)) * px
-      if (onSide) this.side(x, y + along, unit, up, px, color)
+      if (onSide) this.side(x, y + width - along - unit, unit, up, px, color)
       else this.front(x + along, y, unit, up, px, color)
     }))
     return this
   }
+}
+
+const SIGN_FONT = '8px "Press Start 2P"', bitmaps = new Map<string, { w: number; rows: [number, number][][] }>()
+/** Mixed-case sign lettering: the text rasterised once in Press Start 2P (an 8 px pixel font, so every glyph pixel is
+ *  whole), as runs of ink per row. Null until the font has loaded (callers fall back to the 3×5 capitals). */
+export function textBitmap(text: string) {
+  if (typeof document === 'undefined' || !document.fonts?.check(SIGN_FONT)) return null
+  if (!bitmaps.has(text)) {
+    const c = document.createElement('canvas'), x = c.getContext('2d')!
+    x.font = SIGN_FONT
+    const w = Math.ceil(x.measureText(text).width) + 1
+    c.width = w; c.height = 9
+    x.font = SIGN_FONT; x.textBaseline = 'top'; x.fillStyle = '#000'; x.fillText(text, 0, 0)
+    const d = x.getImageData(0, 0, w, 9).data, rows: [number, number][][] = []
+    for (let y = 0; y < 9; y++) {
+      const runs: [number, number][] = []
+      for (let i = 0, start = -1; i <= w; i++) {
+        const ink = i < w && d[(y * w + i) * 4 + 3] > 110
+        if (ink && start < 0) start = i
+        if (!ink && start >= 0) { runs.push([start, i - start]); start = -1 }
+      }
+      rows.push(runs)
+    }
+    bitmaps.set(text, { w, rows })
+  }
+  return bitmaps.get(text)!
 }
 
 /** Rasterises the painter's faces in order (painter's algorithm) and applies outline and seams. */
@@ -120,8 +161,9 @@ export function rasterise(painter: Painter, outline: boolean | 'seams' = true, f
       if (!solid(i)) continue
       const edge = outline === true && (x === 0 || y === 0 || x === W - 1 || y === H - 1 || !solid(i - 1) || !solid(i + 1) || !solid(i - W) || !solid(i + W))
       // Silhouette: one dark pixel; seam: a face boundary seen from below or right gets a softer line.
-      const f = edge ? .34 : ids[i] >= 0 && ((i >= W && ids[i - W] >= 0 && ids[i - W] !== ids[i]) || (x > 0 && ids[i - 1] >= 0 && ids[i - 1] !== ids[i])) ? .8 : 1
-      if (f < 1) { out[o] = rgba[o] * f + (edge ? 10 : 0); out[o + 1] = rgba[o + 1] * f + (edge ? 8 : 0); out[o + 2] = rgba[o + 2] * f + (edge ? 22 : 0) }
+      const f = edge ? .3 : ids[i] >= 0 && ((i >= W && ids[i - W] >= 0 && ids[i - W] !== ids[i]) || (x > 0 && ids[i - 1] >= 0 && ids[i - 1] !== ids[i])) ? .8 : 1
+      // Outline: warm near-black #24160c mixed with 30 % of the colour beneath (docs/art-direction.md §3.1), never navy.
+      if (f < 1) { out[o] = rgba[o] * f + (edge ? 25 : 0); out[o + 1] = rgba[o + 1] * f + (edge ? 15 : 0); out[o + 2] = rgba[o + 2] * f + (edge ? 8 : 0) }
     }
     rgba.set(out)
   }
